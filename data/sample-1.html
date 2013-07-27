@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Sample 1</title>
+<meta name="application-name" content="GuideMe-v1">
+<meta name="author" content="Name of Author">
+<meta name="keywords" content="keyword1, keyword2, keyword3">
+<meta name="description" content="A short description of this sample.">
+<link rel="alternate" href="http://url.to/original" />
+<link rel="author" href="http://url.to/author" />
+<link rel="icon" href="http://url.to/thumbnail" type="image/png" />
+</head>
+<body>
+  <article>
+    <section id="start">
+      <div>
+        <h1>start</h1>
+        <p>A button without the data-goto attribute navigates to the next section.</p>
+      </div>
+      <button>continue</button>
+    </section>
+    <section id="p-2">
+      <div>
+        <h1>page 2</h1>
+        <p>You can specify the target of a button with the data-goto attribute. The value is the id of the
+        section you want to navigate to, prefixed with the #-character.</p>
+      </div>
+      <button data-goto="#p-3">goto 3</button>
+      <button data-goto="#p-4">goto 4</button>
+    </section>
+    <section id="p-3">
+      <div>
+        <h1>page 3 (end)</h1>
+      </div>
+    </section>
+    <section id="p-4">
+      <div>
+        <h1>page 4</h1>
+      </div>
+      <button data-goto="#p-3">continue</button>
+    </section>
+  </article>
+
+  <!-- The following script is not necessary for the Java viewer 
+       but it makes it easy to test the guide in a web browser. -->
+       
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.10.1/jquery.min.js"></script>
+  <script>
+  $(document).ready(function() {
+	  
+    $('button').click(function() {
+  	  var currentSection = $(this).closest('section');  
+  	  
+      var dataGoto = $(this).attr('data-goto');
+      
+      var gotoSection = (dataGoto) ? $(dataGoto) : currentSection.next('section');
+      if (gotoSection) {
+      	currentSection.toggle(false);
+      	gotoSection.toggle(true);
+      }
+    });
+	  
+	$('section').toggle(false);
+	$('#start').toggle(true);
+  });
+  </script>
+
+</body>
+</html>
