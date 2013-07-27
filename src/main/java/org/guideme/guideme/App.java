@@ -5,6 +5,11 @@ import java.io.IOException;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTError;
+import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.*;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -24,8 +29,8 @@ public class App
         
         String title = "Hello World!";
         
+    	File guideFile = new File("data/sample-1.html");
         try {
-        	File guideFile = new File("data/sample-1.html");
 			Document guideDocument = Jsoup.parse(guideFile, "UTF-8", "");
 			
 			title = guideDocument.select("head title").text();
@@ -33,16 +38,37 @@ public class App
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-        
+
         Display display = new Display();
-        Shell shell = new Shell(display);
-        shell.setText(title);
-        shell.open();
-        while (!shell.isDisposed()) {
-    		if (!display.readAndDispatch()) {
-    			display.sleep();
-    		}
-    	}
-    	display.dispose ();
+		final Shell shell = new Shell(display);
+		GridLayout gridLayout = new GridLayout();
+		gridLayout.numColumns = 1;
+		shell.setLayout(gridLayout);
+		
+		final Browser browser;
+		try {
+			browser = new Browser(shell, SWT.NONE);
+		} catch (SWTError e) {
+			System.out.println("Could not instantiate Browser: " + e.getMessage());
+			display.dispose();
+			return;
+		}
+		GridData data = new GridData();
+		data.horizontalAlignment = GridData.FILL;
+		data.verticalAlignment = GridData.FILL;
+		data.horizontalSpan = 1;
+		data.grabExcessHorizontalSpace = true;
+		data.grabExcessVerticalSpace = true;
+		browser.setLayoutData(data);
+		
+		shell.open();
+		browser.setUrl(guideFile.getAbsolutePath());
+		
+		while (!shell.isDisposed()) {
+			if (!display.readAndDispatch())
+				display.sleep();
+		}
+		display.dispose();
+        
     }
 }
