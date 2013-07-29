@@ -1,4 +1,4 @@
-package org.guideme.guideme;
+package org.guideme.guideme.model;
 
 public class Image {
 	private String url;

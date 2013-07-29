@@ -1,4 +1,4 @@
-package org.guideme.guideme;
+package org.guideme.guideme.model;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,6 +34,13 @@ public class Guide {
 	public void setKeywords(Collection<String> keywords) {
 		this.keywords.clear();
 		this.keywords.addAll(keywords);
+	}
+	public void setKeywordsString(String keywords) {
+		this.keywords.clear();
+		String[] tmp = keywords.split(",");
+		for (int i = 0; i < tmp.length; i++) {
+			this.keywords.add(tmp[i].trim());
+		}
 	}
 	public String getKeywordsString() {
 		String tmp = this.keywords.toString();

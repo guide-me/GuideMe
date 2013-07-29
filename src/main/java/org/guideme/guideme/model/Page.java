@@ -1,4 +1,4 @@
-package org.guideme.guideme;
+package org.guideme.guideme.model;
 
 import java.util.ArrayList;
 import java.util.List;

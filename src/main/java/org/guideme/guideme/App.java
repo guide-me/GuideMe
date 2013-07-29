@@ -3,6 +3,8 @@ package org.guideme.guideme;
 //import java.io.File;
 //import java.io.IOException;
 
+import java.io.File;
+
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 //import org.eclipse.swt.SWT;
@@ -11,13 +13,11 @@ import org.apache.logging.log4j.LogManager;
 //import org.eclipse.swt.layout.GridData;
 //import org.eclipse.swt.layout.GridLayout;
 //import org.eclipse.swt.widgets.*;
-//import org.jsoup.Jsoup;
-//import org.jsoup.nodes.Document;
 
-/**
- * Hello world!
- *
- */
+import org.guideme.guideme.model.*;
+import org.guideme.guideme.readers.*;
+import org.guideme.guideme.writers.*;
+
 public class App 
 {
 	private static Logger log = LogManager.getLogger();
@@ -27,49 +27,44 @@ public class App
         System.out.println("Hello World!");
         log.info("Hello Logging World!");
         
-        Guide guide = new Guide();
-        guide.setTitle("Title of my guide");
-        guide.setAuthorName("Name of the author");
-        guide.setAuthorUrl("http://url.to/author");
-        guide.setDescription("A short description of the tease.");
-        guide.getKeywords().add("first");
-        guide.getKeywords().add("second");
-        guide.setOriginalUrl("http://url.to/original/story");
-        guide.setThumbnail(new Image("http://url.to/thumbnail.png", 100, 100, "image/png"));
+//        Guide guide = new Guide();
+//        guide.setTitle("Title of my guide");
+//        guide.setAuthorName("Name of the author");
+//        guide.setAuthorUrl("http://url.to/author");
+//        guide.setDescription("A short description of the tease.");
+//        guide.getKeywords().add("first");
+//        guide.getKeywords().add("second");
+//        guide.setOriginalUrl("http://url.to/original/story");
+//        guide.setThumbnail(new Image("http://url.to/thumbnail.png", 100, 100, "image/png"));
+//        
+//        Chapter chapter = new Chapter();
+//        guide.getChapters().add(chapter);
+//        
+//        Page start = new Page("start");
+//        start.setText("<p>start</p>");
+//        start.getButtons().add(new GotoButton("p-2", "next"));
+//        chapter.getPages().add(start);
+//        
+//        Page p2 = new Page("p-2");
+//        p2.setText("<p>Page 2</p>");
+//        p2.getButtons().add(new GotoButton("p-4", "skip to 4"));
+//        p2.getButtons().add(new GotoButton("p-3"));
+//        chapter.getPages().add(p2);
+//        
+//        Page p3 = new Page("p-3");
+//        p3.setText("<p>Page 3</p>");
+//        chapter.getPages().add(p3);
+//        
+//        Page p4 = new Page("p-4");
+//        p4.getButtons().add(new GotoButton("p-3", "back to 3"));
+//        chapter.getPages().add(p4);
         
-        Chapter chapter = new Chapter();
-        guide.getChapters().add(chapter);
-        
-        Page start = new Page("start");
-        chapter.getPages().add(start);
-        
-        Page p2 = new Page("p-2");
-        chapter.getPages().add(p2);
-        
-        Page p3 = new Page("p-3");
-        chapter.getPages().add(p3);
-        
-        Page p4 = new Page("p-4");
-        chapter.getPages().add(p4);
-        
-        
+        Guide guide = new HtmlGuideReader().loadFromFile(new File("data/sample-1.html"));
         
         
         System.out.println(new HtmlGuideWriter().Write(guide));
         
         System.exit(0);
-//        
-//        String title = "Hello World!";
-//        
-//    	File guideFile = new File("data/sample-1.html");
-//        try {
-//			Document guideDocument = Jsoup.parse(guideFile, "UTF-8", "");
-//			
-//			title = guideDocument.select("head title").text();
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 //
 //        Display display = new Display();
 //		final Shell shell = new Shell(display);

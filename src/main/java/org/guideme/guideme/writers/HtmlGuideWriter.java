@@ -1,4 +1,4 @@
-package org.guideme.guideme;
+package org.guideme.guideme.writers;
 
 import java.io.StringWriter;
 
@@ -6,6 +6,7 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.runtime.RuntimeConstants;
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader;
+import org.guideme.guideme.model.Guide;
 
 public class HtmlGuideWriter {
 
