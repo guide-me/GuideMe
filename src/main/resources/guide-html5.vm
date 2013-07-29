@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>$!guide.title</title>
+  <meta name="application-name" content="GuideMe-v1">
+  <meta name="author" content="$!guide.authorName">
+  <meta name="keywords" content="$!guide.keywordsString">
+  <meta name="description" content="$!guide.description">
+#if ($guide.originalUrl)
+  <link rel="alternate" href="$guide.originalUrl" />
+#end
+#if ($guide.authorUrl)
+  <link rel="author" href="$guide.authorUrl" />
+#end
+#if ($guide.thumbnail)
+  <link rel="icon" href="$guide.thumbnail.url" sizes="$guide.thumbnail.sizeString" type="$guide.thumbnail.mimeType" />
+#end
+</head>
+<body>
+  <article>
+  </article>
+</body>
+</html>
