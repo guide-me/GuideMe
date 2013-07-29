@@ -12,6 +12,7 @@ public class Guide {
 	private String originalUrl;
 	private String authorUrl;
 	private Image thumbnail;
+	private List<Chapter> chapters = new ArrayList<Chapter>();
 	
 	public String getTitle() {
 		return title;
@@ -65,5 +66,13 @@ public class Guide {
 	}
 	public void setThumbnail(Image thumbnail) {
 		this.thumbnail = thumbnail;
+	}
+	
+	public List<Chapter> getChapters() {
+		return chapters;
+	}
+	public void setChapters(List<Chapter> chapters) {
+		this.chapters.clear();
+		this.chapters.addAll(chapters);
 	}
 }

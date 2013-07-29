@@ -1,18 +1,18 @@
 package org.guideme.guideme;
 
-import java.io.File;
-import java.io.IOException;
+//import java.io.File;
+//import java.io.IOException;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-import org.eclipse.swt.SWT;
-import org.eclipse.swt.SWTError;
-import org.eclipse.swt.browser.Browser;
-import org.eclipse.swt.layout.GridData;
-import org.eclipse.swt.layout.GridLayout;
-import org.eclipse.swt.widgets.*;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
+//import org.eclipse.swt.SWT;
+//import org.eclipse.swt.SWTError;
+//import org.eclipse.swt.browser.Browser;
+//import org.eclipse.swt.layout.GridData;
+//import org.eclipse.swt.layout.GridLayout;
+//import org.eclipse.swt.widgets.*;
+//import org.jsoup.Jsoup;
+//import org.jsoup.nodes.Document;
 
 /**
  * Hello world!
@@ -30,12 +30,30 @@ public class App
         Guide guide = new Guide();
         guide.setTitle("Title of my guide");
         guide.setAuthorName("Name of the author");
+        guide.setAuthorUrl("http://url.to/author");
         guide.setDescription("A short description of the tease.");
         guide.getKeywords().add("first");
         guide.getKeywords().add("second");
         guide.setOriginalUrl("http://url.to/original/story");
-        guide.setAuthorUrl("http://url.to/author");
         guide.setThumbnail(new Image("http://url.to/thumbnail.png", 100, 100, "image/png"));
+        
+        Chapter chapter = new Chapter();
+        guide.getChapters().add(chapter);
+        
+        Page start = new Page("start");
+        chapter.getPages().add(start);
+        
+        Page p2 = new Page("p-2");
+        chapter.getPages().add(p2);
+        
+        Page p3 = new Page("p-3");
+        chapter.getPages().add(p3);
+        
+        Page p4 = new Page("p-4");
+        chapter.getPages().add(p4);
+        
+        
+        
         
         System.out.println(new HtmlGuideWriter().Write(guide));
         

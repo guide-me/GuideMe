@@ -18,7 +18,13 @@
 #end
 </head>
 <body>
+#foreach ($chapter in $guide.chapters)
   <article>
+#foreach ($page in $chapter.pages)
+    <section id="$page.id">
+    </section>
+#end  
   </article>
+#end  
 </body>
 </html>
