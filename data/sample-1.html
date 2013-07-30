@@ -1,45 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Sample 1</title>
-<meta name="application-name" content="GuideMe-v1">
-<meta name="author" content="Name of Author">
-<meta name="keywords" content="keyword1, keyword2, keyword3">
-<meta name="description" content="A short description of this sample.">
-<link rel="alternate" href="http://url.to/original" />
-<link rel="author" href="http://url.to/author" />
-<link rel="icon" href="http://url.to/thumbnail" type="image/png" />
+  <meta charset="UTF-8">
+  <title>Title of my guide</title>
+  <meta name="author" content="Name of the author">
+  <meta name="keywords" content="first, second">
+  <meta name="description" content="A short description of the tease.">
+  <link rel="alternate" href="http://url.to/original/story" />
+  <link rel="author" href="http://url.to/author" />
+  <link rel="icon" href="http://url.to/thumbnail.png" sizes="100x100" type="image/png" />
 </head>
 <body>
-  <article>
-    <section id="start">
-      <div>
-        <h1>start</h1>
-        <p>A button without the data-goto attribute navigates to the next section.</p>
+  <article class="chapter">
+    <section id="start" class="page">
+      <div class="text">
+        <p>start</p>
       </div>
-      <button>continue</button>
-    </section>
-    <section id="p-2">
-      <div>
-        <h1>page 2</h1>
-        <p>You can specify the target of a button with the data-goto attribute. The value is the id of the
-        section you want to navigate to, prefixed with the #-character.</p>
-      </div>
-      <button data-goto="#p-3">goto 3</button>
-      <button data-goto="#p-4">goto 4</button>
-    </section>
-    <section id="p-3">
-      <div>
-        <h1>page 3 (end)</h1>
+      <div class="buttons">
+        <button data-goto="#p-2">next</button>
       </div>
     </section>
-    <section id="p-4">
-      <div>
-        <h1>page 4</h1>
+    
+    <section id="p-2" class="page">
+      <div class="text">
+        <p>Page 2</p>
       </div>
-      <button data-goto="#p-3">continue</button>
+      <div class="buttons">
+        <button data-goto="#p-4">skip to 4</button>
+        <button data-goto="#p-3">continue</button>
+      </div>
     </section>
+    
+    <section id="p-3" class="page">
+      <div class="text">
+        <p>Page 3</p>
+      </div>
+    </section>
+    
+    <section id="p-4" class="page">
+      <div class="buttons">
+        <button data-goto="#p-3">back to 3</button>
+      </div>
+    </section>
+    
   </article>
 
   <!-- The following script is not necessary for the Java viewer 
