@@ -32,11 +32,29 @@ public class HtmlGuideReader {
 	private Guide CreateFromDocument(Document doc) {
 		Guide guide = new Guide();
 		
+		readGeneralInformation(guide, doc);
+		
+		return guide;
+	}
+	
+	private void readGeneralInformation(Guide guide, Document doc) {
 		guide.setTitle(doc.select("head title").text());
 		guide.setAuthorName(doc.select("head meta[name=author]").attr("content"));
 		guide.setKeywordsString(doc.select("head meta[name=keywords]").attr("content"));
 		guide.setDescription(doc.select("head meta[name=description]").attr("content"));
-		
-		return guide;
-	}	
+		if (doc.select("head link[rel=alternate]").size() > 0) {
+			guide.setOriginalUrl(doc.select("head link[rel=alternate]").attr("href"));
+		}
+		if (doc.select("head link[rel=author]").size() > 0) {
+			guide.setAuthorUrl(doc.select("head link[rel=author]").attr("href"));
+		}
+		if (doc.select("head link[rel=icon]").size() > 0) {
+			String url = doc.select("head link[rel=icon]").attr("href");
+			String mimeType = doc.select("head link[rel=icon]").attr("type");
+			String sizes = doc.select("head link[rel=icon]").attr("sizes");
+			int width = Integer.parseInt(sizes.split("x")[0]);
+			int height = Integer.parseInt(sizes.split("x")[1]);
+			guide.setThumbnail(new Image(url, width, height, mimeType));
+		}
+	}
 }
