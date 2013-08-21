@@ -83,6 +83,14 @@ public class Guide {
 	public List<Chapter> getChapters() {
 		return chapters;
 	}
+	
+	public Chapter addChapter(String id) {
+		Chapter chapter = new Chapter(id);
+		this.chapters.add(chapter);
+		return chapter;
+	}
+	
+	
 	public void setChapters(List<Chapter> chapters) {
 		this.chapters.clear();
 		this.chapters.addAll(chapters);

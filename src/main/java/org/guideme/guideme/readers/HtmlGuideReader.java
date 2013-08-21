@@ -2,11 +2,10 @@ package org.guideme.guideme.readers;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 import org.jsoup.*;
 import org.jsoup.nodes.*;
+import org.jsoup.select.Elements;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.guideme.guideme.model.*;
@@ -33,6 +32,7 @@ public class HtmlGuideReader {
 		Guide guide = new Guide();
 		
 		readGeneralInformation(guide, doc);
+		readChapters(guide, doc);
 		
 		return guide;
 	}
@@ -56,5 +56,28 @@ public class HtmlGuideReader {
 			int height = Integer.parseInt(sizes.split("x")[1]);
 			guide.setThumbnail(new Image(url, width, height, mimeType));
 		}
+	}
+
+	private void readChapters(Guide guide, Document doc) {
+		Elements articles = doc.select("body article");
+		for (int i = 0; i < articles.size(); i++) {
+			Chapter chapter = new Chapter();
+			
+			readPages(chapter, articles.get(i));
+			
+			guide.getChapters().add(chapter);
+		}
+	}
+	
+	private void readPages(Chapter chapter, Element articleElement) {
+		Elements sections = articleElement.select("section");
+		for (int i = 0; i < sections.size(); i++) {
+			Element section = sections.get(i);
+			
+			Page page = new Page(section.attr("id"));
+			
+			chapter.getPages().add(page);
+		}
+		
 	}
 }
