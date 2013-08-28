@@ -54,7 +54,7 @@ public class PreferenceShell {
 			myAppSettings = appSettings;
 			shell = new Shell(myDisplay, SWT.APPLICATION_MODAL + SWT.DIALOG_TRIM + SWT.RESIZE);
 
-			shell.setText("SWT Test");
+			shell.setText("Guide Me Preferences");
 			FormLayout layout = new FormLayout();
 			shell.setLayout(layout);
 			Font sysFont = display.getSystemFont();
