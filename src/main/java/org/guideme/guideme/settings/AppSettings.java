@@ -13,14 +13,23 @@ public class AppSettings {
 	private int FontSize = 20;
 	private int HtmlFontSize = 20;
 	private boolean Debug = false;
-	private String DataDirectory = "%userprofile%\\My Pictures";
+	private String DataDirectory;
 	private int[] sash1Weights = new int[2];
 	private int[] sash2Weights = new int[2];
 	private Properties appSettings = new Properties();
 	private String settingsLocation = "settings.properties";
+	private String userDir;
+	private String userHome;
+	private String userName;
+	private String fileSeparator;
 
 	public AppSettings() {
 		super();
+		Properties properties = java.lang.System.getProperties();
+		userDir = String.valueOf(properties.get("user.dir"));
+		userHome = String.valueOf(properties.get("user.home"));
+		userName = String.valueOf(properties.get("user.name"));
+		fileSeparator = String.valueOf(properties.get("file.separator"));
 		try {
 			try {
 				appSettings.loadFromXML(new FileInputStream(settingsLocation));
@@ -32,7 +41,7 @@ public class AppSettings {
 			FontSize = Integer.parseInt(appSettings.getProperty("FontSize", "20"));
 			HtmlFontSize = Integer.parseInt(appSettings.getProperty("HtmlFontSize", "20"));
 			Debug = Boolean.parseBoolean(appSettings.getProperty("Debug", "false"));
-			DataDirectory = appSettings.getProperty("DataDirectory", "%userprofile%\\My Pictures");
+			DataDirectory = appSettings.getProperty("DataDirectory", userDir);
 			sash1Weights[0] = Integer.parseInt(appSettings.getProperty("sash1Weights0", "350"));
 			sash1Weights[1] = Integer.parseInt(appSettings.getProperty("sash1Weights1", "350"));
 			sash2Weights[0] = Integer.parseInt(appSettings.getProperty("sash2Weights0", "800"));
@@ -107,6 +116,22 @@ public class AppSettings {
 
 	public void setHtmlFontSize(int htmlFontSize) {
 		HtmlFontSize = htmlFontSize;
+	}
+
+	public String getUserDir() {
+		return userDir;
+	}
+
+	public String getUserHome() {
+		return userHome;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public String getFileSeparator() {
+		return fileSeparator;
 	}
 
 }

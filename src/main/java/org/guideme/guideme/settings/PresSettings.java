@@ -34,7 +34,7 @@ public class PresSettings {
 	public PresSettings(String PresName) {
 		super();
 		AppSettings appSettings = new AppSettings();
-		filename = appSettings.getDataDirectory() + "\\" + PresName + ".state";
+		filename = appSettings.getDataDirectory() + appSettings.getFileSeparator() + PresName + ".state";
 		try {
 			//if a state file already exists use it 
 			File xmlFile = new File(filename);
