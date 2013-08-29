@@ -22,7 +22,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-public class PresSettings {
+public class GuideSettings {
 	//State information for xml file, stored in a .state file in xml format
 	private String page = "start"; //current page
 	private String flags = ""; //current flags
@@ -31,7 +31,7 @@ public class PresSettings {
 	private HashMap<String, String> scriptVariables = new HashMap<String, String>(); //variables used by javascript
 	private Logger logger = LogManager.getLogger();
 
-	public PresSettings(String PresName) {
+	public GuideSettings(String PresName) {
 		super();
 		AppSettings appSettings = new AppSettings();
 		filename = appSettings.getDataDirectory() + appSettings.getFileSeparator() + PresName + ".state";
