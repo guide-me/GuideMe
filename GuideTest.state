@@ -1,1 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><SETTINGS><Page>start</Page><Flags>page1,page2</Flags><scriptVariables><Var id="pl2Count" value="4"/><Var id="pl1Count" value="3"/><Var id="failCount" value="5"/></scriptVariables></SETTINGS>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><SETTINGS>
+<Page>start</Page>
+<Flags>page1,page2</Flags>
+
+
+<scriptVariables><Var id="pl2Count" value="4"/><Var id="pl1Count" value="3"/><Var id="failCount" value="5"/></scriptVariables><scriptPreferences><pref key="shop" screen="Favourite clothes shop" type="String" value="Gap"/><pref key="favpet" screen="Favourite pet's name" type="String" value="Butch"/><pref key="clean" screen="Do you enjoy cleaning" type="Boolean" value="false"/><pref key="soccer" screen="Do you like soccer" type="Boolean" value="false"/><pref key="doughnuts" screen="How many doughnuts have you eaten this week" type="Number" value="2.0"/><pref key="pegs" screen="How many clothes pegs do you own" type="Number" value="140.0"/></scriptPreferences></SETTINGS>

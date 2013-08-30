@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -28,13 +30,26 @@ public class GuideSettings {
 	private String flags = ""; //current flags
 	private String html = ""; //used to pass back replacement html from javascript 
 	private String filename; //name of file to store persistent state
+	private String name;
 	private HashMap<String, String> scriptVariables = new HashMap<String, String>(); //variables used by javascript
+	private HashMap<String, String> userStringPrefs = new HashMap<String, String>(); 
+	private HashMap<String, String> userStringDesc = new HashMap<String, String>(); 
+	private HashMap<String, Boolean> userBooleanPrefs = new HashMap<String, Boolean>(); 
+	private HashMap<String, String> userBooleanDesc = new HashMap<String, String>(); 
+	private HashMap<String, Double> userNumericPrefs = new HashMap<String, Double>(); 
+	private HashMap<String, String> userNumericDesc = new HashMap<String, String>(); 
 	private Logger logger = LogManager.getLogger();
 
-	public GuideSettings(String PresName) {
+	public GuideSettings(String GuideName) {
 		super();
+		name = GuideName;
+		Element elProp;
+		String key;
+		String value;
+		String type;
+		String desc;
 		AppSettings appSettings = new AppSettings();
-		filename = appSettings.getDataDirectory() + appSettings.getFileSeparator() + PresName + ".state";
+		filename = appSettings.getDataDirectory() + appSettings.getFileSeparator() + GuideName + ".state";
 		try {
 			//if a state file already exists use it 
 			File xmlFile = new File(filename);
@@ -70,6 +85,33 @@ public class GuideSettings {
 							scriptVariables.put(strName, strValue);
 						}
 					}
+				}
+				
+				Element elPrefVariables = ComonFunctions.getElement("//scriptPreferences", rootElement);
+				if (elPrefVariables != null) {
+					for(Node childNode = elPrefVariables.getFirstChild(); childNode!=null;){
+						if (childNode.getNodeType() == Node.ELEMENT_NODE) {
+							elProp = (Element) childNode;
+							key = elProp.getAttribute("key");
+							value = elProp.getAttribute("value");
+							type = elProp.getAttribute("type");
+							desc = elProp.getAttribute("screen");
+							if (type.equals("String")) {
+								userStringPrefs.put(key, value);
+								userStringDesc.put(key, desc);
+							}
+							if (type.equals("Boolean")) {
+								userBooleanPrefs.put(key, Boolean.parseBoolean(value));
+								userBooleanDesc.put(key, desc);
+							}
+							if (type.equals("Number")) {
+								userNumericPrefs.put(key, Double.parseDouble(value));
+								userNumericDesc.put(key, desc);
+							}
+						}
+					    Node nextChild = childNode.getNextSibling();
+					    childNode = nextChild;
+					}				
 				}
 
 			}
@@ -115,6 +157,104 @@ public class GuideSettings {
 	public void setHtml(String html) {
 		this.html = html;
 	}
+	
+	public Set<String> getStringKeys() {
+		return userStringPrefs.keySet();
+	}
+	
+	
+	public Set<String> getNumberKeys() {
+		return userNumericPrefs.keySet();
+	}
+	
+	
+	public Set<String> getBooleanKeys() {
+		return userBooleanPrefs.keySet();
+	}
+	
+	
+	public String getPref(String key) {
+		String value;
+		if (userStringPrefs.containsKey(key)) {
+			value = userStringPrefs.get(key);
+		} else {
+			value = "";
+		}
+		return value;
+	}
+
+	public Double getPrefNumber(String key) {
+		Double value;
+		if (userNumericPrefs.containsKey(key)) {
+			value = userNumericPrefs.get(key);
+		} else {
+			value = (double) 0;
+		}
+		return value;
+	}
+
+	public void setPref(String key, String value) {
+		if (userStringPrefs.containsKey(key)) {
+			value = userStringPrefs.put(key, value);
+		}
+	}
+
+	public Boolean isPref(String key) {
+		Boolean value;
+		if (userBooleanPrefs.containsKey(key)) {
+			value = userBooleanPrefs.get(key);
+		} else {
+			value = false;
+		}
+		return value;
+	}
+
+	public void setPref(String key, Boolean value) {
+		if (userBooleanPrefs.containsKey(key)) {
+			userBooleanPrefs.put(key, value);
+		}
+	}
+
+	public void setPref(String key, Double value) {
+		if (userNumericPrefs.containsKey(key)) {
+			userNumericPrefs.put(key, value);
+		}
+	}
+	
+	public void addPref(String key, String value, String screenDesc) {
+		userStringPrefs.put(key, value);
+		userStringDesc.put(key, screenDesc);
+	}
+	
+	public void addPref(String key, Boolean value, String screenDesc) {
+		userBooleanPrefs.put(key, value);
+		userBooleanDesc.put(key, screenDesc);
+	}
+	
+	public void addPref(String key, Double value, String screenDesc) {
+		userNumericPrefs.put(key, value);
+		userNumericDesc.put(key, screenDesc);
+	}
+	
+	public String getScreenDesc(String key, String type) {
+		String desc = "";
+		if (type.equals("s")) {
+			desc = userStringDesc.get(key);
+		}
+		if (type.equals("b")) {
+			desc = userBooleanDesc.get(key);
+		}
+		if (type.equals("n")) {
+			desc = userNumericDesc.get(key);
+		}
+		return desc;
+	}
+	
+	
+	public String getName() {
+		return name;
+	}
+
 	public void saveSettings(){
 	    try {
 			File xmlFile = new File(filename);
@@ -161,6 +301,44 @@ public class GuideSettings {
 		    	elVar.setAttribute("value", strValue);
 		    }		    
 
+		    
+			String keyVal;
+			String desc;
+		    Element elscriptPreferences = ComonFunctions.getElement("//scriptPreferences", rootElement);
+		    if (elscriptPreferences != null) {
+		    	rootElement.removeChild(elscriptPreferences);
+		    }
+		    elscriptPreferences = ComonFunctions.addElement("scriptPreferences", rootElement, doc);
+			for (Map.Entry<String, String> entry : userStringPrefs.entrySet()) {
+				keyVal = entry.getKey();
+				desc = userStringDesc.get(keyVal);
+			    Element elPref = ComonFunctions.addElement("pref", elscriptPreferences, doc);
+			    elPref.setAttribute("key",  keyVal);
+			    elPref.setAttribute("screen",  desc);
+			    elPref.setAttribute("type",  "String");
+			    elPref.setAttribute("value",  entry.getValue());
+			}
+
+			for (Map.Entry<String, Boolean> entry : userBooleanPrefs.entrySet()) {
+				keyVal = entry.getKey();
+				desc = userBooleanDesc.get(keyVal);
+			    Element elPref = ComonFunctions.addElement("pref", elscriptPreferences, doc);
+			    elPref.setAttribute("key",  keyVal);
+			    elPref.setAttribute("screen",  desc);
+			    elPref.setAttribute("type",  "Boolean");
+			    elPref.setAttribute("value",  String.valueOf(entry.getValue()));
+			}
+
+			for (Map.Entry<String, Double> entry : userNumericPrefs.entrySet()) {
+				keyVal = entry.getKey();
+				desc = userNumericDesc.get(keyVal);
+			    Element elPref = ComonFunctions.addElement("pref", elscriptPreferences, doc);
+			    elPref.setAttribute("key",  keyVal);
+			    elPref.setAttribute("screen",  desc);
+			    elPref.setAttribute("type",  "Number");
+			    elPref.setAttribute("value",  String.valueOf(entry.getValue()));
+			}
+		    
 			// write the content into xml file
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer = transformerFactory.newTransformer();
