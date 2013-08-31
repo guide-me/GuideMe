@@ -30,7 +30,7 @@ import com.snapps.swt.SquareButton;
 public class GuidePreferenceShell {
 	private Shell shell = null;
 	private Display myDisplay;
-	private AppSettings myAppSettings;
+	//private AppSettings myAppSettings;
 	private GuideSettings myGuideSettings;
 	private static Logger logger = LogManager.getLogger();
 	private Font controlFont;
@@ -51,7 +51,7 @@ public class GuidePreferenceShell {
 			//Create the main UI elements
 			myDisplay = display;
 			myGuideSettings = guideSettings;
-			myAppSettings = appSettings;
+			//myAppSettings = appSettings;
 			shell = new Shell(myDisplay, SWT.APPLICATION_MODAL + SWT.DIALOG_TRIM + SWT.RESIZE);
 
 			shell.setText(myGuideSettings.getName() + " Preferences");
