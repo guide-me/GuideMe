@@ -26,9 +26,12 @@ import org.xml.sax.SAXException;
 
 public class GuideSettings {
 	//State information for xml file, stored in a .state file in xml format
+	private String chapter = ""; //current chapter
 	private String page = "start"; //current page
 	private String flags = ""; //current flags
 	private String html = ""; //used to pass back replacement html from javascript 
+	private String text = ""; //used to pass back replacement text from javascript 
+	private String image = ""; //used to pass back replacement image from javascript 
 	private String filename; //name of file to store persistent state
 	private String name;
 	private HashMap<String, String> scriptVariables = new HashMap<String, String>(); //variables used by javascript
@@ -126,6 +129,14 @@ public class GuideSettings {
 		saveSettings();
 	}
 
+	public String getChapter() {
+		return chapter;
+	}
+
+	public void setChapter(String chapter) {
+		this.chapter = chapter;
+	}
+
 	public String getPage() {
 		return page;
 	}
@@ -150,6 +161,14 @@ public class GuideSettings {
 		this.scriptVariables = scriptVariables;
 	}
 
+	public String getText() {
+		return text;
+	}
+
+	public void setText(String text) {
+		this.text = text;
+	}
+
 	public String getHtml() {
 		return html;
 	}
@@ -158,6 +177,14 @@ public class GuideSettings {
 		this.html = html;
 	}
 	
+	public String getImage() {
+		return image;
+	}
+
+	public void setImage(String image) {
+		this.image = image;
+	}
+
 	public Set<String> getStringKeys() {
 		return userStringPrefs.keySet();
 	}

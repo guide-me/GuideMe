@@ -1,4 +1,4 @@
-package org.guideme.guideme;
+package org.guideme.guideme.settings;
 
 import static org.junit.Assert.*;
 

@@ -1,4 +1,4 @@
-package org.guideme.guideme;
+package org.guideme.guideme.settings;
 
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;

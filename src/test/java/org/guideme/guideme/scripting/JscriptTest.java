@@ -1,4 +1,4 @@
-package org.guideme.guideme;
+package org.guideme.guideme.scripting;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
