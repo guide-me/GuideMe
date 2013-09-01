@@ -15,7 +15,6 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
-import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Group;
@@ -58,33 +57,51 @@ public class JscriptTest {
 		}				
 		
 		shell = new Shell(display, SWT.APPLICATION_MODAL + SWT.DIALOG_TRIM + SWT.RESIZE);
-		ScrolledComposite sc = new ScrolledComposite(shell, SWT.H_SCROLL | SWT.V_SCROLL | SWT.BORDER);
+		shell.setText("J Script Harness");
+		FormLayout layout = new FormLayout();
+		shell.setLayout(layout);
+		
+		ScrolledComposite sc = new ScrolledComposite(shell, SWT.H_SCROLL | SWT.V_SCROLL|SWT.BORDER);
+		sc.setExpandHorizontal(true);
+		sc.setExpandVertical(true);
 		FormData scFormData = new FormData();
 		scFormData.top = new FormAttachment(0,5);
 		scFormData.left = new FormAttachment(0,5);
 		scFormData.right = new FormAttachment(100,-5);
 		scFormData.bottom = new FormAttachment(100,-5);
 		sc.setLayoutData(scFormData);
+		sc.setLayout(new FormLayout());
 
-		Composite composite = new Composite(sc, SWT.NONE);
-		composite.setLayout(new FormLayout());
+		Group grpNames = new Group(sc, SWT.SHADOW_IN);
+		FormData grpNamesFormData = new FormData();
+		grpNamesFormData.top = new FormAttachment(0,5);
+		grpNamesFormData.left = new FormAttachment(0,5);
+		grpNamesFormData.right = new FormAttachment(100,-5);
+		grpNames.setLayoutData(grpNamesFormData);
+		grpNames.setText("Variables");
+		FormLayout layout2 = new FormLayout();
+		grpNames.setLayout(layout2);
 
-		//App Settings Group
-		Group grpApp = new Group(composite, SWT.SHADOW_IN);
-		FormData grpAppFormData = new FormData();
-		grpAppFormData.top = new FormAttachment(0,5);
-		grpAppFormData.left = new FormAttachment(0,5);
-		grpAppFormData.right = new FormAttachment(100,-5);
-		grpAppFormData.bottom = new FormAttachment(100,-5);
-		grpApp.setLayoutData(grpAppFormData);
-		grpApp.setText("Application");
-		FormLayout layout5 = new FormLayout();
-		grpApp.setLayout(layout5);
-		tmpWidget = grpApp;
-		tmpWidget2 = grpApp;
-		
-		AddTextField(grpApp, "Html", tmpWidget, tmpWidget2, guideSettings.getHtml(), "key temp", false);		
-		shell.pack();
+		tmpWidget = grpNames;
+		tmpWidget2 = grpNames;
+
+		AddTextField(grpNames, "ScriptVars" , tmpWidget, tmpWidget2, guideSettings.getScriptVariables().toString(), "ScriptVars", false);
+		tmpWidget = appWidgets.get("ScriptVars" + "Lbl");
+		tmpWidget2 = appWidgets.get("ScriptVars" + "Ctrl");
+		AddTextField(grpNames, "Html", tmpWidget, tmpWidget2, guideSettings.getHtml(), "html", false);
+		tmpWidget = appWidgets.get("html" + "Lbl");
+		tmpWidget2 = appWidgets.get("html" + "Ctrl");
+		AddTextField(grpNames, "page", tmpWidget, tmpWidget2, guideSettings.getPage(), "page", false);
+		tmpWidget = appWidgets.get("page" + "Lbl");
+		tmpWidget2 = appWidgets.get("page" + "Ctrl");
+		AddTextField(grpNames, "flags", tmpWidget, tmpWidget2, guideSettings.getFlags(), "flags", false);
+		tmpWidget = appWidgets.get("flags" + "Lbl");
+		tmpWidget2 = appWidgets.get("flags" + "Ctrl");
+		AddTextField(grpNames, "name", tmpWidget, tmpWidget2, guideSettings.getName(), "name", false);
+		sc.setContent(grpNames);
+		sc.setMinSize(grpNames.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+
+		shell.layout();
 		shell.open();
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch())
@@ -124,7 +141,7 @@ public class JscriptTest {
 		lblTmpFormData.top = new FormAttachment(prevControl,5);
 		lblTmpFormData.left = new FormAttachment(0,5);
 		lblTmp.setLayoutData(lblTmpFormData);
-		txtTmp = new Text(group, SWT.SINGLE);
+		txtTmp = new Text(group, SWT.MULTI | SWT.WRAP);
 		txtTmp.setFont(controlFont);
 		txtTmp.setText(value);
 		txtTmpFormData = new FormData();
