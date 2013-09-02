@@ -6,12 +6,18 @@
     </Console>
     <File name="File" fileName="guideme.log">
       <PatternLayout pattern="%d{ISO8601} %-5level %logger{1} - %msg%n%throwable"/>
+      <MarkerFilter marker="JSCRIPT" onMatch="DENY" onMismatch="ACCEPT"/>
     </File>
-  </appenders>
+    <File name="Jscript" fileName="jscript.log">
+      <PatternLayout pattern="%d{ISO8601} %-5level %logger{1} - %msg%n%throwable"/>
+      <MarkerFilter marker="JSCRIPT" onMatch="ACCEPT" onMismatch="DENY"/>
+    </File>
+    </appenders>
   <loggers>
     <root level="debug">
       <appender-ref ref="Console"/>
       <appender-ref ref="File"/>
-    </root>
+      <appender-ref ref="Jscript"/>
+      </root>
   </loggers>
 </configuration>
