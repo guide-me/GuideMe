@@ -112,7 +112,7 @@ public class PreferenceShell {
 			tmpWidget2 = grpNames;
 			Set<String> set = myUserSettings.getStringKeys();
 			for (String s : set) {
-				AddTextField(grpNames, myUserSettings.getScreenDesc(s, "s"), tmpWidget, tmpWidget2, userSettings.getPref(s), s, false);
+				AddTextField(grpNames, myUserSettings.getScreenDesc(s, UserSettings.STRING), tmpWidget, tmpWidget2, userSettings.getPref(s), s, false);
 				tmpWidget = appWidgets.get(s + "Lbl");
 				tmpWidget2 = appWidgets.get(s + "Ctrl");
 			}
@@ -131,7 +131,7 @@ public class PreferenceShell {
 			tmpWidget2 = grpPrefs;
 			Set<String> set2 = myUserSettings.getBooleanKeys();
 			for (String s : set2) {
-				AddBooleanField(grpPrefs, myUserSettings.getScreenDesc(s, "b"), tmpWidget, tmpWidget2, userSettings.isPref(s), s);
+				AddBooleanField(grpPrefs, myUserSettings.getScreenDesc(s, UserSettings.BOOLEAN), tmpWidget, tmpWidget2, userSettings.isPref(s), s);
 				tmpWidget = appWidgets.get(s + "BlnLbl");
 				tmpWidget2 = appWidgets.get(s + "BlnCtrl");
 			}
@@ -150,7 +150,7 @@ public class PreferenceShell {
 			tmpWidget2 = grpDoubles;
 			Set<String> set3 = myUserSettings.getNumberKeys();
 			for (String s : set3) {
-				AddTextField(grpDoubles, myUserSettings.getScreenDesc(s, "n"), tmpWidget, tmpWidget2, String.valueOf(userSettings.getPrefNumber(s)), s, true);
+				AddTextField(grpDoubles, myUserSettings.getScreenDesc(s, UserSettings.NUMBER), tmpWidget, tmpWidget2, String.valueOf(userSettings.getPrefNumber(s)), s, true);
 				tmpWidget = appWidgets.get(s + "NumLbl");
 				tmpWidget2 = appWidgets.get(s + "NumCtrl");
 			}

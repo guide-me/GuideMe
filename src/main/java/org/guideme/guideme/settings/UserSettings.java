@@ -30,7 +30,12 @@ public class UserSettings implements Cloneable{
 	private HashMap<String, Boolean> userBooleanPrefs = new HashMap<String, Boolean>(); 
 	private HashMap<String, String> userBooleanDesc = new HashMap<String, String>(); 
 	private HashMap<String, Double> userNumericPrefs = new HashMap<String, Double>(); 
-	private HashMap<String, String> userNumericDesc = new HashMap<String, String>(); 
+	private HashMap<String, String> userNumericDesc = new HashMap<String, String>();
+	
+	//constants
+	public static final int STRING = 1;
+	public static final int NUMBER = 2;
+	public static final int BOOLEAN = 3;
 
 	public UserSettings() {
 		super();
@@ -148,15 +153,15 @@ public class UserSettings implements Cloneable{
 		}
 	}
 
-	public String getScreenDesc(String key, String type) {
+	public String getScreenDesc(String key, int type) {
 		String desc = "";
-		if (type.equals("s")) {
+		if (type == UserSettings.STRING) {
 			desc = userStringDesc.get(key);
 		}
-		if (type.equals("b")) {
+		if (type == UserSettings.BOOLEAN) {
 			desc = userBooleanDesc.get(key);
 		}
-		if (type.equals("n")) {
+		if (type == UserSettings.NUMBER) {
 			desc = userNumericDesc.get(key);
 		}
 		return desc;

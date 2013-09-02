@@ -22,6 +22,12 @@ public class GuideSettingsTest {
 		appSettings.setDataDirectory(appSettings.getUserDir());
 		appSettings.saveSettings();
 		guideSettings = new GuideSettings("GuideTest");
+		HashMap<String, String> scriptVar = new HashMap<String, String>();
+		scriptVar = guideSettings.getScriptVariables();
+		scriptVar.put("pl1Count","3");
+		scriptVar.put("pl2Count","4");
+		scriptVar.put("failCount","5");
+		guideSettings.setScriptVariables(scriptVar);
 		guideSettings.saveSettings();
 	}
 
@@ -96,10 +102,10 @@ public class GuideSettingsTest {
 		assertEquals("pl2Count","4",pl2Count);
 		String failCount = scriptVar.get("failCount");
 		assertEquals("failCount","7",failCount);
-		scriptVar.remove("testKey");
-		scriptVar.put("pl1Count","3");
-		scriptVar.put("pl2Count","4");
-		scriptVar.put("failCount","5");
+		scriptVar2.remove("testKey");
+		scriptVar2.put("pl1Count","3");
+		scriptVar2.put("pl2Count","4");
+		scriptVar2.put("failCount","5");
 		guideSettings.setScriptVariables(scriptVar2);
 		guideSettings.saveSettings();
 	}

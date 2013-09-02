@@ -55,42 +55,54 @@ public class UserSettingsTest {
 
 	@Test
 	public void testGetPref() {
-		fail("Not yet implemented");
+		assertEquals("Phil", userSettings.getPref("myName"));
 	}
 
 	@Test
 	public void testGetPrefNumber() {
-		fail("Not yet implemented");
+		double returned = userSettings.getPrefNumber("size");
+		double expected = 5.0;
+		assertEquals(Double.doubleToLongBits(expected), Double.doubleToLongBits(returned));
 	}
 
 	@Test
 	public void testSetPrefStringString() {
-		fail("Not yet implemented");
+		userSettings.setPref("myName", "Oswald");
+		assertEquals("Oswald", userSettings.getPref("myName"));
+		userSettings.setPref("myName", "Phil");
+		assertEquals("Phil", userSettings.getPref("myName"));
 	}
 
 	@Test
 	public void testIsPref() {
-		fail("Not yet implemented");
+		assertTrue(userSettings.isPref("chocolate"));
 	}
 
 	@Test
 	public void testSetPrefStringBoolean() {
-		fail("Not yet implemented");
+		userSettings.setPref("chocolate", false);
+		assertTrue(!userSettings.isPref("chocolate"));
+		userSettings.setPref("chocolate", true);
+		assertTrue(userSettings.isPref("chocolate"));
 	}
 
 	@Test
 	public void testSetPrefStringDouble() {
-		fail("Not yet implemented");
+		userSettings.setPref("size", 8.0);
+		double returned = userSettings.getPrefNumber("size");
+		double expected = 8.0;
+		assertEquals(Double.doubleToLongBits(expected), Double.doubleToLongBits(returned));
+		userSettings.setPref("size", 5.0);
+		returned = userSettings.getPrefNumber("size");
+		expected = 5.0;
+		assertEquals(Double.doubleToLongBits(expected), Double.doubleToLongBits(returned));
 	}
 
 	@Test
 	public void testGetScreenDesc() {
-		fail("Not yet implemented");
-	}
-
-	@Test
-	public void testClone() {
-		fail("Not yet implemented");
+		assertEquals("My Name", userSettings.getScreenDesc("myName", UserSettings.STRING));
+		assertEquals("How long in inches is your hand", userSettings.getScreenDesc("size", UserSettings.NUMBER));
+		assertEquals("Do you like chocolate?", userSettings.getScreenDesc("chocolate", UserSettings.BOOLEAN));
 	}
 
 }
