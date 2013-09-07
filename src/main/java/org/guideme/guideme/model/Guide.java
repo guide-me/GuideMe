@@ -3,7 +3,10 @@ package org.guideme.guideme.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+
+import org.guideme.guideme.settings.GuideSettings;
 
 public class Guide {
 	private String title;
@@ -13,7 +16,21 @@ public class Guide {
 	private String originalUrl;
 	private String authorUrl;
 	private Image thumbnail;
-	private List<Chapter> chapters = new ArrayList<Chapter>();
+	private HashMap<String, Chapter> chapters = new HashMap<String, Chapter>();
+	
+	private String mediaDirectory; //Media subdirectory for current xml file
+	private String delStyle; //style for currently running delay
+	private String delTarget; //target for currently running delay
+	private ArrayList<String> flags = new ArrayList<String>(); //current flags
+	private Boolean autoSetPage;
+	private String delaySet; //flags to set for currently running delay
+	private String delayUnSet; //flags to clear for currently running delay
+	private int delStartAtOffSet; //offset for currently running delay
+	private String guideName; //name for current xml that is running
+	private GuideSettings settings; //state for the currently running xml
+	private String mediaTarget; //target for currently running media
+	private int mediaStartAt;
+	private int mediaStopAt;
 	
 	public String getTitle() {
 		return title;
@@ -80,19 +97,128 @@ public class Guide {
 		this.thumbnail = thumbnail;
 	}
 	
-	public List<Chapter> getChapters() {
+	public HashMap<String, Chapter> getChapters() {
 		return chapters;
 	}
 	
-	public Chapter addChapter(String id) {
-		Chapter chapter = new Chapter(id);
-		this.chapters.add(chapter);
-		return chapter;
+	public void setChapters(HashMap<String, Chapter> chapters) {
+		this.chapters = chapters;
 	}
 	
-	
-	public void setChapters(List<Chapter> chapters) {
-		this.chapters.clear();
-		this.chapters.addAll(chapters);
+	public String getMediaDirectory() {
+		return mediaDirectory;
 	}
+
+	public void setMediaDirectory(String mediaDirectory) {
+		this.mediaDirectory = mediaDirectory;
+	}
+
+	public String getDelStyle() {
+		return delStyle;
+	}
+
+	public void setDelStyle(String delStyle) {
+		this.delStyle = delStyle;
+	}
+
+	public String getDelTarget() {
+		return delTarget;
+	}
+
+	public void setDelTarget(String delTarget) {
+		this.delTarget = delTarget;
+	}
+
+	public ArrayList<String> getFlags() {
+		return flags;
+	}
+
+	public void setFlags(ArrayList<String> flags) {
+		this.flags = flags;
+	}
+
+	public Boolean getAutoSetPage() {
+		return autoSetPage;
+	}
+
+	public void setAutoSetPage(Boolean autoSetPage) {
+		this.autoSetPage = autoSetPage;
+	}
+
+	public String getDelaySet() {
+		return delaySet;
+	}
+
+	public void setDelaySet(String delaySet) {
+		this.delaySet = delaySet;
+	}
+
+	public String getDelayUnSet() {
+		return delayUnSet;
+	}
+
+	public void setDelayUnSet(String delayUnSet) {
+		this.delayUnSet = delayUnSet;
+	}
+
+	public int getDelStartAtOffSet() {
+		return delStartAtOffSet;
+	}
+
+	public void setDelStartAtOffSet(int delStartAtOffSet) {
+		this.delStartAtOffSet = delStartAtOffSet;
+	}
+
+	public String getGuideName() {
+		return guideName;
+	}
+
+	public String getMediaTarget() {
+		return mediaTarget;
+	}
+
+	public void setMediaTarget(String mediaTarget) {
+		this.mediaTarget = mediaTarget;
+	}
+
+	public int getMediaStartAt() {
+		return mediaStartAt;
+	}
+
+	public void setMediaStartAt(int mediaStartAt) {
+		this.mediaStartAt = mediaStartAt;
+	}
+
+	public int getMediaStopAt() {
+		return mediaStopAt;
+	}
+
+	public void setMediaStopAt(int mediaStopAt) {
+		this.mediaStopAt = mediaStopAt;
+	}
+
+	//we are loading a new xml so clear old settings
+	public void reset(String guideName) {
+		this.guideName = guideName;
+		settings = new GuideSettings(guideName);
+		mediaDirectory = "";
+		delStyle = "";
+		delTarget = "";
+		flags = new ArrayList<String>();
+		autoSetPage = true;
+		delaySet = "";
+		delayUnSet = "";
+		title = "";
+		chapters = new HashMap<String, Chapter>(); 
+		delStartAtOffSet = 0;
+		mediaTarget = "";
+		mediaStartAt = 0;
+		mediaStopAt = 0;
+	}
+
+	public GuideSettings getSettings() {
+		return settings;
+	}
+
+	
 }
