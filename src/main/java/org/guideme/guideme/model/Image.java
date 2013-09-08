@@ -1,49 +1,26 @@
 package org.guideme.guideme.model;
 
+import java.util.ArrayList;
+
+import org.guideme.guideme.settings.ComonFunctions;
+
 public class Image {
-	private String url;
-	private int width;
-	private int height;
-	private String mimeType;
-	
-	public Image(String url, int width, int height, String mimeType) {
-		this.url = url;
-		this.width = width;
-		this.height = height;
-		this.mimeType = mimeType;
+	private String id; //file name of image
+	private String ifSet;
+	private String ifNotSet;
+
+	public Image(String id, String ifSet, String ifNotSet) {
+		this.id = id;
+		this.ifSet = ifSet;
+		this.ifNotSet = ifNotSet;
 	}
 
-	public String getUrl() {
-		return url;
+	public String getId() {
+		return id;
 	}
-	public void setUrl(String url) {
-		this.url = url;
+
+	public boolean canShow(ArrayList<String> setList) {
+		return ComonFunctions.canShow(setList, ifSet, ifNotSet);
 	}
-	
-	public int getWidth() {
-		return width;
-	}
-	public void setWidth(int width) {
-		this.width = width;
-	}
-	
-	public int getHeight() {
-		return height;
-	}
-	public void setHeight(int height) {
-		this.height = height;
-	}
-	
-	public String getSizeString() {
-		return width + "x" + height;
-	}
-	
-	public String getMimeType() {
-		return mimeType;
-	}
-	public void setMimeType(String mimeType) {
-		this.mimeType = mimeType;
-	}
-	
-	
+
 }

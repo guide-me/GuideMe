@@ -50,11 +50,11 @@ public class HtmlGuideReader {
 		}
 		if (doc.select("head link[rel=icon]").size() > 0) {
 			String url = doc.select("head link[rel=icon]").attr("href");
-			String mimeType = doc.select("head link[rel=icon]").attr("type");
-			String sizes = doc.select("head link[rel=icon]").attr("sizes");
-			int width = Integer.parseInt(sizes.split("x")[0]);
-			int height = Integer.parseInt(sizes.split("x")[1]);
-			guide.setThumbnail(new Image(url, width, height, mimeType));
+			//String mimeType = doc.select("head link[rel=icon]").attr("type");
+			//String sizes = doc.select("head link[rel=icon]").attr("sizes");
+			//int width = Integer.parseInt(sizes.split("x")[0]);
+			//int height = Integer.parseInt(sizes.split("x")[1]);
+			guide.setThumbnail(new Image(url, "", ""));
 		}
 	}
 
@@ -62,10 +62,11 @@ public class HtmlGuideReader {
 		Elements articles = doc.select("body article");
 		for (int i = 0; i < articles.size(); i++) {
 			Chapter chapter = new Chapter();
+			Element article = articles.get(i);
 			
-			readPages(chapter, articles.get(i));
+			readPages(chapter, article);
 			
-			guide.getChapters().add(chapter);
+			guide.getChapters().put(articles.attr("id"), chapter);
 		}
 	}
 	
@@ -74,9 +75,10 @@ public class HtmlGuideReader {
 		for (int i = 0; i < sections.size(); i++) {
 			Element section = sections.get(i);
 			
-			Page page = new Page(section.attr("id"));
+			//TODO need to add in the rest of the page stuff
+			Page page = new Page(section.attr("id"), "", "", "", "", false);
 			
-			chapter.getPages().add(page);
+			chapter.getPages().put(section.attr("id"), page);
 		}
 		
 	}

@@ -39,8 +39,9 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
+import org.guideme.guideme.model.Guide;
+import org.guideme.guideme.readers.XmlGuideReader;
 import org.guideme.guideme.settings.AppSettings;
-import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
 import org.guideme.guideme.settings.PreferenceShell;
 import org.guideme.guideme.settings.UserSettings;
@@ -56,7 +57,6 @@ public class MainShell {
 	private static Logger logger = LogManager.getLogger();
 	private static org.eclipse.swt.graphics.Color colourBlack;
 	private AppSettings appSettings;
-	private Boolean blnDebug;
 	private int MintFontSize;
 	private int MintHtmlFontSize;
 	private String strGuidePath;
@@ -81,6 +81,7 @@ public class MainShell {
 	private Canvas videoSurfaceCanvas;
 	private CanvasVideoSurface videoSurface;
 	private AudioMediaPlayerComponent audioPlayerComponent = new AudioMediaPlayerComponent();
+	private Guide guide = new Guide();
 
 	public Shell createShell(final Display display) {
 		logger.trace("Enter createShell");
@@ -92,7 +93,7 @@ public class MainShell {
 			appSettings = new AppSettings();
 
 			// debug flag
-			blnDebug = appSettings.getDebug();
+			//blnDebug = appSettings.getDebug();
 
 			// font size
 			MintFontSize = appSettings.getFontSize();
@@ -356,7 +357,7 @@ public class MainShell {
 					try {
 						if (strFileToLoad != null) {
 							strGuidePath = dialog.getFilterPath() + appSettings.getFileSeparator();
-							//String strPage = loadXML(strFileToLoad);
+							String strPage = XmlGuideReader.loadXML(strFileToLoad, guide);
 							//displayPage(strPage , false);
 						}
 					}

@@ -2,23 +2,15 @@ package org.guideme.guideme.model;
 
 public class GotoButton extends Button {
 	
+	private GotoButton(String target, String text, String ifSet,
+			String ifNotSet, String Set, String UnSet) {
+		super(target, text, ifSet, ifNotSet, Set, UnSet);
+	}
+
 	public final static String DEFAULT_TEXT = "continue";
 	
-	protected String target;
-	
 	public GotoButton(String target) {
-		this(target, DEFAULT_TEXT);
+		this(target, DEFAULT_TEXT, "", "", "", "");
 	}
-	
-	public GotoButton(String target, String text) {
-		this.target = target;
-		this.text = text;
-	}
-	
-	public String getTarget() {
-		return target;
-	}
-	public void setTarget(String target) {
-		this.target = target;
-	}
+
 }
