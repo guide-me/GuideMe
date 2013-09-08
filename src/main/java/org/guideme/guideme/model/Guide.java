@@ -31,6 +31,7 @@ public class Guide {
 	private String mediaTarget; //target for currently running media
 	private int mediaStartAt;
 	private int mediaStopAt;
+	private String jScript;
 	
 	public String getTitle() {
 		return title;
@@ -214,10 +215,19 @@ public class Guide {
 		mediaTarget = "";
 		mediaStartAt = 0;
 		mediaStopAt = 0;
+		jScript = "";
 	}
 
 	public GuideSettings getSettings() {
 		return settings;
+	}
+	
+	public String getjScript() {
+		return jScript;
+	}
+	
+	public void setjScript(String jScript) {
+		this.jScript = jScript;
 	}
 
 	

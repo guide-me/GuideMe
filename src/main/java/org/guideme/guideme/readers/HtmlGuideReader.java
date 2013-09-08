@@ -76,7 +76,7 @@ public class HtmlGuideReader {
 			Element section = sections.get(i);
 			
 			//TODO need to add in the rest of the page stuff
-			Page page = new Page(section.attr("id"), "", "", "", "", false);
+			Page page = new Page(section.attr("id"), "", "", "", "", false, "");
 			
 			chapter.getPages().put(section.attr("id"), page);
 		}

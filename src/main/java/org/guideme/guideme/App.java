@@ -48,7 +48,7 @@ public class App
       			display = new Display();
       		}
 
-      		logger.trace("create clasicshell");
+      		logger.trace("create main shell");
             MainShell mainShell = new MainShell();
             logger.trace("create shell");
             Shell shell = mainShell.createShell(display);

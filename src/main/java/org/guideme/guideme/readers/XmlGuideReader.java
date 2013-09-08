@@ -147,7 +147,7 @@ public class XmlGuideReader {
 	        				 ifNotSet = reader.getAttributeValue(null, "if-not-set"); 
 	        				 if (ifNotSet == null) ifNotSet = "";
 	        				 reader.next();
-	        				 Button button = new Button(strTarget, reader.getText(), ifSet, ifNotSet, Set, UnSet);
+	        				 Button button = new Button(strTarget, reader.getText(), ifSet, ifNotSet, Set, UnSet, "");
 	        				 page.addButton(button);
 	        			 } catch (Exception e1) {
 	        				 logger.error("loadXML Button Exception " + e1.getLocalizedMessage(), e1);
@@ -175,7 +175,7 @@ public class XmlGuideReader {
 	        				 if (Set == null) Set = "";
 	        				 UnSet = reader.getAttributeValue(null, "unset");
 	        				 if (UnSet == null) UnSet = "";
-	        				 Delay delay = new Delay(strTarget, strSeconds, ifSet, ifNotSet, strStartWith, strStyle, Set, UnSet);
+	        				 Delay delay = new Delay(strTarget, strSeconds, ifSet, ifNotSet, strStartWith, strStyle, Set, UnSet, "");
 	        				 page.addDelay(delay);
 	        			 } catch (Exception e1) {
 	        				 logger.error("loadXML Delay Exception " + e1.getLocalizedMessage(), e1);
@@ -240,7 +240,7 @@ public class XmlGuideReader {
 	        				 if (Set == null) Set = "";
 	        				 UnSet = reader.getAttributeValue(null, "unset");
 	        				 if (UnSet == null) UnSet = "";
-	        				 page = new Page(pageName, ifSet, ifNotSet, Set, UnSet, guide.getAutoSetPage()); 
+	        				 page = new Page(pageName, ifSet, ifNotSet, Set, UnSet, guide.getAutoSetPage(), ""); 
 	        			 } catch (Exception e1) {
 	        				 logger.error("loadXML Page Exception " + e1.getLocalizedMessage(), e1);
 	        			 }

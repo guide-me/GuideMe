@@ -13,8 +13,9 @@ public class Delay {
 	private String target;
 	private String startWith;
 	private String style;
+	private String jScript;
 	
-	public Delay(String target, String delay, String ifSet, String ifNotSet, String startWith, String style, String set, String unSet) {
+	public Delay(String target, String delay, String ifSet, String ifNotSet, String startWith, String style, String set, String unSet, String jScript) {
 		this.target = target;
 		this.delay = delay;
 		this.ifNotSet = ifNotSet;
@@ -23,6 +24,7 @@ public class Delay {
 		this.style = style;
 		this.set = set;
 		this.unSet = unSet;
+		this.jScript = jScript;
 	}
 
 	public boolean canShow(ArrayList<String> setList) {
@@ -57,6 +59,10 @@ public class Delay {
 
 	public String getUnSet() {
 		return unSet;
+	}
+
+	public String getjScript() {
+		return jScript;
 	}
 
 }

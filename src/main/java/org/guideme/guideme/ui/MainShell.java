@@ -5,6 +5,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,6 +23,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
@@ -39,11 +41,14 @@ import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.MenuItem;
 import org.eclipse.swt.widgets.Monitor;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Control;
+import org.guideme.guideme.MainLogic;
+import org.guideme.guideme.model.Button;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.readers.XmlGuideReader;
 import org.guideme.guideme.settings.AppSettings;
+import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
-import org.guideme.guideme.settings.PreferenceShell;
 import org.guideme.guideme.settings.UserSettings;
 
 import uk.co.caprica.vlcj.component.AudioMediaPlayerComponent;
@@ -82,6 +87,7 @@ public class MainShell {
 	private CanvasVideoSurface videoSurface;
 	private AudioMediaPlayerComponent audioPlayerComponent = new AudioMediaPlayerComponent();
 	private Guide guide = new Guide();
+	private MainShell mainShell;
 
 	public Shell createShell(final Display display) {
 		logger.trace("Enter createShell");
@@ -286,6 +292,7 @@ public class MainShell {
 			logger.error(ex.getLocalizedMessage(), ex);
 		}
 		logger.trace("Exit createShell");
+		mainShell = this;
 		return shell;
 	}
 
@@ -358,7 +365,7 @@ public class MainShell {
 						if (strFileToLoad != null) {
 							strGuidePath = dialog.getFilterPath() + appSettings.getFileSeparator();
 							String strPage = XmlGuideReader.loadXML(strFileToLoad, guide);
-							//displayPage(strPage , false);
+							MainLogic.displayPage(strPage , false, guide, mainShell, appSettings);
 						}
 					}
 					catch (Exception ex5) {
@@ -386,13 +393,13 @@ public class MainShell {
 				logger.trace("Enter Menu Restart");
 				calCountDown = null;
 		        lblLeft.setText("");
-		        //guide.getFlags().clear();
-		        //guide.getSettings().setPage("start");
-		        //guide.getSettings().setFlags(ComonFunctions.GetFlags(guide.getFlags()));
+		        guide.getFlags().clear();
+		        guide.getSettings().setPage("start");
+		        guide.getSettings().setFlags(ComonFunctions.GetFlags(guide.getFlags()));
 				HashMap<String, String> scriptVariables = new HashMap<String, String>();
-				//guide.getSettings().setScriptVariables(scriptVariables);
-				//guide.getSettings().saveSettings();
-				//displayPage("start", false);
+				guide.getSettings().setScriptVariables(scriptVariables);
+				guide.getSettings().saveSettings();
+				MainLogic.displayPage("start", false, guide, mainShell, appSettings);
 			}
 			catch (Exception ex) {
 				logger.error("Restart error " + ex.getLocalizedMessage(), ex);
@@ -498,11 +505,11 @@ public class MainShell {
 					if (cal.after(calCountDown)){
 						calCountDown = null;
 						lblLeft.setText("");
-						//ComonFunctions.SetFlags(guide.getDelaySet(), guide.getFlags());
-						//ComonFunctions.UnsetFlags(guide.getDelayUnSet(), guide.getFlags());
-						//displayPage(guide.getDelTarget(), false);
+						ComonFunctions.SetFlags(guide.getDelaySet(), guide.getFlags());
+						ComonFunctions.UnsetFlags(guide.getDelayUnSet(), guide.getFlags());
+						MainLogic.displayPage(guide.getDelTarget(), false, guide, mainShell, appSettings);
 					} else {
-						/*
+						
 						if (guide.getDelStyle().equals("normal")) {
 							long diff = calCountDown.getTimeInMillis() - cal.getTimeInMillis();
 							diff = diff + (guide.getDelStartAtOffSet() * 1000);
@@ -522,7 +529,7 @@ public class MainShell {
 						} else {
 							lblLeft.setText("");
 						}
-						*/
+						
 					}
 				}
 				lblRight.setText(dateFormat.format(cal.getTime()));
@@ -543,5 +550,200 @@ public class MainShell {
 		this.calCountDown = calCountDown;
 	}
 
+	public void setLblLeft(String lblLeft) {
+		this.lblLeft.setText(lblLeft);
+	}
 
+	public void setLblCentre(String lblCentre) {
+		this.lblCentre.setText(lblCentre);
+	}
+
+	public void setLblRight(String lblRight) {
+		this.lblRight.setText(lblRight);
+	}
+
+	public void setImageLabel(String imgPath, String strImage) {
+		int newWidth;
+		int newHeight;
+		Image tmpImage = (Image) imageLabel.getData("image");
+		Image memImage = new Image(myDisplay, imgPath);
+		imageLabel.setData("image", memImage);
+		if (tmpImage != null) {
+			tmpImage.dispose();
+		}
+		try {
+			ImageData imgData = memImage.getImageData();
+			Rectangle RectImage = imageLabel.getBounds();
+			double dblScreenRatio = (double) RectImage.height / (double) RectImage.width;
+			logger.info("dblScreenRatio: " + dblScreenRatio);
+			double dblImageRatio = (double) imgData.height / (double) imgData.width;
+			imageLabel.setData("imageRatio", Double.valueOf(dblImageRatio));
+			logger.info("Lable Height: " + RectImage.height);
+			logger.info("Lable Width: " + RectImage.width);
+			logger.info("Image Height: " + imgData.height);
+			logger.info("Image Width: " + imgData.width);
+
+			if (dblScreenRatio > dblImageRatio) {
+				newHeight = (int) ((double) RectImage.width * dblImageRatio);
+				newWidth = RectImage.width;
+				logger.info("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
+			} else {
+				newHeight = RectImage.height;
+				newWidth = (int) ((double) RectImage.height / dblImageRatio);
+				logger.info("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
+			}
+			Image tmpImage2 = imageLabel.getImage();
+			imageLabel.setImage(resize(memImage, newWidth, newHeight));
+			memImage = null;
+			if (tmpImage2 != null) {
+				tmpImage2.dispose();
+			}
+			logger.info("Open: " + strImage);
+		}
+		catch (Exception ex6) {
+			logger.error("Process Image error " + ex6.getLocalizedMessage(), ex6);
+		}
+		videoFrame.setVisible(false);
+    	this.imageLabel.setVisible(true);
+	}
+
+	public void playVideo(String video) {
+		this.imageLabel.setVisible(false);
+		this.videoFrame.setVisible(true);
+		mediaPlayer.playMedia(video);         
+	}
+
+	public void clearImage() {
+		imageLabel.setBackgroundImage(null);		
+	}
+
+	
+	
+	public void playAudio(String audio) {
+		
+	}
+	
+	public void setBrwsText(String brwsText) {
+		String strHTML;
+		try {
+			String strTemp = brwsText;
+			strTemp = strTemp.replace("<P>", "");
+			strTemp = strTemp.replace("<p>", "");
+			strTemp = strTemp.replace("</P>", "<br>");
+			strTemp = strTemp.replace("</p>", "<br>");
+			strTemp = strTemp.replace("<DIV>", "");
+			strTemp = strTemp.replace("<div>", "");
+			strTemp = strTemp.replace("</DIV>", "<br>");
+			strTemp = strTemp.replace("</div>", "<br>");
+			Set<String> set = userSettings.getStringKeys(); 
+			for (String s : set) {
+				strTemp = strTemp.replace("#" + s + "#", userSettings.getPref(s));
+			}
+			if (strTemp.endsWith("<br>")) {
+				strTemp = strTemp.substring(0, strTemp.length() - 4);
+			}
+				strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\"> body { color: white; background-color: black; font-family: Tahoma; font-size:"
+						+ MintHtmlFontSize + "px } </style></head><body>" + strTemp + "</body></html>";
+				this.brwsText.setText(strHTML);
+		} catch (Exception e1) {
+			logger.error("displayPage Text Exception " + e1.getLocalizedMessage(), e1);
+			strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\"> body { color: white; background-color: rgba(0,0,0,0); font-family: Tahoma; font-size:"
+					+ MintHtmlFontSize + "px } div {background-color: rgba(0,0,0,0.25); position: absolute; bottom: 0} </style></head><body><div></div></body></html>";
+			this.brwsText.setText(strHTML);
+		}
+	}
+
+	public void removeButtons() {
+        for (Control kid : btnComp.getChildren()) {
+            kid.dispose();
+          }
+	}
+	
+	public void addDelayButton(Guide guide) {
+		com.snapps.swt.SquareButton btnDynamic = new com.snapps.swt.SquareButton(btnComp, SWT.PUSH );
+        btnDynamic.setFont(controlFont);
+        btnDynamic.setText("Delay");
+
+		// record any button set / unset
+		if (!guide.getDelaySet().equals("")) {
+			btnDynamic.setData("Set", guide.getDelaySet());
+		} else {
+			btnDynamic.setData("Set", "");
+		}
+		if (!guide.getDelayUnSet().equals("")) {
+			btnDynamic.setData("UnSet", guide.getDelayUnSet());
+		} else {
+			btnDynamic.setData("UnSet", "");
+		}
+		btnDynamic.setData("Target", guide.getDelTarget());
+		btnDynamic.addSelectionListener(new DynamicButtonListner());
+	}
+	
+	public void addButton(Button button) {
+		String strBtnTarget;
+		String strBtnText;
+		strBtnTarget = button.getTarget();
+		strBtnText = button.getText();
+        com.snapps.swt.SquareButton btnDynamic = new com.snapps.swt.SquareButton(btnComp, SWT.PUSH );
+        btnDynamic.setFont(controlFont);
+        btnDynamic.setText(strBtnText);
+
+		// record any button set / unset
+		String strButtonSet;
+		String strButtonUnSet;
+		strButtonSet = button.getSet();
+		if (!strButtonSet.equals("")) {
+			btnDynamic.setData("Set", strButtonSet);
+		} else {
+			btnDynamic.setData("Set", "");
+		}
+		strButtonUnSet = button.getUnSet();
+		if (!strButtonUnSet.equals("")) {
+			btnDynamic.setData("UnSet", strButtonUnSet);
+		} else {
+			btnDynamic.setData("UnSet", "");
+		}
+
+		logger.debug("displayPage Button Text " + strBtnText + " Target " + strBtnTarget + " Set " + strButtonSet + " UnSet " + strButtonUnSet);
+
+		btnDynamic.setData("Target", strBtnTarget);
+		btnDynamic.addSelectionListener(new DynamicButtonListner());
+		
+	}
+
+	// Click event code for the dynamic buttons
+	class DynamicButtonListner extends SelectionAdapter {
+		public void widgetSelected(SelectionEvent event) {
+			try {
+				
+				logger.trace("Enter DynamicButtonListner");
+				String strTag;
+				com.snapps.swt.SquareButton btnClicked;
+				btnClicked = (com.snapps.swt.SquareButton) event.widget;
+				strTag = (String) btnClicked.getData("Set");
+				if (!strTag.equals("")) {
+					ComonFunctions.SetFlags(strTag, guide.getFlags());
+				}
+				strTag = (String) btnClicked.getData("UnSet");
+				if (!strTag.equals("")) {
+					ComonFunctions.UnsetFlags(strTag, guide.getFlags());
+				}
+				strTag = (String) btnClicked.getData("Target");
+				MainLogic.displayPage(strTag, false, guide, mainShell, appSettings);
+			}
+			catch (Exception ex) {
+				logger.error(" DynamicButtonListner " + ex.getLocalizedMessage(), ex);
+			}
+			logger.trace("Exit DynamicButtonListner");
+		}
+	}
+
+	public void layoutButtons() {
+		btnComp.layout();
+	    Control[] controls = this.btnComp.getChildren();
+	    if (controls.length > 0) {
+	      controls[0].setFocus();
+	    }
+	    controls = null;
+	}
 }

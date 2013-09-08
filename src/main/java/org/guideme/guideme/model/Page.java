@@ -23,8 +23,9 @@ public class Page {
 	private String ifNotSet;
 	private String set;
 	private String unSet;
+	private String jScript;
 	
-	public Page(String pageName, String ifSet, String ifNotSet, String set, String unSet, boolean autoSet) {
+	public Page(String pageName, String ifSet, String ifNotSet, String set, String unSet, boolean autoSet, String jScript) {
 		this.pageName = pageName;
 		button = new ArrayList<Button>();
 		buttonCount = 0;
@@ -42,6 +43,7 @@ public class Page {
 		this.ifNotSet = ifNotSet;
 		this.set = set;
 		this.unSet = unSet;
+		this.jScript = jScript;
 		
 		if (autoSet) {
 			if (this.set.length() == 0) {
@@ -154,6 +156,14 @@ public class Page {
 
 	public void setText(String text) {
 		this.text = text;
+	}
+
+	public String getjScript() {
+		return jScript;
+	}
+
+	public void setjScript(String jScript) {
+		this.jScript = jScript;
 	}
 
 }

@@ -102,8 +102,8 @@ public class HtmlGuideWriterReaderTest {
 	@Test
 	public void pages() {
 		Chapter first = new Chapter();
-		first.getPages().put("start", new Page("start", "", "", "", "", false));
-		first.getPages().put("p-2", new Page("p-2", "", "", "", "", false));
+		first.getPages().put("start", new Page("start", "", "", "", "", false, ""));
+		first.getPages().put("p-2", new Page("p-2", "", "", "", "", false, ""));
 		originalGuide.getChapters().put("first", first);
 		
 		Guide guide = reader.loadFromString(writer.Write(originalGuide));
