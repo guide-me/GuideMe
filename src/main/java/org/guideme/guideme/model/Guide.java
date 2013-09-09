@@ -229,6 +229,10 @@ public class Guide {
 	public void setjScript(String jScript) {
 		this.jScript = jScript;
 	}
+	
+	public void setSettings(GuideSettings settings) {
+		this.settings = settings;
+	}
 
 	
 }

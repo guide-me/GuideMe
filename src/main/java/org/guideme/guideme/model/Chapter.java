@@ -6,9 +6,6 @@ public class Chapter {
 	private String id;
 	private HashMap<String, Page> pages = new HashMap<String, Page>();
 
-	public Chapter() {
-	}
-	
 	public Chapter(String id) {
 		this.id = id;
 	}
@@ -25,7 +22,4 @@ public class Chapter {
 		return id;
 	}
 
-	public void setId(String id) {
-		this.id = id;
-	}
 }

@@ -89,7 +89,7 @@ public class GuidePreferenceShell {
 			tmpWidget2 = grpNames;
 			Set<String> set = myGuideSettings.getStringKeys();
 			for (String s : set) {
-				AddTextField(grpNames, myGuideSettings.getScreenDesc(s, "s"), tmpWidget, tmpWidget2, myGuideSettings.getPref(s), s, false);
+				AddTextField(grpNames, myGuideSettings.getScreenDesc(s, "String"), tmpWidget, tmpWidget2, myGuideSettings.getPref(s), s, false);
 				tmpWidget = appWidgets.get(s + "Lbl");
 				tmpWidget2 = appWidgets.get(s + "Ctrl");
 			}
@@ -108,7 +108,7 @@ public class GuidePreferenceShell {
 			tmpWidget2 = grpPrefs;
 			Set<String> set2 = myGuideSettings.getBooleanKeys();
 			for (String s : set2) {
-				AddBooleanField(grpPrefs, myGuideSettings.getScreenDesc(s, "b"), tmpWidget, tmpWidget2, myGuideSettings.isPref(s), s);
+				AddBooleanField(grpPrefs, myGuideSettings.getScreenDesc(s, "Boolean"), tmpWidget, tmpWidget2, myGuideSettings.isPref(s), s);
 				tmpWidget = appWidgets.get(s + "BlnLbl");
 				tmpWidget2 = appWidgets.get(s + "BlnCtrl");
 			}
@@ -127,7 +127,7 @@ public class GuidePreferenceShell {
 			tmpWidget2 = grpDoubles;
 			Set<String> set3 = myGuideSettings.getNumberKeys();
 			for (String s : set3) {
-				AddTextField(grpDoubles, myGuideSettings.getScreenDesc(s, "n"), tmpWidget, tmpWidget2, String.valueOf(myGuideSettings.getPrefNumber(s)), s, true);
+				AddTextField(grpDoubles, myGuideSettings.getScreenDesc(s, "Number"), tmpWidget, tmpWidget2, String.valueOf(myGuideSettings.getPrefNumber(s)), s, true);
 				tmpWidget = appWidgets.get(s + "NumLbl");
 				tmpWidget2 = appWidgets.get(s + "NumCtrl");
 			}

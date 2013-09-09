@@ -1,6 +1,7 @@
 package org.guideme.guideme.readers;
 
 import java.io.FileReader;
+import java.util.HashMap;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
@@ -18,6 +19,7 @@ import org.guideme.guideme.model.Metronome;
 import org.guideme.guideme.model.Page;
 import org.guideme.guideme.model.Video;
 import org.guideme.guideme.settings.ComonFunctions;
+import org.guideme.guideme.settings.GuideSettings;
 
 public class XmlGuideReader {
   private static Logger logger = LogManager.getLogger();
@@ -25,7 +27,7 @@ public class XmlGuideReader {
 	
 	public enum TagName
 	{
-		Title, Author, MediaDirectory, Settings, Page, Metronome, Image, Audio, Video, Delay, Button, Text, NOVALUE;
+		pref, Title, Author, MediaDirectory, Settings, Page, Metronome, Image, Audio, Video, Delay, Button, Text, NOVALUE;
 
 	    public static TagName toTag(String str)
 	    {
@@ -51,6 +53,7 @@ public class XmlGuideReader {
 		String UnSet;
 		String strTag;
 		Page page = null;
+		GuideSettings guideSettings;
 		
 		try {
 			strPreXMLPath = xmlFileName;
@@ -58,6 +61,10 @@ public class XmlGuideReader {
 			int intPos2 = xmlFileName.lastIndexOf(".xml");
 			String PresName = xmlFileName.substring(intPos + 1, intPos2);
 			guide.reset(PresName);
+			HashMap<String, Chapter> chapters = guide.getChapters();
+			Chapter chapter = new Chapter("default");
+			chapters.put("default", chapter);
+			guideSettings = guide.getSettings();
 			
 		    XMLInputFactory factory = XMLInputFactory.newInstance();
 		    XMLStreamReader reader =
@@ -78,6 +85,27 @@ public class XmlGuideReader {
 	        		 strTag = reader.getName().getLocalPart();
 
 	        		 switch (TagName.toTag(strTag)) {
+	        		 case pref:
+	        			 String key;
+	        			 String screen;
+	        			 String type;
+	        			 String value;
+	        			 key = reader.getAttributeValue(null, "key");
+	        			 type = reader.getAttributeValue(null, "type");
+	        			 if (! guideSettings.keyExists(key, type)) {
+	        				 screen = reader.getAttributeValue(null, "screen");
+	        				 value = reader.getAttributeValue(null, "value");
+	        					if (type.equals("String")) {
+	        						guideSettings.addPref(key, value, screen);
+	        					}
+	        					if (type.equals("Boolean")) {
+	        						guideSettings.addPref(key, Boolean.parseBoolean(value), screen);
+	        					}
+	        					if (type.equals("Number")) {
+	        						guideSettings.addPref(key, Double.parseDouble(value), screen);
+	        					}
+	        			 }
+	        			 break;
 	        		 case Title:
 	        			 try {
 	        				 logger.trace("Title Tag");
@@ -332,7 +360,7 @@ public class XmlGuideReader {
 	        		 logger.trace("loadXML End tag " + reader.getName().getLocalPart());
 	        		 try {
 	        			 if (reader.getName().getLocalPart().equals("Page")) {
-	        				 Chapter chapter = guide.getChapters().get("default");
+	        				 chapter = guide.getChapters().get("default");
 	        				 chapter.getPages().put(page.getPageName(), page);
 	        			 }
 	        		 } catch (Exception e1) {
@@ -350,15 +378,16 @@ public class XmlGuideReader {
 
 			// Return to where we left off
 			try {
-				strPage = guide.getSettings().getPage();
-				strFlags = guide.getSettings().getFlags();
+				strPage = guideSettings.getPage();
+				strFlags = guideSettings.getFlags();
 				if (strFlags != "") {
 					ComonFunctions.SetFlags(strFlags, guide.getFlags());
 				}
 			} catch (Exception e1) {
 				logger.error("loadXML Continue Exception " + e1.getLocalizedMessage(), e1);
 			}
-
+			guide.setSettings(guideSettings);
+			guideSettings.saveSettings();
 		} catch (Exception e) {
 			logger.error("loadXML Exception ", e);
 		}

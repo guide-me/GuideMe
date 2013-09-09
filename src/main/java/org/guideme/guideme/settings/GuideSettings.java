@@ -265,16 +265,31 @@ public class GuideSettings {
 	
 	public String getScreenDesc(String key, String type) {
 		String desc = "";
-		if (type.equals("s")) {
+		if (type.equals("String")) {
 			desc = userStringDesc.get(key);
 		}
-		if (type.equals("b")) {
+		if (type.equals("Boolean")) {
 			desc = userBooleanDesc.get(key);
 		}
-		if (type.equals("n")) {
+		if (type.equals("Number")) {
 			desc = userNumericDesc.get(key);
 		}
 		return desc;
+	}
+	
+	
+	public Boolean keyExists(String key, String type) {
+		Boolean exists = false;
+		if (type.equals("String")) {
+			exists = userStringDesc.containsKey(key);
+		}
+		if (type.equals("Boolean")) {
+			exists = userBooleanDesc.containsKey(key);
+		}
+		if (type.equals("Number")) {
+			exists = userNumericDesc.containsKey(key);
+		}
+		return exists;
 	}
 	
 	

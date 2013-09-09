@@ -61,8 +61,8 @@ public class HtmlGuideReader {
 	private void readChapters(Guide guide, Document doc) {
 		Elements articles = doc.select("body article");
 		for (int i = 0; i < articles.size(); i++) {
-			Chapter chapter = new Chapter();
 			Element article = articles.get(i);
+			Chapter chapter = new Chapter(articles.attr("id"));
 			
 			readPages(chapter, article);
 			

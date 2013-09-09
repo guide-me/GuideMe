@@ -262,6 +262,11 @@ public class MainShell {
 			filePreferencesItem.setText ("&Preferences");
 			filePreferencesItem.addSelectionListener(new FilePreferences());
 
+			//File Guide Preferences menu item
+			MenuItem fileGuidePreferencesItem = new MenuItem (fileSubMenu, SWT.PUSH);
+			fileGuidePreferencesItem.setText ("&Guide Preferences");
+			fileGuidePreferencesItem.addSelectionListener(new FileGuidePreferences());
+
 			//File Exit menu item
 			MenuItem fileExitItem = new MenuItem (fileSubMenu, SWT.PUSH);
 			fileExitItem.setText ("&Exit");
@@ -409,6 +414,7 @@ public class MainShell {
 		}
 
 	}
+	
 	class FilePreferences  extends SelectionAdapter {
 
 		@Override
@@ -424,6 +430,28 @@ public class MainShell {
 			}
 			catch (Exception ex) {
 				logger.error(" FilePreferences " + ex.getLocalizedMessage());
+			}
+			super.widgetSelected(e);
+		}
+
+	}
+
+	class FileGuidePreferences  extends SelectionAdapter {
+
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			try {
+				logger.trace("Enter FileGuidePreferences");
+				guideSettings = guide.getSettings();
+				Shell prefShell = new GuidePreferenceShell().createShell(myDisplay, guideSettings, appSettings);
+				prefShell.open();
+				while (!prefShell.isDisposed()) {
+					if (!myDisplay.readAndDispatch())
+						myDisplay.sleep();
+				}
+			}
+			catch (Exception ex) {
+				logger.error(" FileGuidePreferences " + ex.getLocalizedMessage());
 			}
 			super.widgetSelected(e);
 		}
