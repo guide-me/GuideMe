@@ -24,6 +24,7 @@ public class Page {
 	private String set;
 	private String unSet;
 	private String jScript;
+	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	
 	public Page(String pageName, String ifSet, String ifNotSet, String set, String unSet, boolean autoSet, String jScript) {
 		this.pageName = pageName;
@@ -133,12 +134,12 @@ public class Page {
 	}
 
 	public boolean canShow(ArrayList<String> setList) {
-		return ComonFunctions.canShow(setList, ifSet, ifNotSet, pageName);
+		return comonFunctions.canShow(setList, ifSet, ifNotSet, pageName);
 	}
 
 	public void setUnSet(ArrayList<String> setList) {
-		ComonFunctions.SetFlags(set, setList);
-		ComonFunctions.UnsetFlags(unSet, setList);
+		comonFunctions.SetFlags(set, setList);
+		comonFunctions.UnsetFlags(unSet, setList);
 	}
 
 	@Override

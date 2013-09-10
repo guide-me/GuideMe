@@ -8,6 +8,7 @@ public class Image {
 	private String id; //file name of image
 	private String ifSet;
 	private String ifNotSet;
+	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 
 	public Image(String id, String ifSet, String ifNotSet) {
 		this.id = id;
@@ -20,7 +21,7 @@ public class Image {
 	}
 
 	public boolean canShow(ArrayList<String> setList) {
-		return ComonFunctions.canShow(setList, ifSet, ifNotSet);
+		return comonFunctions.canShow(setList, ifSet, ifNotSet);
 	}
 
 }

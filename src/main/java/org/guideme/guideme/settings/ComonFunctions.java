@@ -20,13 +20,31 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 public class ComonFunctions {
-	private static SecureRandom mRandom = new SecureRandom();
+	private SecureRandom mRandom = new SecureRandom();
 	private static Logger logger = LogManager.getLogger();
-    private static XPathFactory factory = XPathFactory.newInstance();
-    private static XPath xpath = factory.newXPath();
+    private XPathFactory factory = XPathFactory.newInstance();
+    private XPath xpath = factory.newXPath();
 
+	private static ComonFunctions comonFunctions;
+
+	private ComonFunctions() {
+	}
+	
+	public static synchronized ComonFunctions getComonFunctions() {
+		if (comonFunctions == null) {
+			comonFunctions = new ComonFunctions();
+		}
+		return comonFunctions;
+	}
+	
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
+	}
+
+    
+    
     //checks to see if the flags match
-    public static boolean canShow(ArrayList<String> setList, String IifSet, String IifNotSet) {
+    public boolean canShow(ArrayList<String> setList, String IifSet, String IifNotSet) {
     	boolean icanShow = false;
     	boolean blnSet = true;
     	boolean blnNotSet = true;
@@ -52,7 +70,7 @@ public class ComonFunctions {
 
     
     // Overloaded function checks pages as well 
-    public static boolean canShow(ArrayList<String> setList, String IifSet, String IifNotSet, String IPageName) {
+    public boolean canShow(ArrayList<String> setList, String IifSet, String IifNotSet, String IPageName) {
     	boolean icanShow = false;
     	try {
     		icanShow = canShow(setList, IifSet, IifNotSet);
@@ -71,7 +89,7 @@ public class ComonFunctions {
 	}
 
     //checks list of flags to see if they match
-	private static boolean MatchesIfSetCondition(String condition, ArrayList<String> setList) {
+	private boolean MatchesIfSetCondition(String condition, ArrayList<String> setList) {
 		boolean blnReturn = false;
 		boolean blnAnd = false;
 		boolean blnOr = false;
@@ -114,7 +132,7 @@ public class ComonFunctions {
 	}
 	
 	//checks a list of flags to make sure they don't match
-	private static boolean MatchesIfNotSetCondition(String condition, ArrayList<String> setList) {
+	private boolean MatchesIfNotSetCondition(String condition, ArrayList<String> setList) {
 		boolean blnReturn = false;
 		boolean blnAnd = false;
 		boolean blnOr = false;
@@ -157,7 +175,7 @@ public class ComonFunctions {
 	}
 
 	// functions to handle set flags go here
-	public static void SetFlags(String flagNames, ArrayList<String> setList) {
+	public void SetFlags(String flagNames, ArrayList<String> setList) {
 		String[] flags;
 		try {
 			flags = flagNames.split(",", -1);
@@ -173,7 +191,7 @@ public class ComonFunctions {
 		}
 	}
 
-	public static String GetFlags(ArrayList<String> setList) {
+	public String GetFlags(ArrayList<String> setList) {
 		String strFlags = "";
 		try {
 			for (int i = 0; i < setList.size(); i++) {
@@ -190,7 +208,7 @@ public class ComonFunctions {
 		return strFlags;
 	}
 
-	public static void UnsetFlags(String flagNames, ArrayList<String> setList) {
+	public void UnsetFlags(String flagNames, ArrayList<String> setList) {
 		String[] flags;
 		try {
 			flags = flagNames.split(",", -1);
@@ -207,7 +225,7 @@ public class ComonFunctions {
 	}
 	
 	//Get random number between x and y where iRandom is (x..y)
-	public static int getRandom(String iRandom) {
+	public int getRandom(String iRandom) {
 		int intRandom = 0;
 		int intPos1;
 		int intPos2;
@@ -242,7 +260,7 @@ public class ComonFunctions {
 		return intRandom;
 	}
 	
-	public static int getMilisecFromTime(String iTime) {
+	public int getMilisecFromTime(String iTime) {
 		int intPos1;
 		int intPos2;
 		String strHour;
@@ -269,7 +287,7 @@ public class ComonFunctions {
 		return intTime;
 	}
 
-	public static Element getOrAddElement(String xPath, String nodeName, Element parent, Document doc) {
+	public Element getOrAddElement(String xPath, String nodeName, Element parent, Document doc) {
 		try {
 			Element elToSet = getElement(xPath, parent);
 			if (elToSet == null) {
@@ -282,7 +300,7 @@ public class ComonFunctions {
 		}
 	}
 	
-	public static Element getElement(String xPath, Element parent) {
+	public Element getElement(String xPath, Element parent) {
 		try {
 			XPathExpression expr = xpath.compile(xPath);
 			Object Xpathresult = expr.evaluate(parent, XPathConstants.NODESET);
@@ -299,7 +317,7 @@ public class ComonFunctions {
 		}
 	}
 	
-	public static Element addElement(String nodeName, Element parentNode, Document doc) {
+	public Element addElement(String nodeName, Element parentNode, Document doc) {
 		try {
 			Element elToSet;
 			elToSet = doc.createElement(nodeName);
@@ -311,7 +329,7 @@ public class ComonFunctions {
 		}
 	}
 
-	public static String readFile(String path, Charset encoding) throws IOException {
+	public String readFile(String path, Charset encoding) throws IOException {
 		byte[] encoded = Files.readAllBytes(Paths.get(path));
 		return encoding.decode(ByteBuffer.wrap(encoded)).toString();
 	}

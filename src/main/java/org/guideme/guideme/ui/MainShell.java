@@ -88,6 +88,9 @@ public class MainShell {
 	private AudioMediaPlayerComponent audioPlayerComponent = new AudioMediaPlayerComponent();
 	private Guide guide = new Guide();
 	private MainShell mainShell;
+	private MainLogic mainLogic = MainLogic.getMainLogic();
+	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
+	private XmlGuideReader xmlGuideReader = XmlGuideReader.getXmlGuideReader();
 
 	public Shell createShell(final Display display) {
 		logger.trace("Enter createShell");
@@ -369,8 +372,8 @@ public class MainShell {
 					try {
 						if (strFileToLoad != null) {
 							strGuidePath = dialog.getFilterPath() + appSettings.getFileSeparator();
-							String strPage = XmlGuideReader.loadXML(strFileToLoad, guide);
-							MainLogic.displayPage(strPage , false, guide, mainShell, appSettings);
+							String strPage = xmlGuideReader.loadXML(strFileToLoad, guide);
+							mainLogic.displayPage(strPage , false, guide, mainShell, appSettings);
 						}
 					}
 					catch (Exception ex5) {
@@ -400,11 +403,11 @@ public class MainShell {
 		        lblLeft.setText("");
 		        guide.getFlags().clear();
 		        guide.getSettings().setPage("start");
-		        guide.getSettings().setFlags(ComonFunctions.GetFlags(guide.getFlags()));
+		        guide.getSettings().setFlags(comonFunctions.GetFlags(guide.getFlags()));
 				HashMap<String, String> scriptVariables = new HashMap<String, String>();
 				guide.getSettings().setScriptVariables(scriptVariables);
 				guide.getSettings().saveSettings();
-				MainLogic.displayPage("start", false, guide, mainShell, appSettings);
+				mainLogic.displayPage("start", false, guide, mainShell, appSettings);
 			}
 			catch (Exception ex) {
 				logger.error("Restart error " + ex.getLocalizedMessage(), ex);
@@ -533,9 +536,9 @@ public class MainShell {
 					if (cal.after(calCountDown)){
 						calCountDown = null;
 						lblLeft.setText("");
-						ComonFunctions.SetFlags(guide.getDelaySet(), guide.getFlags());
-						ComonFunctions.UnsetFlags(guide.getDelayUnSet(), guide.getFlags());
-						MainLogic.displayPage(guide.getDelTarget(), false, guide, mainShell, appSettings);
+						comonFunctions.SetFlags(guide.getDelaySet(), guide.getFlags());
+						comonFunctions.UnsetFlags(guide.getDelayUnSet(), guide.getFlags());
+						mainLogic.displayPage(guide.getDelTarget(), false, guide, mainShell, appSettings);
 					} else {
 						
 						if (guide.getDelStyle().equals("normal")) {
@@ -750,14 +753,14 @@ public class MainShell {
 				btnClicked = (com.snapps.swt.SquareButton) event.widget;
 				strTag = (String) btnClicked.getData("Set");
 				if (!strTag.equals("")) {
-					ComonFunctions.SetFlags(strTag, guide.getFlags());
+					comonFunctions.SetFlags(strTag, guide.getFlags());
 				}
 				strTag = (String) btnClicked.getData("UnSet");
 				if (!strTag.equals("")) {
-					ComonFunctions.UnsetFlags(strTag, guide.getFlags());
+					comonFunctions.UnsetFlags(strTag, guide.getFlags());
 				}
 				strTag = (String) btnClicked.getData("Target");
-				MainLogic.displayPage(strTag, false, guide, mainShell, appSettings);
+				mainLogic.displayPage(strTag, false, guide, mainShell, appSettings);
 			}
 			catch (Exception ex) {
 				logger.error(" DynamicButtonListner " + ex.getLocalizedMessage(), ex);

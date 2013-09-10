@@ -13,6 +13,7 @@ public class Button
 	private String text;
 	private String target;
 	private String jScript;
+	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 
 	public Button(String target, String text, String ifSet, String ifNotSet, String set, String unSet, String jScript)
 	{
@@ -27,8 +28,8 @@ public class Button
 
 	public void setUnSet(ArrayList<String> setList)
 	{
-		ComonFunctions.SetFlags(this.set, setList);
-		ComonFunctions.UnsetFlags(this.unSet, setList);
+		comonFunctions.SetFlags(this.set, setList);
+		comonFunctions.UnsetFlags(this.unSet, setList);
 	}
 
 	public String getSet() {
@@ -41,7 +42,7 @@ public class Button
 
 	public boolean canShow(ArrayList<String> setList)
 	{
-		return ComonFunctions.canShow(setList, this.ifSet, this.ifNotSet);
+		return comonFunctions.canShow(setList, this.ifSet, this.ifNotSet);
 	}
 
 	public String getText() {

@@ -31,6 +31,7 @@ public class UserSettings implements Cloneable{
 	private HashMap<String, String> userBooleanDesc = new HashMap<String, String>(); 
 	private HashMap<String, Double> userNumericPrefs = new HashMap<String, Double>(); 
 	private HashMap<String, String> userNumericDesc = new HashMap<String, String>();
+	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	
 	//constants
 	public static final int STRING = 1;
@@ -194,19 +195,19 @@ public class UserSettings implements Cloneable{
 			String keyVal;
 			for (Map.Entry<String, String> entry : userStringPrefs.entrySet()) {
 				keyVal = entry.getKey();
-			    Element elPref = ComonFunctions.getOrAddElement("//pref[@key='" + keyVal + "']", "pref", rootElement, doc);
+			    Element elPref = comonFunctions.getOrAddElement("//pref[@key='" + keyVal + "']", "pref", rootElement, doc);
 			    elPref.setAttribute("value",  entry.getValue());
 			}
 
 			for (Map.Entry<String, Boolean> entry : userBooleanPrefs.entrySet()) {
 				keyVal = entry.getKey();
-			    Element elPref = ComonFunctions.getOrAddElement("//pref[@key='" + keyVal + "']", "pref", rootElement, doc);
+			    Element elPref = comonFunctions.getOrAddElement("//pref[@key='" + keyVal + "']", "pref", rootElement, doc);
 			    elPref.setAttribute("value",  String.valueOf(entry.getValue()));
 			}
 
 			for (Map.Entry<String, Double> entry : userNumericPrefs.entrySet()) {
 				keyVal = entry.getKey();
-			    Element elPref = ComonFunctions.getOrAddElement("//pref[@key='" + keyVal + "']", "pref", rootElement, doc);
+			    Element elPref = comonFunctions.getOrAddElement("//pref[@key='" + keyVal + "']", "pref", rootElement, doc);
 			    elPref.setAttribute("value",  String.valueOf(entry.getValue()));
 			}
 

@@ -14,6 +14,7 @@ public class Audio {
 	private String IRepeat; //number of times to repeat the audio
 	private String IifSet; //only play the audio if theses flags are set
 	private String IifNotSet; //don't play the audo if these flags are set
+	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	
 
 	public Audio(String iid, String istartAt, String istopAt, String itarget, String iifSet, String iifNotSet, String Set, String UnSet, String Repeat) {
@@ -46,13 +47,13 @@ public class Audio {
 	
 	//pass the current flags and check if we can play this audio
 	public boolean canShow(ArrayList<String> setList) {
-		return ComonFunctions.canShow(setList, IifSet, IifNotSet);
+		return comonFunctions.canShow(setList, IifSet, IifNotSet);
 	}
 
 	//pass the current flags and do the set / unset on it
 	public void setUnSet(ArrayList<String> setList) {
-		ComonFunctions.SetFlags(ISet, setList);
-		ComonFunctions.UnsetFlags(IUnSet, setList);
+		comonFunctions.SetFlags(ISet, setList);
+		comonFunctions.UnsetFlags(IUnSet, setList);
 	}
 
 	public String getRepeat() {

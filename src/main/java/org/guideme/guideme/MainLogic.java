@@ -5,10 +5,12 @@ import java.util.Calendar;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.guideme.guideme.model.Audio;
 import org.guideme.guideme.model.Button;
 import org.guideme.guideme.model.Delay;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Image;
+import org.guideme.guideme.model.Metronome;
 import org.guideme.guideme.model.Page;
 import org.guideme.guideme.model.Video;
 import org.guideme.guideme.settings.AppSettings;
@@ -17,12 +19,28 @@ import org.guideme.guideme.ui.MainShell;
 
 public class MainLogic {
 	private static Logger logger = LogManager.getLogger();
+	private static MainLogic mainLogic;
+	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 
-	public static void displayPage(String pageName, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings) {
+	private MainLogic() {
+	}
+	
+	public static synchronized MainLogic getMainLogic() {
+		if (mainLogic == null) {
+			mainLogic = new MainLogic();
+		}
+		return mainLogic;
+	}
+	
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
+	}
+
+	public void displayPage(String pageName, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings) {
 		displayPage("default", pageName, reDisplay, guide, mainShell, appSettings);
 	}
 	
-	public static void displayPage(String chapterName, String pageName, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings) {
+	public void displayPage(String chapterName, String pageName, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings) {
 		// Main code that displays a page
 		String strImage;
 		int intDelSeconds = 0;
@@ -39,6 +57,7 @@ public class MainLogic {
 		String strDelStartAt;
 		boolean blnVideo;
 		boolean blnDelay;
+		boolean blnMetronome;
 		String imgPath = null;
 		String strFlags;
 		Page objCurrPage;
@@ -46,9 +65,11 @@ public class MainLogic {
 		Image objImage;
 		Button objButton;
 		Video objVideo;
+		Metronome objMetronome;
+		Audio objAudio;
 		
 		logger.debug("displayPage PagePassed " + pageName);
-		logger.debug("displayPage Flags " + ComonFunctions.GetFlags(guide.getFlags()));
+		logger.debug("displayPage Flags " + comonFunctions.GetFlags(guide.getFlags()));
 
 		try {
 			// handle random page
@@ -95,7 +116,7 @@ public class MainLogic {
 						int i1 = 0;
 						if (intPageArrayCount > 0) {
 							// show one of the allowed random pages
-							i1 = ComonFunctions.getRandom("(0.." + intPageArrayCount +")");
+							i1 = comonFunctions.getRandom("(0.." + intPageArrayCount +")");
 							//i1 = rndGen.nextInt(intPageArrayCount + 1);
 							logger.debug("random number between 0 and " + intPageArrayCount + " generates " + i1);
 						}
@@ -164,7 +185,7 @@ public class MainLogic {
 							int intStartAt = 0;
 							try {
 								if (strStartAt != "") {
-									intStartAt = ComonFunctions.getMilisecFromTime(strStartAt);
+									intStartAt = comonFunctions.getMilisecFromTime(strStartAt);
 								}
 							} catch (Exception e1) {
 								intStartAt = 0;
@@ -176,7 +197,7 @@ public class MainLogic {
 							int intStopAt = 0;
 							try {
 								if (strStopAt != "") {
-									intStopAt = ComonFunctions.getMilisecFromTime(strStopAt);
+									intStopAt = comonFunctions.getMilisecFromTime(strStopAt);
 								}
 							} catch (Exception e1) {
 								intStopAt = 0;
@@ -210,7 +231,7 @@ public class MainLogic {
 									// return a list of matching files
 									File[] children = f.listFiles(wildCardfilter);
 									// return a random image
-									int intFile = ComonFunctions.getRandom("(0.." + (children.length - 1) + ")" );
+									int intFile = comonFunctions.getRandom("(0.." + (children.length - 1) + ")" );
 									logger.info("displayPage Random Video Index " + intFile);
 									imgPath = appSettings.getDataDirectory() + guide.getMediaDirectory() + strSubDir + children[intFile].getName();
 									logger.info("displayPage Random Video Chosen " + imgPath);
@@ -264,7 +285,7 @@ public class MainLogic {
 										// return a list of matching files
 										File[] children = f.listFiles(wildCardfilter);
 										// return a random image
-										int intFile = ComonFunctions.getRandom("(0.." + (children.length - 1) + ")");
+										int intFile = comonFunctions.getRandom("(0.." + (children.length - 1) + ")");
 										logger.debug("displayPage Random Image Index " + intFile);
 										imgPath = appSettings.getDataDirectory() + guide.getMediaDirectory() + strSubDir + children[intFile].getName();
 										logger.debug("displayPage Random Image Chosen " + imgPath);
@@ -333,6 +354,138 @@ public class MainLogic {
 
 			}
 
+			if (!reDisplay) {
+				// Audio / Metronome
+				blnMetronome = false;
+				if (objCurrPage.getMetronomeCount() > 0) {
+					for (int i2 = 0; i2 < objCurrPage.getMetronomeCount(); i2++) {
+						objMetronome = objCurrPage.getMetronome(i2);
+						if (objMetronome.canShow(guide.getFlags())) {
+							blnMetronome = true;
+							// Metronome
+							int intbpm = objMetronome.getbpm();
+
+							logger.debug("displayPage Metronome " + intbpm + " BPM");
+							intbpm = 60000 / intbpm;
+							try {
+								tmrTetronome = new Timer();
+								tmrTetronome.schedule(new MetronomeTask(), intbpm, intbpm);
+							} catch (IllegalArgumentException e) {
+								logger.error("displayPage IllegalArgumentException ", e);
+							} catch (IllegalStateException e) {
+								logger.error("displayPage IllegalStateException ", e);
+							} catch (Exception e) {
+								logger.error("displayPage Exception ", e);
+							}
+						}
+					}
+				}
+			
+			if (!blnMetronome) {
+				// Audio
+				if (objCurrPage.getAudioCount() > 0) {
+					for (int i2 = 0; i2 < objCurrPage.getAudioCount(); i2++) {
+						objAudio = objCurrPage.getAudio(i2);
+						if (objAudio.canShow(guide.getFlags())) {
+							try {
+								String strIntAudio = objAudio.getRepeat();
+								if (strIntAudio.equals("")) {
+									intAudioLoops = 0;
+								} else {
+									intAudioLoops = Integer.parseInt(strIntAudio);
+								}
+								strAudio = objAudio.getIid();
+								logger.debug("displayPage Audio " + strAudio);
+
+								strAudio = strAudio.replace("\\", "/");
+								logger.debug("displayPage Video " + strAudio);
+								int intSubDir = strAudio.lastIndexOf("/");
+								String strSubDir;
+								if (intSubDir > -1) {
+									strSubDir = strAudio.substring(0, intSubDir + 1);
+									if (!strSubDir.startsWith("/")) {
+										strSubDir = "/" + strSubDir;
+									}
+									strAudio = strAudio.substring(intSubDir + 1);
+								} else {
+									strSubDir = "/";
+								}
+								// String strSubDir
+								// Handle wildcard *
+								if (strAudio.indexOf("*") > -1) {
+									strFilePatern = strAudio;
+									// get the directory
+									File f = new File(strPresentationPath + strMediaDirectory + strSubDir);
+									// wildcard filter class handles the filtering
+									java.io.FileFilter WildCardfilter = new WildCardFileFilter();
+									if (f.isDirectory()) {
+										// return a list of matching files
+										File[] children = f.listFiles(WildCardfilter);
+										// return a random image
+										int intFile = rndGen.nextInt(children.length);
+										logger.debug("displayPage Random Video Index " + intFile);
+										imgPath = strPresentationPath + strMediaDirectory + strSubDir + children[intFile].getName();
+										logger.debug("displayPage Random Video Chosen " + imgPath);
+									}
+								} else {
+									// no wildcard so just use the file name
+									imgPath = strPresentationPath + strMediaDirectory + strSubDir + strAudio;
+									logger.debug("displayPage Non Random Video " + imgPath);
+								}
+								strAudio = imgPath;
+								strAudioTarget = objAudio.getTarget();
+								logger.debug("displayPage Audio target " + strAudioTarget);
+								// run audio on another thread
+								new Thread(new Runnable() {
+									public void run() {
+										mMediaPlayer = new MediaPlayer();
+										try {
+											mMediaPlayer.setDataSource(strAudio);
+											mMediaPlayer.prepare();
+											// if we have a target or a number of loops do some additional processing
+											if (!strAudioTarget.equals("") || intAudioLoops > 0) {
+												logger.debug("displayPage Audio.setOnCompletionListener set target " + strAudioTarget + " loops " + intAudioLoops);
+												//set a listener for the end of the audio
+												mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+													public void onCompletion(MediaPlayer mp) {
+														//if we still need to loop play it again
+														if (intAudioLoops > 0) {
+															logger.debug("displayPage Audio.setOnCompletionListener Loop " + intAudioLoops);
+															intAudioLoops = intAudioLoops - 1;
+															//restart the audio
+															mMediaPlayer.stop();
+															mMediaPlayer.start();
+														} else {
+															//if we don't need to loop and we have a target display the target page
+															if (!strAudioTarget.equals("")) {
+																logger.debug("displayPage Audio.setOnCompletionListener display " + strAudioTarget);
+																displayPage(strAudioTarget, false);
+															}
+														}
+													}
+												});
+											}
+										} catch (IllegalArgumentException e) {
+											logger.error("displayPage IllegalArgumentException ", e);
+										} catch (IllegalStateException e) {
+											logger.error("displayPage IllegalStateException ", e);
+										} catch (IOException e) {
+											logger.error("displayPage IOException ", e);
+										}
+										logger.debug("displayPage Audio Start");
+										//start the audio
+										mMediaPlayer.start();
+									}
+								}).start();
+							} catch (Exception e1) {
+								logger.error("displayPage Audio Exception " + e1.getLocalizedMessage(), e1);
+							}
+						}
+					}
+				}
+			}
+			
+			}
 			// Save current page and flags
 			// set page
 			if (guide.getAutoSetPage()) {
@@ -346,7 +499,7 @@ public class MainLogic {
 			}
 
 			guide.getSettings().setPage(strPageName);
-			strFlags = ComonFunctions.GetFlags(guide.getFlags());
+			strFlags = comonFunctions.GetFlags(guide.getFlags());
 			logger.debug("displayPage End Flags " + strFlags);
 			guide.getSettings().setFlags(strFlags);
 			guide.getSettings().saveSettings();

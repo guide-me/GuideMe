@@ -8,6 +8,7 @@ public class Metronome {
 	private String ifSet;
 	private String ifNotSet;
 	private String bpm; //beats per minute
+	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 
 	public Metronome(String bpm, String ifSet, String ifNotSet) {
 		this.ifSet = ifSet;
@@ -16,11 +17,11 @@ public class Metronome {
 	}
 
 	public boolean canShow(ArrayList<String> setList) {
-		return ComonFunctions.canShow(setList, ifSet, ifNotSet);
+		return comonFunctions.canShow(setList, ifSet, ifNotSet);
 	}
 
 	public int getbpm() {
-		return ComonFunctions.getRandom(bpm);
+		return comonFunctions.getRandom(bpm);
 	}
 
 

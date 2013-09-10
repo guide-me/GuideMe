@@ -42,6 +42,7 @@ public class GuideSettings {
 	private HashMap<String, Double> userNumericPrefs = new HashMap<String, Double>(); 
 	private HashMap<String, String> userNumericDesc = new HashMap<String, String>(); 
 	private Logger logger = LogManager.getLogger();
+	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 
 	public GuideSettings(String GuideName) {
 		super();
@@ -64,17 +65,17 @@ public class GuideSettings {
 				Element rootElement = doc.getDocumentElement();
 				rootElement.normalize();
 
-				Element elPage = ComonFunctions.getElement("//Page", rootElement);
+				Element elPage = comonFunctions.getElement("//Page", rootElement);
 				if (elPage != null) {
 					setPage(elPage.getTextContent());
 				}
 
-				Element elFlags = ComonFunctions.getElement("//Flags", rootElement);
+				Element elFlags = comonFunctions.getElement("//Flags", rootElement);
 				if (elFlags != null) {
 					setFlags(elFlags.getTextContent());
 				}
 				
-				Element elScriptVariables = ComonFunctions.getElement("//scriptVariables", rootElement);
+				Element elScriptVariables = comonFunctions.getElement("//scriptVariables", rootElement);
 				if (elScriptVariables != null) {
 					NodeList nodeList = elScriptVariables.getElementsByTagName("Var");
 					String strName;
@@ -90,7 +91,7 @@ public class GuideSettings {
 					}
 				}
 				
-				Element elPrefVariables = ComonFunctions.getElement("//scriptPreferences", rootElement);
+				Element elPrefVariables = comonFunctions.getElement("//scriptPreferences", rootElement);
 				if (elPrefVariables != null) {
 					for(Node childNode = elPrefVariables.getFirstChild(); childNode!=null;){
 						if (childNode.getNodeType() == Node.ELEMENT_NODE) {
@@ -320,23 +321,23 @@ public class GuideSettings {
 				doc.appendChild(rootElement);
 			}
 
-		    Element elPage = ComonFunctions.getOrAddElement("//Page", "Page", rootElement, doc);
+		    Element elPage = comonFunctions.getOrAddElement("//Page", "Page", rootElement, doc);
 		    elPage.setTextContent(getPage());
 
-		    Element elFlags = ComonFunctions.getOrAddElement("//Flags", "Flags", rootElement, doc);
+		    Element elFlags = comonFunctions.getOrAddElement("//Flags", "Flags", rootElement, doc);
 		    elFlags.setTextContent(getFlags());
 
-		    Element elScriptVariables = ComonFunctions.getElement("//scriptVariables", rootElement);
+		    Element elScriptVariables = comonFunctions.getElement("//scriptVariables", rootElement);
 		    if (elScriptVariables != null) {
 		    	rootElement.removeChild(elScriptVariables);
 		    }
-		    elScriptVariables = ComonFunctions.addElement("scriptVariables", rootElement, doc);
+		    elScriptVariables = comonFunctions.addElement("scriptVariables", rootElement, doc);
 		    
 		    Iterator<String> it = scriptVariables.keySet().iterator();
 		    Element elVar;
 		    while (it.hasNext()) {
 		    	String key = it.next();
-		    	elVar = ComonFunctions.addElement("Var", elScriptVariables, doc);
+		    	elVar = comonFunctions.addElement("Var", elScriptVariables, doc);
 		    	elVar.setAttribute("id", key);
 		    	Object value = scriptVariables.get(key);
 		    	String strValue = String.valueOf(value);
@@ -346,15 +347,15 @@ public class GuideSettings {
 		    
 			String keyVal;
 			String desc;
-		    Element elscriptPreferences = ComonFunctions.getElement("//scriptPreferences", rootElement);
+		    Element elscriptPreferences = comonFunctions.getElement("//scriptPreferences", rootElement);
 		    if (elscriptPreferences != null) {
 		    	rootElement.removeChild(elscriptPreferences);
 		    }
-		    elscriptPreferences = ComonFunctions.addElement("scriptPreferences", rootElement, doc);
+		    elscriptPreferences = comonFunctions.addElement("scriptPreferences", rootElement, doc);
 			for (Map.Entry<String, String> entry : userStringPrefs.entrySet()) {
 				keyVal = entry.getKey();
 				desc = userStringDesc.get(keyVal);
-			    Element elPref = ComonFunctions.addElement("pref", elscriptPreferences, doc);
+			    Element elPref = comonFunctions.addElement("pref", elscriptPreferences, doc);
 			    elPref.setAttribute("key",  keyVal);
 			    elPref.setAttribute("screen",  desc);
 			    elPref.setAttribute("type",  "String");
@@ -364,7 +365,7 @@ public class GuideSettings {
 			for (Map.Entry<String, Boolean> entry : userBooleanPrefs.entrySet()) {
 				keyVal = entry.getKey();
 				desc = userBooleanDesc.get(keyVal);
-			    Element elPref = ComonFunctions.addElement("pref", elscriptPreferences, doc);
+			    Element elPref = comonFunctions.addElement("pref", elscriptPreferences, doc);
 			    elPref.setAttribute("key",  keyVal);
 			    elPref.setAttribute("screen",  desc);
 			    elPref.setAttribute("type",  "Boolean");
@@ -374,7 +375,7 @@ public class GuideSettings {
 			for (Map.Entry<String, Double> entry : userNumericPrefs.entrySet()) {
 				keyVal = entry.getKey();
 				desc = userNumericDesc.get(keyVal);
-			    Element elPref = ComonFunctions.addElement("pref", elscriptPreferences, doc);
+			    Element elPref = comonFunctions.addElement("pref", elscriptPreferences, doc);
 			    elPref.setAttribute("key",  keyVal);
 			    elPref.setAttribute("screen",  desc);
 			    elPref.setAttribute("type",  "Number");

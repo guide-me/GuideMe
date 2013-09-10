@@ -22,10 +22,27 @@ import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
 
 public class XmlGuideReader {
-  private static Logger logger = LogManager.getLogger();
+	private static Logger logger = LogManager.getLogger();
+	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
+
+	private static XmlGuideReader xmlGuideReader;
+
+	private XmlGuideReader() {
+	}
+	
+	public static synchronized XmlGuideReader getXmlGuideReader() {
+		if (xmlGuideReader == null) {
+			xmlGuideReader = new XmlGuideReader();
+		}
+		return xmlGuideReader;
+	}
+	
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
+	}
 
 	
-	public enum TagName
+	private enum TagName
 	{
 		pref, Title, Author, MediaDirectory, Settings, Page, Metronome, Image, Audio, Video, Delay, Button, Text, NOVALUE;
 
@@ -40,7 +57,7 @@ public class XmlGuideReader {
 	    }   
 	}	
 	
-	public static String loadXML(String xmlFileName, Guide guide) {
+	public String loadXML(String xmlFileName, Guide guide) {
 		String strTmpTitle = "";
 		String strTmpAuthor = "";
 		String strPage = "start";
@@ -381,7 +398,7 @@ public class XmlGuideReader {
 				strPage = guideSettings.getPage();
 				strFlags = guideSettings.getFlags();
 				if (strFlags != "") {
-					ComonFunctions.SetFlags(strFlags, guide.getFlags());
+					comonFunctions.SetFlags(strFlags, guide.getFlags());
 				}
 			} catch (Exception e1) {
 				logger.error("loadXML Continue Exception " + e1.getLocalizedMessage(), e1);

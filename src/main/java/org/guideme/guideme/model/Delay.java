@@ -14,6 +14,7 @@ public class Delay {
 	private String startWith;
 	private String style;
 	private String jScript;
+	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	
 	public Delay(String target, String delay, String ifSet, String ifNotSet, String startWith, String style, String set, String unSet, String jScript) {
 		this.target = target;
@@ -28,11 +29,11 @@ public class Delay {
 	}
 
 	public boolean canShow(ArrayList<String> setList) {
-		return ComonFunctions.canShow(setList, ifSet, ifNotSet);
+		return comonFunctions.canShow(setList, ifSet, ifNotSet);
 	}
 
 	public int getDelaySec() {
-		return ComonFunctions.getRandom(delay);
+		return comonFunctions.getRandom(delay);
 	}
 
 	public String getTarget() {
@@ -49,8 +50,8 @@ public class Delay {
 	
 	public void setUnSet(ArrayList<String> setList) {
 		//pass in the current flags and either add or remove the ones for this delay
-		ComonFunctions.SetFlags(set, setList);
-		ComonFunctions.UnsetFlags(unSet, setList);
+		comonFunctions.SetFlags(set, setList);
+		comonFunctions.UnsetFlags(unSet, setList);
 	}
 
 	public String getSet() {
