@@ -29,7 +29,7 @@ public class HtmlGuideReader {
 	}
 	
 	private Guide CreateFromDocument(Document doc) {
-		Guide guide = new Guide();
+		Guide guide = Guide.getGuide();
 		
 		readGeneralInformation(guide, doc);
 		readChapters(guide, doc);

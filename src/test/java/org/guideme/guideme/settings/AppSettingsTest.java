@@ -19,7 +19,7 @@ public class AppSettingsTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		myAppSettings = new AppSettings();
+		myAppSettings = AppSettings.getAppSettings();
 		FontSize = myAppSettings.getFontSize();
 		HtmlFontSize = myAppSettings.getHtmlFontSize();
 		Debug = myAppSettings.getDebug();
@@ -45,7 +45,7 @@ public class AppSettingsTest {
 		myAppSettings.setSash2Weights(sw2);
 		myAppSettings.saveSettings();
 		myAppSettings= null;
-		myAppSettings = new AppSettings();
+		myAppSettings = AppSettings.getAppSettings();
 	}
 
 	@AfterClass

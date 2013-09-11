@@ -17,6 +17,7 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.guideme.guideme.MainLogic;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -32,13 +33,21 @@ public class UserSettings implements Cloneable{
 	private HashMap<String, Double> userNumericPrefs = new HashMap<String, Double>(); 
 	private HashMap<String, String> userNumericDesc = new HashMap<String, String>();
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
+	private static UserSettings userSettings;
 	
 	//constants
 	public static final int STRING = 1;
 	public static final int NUMBER = 2;
 	public static final int BOOLEAN = 3;
 
-	public UserSettings() {
+	public static synchronized UserSettings getUserSettings() {
+		if (userSettings == null) {
+			userSettings = new UserSettings();
+		}
+		return userSettings;
+	}
+	
+	private UserSettings() {
 		super();
 		try {
 			File xmlFile = new File(userSettingsLocation);

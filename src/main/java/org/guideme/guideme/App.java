@@ -25,7 +25,7 @@ public class App
             logger.trace("Enter main");
       		boolean loadSleak = false;
 
-      		AppSettings appSettings = new AppSettings();
+      		AppSettings appSettings = AppSettings.getAppSettings();
       		Display display;
       		if (appSettings.getDebug()) {
       			Properties properties = java.lang.System.getProperties();

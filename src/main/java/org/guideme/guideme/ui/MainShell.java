@@ -65,6 +65,7 @@ public class MainShell {
 	private int MintFontSize;
 	private int MintHtmlFontSize;
 	private String strGuidePath;
+	private int metronomeBPM = 0;
 	private GuideSettings guideSettings = new GuideSettings("startup");
 	private UserSettings userSettings = null;
 	private Label lblLeft;
@@ -86,7 +87,7 @@ public class MainShell {
 	private Canvas videoSurfaceCanvas;
 	private CanvasVideoSurface videoSurface;
 	private AudioMediaPlayerComponent audioPlayerComponent = new AudioMediaPlayerComponent();
-	private Guide guide = new Guide();
+	private Guide guide = Guide.getGuide();
 	private MainShell mainShell;
 	private MainLogic mainLogic = MainLogic.getMainLogic();
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
@@ -99,7 +100,7 @@ public class MainShell {
 		int[] intWeights2 = new int[2];
 		colourBlack = display.getSystemColor(SWT.COLOR_BLACK);
 		try {
-			appSettings = new AppSettings();
+			appSettings = AppSettings.getAppSettings();
 
 			// debug flag
 			//blnDebug = appSettings.getDebug();
@@ -119,7 +120,7 @@ public class MainShell {
 			intWeights1 = appSettings.getSash1Weights();
 			intWeights2 = appSettings.getSash2Weights();
 
-			userSettings = new UserSettings();
+			userSettings = UserSettings.getUserSettings();
 
 		} catch (NumberFormatException e) {
 			logger.error("OnCreate NumberFormatException ", e);
@@ -651,6 +652,46 @@ public class MainShell {
 	
 	
 	public void playAudio(String audio) {
+		// run audio on another thread
+		new Thread(new Runnable() {
+			public void run() {
+				try {
+					mMediaPlayer.setDataSource(strAudio);
+					mMediaPlayer.prepare();
+					// if we have a target or a number of loops do some additional processing
+					if (!strAudioTarget.equals("") || intAudioLoops > 0) {
+						logger.debug("displayPage Audio.setOnCompletionListener set target " + strAudioTarget + " loops " + intAudioLoops);
+						//set a listener for the end of the audio
+						mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+							public void onCompletion(MediaPlayer mp) {
+								//if we still need to loop play it again
+								if (intAudioLoops > 0) {
+									logger.debug("displayPage Audio.setOnCompletionListener Loop " + intAudioLoops);
+									intAudioLoops = intAudioLoops - 1;
+									//restart the audio
+									mMediaPlayer.stop();
+									mMediaPlayer.start();
+								} else {
+									//if we don't need to loop and we have a target display the target page
+									if (!strAudioTarget.equals("")) {
+										logger.debug("displayPage Audio.setOnCompletionListener display " + strAudioTarget);
+										displayPage(strAudioTarget, false);
+									}
+								}
+							}
+						});
+					}
+				} catch (IllegalArgumentException e) {
+					logger.error("displayPage IllegalArgumentException ", e);
+				} catch (IllegalStateException e) {
+					logger.error("displayPage IllegalStateException ", e);
+				} catch (IOException e) {
+					logger.error("displayPage IOException ", e);
+				}
+				logger.debug("displayPage Audio Start");
+				//start the audio
+			}
+		}).start();
 		
 	}
 	
@@ -776,5 +817,9 @@ public class MainShell {
 	      controls[0].setFocus();
 	    }
 	    controls = null;
+	}
+
+	public void setMetronomeBPM(int metronomeBPM) {
+		this.metronomeBPM = metronomeBPM;
 	}
 }

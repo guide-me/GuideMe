@@ -368,8 +368,7 @@ public class MainLogic {
 							logger.debug("displayPage Metronome " + intbpm + " BPM");
 							intbpm = 60000 / intbpm;
 							try {
-								tmrTetronome = new Timer();
-								tmrTetronome.schedule(new MetronomeTask(), intbpm, intbpm);
+								mainShell.setMetronomeBPM(intbpm);
 							} catch (IllegalArgumentException e) {
 								logger.error("displayPage IllegalArgumentException ", e);
 							} catch (IllegalStateException e) {
@@ -434,49 +433,8 @@ public class MainLogic {
 								}
 								strAudio = imgPath;
 								strAudioTarget = objAudio.getTarget();
+								mainShell.playAudio(strAudio);
 								logger.debug("displayPage Audio target " + strAudioTarget);
-								// run audio on another thread
-								new Thread(new Runnable() {
-									public void run() {
-										mMediaPlayer = new MediaPlayer();
-										try {
-											mMediaPlayer.setDataSource(strAudio);
-											mMediaPlayer.prepare();
-											// if we have a target or a number of loops do some additional processing
-											if (!strAudioTarget.equals("") || intAudioLoops > 0) {
-												logger.debug("displayPage Audio.setOnCompletionListener set target " + strAudioTarget + " loops " + intAudioLoops);
-												//set a listener for the end of the audio
-												mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-													public void onCompletion(MediaPlayer mp) {
-														//if we still need to loop play it again
-														if (intAudioLoops > 0) {
-															logger.debug("displayPage Audio.setOnCompletionListener Loop " + intAudioLoops);
-															intAudioLoops = intAudioLoops - 1;
-															//restart the audio
-															mMediaPlayer.stop();
-															mMediaPlayer.start();
-														} else {
-															//if we don't need to loop and we have a target display the target page
-															if (!strAudioTarget.equals("")) {
-																logger.debug("displayPage Audio.setOnCompletionListener display " + strAudioTarget);
-																displayPage(strAudioTarget, false);
-															}
-														}
-													}
-												});
-											}
-										} catch (IllegalArgumentException e) {
-											logger.error("displayPage IllegalArgumentException ", e);
-										} catch (IllegalStateException e) {
-											logger.error("displayPage IllegalStateException ", e);
-										} catch (IOException e) {
-											logger.error("displayPage IOException ", e);
-										}
-										logger.debug("displayPage Audio Start");
-										//start the audio
-										mMediaPlayer.start();
-									}
-								}).start();
 							} catch (Exception e1) {
 								logger.error("displayPage Audio Exception " + e1.getLocalizedMessage(), e1);
 							}

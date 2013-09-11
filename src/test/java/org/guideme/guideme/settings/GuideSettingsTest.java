@@ -17,7 +17,7 @@ public class GuideSettingsTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		appSettings = new AppSettings();
+		appSettings = AppSettings.getAppSettings();
 		dataDirectory = appSettings.getDataDirectory();
 		appSettings.setDataDirectory(appSettings.getUserDir());
 		appSettings.saveSettings();

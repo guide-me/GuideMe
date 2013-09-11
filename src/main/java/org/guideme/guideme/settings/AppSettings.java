@@ -7,6 +7,7 @@ import java.util.Properties;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.guideme.guideme.MainLogic;
 
 public class AppSettings {
 	private Logger logger = LogManager.getLogger();
@@ -16,14 +17,26 @@ public class AppSettings {
 	private String DataDirectory;
 	private int[] sash1Weights = new int[2];
 	private int[] sash2Weights = new int[2];
-	private Properties appSettings = new Properties();
+	private Properties appSettingsProperties = new Properties();
 	private String settingsLocation = "settings.properties";
 	private String userDir;
 	private String userHome;
 	private String userName;
 	private String fileSeparator;
+	private static AppSettings appSettings;
 
-	public AppSettings() {
+	public static synchronized AppSettings getAppSettings() {
+		if (appSettings == null) {
+			appSettings = new AppSettings();
+		}
+		return appSettings;
+	}
+	
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
+	}
+
+	private AppSettings() {
 		super();
 		Properties properties = java.lang.System.getProperties();
 		userDir = String.valueOf(properties.get("user.dir"));
@@ -32,20 +45,20 @@ public class AppSettings {
 		fileSeparator = String.valueOf(properties.get("file.separator"));
 		try {
 			try {
-				appSettings.loadFromXML(new FileInputStream(settingsLocation));
+				appSettingsProperties.loadFromXML(new FileInputStream(settingsLocation));
 			}
 			catch (IOException ex) {
 				//failed to load file so just carry on
 				logger.error(ex.getLocalizedMessage(), ex);
 			}
-			FontSize = Integer.parseInt(appSettings.getProperty("FontSize", "20"));
-			HtmlFontSize = Integer.parseInt(appSettings.getProperty("HtmlFontSize", "20"));
-			Debug = Boolean.parseBoolean(appSettings.getProperty("Debug", "false"));
-			DataDirectory = appSettings.getProperty("DataDirectory", userDir);
-			sash1Weights[0] = Integer.parseInt(appSettings.getProperty("sash1Weights0", "350"));
-			sash1Weights[1] = Integer.parseInt(appSettings.getProperty("sash1Weights1", "350"));
-			sash2Weights[0] = Integer.parseInt(appSettings.getProperty("sash2Weights0", "800"));
-			sash2Weights[1] = Integer.parseInt(appSettings.getProperty("sash2Weights1", "200"));
+			FontSize = Integer.parseInt(appSettingsProperties.getProperty("FontSize", "20"));
+			HtmlFontSize = Integer.parseInt(appSettingsProperties.getProperty("HtmlFontSize", "20"));
+			Debug = Boolean.parseBoolean(appSettingsProperties.getProperty("Debug", "false"));
+			DataDirectory = appSettingsProperties.getProperty("DataDirectory", userDir);
+			sash1Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights0", "350"));
+			sash1Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights1", "350"));
+			sash2Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights0", "800"));
+			sash2Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights1", "200"));
 		}
 		catch (Exception ex) {
 			logger.error(ex.getLocalizedMessage(), ex);
@@ -95,15 +108,15 @@ public class AppSettings {
 
 	public void saveSettings() {
 		try {
-			appSettings.setProperty("FontSize", String.valueOf(FontSize));
-			appSettings.setProperty("HtmlFontSize", String.valueOf(HtmlFontSize));
-			appSettings.setProperty("Debug", String.valueOf(Debug));
-			appSettings.setProperty("DataDirectory", DataDirectory);
-			appSettings.setProperty("sash1Weights0", String.valueOf(sash1Weights[0]));
-			appSettings.setProperty("sash1Weights1", String.valueOf(sash1Weights[1]));
-			appSettings.setProperty("sash2Weights0", String.valueOf(sash2Weights[0]));
-			appSettings.setProperty("sash2Weights1", String.valueOf(sash2Weights[1]));
-			appSettings.storeToXML(new FileOutputStream(settingsLocation), null);
+			appSettingsProperties.setProperty("FontSize", String.valueOf(FontSize));
+			appSettingsProperties.setProperty("HtmlFontSize", String.valueOf(HtmlFontSize));
+			appSettingsProperties.setProperty("Debug", String.valueOf(Debug));
+			appSettingsProperties.setProperty("DataDirectory", DataDirectory);
+			appSettingsProperties.setProperty("sash1Weights0", String.valueOf(sash1Weights[0]));
+			appSettingsProperties.setProperty("sash1Weights1", String.valueOf(sash1Weights[1]));
+			appSettingsProperties.setProperty("sash2Weights0", String.valueOf(sash2Weights[0]));
+			appSettingsProperties.setProperty("sash2Weights1", String.valueOf(sash2Weights[1]));
+			appSettingsProperties.storeToXML(new FileOutputStream(settingsLocation), null);
 		}
 		catch (Exception e) {
 			logger.error(e.getLocalizedMessage(), e);

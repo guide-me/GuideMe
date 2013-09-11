@@ -52,7 +52,7 @@ public class GuideSettings {
 		String value;
 		String type;
 		String desc;
-		AppSettings appSettings = new AppSettings();
+		AppSettings appSettings = AppSettings.getAppSettings();
 		filename = appSettings.getDataDirectory() + appSettings.getFileSeparator() + GuideName + ".state";
 		try {
 			//if a state file already exists use it 

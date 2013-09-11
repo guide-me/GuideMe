@@ -13,7 +13,7 @@ public class GuidePreferenceShellTest {
 
 	public static void main(String[] args) {
 		Display myDisplay = new Display();
-		AppSettings appSettings = new AppSettings();
+		AppSettings appSettings = AppSettings.getAppSettings();
 		String dataDirectory = appSettings.getDataDirectory();
 		appSettings.setDataDirectory(appSettings.getUserDir());
 		appSettings.saveSettings();

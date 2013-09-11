@@ -19,7 +19,7 @@ public class HtmlGuideWriterReaderTest {
 		writer = new HtmlGuideWriter();
 		reader = new HtmlGuideReader();
 
-		originalGuide = new Guide();
+		originalGuide = Guide.getGuide();
 	}
 	
 	@Test

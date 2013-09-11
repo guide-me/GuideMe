@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import org.guideme.guideme.MainLogic;
 import org.guideme.guideme.settings.GuideSettings;
 
 public class Guide {
@@ -32,6 +33,24 @@ public class Guide {
 	private int mediaStartAt;
 	private int mediaStopAt;
 	private String jScript;
+	private static Guide guide;
+	
+	private Guide() {
+		
+	}
+
+	public static synchronized Guide getGuide() {
+		if (guide == null) {
+			guide = new Guide();
+		}
+		return guide;
+	}
+	
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
+	}
+
+	
 	
 	public String getTitle() {
 		return title;

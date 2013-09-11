@@ -37,19 +37,20 @@ public class JscriptTest {
 	public static void main(String[] args) {
 		Control tmpWidget;
 		Control tmpWidget2;
+		ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 		Display display = new Display();
-		AppSettings appSettings = new AppSettings();
+		AppSettings appSettings = AppSettings.getAppSettings();
 		Font sysFont = display.getSystemFont();
 		FontData[] fD = sysFont.getFontData();
 		fD[0].setHeight(appSettings.getFontSize());
 		controlFont = new Font(display, fD);
-		UserSettings userSettings = new UserSettings();
+		UserSettings userSettings = UserSettings.getUserSettings();
 		String dataDirectory = appSettings.getDataDirectory();
 		appSettings.setDataDirectory(appSettings.getUserDir());
 		appSettings.saveSettings();
 		GuideSettings guideSettings = new GuideSettings("GuideTest");
 		try {
-			String source = ComonFunctions.readFile("test.js", Charset.defaultCharset());
+			String source = comonFunctions.readFile("test.js", Charset.defaultCharset());
 			Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
 			jscript.runScript(source);
 		} catch (IOException e) {

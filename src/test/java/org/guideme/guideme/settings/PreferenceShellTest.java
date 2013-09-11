@@ -13,8 +13,8 @@ public class PreferenceShellTest {
 
 	public static void main(String[] args) {
 		Display myDisplay = new Display();
-		UserSettings userSettings = new UserSettings();
-		AppSettings appSettings = new AppSettings();
+		UserSettings userSettings = UserSettings.getUserSettings();
+		AppSettings appSettings = AppSettings.getAppSettings();
 		Shell prefShell = new PreferenceShell().createShell(myDisplay, userSettings, appSettings);
 		prefShell.open();
 		while (!prefShell.isDisposed()) {
