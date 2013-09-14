@@ -31,6 +31,15 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.RowLayout;
 import java.awt.Canvas;
+import java.io.IOException;
+
+import javax.sound.midi.MidiEvent;
+import javax.sound.midi.MidiSystem;
+import javax.sound.midi.Sequence;
+import javax.sound.midi.Sequencer;
+import javax.sound.midi.ShortMessage;
+import javax.sound.midi.Track;
+
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
@@ -92,6 +101,8 @@ public class MainShell {
 	private MainLogic mainLogic = MainLogic.getMainLogic();
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	private XmlGuideReader xmlGuideReader = XmlGuideReader.getXmlGuideReader();
+	private MetronomePlayer metronome;
+	private Thread threadMetronome;
 
 	public Shell createShell(final Display display) {
 		logger.trace("Enter createShell");
@@ -318,6 +329,7 @@ public class MainShell {
 				appSettings.setDataDirectory(strGuidePath);
 				appSettings.saveSettings();
 				controlFont.dispose();
+				metronome.metronomeStop();
 				mediaPlayer.stop();
 				mediaPlayer.release();
 				mediaPlayerFactory.release();
@@ -819,7 +831,18 @@ public class MainShell {
 	    controls = null;
 	}
 
-	public void setMetronomeBPM(int metronomeBPM) {
-		this.metronomeBPM = metronomeBPM;
+	public void setMetronomeBPM(int metronomeBPM, int instrument, int loops, int resolution, String Rhythm) {
+		// run metronome on another thread
+		metronome = new MetronomePlayer(metronomeBPM, instrument, loops, resolution, Rhythm);
+		threadMetronome = new Thread(metronome);
+		threadMetronome.start();
 	}
+
+	public void stopMetronome() {
+		if (metronome != null) {
+			metronome.metronomeStop();
+		}
+	}
+	
+
 }

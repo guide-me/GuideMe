@@ -72,6 +72,7 @@ public class MainLogic {
 		logger.debug("displayPage Flags " + comonFunctions.GetFlags(guide.getFlags()));
 
 		try {
+			mainShell.stopMetronome();
 			// handle random page
 			strPageName = pageName;
 			strPre = "";
@@ -364,11 +365,9 @@ public class MainLogic {
 							blnMetronome = true;
 							// Metronome
 							int intbpm = objMetronome.getbpm();
-
 							logger.debug("displayPage Metronome " + intbpm + " BPM");
-							intbpm = 60000 / intbpm;
 							try {
-								mainShell.setMetronomeBPM(intbpm);
+								mainShell.setMetronomeBPM(objMetronome.getbpm(), objMetronome.getInstrument(), objMetronome.getLoops(), objMetronome.getResolution(), objMetronome.getRhythm());
 							} catch (IllegalArgumentException e) {
 								logger.error("displayPage IllegalArgumentException ", e);
 							} catch (IllegalStateException e) {
