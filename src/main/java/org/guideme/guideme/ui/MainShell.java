@@ -31,14 +31,6 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.RowLayout;
 import java.awt.Canvas;
-import java.io.IOException;
-
-import javax.sound.midi.MidiEvent;
-import javax.sound.midi.MidiSystem;
-import javax.sound.midi.Sequence;
-import javax.sound.midi.Sequencer;
-import javax.sound.midi.ShortMessage;
-import javax.sound.midi.Track;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -60,7 +52,6 @@ import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
 import org.guideme.guideme.settings.UserSettings;
 
-import uk.co.caprica.vlcj.component.AudioMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
 import uk.co.caprica.vlcj.player.MediaPlayerFactory;
@@ -74,7 +65,6 @@ public class MainShell {
 	private int MintFontSize;
 	private int MintHtmlFontSize;
 	private String strGuidePath;
-	private int metronomeBPM = 0;
 	private GuideSettings guideSettings = new GuideSettings("startup");
 	private UserSettings userSettings = null;
 	private Label lblLeft;
@@ -95,7 +85,6 @@ public class MainShell {
 	private Frame videoFrame;
 	private Canvas videoSurfaceCanvas;
 	private CanvasVideoSurface videoSurface;
-	private AudioMediaPlayerComponent audioPlayerComponent = new AudioMediaPlayerComponent();
 	private Guide guide = Guide.getGuide();
 	private MainShell mainShell;
 	private MainLogic mainLogic = MainLogic.getMainLogic();
@@ -103,6 +92,8 @@ public class MainShell {
 	private XmlGuideReader xmlGuideReader = XmlGuideReader.getXmlGuideReader();
 	private MetronomePlayer metronome;
 	private Thread threadMetronome;
+	private AudioPlayer audioPlayer;
+	private Thread threadAudioPlayer;
 
 	public Shell createShell(final Display display) {
 		logger.trace("Enter createShell");
@@ -665,46 +656,9 @@ public class MainShell {
 	
 	public void playAudio(String audio) {
 		// run audio on another thread
-		new Thread(new Runnable() {
-			public void run() {
-				try {
-					mMediaPlayer.setDataSource(strAudio);
-					mMediaPlayer.prepare();
-					// if we have a target or a number of loops do some additional processing
-					if (!strAudioTarget.equals("") || intAudioLoops > 0) {
-						logger.debug("displayPage Audio.setOnCompletionListener set target " + strAudioTarget + " loops " + intAudioLoops);
-						//set a listener for the end of the audio
-						mMediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-							public void onCompletion(MediaPlayer mp) {
-								//if we still need to loop play it again
-								if (intAudioLoops > 0) {
-									logger.debug("displayPage Audio.setOnCompletionListener Loop " + intAudioLoops);
-									intAudioLoops = intAudioLoops - 1;
-									//restart the audio
-									mMediaPlayer.stop();
-									mMediaPlayer.start();
-								} else {
-									//if we don't need to loop and we have a target display the target page
-									if (!strAudioTarget.equals("")) {
-										logger.debug("displayPage Audio.setOnCompletionListener display " + strAudioTarget);
-										displayPage(strAudioTarget, false);
-									}
-								}
-							}
-						});
-					}
-				} catch (IllegalArgumentException e) {
-					logger.error("displayPage IllegalArgumentException ", e);
-				} catch (IllegalStateException e) {
-					logger.error("displayPage IllegalStateException ", e);
-				} catch (IOException e) {
-					logger.error("displayPage IOException ", e);
-				}
-				logger.debug("displayPage Audio Start");
-				//start the audio
-			}
-		}).start();
-		
+		audioPlayer = new AudioPlayer(audio, "");
+		threadAudioPlayer = new Thread(audioPlayer);
+		threadAudioPlayer.start();
 	}
 	
 	public void setBrwsText(String brwsText) {

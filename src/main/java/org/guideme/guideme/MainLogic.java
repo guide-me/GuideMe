@@ -222,6 +222,7 @@ public class MainLogic {
 							
 							// String strSubDir
 							// Handle wildcard *
+							imgPath = "";
 							if (strImage.indexOf("*") > -1) {
 								// get the directory
 								File f = new File(appSettings.getDataDirectory() + guide.getMediaDirectory() + strSubDir);
@@ -386,6 +387,11 @@ public class MainLogic {
 						objAudio = objCurrPage.getAudio(i2);
 						if (objAudio.canShow(guide.getFlags())) {
 							try {
+								//TODO code properly
+								int intAudioLoops;
+								String strAudio;
+								String strFilePatern;
+								String strAudioTarget;
 								String strIntAudio = objAudio.getRepeat();
 								if (strIntAudio.equals("")) {
 									intAudioLoops = 0;
@@ -413,21 +419,21 @@ public class MainLogic {
 								if (strAudio.indexOf("*") > -1) {
 									strFilePatern = strAudio;
 									// get the directory
-									File f = new File(strPresentationPath + strMediaDirectory + strSubDir);
+									File f = new File(appSettings.getDataDirectory() + guide.getMediaDirectory() + strSubDir);
 									// wildcard filter class handles the filtering
 									java.io.FileFilter WildCardfilter = new WildCardFileFilter();
 									if (f.isDirectory()) {
 										// return a list of matching files
 										File[] children = f.listFiles(WildCardfilter);
 										// return a random image
-										int intFile = rndGen.nextInt(children.length);
+										int intFile = comonFunctions.getRandom("(0.." + (children.length - 1) + ")");
 										logger.debug("displayPage Random Video Index " + intFile);
-										imgPath = strPresentationPath + strMediaDirectory + strSubDir + children[intFile].getName();
+										imgPath = appSettings.getDataDirectory() + guide.getMediaDirectory() + strSubDir + children[intFile].getName();
 										logger.debug("displayPage Random Video Chosen " + imgPath);
 									}
 								} else {
 									// no wildcard so just use the file name
-									imgPath = strPresentationPath + strMediaDirectory + strSubDir + strAudio;
+									imgPath = appSettings.getDataDirectory() + guide.getMediaDirectory() + strSubDir + strAudio;
 									logger.debug("displayPage Non Random Video " + imgPath);
 								}
 								strAudio = imgPath;
