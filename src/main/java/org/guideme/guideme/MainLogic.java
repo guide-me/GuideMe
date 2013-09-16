@@ -67,6 +67,7 @@ public class MainLogic {
 		Video objVideo;
 		Metronome objMetronome;
 		Audio objAudio;
+		String fileSeparator = appSettings.getFileSeparator();
 		
 		logger.debug("displayPage PagePassed " + pageName);
 		logger.debug("displayPage Flags " + comonFunctions.GetFlags(guide.getFlags()));
@@ -206,18 +207,18 @@ public class MainLogic {
 							}
 
 
-							strImage = strImage.replace("\\", "/");
+							strImage = strImage.replace("\\", fileSeparator);
 							logger.info("displayPage Video " + strImage);
-							int intSubDir = strImage.lastIndexOf("/");
+							int intSubDir = strImage.lastIndexOf(fileSeparator);
 							String strSubDir;
 							if (intSubDir > -1) {
 								strSubDir = strImage.substring(0, intSubDir + 1);
-								if (!strSubDir.startsWith("/")) {
-									strSubDir = "/" + strSubDir;
+								if (!strSubDir.startsWith(fileSeparator)) {
+									strSubDir = fileSeparator + strSubDir;
 								}
 								strImage = strImage.substring(intSubDir + 1);
 							} else {
-								strSubDir = "/";
+								strSubDir = fileSeparator;
 							}
 							
 							// String strSubDir
@@ -243,7 +244,7 @@ public class MainLogic {
 								imgPath = appSettings.getDataDirectory() + guide.getMediaDirectory() + strSubDir + strImage;
 								logger.info("displayPage Non Random Video " + imgPath);
 							}
-							imgPath = imgPath.replace("\\", "/");
+							imgPath = imgPath.replace("\\", fileSeparator);
 
 							try {
 								guide.setMediaStartAt(intStartAt);
@@ -390,7 +391,6 @@ public class MainLogic {
 								//TODO code properly
 								int intAudioLoops;
 								String strAudio;
-								String strFilePatern;
 								String strAudioTarget;
 								String strIntAudio = objAudio.getRepeat();
 								if (strIntAudio.equals("")) {
@@ -401,35 +401,35 @@ public class MainLogic {
 								strAudio = objAudio.getIid();
 								logger.debug("displayPage Audio " + strAudio);
 
-								strAudio = strAudio.replace("\\", "/");
-								logger.debug("displayPage Video " + strAudio);
-								int intSubDir = strAudio.lastIndexOf("/");
+								strAudio = strAudio.replace("\\", fileSeparator);
+								logger.debug("displayPage Audio " + strAudio);
+								int intSubDir = strAudio.lastIndexOf(fileSeparator);
 								String strSubDir;
 								if (intSubDir > -1) {
 									strSubDir = strAudio.substring(0, intSubDir + 1);
-									if (!strSubDir.startsWith("/")) {
-										strSubDir = "/" + strSubDir;
+									if (!strSubDir.startsWith(fileSeparator)) {
+										strSubDir = fileSeparator + strSubDir;
 									}
 									strAudio = strAudio.substring(intSubDir + 1);
 								} else {
-									strSubDir = "/";
+									strSubDir = fileSeparator;
 								}
 								// String strSubDir
 								// Handle wildcard *
 								if (strAudio.indexOf("*") > -1) {
-									strFilePatern = strAudio;
 									// get the directory
 									File f = new File(appSettings.getDataDirectory() + guide.getMediaDirectory() + strSubDir);
 									// wildcard filter class handles the filtering
-									java.io.FileFilter WildCardfilter = new WildCardFileFilter();
+									WildCardFileFilter WildCardfilter = new WildCardFileFilter();
+									WildCardfilter.setFilePatern(strAudio);
 									if (f.isDirectory()) {
 										// return a list of matching files
 										File[] children = f.listFiles(WildCardfilter);
 										// return a random image
 										int intFile = comonFunctions.getRandom("(0.." + (children.length - 1) + ")");
-										logger.debug("displayPage Random Video Index " + intFile);
+										logger.debug("displayPage Random Audio Index " + intFile);
 										imgPath = appSettings.getDataDirectory() + guide.getMediaDirectory() + strSubDir + children[intFile].getName();
-										logger.debug("displayPage Random Video Chosen " + imgPath);
+										logger.debug("displayPage Random Audio Chosen " + imgPath);
 									}
 								} else {
 									// no wildcard so just use the file name

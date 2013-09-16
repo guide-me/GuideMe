@@ -3,41 +3,59 @@ package org.guideme.guideme.ui;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import uk.co.caprica.vlcj.component.AudioMediaPlayerComponent;
-import uk.co.caprica.vlcj.player.MediaPlayer;
-import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
+import uk.co.caprica.vlcj.component.AudioMediaListPlayerComponent;
+import uk.co.caprica.vlcj.medialist.MediaList;
+//import uk.co.caprica.vlcj.player.MediaPlayer;
+//import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
+import uk.co.caprica.vlcj.player.list.MediaListPlayer;
+import uk.co.caprica.vlcj.player.list.MediaListPlayerEventAdapter;
 
 public class AudioPlayer  implements Runnable {
 	
 	private static Logger logger = LogManager.getLogger();
-	private AudioMediaPlayerComponent audioPlayerComponent = new AudioMediaPlayerComponent();
-	private MediaPlayer mediaPlayer;
+	private AudioMediaListPlayerComponent audioPlayer = new AudioMediaListPlayerComponent();
+	//private MediaPlayer mediaPlayer;
+	private MediaListPlayer mediaListPlayer;
+	private MediaList mediaList;
 	private Boolean isPlaying = true;
 	private String audioFile = "";
 	private String mediaOptions;
+	private int loops = 0;
+	private int loopCount = 0;
 
-	public AudioPlayer(String audioFile, String mediaOptions) {
+	public AudioPlayer(String audioFile, String mediaOptions, int loops) {
 		this.audioFile = audioFile;
 		this.mediaOptions = mediaOptions; 
+		this.loops = loops;
 	}
 
 	public void audioStop() {
 		//stop the audio 
-		if (mediaPlayer.isPlaying()) {
-			mediaPlayer.stop();
+		if (mediaListPlayer != null) {
+			if (mediaListPlayer.isPlaying()) {
+				mediaListPlayer.stop();
+			}
+			isPlaying = false;
 		}
-		isPlaying = false;
 	}
 
 	public void run() {
 		try {
-			mediaPlayer = audioPlayerComponent.getMediaPlayer();
-			mediaPlayer.addMediaPlayerEventListener(new MediaListener());
-			if (mediaOptions.equals("")) {
-				mediaPlayer.playMedia(audioFile);
-			} else {
-				mediaPlayer.playMedia(audioFile, mediaOptions);
+			//mediaPlayer = audioPlayer.getMediaPlayer();
+			mediaListPlayer = audioPlayer.getMediaListPlayer();
+			//mediaPlayer.addMediaPlayerEventListener(new MediaListener());
+			mediaList = mediaListPlayer.getMediaList();
+			mediaListPlayer.addMediaListPlayerEventListener(new MediaListListener());
+			String[] options = mediaOptions.split(",");
+			for (int i=0; i <= loops; i++) {
+				if (mediaOptions.equals("")) {
+					mediaList.addMedia(audioFile);
+				} else {
+					mediaList.addMedia(audioFile, options);
+				}
 			}
+			loopCount = loops;
+			mediaListPlayer.play();
 			while (isPlaying) {
 				// while the audio is still running carry on looping
 				Thread.sleep(5000);
@@ -45,17 +63,44 @@ public class AudioPlayer  implements Runnable {
 		} catch (Exception e) {
 			logger.error("AudioPlayer run ", e);
 		}
-		if (mediaPlayer != null) {
-			if (mediaPlayer.isPlaying()) {
-				mediaPlayer.stop();
+		if (mediaListPlayer != null) {
+			if (mediaListPlayer.isPlaying()) {
+				mediaListPlayer.stop();
 			}
-			mediaPlayer = null;
+			mediaList.release();
+			mediaListPlayer.release();
+			mediaListPlayer = null;
 		}
-		if (audioPlayerComponent != null) {
-			audioPlayerComponent.release(true);
-			audioPlayerComponent = null;
+		if (audioPlayer != null) {
+			audioPlayer.release(true);
+			audioPlayer = null;
 		}
 	}
+	
+	
+	class MediaListListener extends MediaListPlayerEventAdapter {
+
+		@Override
+		public void mediaStateChanged(MediaListPlayer mediaListPlayer,
+				int newState) {
+			super.mediaStateChanged(mediaListPlayer, newState);
+			logger.debug("New State " + newState);
+			logger.debug("loopCount " + loopCount);
+			if (newState == 6) {
+				if (loopCount == 0){
+					isPlaying = false;
+					logger.debug("isPlaying " + isPlaying);
+				} else {
+					loopCount--;
+				}
+			}
+			
+			
+		}
+
+	}
+	
+	/*
 	class MediaListener extends MediaPlayerEventAdapter {
 
 		@Override
@@ -72,13 +117,14 @@ public class AudioPlayer  implements Runnable {
 		public void finished(MediaPlayer mediaPlayer) {
 			super.finished(mediaPlayer);
 			try {
-				isPlaying = false;
+				//isPlaying = false;
 			}
 			catch (Exception ex) {
 				logger.error(" MediaListener finished " + ex.getLocalizedMessage(), ex);
 			}
 		}
 	}
+	*/
 
 
 }
