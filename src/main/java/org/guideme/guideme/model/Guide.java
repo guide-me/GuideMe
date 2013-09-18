@@ -29,9 +29,6 @@ public class Guide {
 	private int delStartAtOffSet; //offset for currently running delay
 	private String guideName; //name for current xml that is running
 	private GuideSettings settings; //state for the currently running xml
-	private String mediaTarget; //target for currently running media
-	private int mediaStartAt;
-	private int mediaStopAt;
 	private String jScript;
 	private static Guide guide;
 	
@@ -193,30 +190,6 @@ public class Guide {
 		return guideName;
 	}
 
-	public String getMediaTarget() {
-		return mediaTarget;
-	}
-
-	public void setMediaTarget(String mediaTarget) {
-		this.mediaTarget = mediaTarget;
-	}
-
-	public int getMediaStartAt() {
-		return mediaStartAt;
-	}
-
-	public void setMediaStartAt(int mediaStartAt) {
-		this.mediaStartAt = mediaStartAt;
-	}
-
-	public int getMediaStopAt() {
-		return mediaStopAt;
-	}
-
-	public void setMediaStopAt(int mediaStopAt) {
-		this.mediaStopAt = mediaStopAt;
-	}
-
 	//we are loading a new xml so clear old settings
 	public void reset(String guideName) {
 		this.guideName = guideName;
@@ -231,9 +204,6 @@ public class Guide {
 		title = "";
 		chapters = new HashMap<String, Chapter>(); 
 		delStartAtOffSet = 0;
-		mediaTarget = "";
-		mediaStartAt = 0;
-		mediaStopAt = 0;
 		jScript = "";
 	}
 

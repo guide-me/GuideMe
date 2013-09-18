@@ -187,7 +187,7 @@ public class MainLogic {
 							int intStartAt = 0;
 							try {
 								if (strStartAt != "") {
-									intStartAt = comonFunctions.getMilisecFromTime(strStartAt);
+									intStartAt = comonFunctions.getMilisecFromTime(strStartAt) / 1000;
 								}
 							} catch (Exception e1) {
 								intStartAt = 0;
@@ -199,7 +199,7 @@ public class MainLogic {
 							int intStopAt = 0;
 							try {
 								if (strStopAt != "") {
-									intStopAt = comonFunctions.getMilisecFromTime(strStopAt);
+									intStopAt = comonFunctions.getMilisecFromTime(strStopAt) / 1000;
 								}
 							} catch (Exception e1) {
 								intStopAt = 0;
@@ -247,11 +247,15 @@ public class MainLogic {
 							imgPath = imgPath.replace("\\", fileSeparator);
 
 							try {
-								guide.setMediaStartAt(intStartAt);
-								guide.setMediaStopAt(intStopAt);
-								guide.setMediaTarget(objVideo.getTarget());
+								String loops = objVideo.getRepeat();
+								int repeat = 0;
+								try {
+									repeat = Integer.parseInt(loops);
+								} 
+								catch (NumberFormatException nfe) {
+								}
 								// Play video
-								mainShell.playVideo("file:///" + imgPath);
+								mainShell.playVideo("file:///" + imgPath, intStartAt, intStopAt, repeat, objVideo.getTarget());
 							} catch (Exception e1) {
 								logger.info("displayPage Video Exception " + e1.getLocalizedMessage());
 							}

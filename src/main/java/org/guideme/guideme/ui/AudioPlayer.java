@@ -46,9 +46,7 @@ public class AudioPlayer  implements Runnable {
 
 	public void run() {
 		try {
-			//mediaPlayer = audioPlayer.getMediaPlayer();
 			mediaListPlayer = audioPlayer.getMediaListPlayer();
-			//mediaPlayer.addMediaPlayerEventListener(new MediaListener());
 			mediaList = mediaListPlayer.getMediaList();
 			mediaListPlayer.addMediaListPlayerEventListener(new MediaListListener());
 			String[] options = mediaOptions.split(",");
@@ -108,31 +106,4 @@ public class AudioPlayer  implements Runnable {
 
 	}
 	
-	/*
-	class MediaListener extends MediaPlayerEventAdapter {
-
-		@Override
-		public void timeChanged(MediaPlayer mediaPlayer, long newTime) {
-			super.timeChanged(mediaPlayer, newTime);
-		}
-		
-		@Override
-		public void positionChanged(MediaPlayer mediaPlayer, float newPosition) {
-			super.positionChanged(mediaPlayer, newPosition);
-		}
-		
-		@Override
-		public void finished(MediaPlayer mediaPlayer) {
-			super.finished(mediaPlayer);
-			try {
-				//isPlaying = false;
-			}
-			catch (Exception ex) {
-				logger.error(" MediaListener finished " + ex.getLocalizedMessage(), ex);
-			}
-		}
-	}
-	*/
-
-
 }

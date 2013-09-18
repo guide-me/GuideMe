@@ -65,6 +65,9 @@ public class MainShell {
 	private int MintFontSize;
 	private int MintHtmlFontSize;
 	private String strGuidePath;
+	private int videoLoops = 0;
+	private String videoTarget = "";
+	private String videoOptions = "";
 	private GuideSettings guideSettings = new GuideSettings("startup");
 	private UserSettings userSettings = null;
 	private Label lblLeft;
@@ -356,6 +359,18 @@ public class MainShell {
 				logger.error(" MediaListener finished " + ex.getLocalizedMessage(), ex);
 			}
 		}
+
+		@Override
+		public void positionChanged(MediaPlayer mediaPlayer, float newPosition) {
+			// TODO Auto-generated method stub
+			super.positionChanged(mediaPlayer, newPosition);
+		}
+
+		@Override
+		public void mediaStateChanged(MediaPlayer mediaPlayer, int newState) {
+			// TODO Auto-generated method stub
+			super.mediaStateChanged(mediaPlayer, newState);
+		}
 	}
 
 	class FileLoadListener  extends SelectionAdapter {
@@ -641,11 +656,27 @@ public class MainShell {
     	this.imageLabel.setVisible(true);
 	}
 
-	public void playVideo(String video) {
+	public void playVideo(String video, int startAt, int stopAt, int loops, String target) {
 		this.imageLabel.setVisible(false);
 		this.videoFrame.setVisible(true);
-		//TODO start at / stop at target
-		mediaPlayer.playMedia(video);         
+		videoLoops = loops;
+		videoTarget = target;
+		String videoOptions = "";
+		if (startAt > 0 && stopAt > 0) {
+			videoOptions = "start-time=" + startAt + ",stop-time=" + stopAt;
+		} else {
+			if (startAt > 0) {
+				videoOptions = "start-time=" + startAt;
+			}
+			if (stopAt > 0) {
+				videoOptions = "stop-time=" + stopAt;
+			}
+		}
+		if (videoOptions.equals("")) {
+			mediaPlayer.playMedia(video);
+		} else {
+			mediaPlayer.playMedia(video, videoOptions);
+		}
 	}
 
 	public void clearImage() {
@@ -821,6 +852,9 @@ public class MainShell {
 
 	public void stopVideo() {
 		if (mediaPlayer != null) {
+			videoLoops = 0;
+			videoTarget = "";
+			videoOptions = "";
 			mediaPlayer.stop();
 		}
 	}
@@ -828,7 +862,7 @@ public class MainShell {
 	public void stopAll() {
 		stopMetronome();
 		stopAudio();
-		 stopVideo();
+		stopVideo();
 	}
 
 }
