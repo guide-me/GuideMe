@@ -320,8 +320,7 @@ public class MainShell {
 				appSettings.setDataDirectory(strGuidePath);
 				appSettings.saveSettings();
 				controlFont.dispose();
-				metronome.metronomeStop();
-				mediaPlayer.stop();
+				stopAll();
 				mediaPlayer.release();
 				mediaPlayerFactory.release();
 			}
@@ -645,6 +644,7 @@ public class MainShell {
 	public void playVideo(String video) {
 		this.imageLabel.setVisible(false);
 		this.videoFrame.setVisible(true);
+		//TODO start at / stop at target
 		mediaPlayer.playMedia(video);         
 	}
 
@@ -654,9 +654,20 @@ public class MainShell {
 
 	
 	
-	public void playAudio(String audio) {
+	public void playAudio(String audio, int startAt, int stopAt, int loops, String target) {
 		// run audio on another thread
-		audioPlayer = new AudioPlayer(audio, "");
+		String options = "";
+		if (startAt > 0 && stopAt > 0) {
+			options = "start-time=" + startAt + ",stop-time=" + stopAt;
+		} else {
+			if (startAt > 0) {
+				options = "start-time=" + startAt;
+			}
+			if (stopAt > 0) {
+				options = "stop-time=" + stopAt;
+			}
+		}
+		audioPlayer = new AudioPlayer(audio, options, loops, target, mainShell);
 		threadAudioPlayer = new Thread(audioPlayer);
 		threadAudioPlayer.start();
 	}
@@ -792,11 +803,32 @@ public class MainShell {
 		threadMetronome.start();
 	}
 
+	public void displayPage(String target) {
+		mainLogic.displayPage(target, false, guide, mainShell, appSettings);
+	}
+	
 	public void stopMetronome() {
 		if (metronome != null) {
 			metronome.metronomeStop();
 		}
 	}
 	
+	public void stopAudio() {
+		if (audioPlayer != null) {
+			audioPlayer.audioStop();
+		}
+	}
+
+	public void stopVideo() {
+		if (mediaPlayer != null) {
+			mediaPlayer.stop();
+		}
+	}
+
+	public void stopAll() {
+		stopMetronome();
+		stopAudio();
+		 stopVideo();
+	}
 
 }

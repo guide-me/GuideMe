@@ -127,7 +127,7 @@ public class AudioTestShell {
 				if (audio != null) {
 					audio.audioStop();
 				}
-				audio = new AudioPlayer(file, options, loops);
+				audio = new AudioPlayer(file, options, loops, "", null);
 				threadAudio = new Thread(audio);
 				threadAudio.start();
 			}

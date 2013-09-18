@@ -73,7 +73,7 @@ public class MainLogic {
 		logger.debug("displayPage Flags " + comonFunctions.GetFlags(guide.getFlags()));
 
 		try {
-			mainShell.stopMetronome();
+			mainShell.stopAll();
 			// handle random page
 			strPageName = pageName;
 			strPre = "";
@@ -398,8 +398,23 @@ public class MainLogic {
 								} else {
 									intAudioLoops = Integer.parseInt(strIntAudio);
 								}
-								strAudio = objAudio.getIid();
+								strAudio = objAudio.getId();
 								logger.debug("displayPage Audio " + strAudio);
+								String strStartAt = objAudio.getStartAt();
+								int startAtSeconds;
+								if (!strStartAt.equals("")) {
+									startAtSeconds = comonFunctions.getMilisecFromTime(strStartAt) / 1000;
+								} else {
+									startAtSeconds = 0;
+								}
+								String strStopAt = objAudio.getStopAt();
+								int stopAtSeconds;
+								if (!strStopAt.equals("")) {
+									stopAtSeconds = comonFunctions.getMilisecFromTime(strStopAt) / 1000;
+								} else {
+									stopAtSeconds = 0;
+								}
+								
 
 								strAudio = strAudio.replace("\\", fileSeparator);
 								logger.debug("displayPage Audio " + strAudio);
@@ -438,7 +453,7 @@ public class MainLogic {
 								}
 								strAudio = imgPath;
 								strAudioTarget = objAudio.getTarget();
-								mainShell.playAudio(strAudio);
+								mainShell.playAudio(strAudio,startAtSeconds, stopAtSeconds, intAudioLoops, strAudioTarget);
 								logger.debug("displayPage Audio target " + strAudioTarget);
 							} catch (Exception e1) {
 								logger.error("displayPage Audio Exception " + e1.getLocalizedMessage(), e1);

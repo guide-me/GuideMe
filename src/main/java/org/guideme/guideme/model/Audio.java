@@ -5,59 +5,59 @@ import java.util.ArrayList;
 import org.guideme.guideme.settings.ComonFunctions;
 
 public class Audio {
-	private String Iid; //file name of the audio file
-	private String IStartAt; //time to start audio at
-	private String IStopAt; //time to stop audio at
-	private String ITarget; //page to go to when the audio finishes
-	private String ISet; //flags to set when the audio finishes
-	private String IUnSet; //flags to unset when the audio finishes
-	private String IRepeat; //number of times to repeat the audio
-	private String IifSet; //only play the audio if theses flags are set
-	private String IifNotSet; //don't play the audo if these flags are set
+	private String id; //file name of the audio file
+	private String startAt; //time to start audio at
+	private String stopAt; //time to stop audio at
+	private String target; //page to go to when the audio finishes
+	private String set; //flags to set when the audio finishes
+	private String unSet; //flags to unset when the audio finishes
+	private String repeat; //number of times to repeat the audio
+	private String ifSet; //only play the audio if theses flags are set
+	private String ifNotSet; //don't play the audo if these flags are set
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	
 
-	public Audio(String iid, String istartAt, String istopAt, String itarget, String iifSet, String iifNotSet, String Set, String UnSet, String Repeat) {
-		Iid = iid;
-		IStartAt = istartAt;
-		IStopAt = istopAt;
-		ITarget = itarget;
-		IifSet = iifSet;
-		IifNotSet = iifNotSet;
-		ISet = Set;
-		IUnSet = UnSet;
-		IRepeat = Repeat;
+	public Audio(String id, String startAt, String stopAt, String target, String ifSet, String ifNotSet, String set, String unSet, String repeat) {
+		this.id = id;
+		this.startAt = startAt;
+		this.stopAt = stopAt;
+		this.target = target;
+		this.ifSet = ifSet;
+		this.ifNotSet = ifNotSet;
+		this.set = set;
+		this.unSet = unSet;
+		this.repeat = repeat;
 	}
 
-	public String getIid() {
-		return Iid;
+	public String getId() {
+		return id;
 	}
 
-	public String getIstartAt() {
-		return IStartAt;
+	public String getStartAt() {
+		return startAt;
 	}
 
-	public String getIstopAt() {
-		return IStopAt;
+	public String getStopAt() {
+		return stopAt;
 	}
 
 	public String getTarget() {
-		return ITarget;
+		return target;
 	}
 	
 	//pass the current flags and check if we can play this audio
 	public boolean canShow(ArrayList<String> setList) {
-		return comonFunctions.canShow(setList, IifSet, IifNotSet);
+		return comonFunctions.canShow(setList, ifSet, ifNotSet);
 	}
 
 	//pass the current flags and do the set / unset on it
 	public void setUnSet(ArrayList<String> setList) {
-		comonFunctions.SetFlags(ISet, setList);
-		comonFunctions.UnsetFlags(IUnSet, setList);
+		comonFunctions.SetFlags(set, setList);
+		comonFunctions.UnsetFlags(unSet, setList);
 	}
 
 	public String getRepeat() {
-		return IRepeat;
+		return repeat;
 	}
 
 }

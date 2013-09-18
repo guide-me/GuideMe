@@ -2,6 +2,7 @@ package org.guideme.guideme.ui;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.guideme.guideme.MainLogic;
 
 import uk.co.caprica.vlcj.component.AudioMediaListPlayerComponent;
 import uk.co.caprica.vlcj.medialist.MediaList;
@@ -22,11 +23,15 @@ public class AudioPlayer  implements Runnable {
 	private String mediaOptions;
 	private int loops = 0;
 	private int loopCount = 0;
+	private String target;
+	private MainShell mainShell;
 
-	public AudioPlayer(String audioFile, String mediaOptions, int loops) {
+	public AudioPlayer(String audioFile, String mediaOptions, int loops, String target, MainShell mainShell) {
 		this.audioFile = audioFile;
 		this.mediaOptions = mediaOptions; 
 		this.loops = loops;
+		this.mainShell = mainShell;
+		this.target = target;
 	}
 
 	public void audioStop() {
@@ -89,6 +94,9 @@ public class AudioPlayer  implements Runnable {
 			if (newState == 6) {
 				if (loopCount == 0){
 					isPlaying = false;
+					if (!target.equals("")) {
+						mainShell.displayPage(target);
+					}
 					logger.debug("isPlaying " + isPlaying);
 				} else {
 					loopCount--;
