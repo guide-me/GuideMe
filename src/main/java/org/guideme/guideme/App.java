@@ -28,6 +28,7 @@ public class App
       		AppSettings appSettings = AppSettings.getAppSettings();
       		Display display;
       		if (appSettings.getDebug()) {
+        		System.setProperty("vlcj.log", "DEBUG");
       			Properties properties = java.lang.System.getProperties();
       			Iterator<Object> it = properties.keySet().iterator();
       			while (it.hasNext()) {

@@ -392,7 +392,6 @@ public class MainLogic {
 						objAudio = objCurrPage.getAudio(i2);
 						if (objAudio.canShow(guide.getFlags())) {
 							try {
-								//TODO code properly
 								int intAudioLoops;
 								String strAudio;
 								String strAudioTarget;
@@ -493,7 +492,7 @@ public class MainLogic {
 	}
 
 	// Wildecard filter
-	private static class WildCardFileFilter implements java.io.FileFilter {
+	private class WildCardFileFilter implements java.io.FileFilter {
 		private String strFilePatern;
 		
 		public void setFilePatern(String strFilePatern) {

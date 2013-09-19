@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import org.guideme.guideme.settings.ComonFunctions;
 
 public class Page {
-	private String text; //HTML to display
+	private String text = ""; //HTML to display
 	private String pageName; //Page Name
 	private ArrayList<Button> button;
 	private ArrayList<Delay> delay; 

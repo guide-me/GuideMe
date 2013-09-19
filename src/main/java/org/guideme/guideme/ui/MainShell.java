@@ -68,6 +68,8 @@ public class MainShell {
 	private int videoLoops = 0;
 	private String videoTarget = "";
 	private String videoOptions = "";
+	private String video = "";
+	private Boolean videoPlay = false;
 	private GuideSettings guideSettings = new GuideSettings("startup");
 	private UserSettings userSettings = null;
 	private Label lblLeft;
@@ -351,6 +353,7 @@ public class MainShell {
 
 		@Override
 		public void finished(MediaPlayer mediaPlayer) {
+			logger.debug("MediaListener finished");
 			super.finished(mediaPlayer);
 			try {
 				videoFrame.setVisible(false);
@@ -361,15 +364,29 @@ public class MainShell {
 		}
 
 		@Override
-		public void positionChanged(MediaPlayer mediaPlayer, float newPosition) {
-			// TODO Auto-generated method stub
-			super.positionChanged(mediaPlayer, newPosition);
+		public void mediaStateChanged(MediaPlayer mediaPlayer, int newState) {
+			super.mediaStateChanged(mediaPlayer, newState);
+			logger.debug("MediaListener newState " + newState);
+			if (newState==5 && videoPlay){
+				if (videoLoops > 0) {
+					videoLoops--;
+					if (videoOptions.equals("")) {
+						mediaPlayer.playMedia(video);
+					} else {
+						mediaPlayer.playMedia(video, videoOptions);
+					}
+				} else {
+					if (!videoTarget.equals(""))  {
+						displayPage(videoTarget);
+					}
+				}
+			}
 		}
 
 		@Override
-		public void mediaStateChanged(MediaPlayer mediaPlayer, int newState) {
-			// TODO Auto-generated method stub
-			super.mediaStateChanged(mediaPlayer, newState);
+		public void error(MediaPlayer mediaPlayer) {
+			logger.error("MediaPlayer error ");
+			super.error(mediaPlayer);
 		}
 	}
 
@@ -417,6 +434,7 @@ public class MainShell {
 		public void widgetSelected(SelectionEvent e) {
 			try {
 				logger.trace("Enter Menu Restart");
+				stopAll();
 				calCountDown = null;
 		        lblLeft.setText("");
 		        guide.getFlags().clear();
@@ -659,9 +677,10 @@ public class MainShell {
 	public void playVideo(String video, int startAt, int stopAt, int loops, String target) {
 		this.imageLabel.setVisible(false);
 		this.videoFrame.setVisible(true);
+		this.video = video;
 		videoLoops = loops;
 		videoTarget = target;
-		String videoOptions = "";
+		videoOptions = "";
 		if (startAt > 0 && stopAt > 0) {
 			videoOptions = "start-time=" + startAt + ",stop-time=" + stopAt;
 		} else {
@@ -672,6 +691,7 @@ public class MainShell {
 				videoOptions = "stop-time=" + stopAt;
 			}
 		}
+		videoPlay = true;
 		if (videoOptions.equals("")) {
 			mediaPlayer.playMedia(video);
 		} else {
@@ -855,7 +875,8 @@ public class MainShell {
 			videoLoops = 0;
 			videoTarget = "";
 			videoOptions = "";
-			mediaPlayer.stop();
+			videoPlay = false;
+			mediaPlayer.pause();
 		}
 	}
 
