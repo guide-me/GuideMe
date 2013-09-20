@@ -2,7 +2,6 @@ package org.guideme.guideme.ui;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.guideme.guideme.MainLogic;
 
 import uk.co.caprica.vlcj.component.AudioMediaListPlayerComponent;
 import uk.co.caprica.vlcj.medialist.MediaList;

@@ -326,8 +326,11 @@ public class MainShell {
 				appSettings.saveSettings();
 				controlFont.dispose();
 				stopAll();
-				mediaPlayer.release();
-				mediaPlayerFactory.release();
+				VideoRelease videoRelease = new VideoRelease();
+				videoRelease.setVideoRelease(mediaPlayer, mediaPlayerFactory);
+				Thread videoReleaseThread = new Thread(videoRelease);
+				videoReleaseThread.start();
+				
 			}
 			catch (Exception ex) {
 				logger.error("shellCloseListen ", ex);
@@ -337,6 +340,24 @@ public class MainShell {
 
 		public void handleEvent(Event event) {
 		}
+	}
+	
+	class VideoRelease implements Runnable {
+		
+		private MediaPlayerFactory mediaPlayerFactoryThread;
+		private EmbeddedMediaPlayer mediaPlayerThread;
+
+		@Override
+		public void run() {
+			mediaPlayerThread.release();
+			mediaPlayerFactoryThread.release();
+		}
+
+		public void setVideoRelease(EmbeddedMediaPlayer mediaPlayer, MediaPlayerFactory mediaPlayerFactory) {
+			mediaPlayerFactoryThread = mediaPlayerFactory;
+			mediaPlayerThread = mediaPlayer;
+		}
+		
 	}
 
 	class mediaPanelListener extends ControlAdapter {
@@ -692,13 +713,38 @@ public class MainShell {
 			}
 		}
 		videoPlay = true;
-		if (videoOptions.equals("")) {
-			mediaPlayer.playMedia(video);
-		} else {
-			mediaPlayer.playMedia(video, videoOptions);
-		}
+		VideoPlay videoPlay = new VideoPlay();
+		videoPlay.setVideoPlay(mediaPlayer, videoOptions, video);
+		Thread videoPlayThread = new Thread(videoPlay);
+		videoPlayThread.start();
 	}
 
+	class VideoPlay implements Runnable {
+
+		private EmbeddedMediaPlayer mediaPlayer;
+		private String videoOptions;
+		private String video;
+		
+		@Override
+		public void run() {
+			if (videoOptions.equals("")) {
+				mediaPlayer.playMedia(video);
+			} else {
+				mediaPlayer.playMedia(video, videoOptions);
+			}
+		}
+
+		public void setVideoPlay(EmbeddedMediaPlayer mediaPlayer, String videoOptions, String video) {
+			this.mediaPlayer = mediaPlayer;
+			this.videoOptions = videoOptions;
+			this.video = video;
+		}
+
+		public void setVideoOptions() {
+		}
+		
+	}
+	
 	public void clearImage() {
 		imageLabel.setBackgroundImage(null);		
 	}
@@ -876,8 +922,25 @@ public class MainShell {
 			videoTarget = "";
 			videoOptions = "";
 			videoPlay = false;
-			mediaPlayer.pause();
+			VideoStop videoStop = new VideoStop();
+			videoStop.setMediaPlayer(mediaPlayer);
+			Thread videoStopThread = new Thread(videoStop);
+			videoStopThread.start();
 		}
+	}
+	
+	class VideoStop implements Runnable {
+		private EmbeddedMediaPlayer mediaPlayer;
+
+		public void setMediaPlayer(EmbeddedMediaPlayer mediaPlayer) {
+			this.mediaPlayer = mediaPlayer;
+		}
+
+		@Override
+		public void run() {
+			mediaPlayer.stop();
+		}
+		
 	}
 
 	public void stopAll() {
