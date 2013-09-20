@@ -59,6 +59,11 @@ import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 import uk.co.caprica.vlcj.player.embedded.videosurface.CanvasVideoSurface;
 
 public class MainShell {
+	/*
+	 Main screen and UI thread.
+	 exposes methods that allow other components to update the screen components
+	 and play video and music
+	 */
 	private static Logger logger = LogManager.getLogger();
 	private static org.eclipse.swt.graphics.Color colourBlack;
 	private AppSettings appSettings;
@@ -124,6 +129,7 @@ public class MainShell {
 			// array to hold the various flags
 			guideSettings.setFlags("");
 
+			//width and height of the sizable containers on the screen
 			intWeights1 = appSettings.getSash1Weights();
 			intWeights2 = appSettings.getSash2Weights();
 
@@ -141,9 +147,11 @@ public class MainShell {
 			myDisplay = display;
 			shell = new Shell(myDisplay);
 			shell.addShellListener(new shellCloseListen());
+			
+			//get primary monitor and its size
 			Monitor primary = display.getPrimaryMonitor();
 			Rectangle clientArea = primary.getClientArea();
-			shell.setText("SWT Test");
+			shell.setText("Guide Me ");
 			FormLayout layout = new FormLayout();
 			shell.setLayout(layout);
 
@@ -302,6 +310,7 @@ public class MainShell {
 			shell.setBounds(clientArea);
 			shell.setMaximized(true);
 			// timer that updates the clock field and handles any timed events
+			// when loading wait 2 seconds before running it
 			myDisplay.timerExec(2000, new shellTimer());
 		}
 		catch (Exception ex) {
@@ -313,6 +322,7 @@ public class MainShell {
 	}
 
 	class shellCloseListen  extends ShellAdapter {
+		// Clean up stuff when the application closes
 		@Override
 		public void shellClosed(ShellEvent e) {
 			try {
@@ -343,7 +353,7 @@ public class MainShell {
 	}
 	
 	class VideoRelease implements Runnable {
-		
+		//Do the release of the Video stuff (VLC) on a different thread to prevent it blocking the main UI thread
 		private MediaPlayerFactory mediaPlayerFactoryThread;
 		private EmbeddedMediaPlayer mediaPlayerThread;
 
@@ -361,7 +371,7 @@ public class MainShell {
 	}
 
 	class mediaPanelListener extends ControlAdapter {
-
+		//resize the video if the container changes size
 		@Override
 		public void controlResized(ControlEvent e) {
 			super.controlResized(e);
@@ -370,8 +380,12 @@ public class MainShell {
 		}
 
 	}
+	
+	
 	class MediaListener extends MediaPlayerEventAdapter {
-
+		//Video event listener
+		
+		//Video has finished
 		@Override
 		public void finished(MediaPlayer mediaPlayer) {
 			logger.debug("MediaListener finished");
@@ -384,23 +398,30 @@ public class MainShell {
 			}
 		}
 
+		//newState 5 indicates the video has finished
+		//videoPlay can be set to false outside the code to tell it to stop
+		//if the video finishes loop round again if a number of repeats has been set
 		@Override
 		public void mediaStateChanged(MediaPlayer mediaPlayer, int newState) {
 			super.mediaStateChanged(mediaPlayer, newState);
 			logger.debug("MediaListener newState " + newState);
-			if (newState==5 && videoPlay){
-				if (videoLoops > 0) {
-					videoLoops--;
-					if (videoOptions.equals("")) {
-						mediaPlayer.playMedia(video);
+			try {
+				if (newState==5 && videoPlay){
+					if (videoLoops > 0) {
+						videoLoops--;
+						if (videoOptions.equals("")) {
+							mediaPlayer.playMedia(video);
+						} else {
+							mediaPlayer.playMedia(video, videoOptions);
+						}
 					} else {
-						mediaPlayer.playMedia(video, videoOptions);
-					}
-				} else {
-					if (!videoTarget.equals(""))  {
-						displayPage(videoTarget);
+						if (!videoTarget.equals(""))  {
+							displayPage(videoTarget);
+						}
 					}
 				}
+			} catch (Exception e) {
+				logger.error("mediaStateChanged " + e.getLocalizedMessage(), e);
 			}
 		}
 
@@ -412,11 +433,14 @@ public class MainShell {
 	}
 
 	class FileLoadListener  extends SelectionAdapter {
+		//File Load from the menu
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			try {
 				logger.trace("Enter Menu Load");
+				//display a dialog to ask for a guide file to play
 				FileDialog dialog = new FileDialog (shell, SWT.OPEN);
+				//TODO Need to change this here to implement the new html format
 				String [] filterNames = new String [] {"XML Files"};
 				String [] filterExtensions = new String [] {"*.xml"};
 				dialog.setFilterNames (filterNames);
@@ -427,8 +451,13 @@ public class MainShell {
 					strFileToLoad = dialog.open();
 					try {
 						if (strFileToLoad != null) {
+							//if a guide file has been chosen load it 
+							//default the initial directory for future loads to the current one
 							strGuidePath = dialog.getFilterPath() + appSettings.getFileSeparator();
+							//load the file it will return the start page and populate the guide object
+							//TODO Need to change this here to implement the new html format
 							String strPage = xmlGuideReader.loadXML(strFileToLoad, guide);
+							//display the first page
 							mainLogic.displayPage(strPage , false, guide, mainShell, appSettings);
 						}
 					}
@@ -451,13 +480,14 @@ public class MainShell {
 
 	// Restart 
 	class FileRestartListener  extends SelectionAdapter {
+		// File Restart From the menu
+		// will restart the Guide from the start page
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			try {
 				logger.trace("Enter Menu Restart");
+				//stop all activity for the current page to prevent timers jumping to a different page
 				stopAll();
-				calCountDown = null;
-		        lblLeft.setText("");
 		        guide.getFlags().clear();
 		        guide.getSettings().setPage("start");
 		        guide.getSettings().setFlags(comonFunctions.GetFlags(guide.getFlags()));
@@ -476,11 +506,12 @@ public class MainShell {
 	}
 	
 	class FilePreferences  extends SelectionAdapter {
-
+		//File Preferences from the menu
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			try {
 				logger.trace("Enter FilePreferences");
+				//display a modal shell to change the preferences
 				Shell prefShell = new PreferenceShell().createShell(myDisplay, userSettings, appSettings);
 				prefShell.open();
 				while (!prefShell.isDisposed()) {
@@ -497,11 +528,12 @@ public class MainShell {
 	}
 
 	class FileGuidePreferences  extends SelectionAdapter {
-
+		//File Guide Preferences from menu
 		@Override
 		public void widgetSelected(SelectionEvent e) {
 			try {
 				logger.trace("Enter FileGuidePreferences");
+				//Display a modal shell for the guide specific preferences
 				guideSettings = guide.getSettings();
 				Shell prefShell = new GuidePreferenceShell().createShell(myDisplay, guideSettings, appSettings);
 				prefShell.open();
@@ -583,6 +615,10 @@ public class MainShell {
 	}
 
 	class shellTimer implements Runnable {
+		//Timer to update:
+		//the clock
+		//count down timer
+		//handle going to new page when timer counts down to 0
 		@Override
 		public void run() {
 			try {
@@ -591,14 +627,16 @@ public class MainShell {
 				Calendar cal = Calendar.getInstance();
 				if (calCountDown != null) {
 					if (cal.after(calCountDown)){
+						//Delay has reached zero
 						calCountDown = null;
 						lblLeft.setText("");
 						comonFunctions.SetFlags(guide.getDelaySet(), guide.getFlags());
 						comonFunctions.UnsetFlags(guide.getDelayUnSet(), guide.getFlags());
 						mainLogic.displayPage(guide.getDelTarget(), false, guide, mainShell, appSettings);
 					} else {
-						
 						if (guide.getDelStyle().equals("normal")) {
+							//Normal delay so display seconds left 
+							//(plus any offset if you are being sneaky) 
 							long diff = calCountDown.getTimeInMillis() - cal.getTimeInMillis();
 							diff = diff + (guide.getDelStartAtOffSet() * 1000);
 							int intSeconds = (int) ((diff / 1000) + 1);
@@ -613,14 +651,17 @@ public class MainShell {
 							String strTimeLeft = strMinutes + ":" + strSeconds;
 							lblLeft.setText(strTimeLeft);
 						} else if (guide.getDelStyle().equals("secret")) {
+							//secret timer so display ?? to show there is one but not how long
 							lblLeft.setText("??:??");
 						} else {
+							//either no delay or a hidden one
 							lblLeft.setText("");
 						}
 						
 					}
 				}
 				lblRight.setText(dateFormat.format(cal.getTime()));
+				//re run in 0.1 seconds
 				myDisplay.timerExec(100, this);
 			}
 			catch (Exception ex) {
@@ -631,26 +672,35 @@ public class MainShell {
 	}
 
 	public Calendar getCalCountDown() {
+		//return the time a delay should end
 		return calCountDown;
 	}
 
 	public void setCalCountDown(Calendar calCountDown) {
+		//set the time a delay should end
 		this.calCountDown = calCountDown;
 	}
 
 	public void setLblLeft(String lblLeft) {
+		//header to the left of the screen
+		//usually displays teh delay
 		this.lblLeft.setText(lblLeft);
 	}
 
 	public void setLblCentre(String lblCentre) {
+		//header to the centre of the screen
+		//usually displays the title and author
 		this.lblCentre.setText(lblCentre);
 	}
 
 	public void setLblRight(String lblRight) {
+		//header to the right of the screen
+		//usually displays the clock 
 		this.lblRight.setText(lblRight);
 	}
 
 	public void setImageLabel(String imgPath, String strImage) {
+		//display an image in the area to the left of the screen
 		int newWidth;
 		int newHeight;
 		Image tmpImage = (Image) imageLabel.getData("image");
@@ -696,41 +746,52 @@ public class MainShell {
 	}
 
 	public void playVideo(String video, int startAt, int stopAt, int loops, String target) {
-		this.imageLabel.setVisible(false);
-		this.videoFrame.setVisible(true);
-		this.video = video;
-		videoLoops = loops;
-		videoTarget = target;
-		videoOptions = "";
-		if (startAt > 0 && stopAt > 0) {
-			videoOptions = "start-time=" + startAt + ",stop-time=" + stopAt;
-		} else {
-			if (startAt > 0) {
-				videoOptions = "start-time=" + startAt;
+		//plays a video in the area to the left of the screen
+		//sets the number of loops, start / stop time and any page to display if the video finishes
+		//starts the video using a non UI thread so VLC can't hang the application
+		try {
+			this.imageLabel.setVisible(false);
+			this.videoFrame.setVisible(true);
+			this.video = video;
+			videoLoops = loops;
+			videoTarget = target;
+			videoOptions = "";
+			if (startAt > 0 && stopAt > 0) {
+				videoOptions = "start-time=" + startAt + ",stop-time=" + stopAt;
+			} else {
+				if (startAt > 0) {
+					videoOptions = "start-time=" + startAt;
+				}
+				if (stopAt > 0) {
+					videoOptions = "stop-time=" + stopAt;
+				}
 			}
-			if (stopAt > 0) {
-				videoOptions = "stop-time=" + stopAt;
-			}
+			videoPlay = true;
+			VideoPlay videoPlay = new VideoPlay();
+			videoPlay.setVideoPlay(mediaPlayer, videoOptions, video);
+			Thread videoPlayThread = new Thread(videoPlay);
+			videoPlayThread.start();
+		} catch (Exception e) {
+			logger.error("playVideo " + e.getLocalizedMessage(), e);		
 		}
-		videoPlay = true;
-		VideoPlay videoPlay = new VideoPlay();
-		videoPlay.setVideoPlay(mediaPlayer, videoOptions, video);
-		Thread videoPlayThread = new Thread(videoPlay);
-		videoPlayThread.start();
 	}
 
 	class VideoPlay implements Runnable {
-
+		//code to start the video on a separate thread
 		private EmbeddedMediaPlayer mediaPlayer;
 		private String videoOptions;
 		private String video;
 		
 		@Override
 		public void run() {
-			if (videoOptions.equals("")) {
-				mediaPlayer.playMedia(video);
-			} else {
-				mediaPlayer.playMedia(video, videoOptions);
+			try {
+				if (videoOptions.equals("")) {
+					mediaPlayer.playMedia(video);
+				} else {
+					mediaPlayer.playMedia(video, videoOptions);
+				}
+			} catch (Exception e) {
+				logger.error("VideoPlay run " + e.getLocalizedMessage(), e);		
 			}
 		}
 
@@ -740,9 +801,6 @@ public class MainShell {
 			this.video = video;
 		}
 
-		public void setVideoOptions() {
-		}
-		
 	}
 	
 	public void clearImage() {
@@ -753,23 +811,28 @@ public class MainShell {
 	
 	public void playAudio(String audio, int startAt, int stopAt, int loops, String target) {
 		// run audio on another thread
-		String options = "";
-		if (startAt > 0 && stopAt > 0) {
-			options = "start-time=" + startAt + ",stop-time=" + stopAt;
-		} else {
-			if (startAt > 0) {
-				options = "start-time=" + startAt;
+		try {
+			String options = "";
+			if (startAt > 0 && stopAt > 0) {
+				options = "start-time=" + startAt + ",stop-time=" + stopAt;
+			} else {
+				if (startAt > 0) {
+					options = "start-time=" + startAt;
+				}
+				if (stopAt > 0) {
+					options = "stop-time=" + stopAt;
+				}
 			}
-			if (stopAt > 0) {
-				options = "stop-time=" + stopAt;
-			}
+			audioPlayer = new AudioPlayer(audio, options, loops, target, mainShell);
+			threadAudioPlayer = new Thread(audioPlayer);
+			threadAudioPlayer.start();
+		} catch (Exception e) {
+			logger.error("playAudio " + e.getLocalizedMessage(), e);		
 		}
-		audioPlayer = new AudioPlayer(audio, options, loops, target, mainShell);
-		threadAudioPlayer = new Thread(audioPlayer);
-		threadAudioPlayer.start();
 	}
 	
 	public void setBrwsText(String brwsText) {
+		//set HTML to be displayed in the browser control to the right of the screen
 		String strHTML;
 		try {
 			String strTemp = brwsText;
@@ -781,6 +844,8 @@ public class MainShell {
 			strTemp = strTemp.replace("<div>", "");
 			strTemp = strTemp.replace("</DIV>", "<br>");
 			strTemp = strTemp.replace("</div>", "<br>");
+			//Replace any string pref in the HTML with the user preference
+			//they are encoded #prefName# 
 			Set<String> set = userSettings.getStringKeys(); 
 			for (String s : set) {
 				strTemp = strTemp.replace("#" + s + "#", userSettings.getPref(s));
@@ -800,60 +865,76 @@ public class MainShell {
 	}
 
 	public void removeButtons() {
-        for (Control kid : btnComp.getChildren()) {
-            kid.dispose();
-          }
+		//remove all the buttons displayed for the previous page
+        try {
+			for (Control kid : btnComp.getChildren()) {
+			    kid.dispose();
+			  }
+		} catch (Exception e) {
+			logger.error("removeButtons " + e.getLocalizedMessage(), e);		
+		}
 	}
 	
 	public void addDelayButton(Guide guide) {
-		com.snapps.swt.SquareButton btnDynamic = new com.snapps.swt.SquareButton(btnComp, SWT.PUSH );
-        btnDynamic.setFont(controlFont);
-        btnDynamic.setText("Delay");
+		//add a delay button
+		//used when debug is on to simulate the delay without actually waiting for it
+		try {
+			com.snapps.swt.SquareButton btnDynamic = new com.snapps.swt.SquareButton(btnComp, SWT.PUSH );
+			btnDynamic.setFont(controlFont);
+			btnDynamic.setText("Delay");
 
-		// record any button set / unset
-		if (!guide.getDelaySet().equals("")) {
-			btnDynamic.setData("Set", guide.getDelaySet());
-		} else {
-			btnDynamic.setData("Set", "");
+			// record any button set / unset
+			if (!guide.getDelaySet().equals("")) {
+				btnDynamic.setData("Set", guide.getDelaySet());
+			} else {
+				btnDynamic.setData("Set", "");
+			}
+			if (!guide.getDelayUnSet().equals("")) {
+				btnDynamic.setData("UnSet", guide.getDelayUnSet());
+			} else {
+				btnDynamic.setData("UnSet", "");
+			}
+			btnDynamic.setData("Target", guide.getDelTarget());
+			btnDynamic.addSelectionListener(new DynamicButtonListner());
+		} catch (Exception e) {
+			logger.error("addDelayButton " + e.getLocalizedMessage(), e);		
 		}
-		if (!guide.getDelayUnSet().equals("")) {
-			btnDynamic.setData("UnSet", guide.getDelayUnSet());
-		} else {
-			btnDynamic.setData("UnSet", "");
-		}
-		btnDynamic.setData("Target", guide.getDelTarget());
-		btnDynamic.addSelectionListener(new DynamicButtonListner());
 	}
 	
 	public void addButton(Button button) {
+		//add a normal button to the screen 
 		String strBtnTarget;
 		String strBtnText;
-		strBtnTarget = button.getTarget();
-		strBtnText = button.getText();
-        com.snapps.swt.SquareButton btnDynamic = new com.snapps.swt.SquareButton(btnComp, SWT.PUSH );
-        btnDynamic.setFont(controlFont);
-        btnDynamic.setText(strBtnText);
+		try {
+			strBtnTarget = button.getTarget();
+			strBtnText = button.getText();
+			com.snapps.swt.SquareButton btnDynamic = new com.snapps.swt.SquareButton(btnComp, SWT.PUSH );
+			btnDynamic.setFont(controlFont);
+			btnDynamic.setText(strBtnText);
 
-		// record any button set / unset
-		String strButtonSet;
-		String strButtonUnSet;
-		strButtonSet = button.getSet();
-		if (!strButtonSet.equals("")) {
-			btnDynamic.setData("Set", strButtonSet);
-		} else {
-			btnDynamic.setData("Set", "");
+			// record any button set / unset
+			String strButtonSet;
+			String strButtonUnSet;
+			strButtonSet = button.getSet();
+			if (!strButtonSet.equals("")) {
+				btnDynamic.setData("Set", strButtonSet);
+			} else {
+				btnDynamic.setData("Set", "");
+			}
+			strButtonUnSet = button.getUnSet();
+			if (!strButtonUnSet.equals("")) {
+				btnDynamic.setData("UnSet", strButtonUnSet);
+			} else {
+				btnDynamic.setData("UnSet", "");
+			}
+
+			logger.debug("displayPage Button Text " + strBtnText + " Target " + strBtnTarget + " Set " + strButtonSet + " UnSet " + strButtonUnSet);
+
+			btnDynamic.setData("Target", strBtnTarget);
+			btnDynamic.addSelectionListener(new DynamicButtonListner());
+		} catch (Exception e) {
+			logger.error("addButton " + e.getLocalizedMessage(), e);		
 		}
-		strButtonUnSet = button.getUnSet();
-		if (!strButtonUnSet.equals("")) {
-			btnDynamic.setData("UnSet", strButtonUnSet);
-		} else {
-			btnDynamic.setData("UnSet", "");
-		}
-
-		logger.debug("displayPage Button Text " + strBtnText + " Target " + strBtnTarget + " Set " + strButtonSet + " UnSet " + strButtonUnSet);
-
-		btnDynamic.setData("Target", strBtnTarget);
-		btnDynamic.addSelectionListener(new DynamicButtonListner());
 		
 	}
 
@@ -884,6 +965,8 @@ public class MainShell {
 		}
 	}
 
+	//force a redisplay of the button are
+	//set focus to the first button
 	public void layoutButtons() {
 		btnComp.layout();
 	    Control[] controls = this.btnComp.getChildren();
@@ -895,9 +978,13 @@ public class MainShell {
 
 	public void setMetronomeBPM(int metronomeBPM, int instrument, int loops, int resolution, String Rhythm) {
 		// run metronome on another thread
-		metronome = new MetronomePlayer(metronomeBPM, instrument, loops, resolution, Rhythm);
-		threadMetronome = new Thread(metronome);
-		threadMetronome.start();
+		try {
+			metronome = new MetronomePlayer(metronomeBPM, instrument, loops, resolution, Rhythm);
+			threadMetronome = new Thread(metronome);
+			threadMetronome.start();
+		} catch (Exception e) {
+			logger.error(" setMetronomeBPM " + e.getLocalizedMessage(), e);
+		}
 	}
 
 	public void displayPage(String target) {
@@ -917,15 +1004,19 @@ public class MainShell {
 	}
 
 	public void stopVideo() {
-		if (mediaPlayer != null) {
-			videoLoops = 0;
-			videoTarget = "";
-			videoOptions = "";
-			videoPlay = false;
-			VideoStop videoStop = new VideoStop();
-			videoStop.setMediaPlayer(mediaPlayer);
-			Thread videoStopThread = new Thread(videoStop);
-			videoStopThread.start();
+		try {
+			if (mediaPlayer != null) {
+				videoLoops = 0;
+				videoTarget = "";
+				videoOptions = "";
+				videoPlay = false;
+				VideoStop videoStop = new VideoStop();
+				videoStop.setMediaPlayer(mediaPlayer);
+				Thread videoStopThread = new Thread(videoStop);
+				videoStopThread.start();
+			}
+		} catch (Exception e) {
+			logger.error(" stopVideo " + e.getLocalizedMessage(), e);
 		}
 	}
 	
@@ -942,8 +1033,14 @@ public class MainShell {
 		}
 		
 	}
+	
+	public void stopDelay() {
+		calCountDown = null;
+		lblLeft.setText("");
+	}
 
 	public void stopAll() {
+		stopDelay();
 		stopMetronome();
 		stopAudio();
 		stopVideo();

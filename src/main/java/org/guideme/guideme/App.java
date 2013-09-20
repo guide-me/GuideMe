@@ -1,8 +1,5 @@
 package org.guideme.guideme;
 
-//import java.io.File;
-//import java.io.IOException;
-
 import java.util.Iterator;
 import java.util.Properties;
 
@@ -17,24 +14,37 @@ import org.guideme.guideme.ui.MainShell;
 
 public class App 
 {
+	/*
+	 This is where it all starts from
+	 main will create and display the first shell (window) 
+	 */
 	private static Logger logger = LogManager.getLogger();
 	
-    public static void main(String[] args)
+    
+	public static void main(String[] args)
     {
         try {
             logger.trace("Enter main");
+            //Sleak will help diagnose SWT memory leaks
+            //if you set this to true you will get an additional window
+            //that allows you to track resources that are created and not destroyed correctly
       		boolean loadSleak = false;
 
       		AppSettings appSettings = AppSettings.getAppSettings();
       		Display display;
+      		//user debug setting
       		if (appSettings.getDebug()) {
+      			//debug level logging for video lan (VLC)
         		System.setProperty("vlcj.log", "DEBUG");
       			Properties properties = java.lang.System.getProperties();
       			Iterator<Object> it = properties.keySet().iterator();
+      			//display all the jvm properties in the log file
       			while (it.hasNext()) {
       				String key = String.valueOf(it.next());
       				String value = String.valueOf(properties.get(key));
-      				System.out.println(key + " - " + value);
+      				//write out at error level even though it is a debug message
+      				//so we can turn it on, on a users machine
+      				logger.error(key + " - " + value);
       			}
       		}
       		appSettings = null;
@@ -55,6 +65,7 @@ public class App
             Shell shell = mainShell.createShell(display);
             logger.trace("open shell");
             shell.open();
+            //loop round until the window is closed
             while (!shell.isDisposed())
               if (!display.readAndDispatch())
               {

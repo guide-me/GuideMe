@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
-import org.guideme.guideme.MainLogic;
 import org.guideme.guideme.settings.GuideSettings;
 
 public class Guide {

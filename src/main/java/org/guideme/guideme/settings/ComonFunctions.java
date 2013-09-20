@@ -224,8 +224,8 @@ public class ComonFunctions {
 		}
 	}
 	
-	//Get random number between x and y where iRandom is (x..y)
-	public int getRandom(String iRandom) {
+	//Get random number between x and y where Random is (x..y)
+	public int getRandom(String random) {
 		int intRandom = 0;
 		int intPos1;
 		int intPos2;
@@ -236,22 +236,22 @@ public class ComonFunctions {
 		String strMax;
 		
 		try {
-			intPos1 = iRandom.indexOf("(");
+			intPos1 = random.indexOf("(");
 			if (intPos1 > -1) {
-				intPos2 = iRandom.indexOf("..", intPos1);
+				intPos2 = random.indexOf("..", intPos1);
 				if (intPos2 > -1) {
-					intPos3 = iRandom.indexOf(")", intPos2);
+					intPos3 = random.indexOf(")", intPos2);
 					if (intPos3 > -1) {
-						strMin = iRandom.substring(intPos1 + 1, intPos2);
+						strMin = random.substring(intPos1 + 1, intPos2);
 						intMin = Integer.parseInt(strMin);
-						strMax = iRandom.substring(intPos2 + 2, intPos3);
+						strMax = random.substring(intPos2 + 2, intPos3);
 						intMax = Integer.parseInt(strMax);
 						int i1 = mRandom.nextInt(intMax - intMin) + intMin;
 						intRandom = i1;
 					}
 				}
 			} else {
-				intRandom = Integer.parseInt(iRandom);
+				intRandom = Integer.parseInt(random);
 			}
 		} catch (Exception e) {
 			logger.error(e.getLocalizedMessage(),e);
@@ -288,6 +288,7 @@ public class ComonFunctions {
 	}
 
 	public Element getOrAddElement(String xPath, String nodeName, Element parent, Document doc) {
+		//xml helper function
 		try {
 			Element elToSet = getElement(xPath, parent);
 			if (elToSet == null) {
@@ -301,6 +302,7 @@ public class ComonFunctions {
 	}
 	
 	public Element getElement(String xPath, Element parent) {
+		//xml helper function
 		try {
 			XPathExpression expr = xpath.compile(xPath);
 			Object Xpathresult = expr.evaluate(parent, XPathConstants.NODESET);
@@ -318,6 +320,7 @@ public class ComonFunctions {
 	}
 	
 	public Element addElement(String nodeName, Element parentNode, Document doc) {
+		//xml helper function
 		try {
 			Element elToSet;
 			elToSet = doc.createElement(nodeName);
@@ -330,6 +333,7 @@ public class ComonFunctions {
 	}
 
 	public String readFile(String path, Charset encoding) throws IOException {
+		//returns the contents of a file as a String
 		byte[] encoded = Files.readAllBytes(Paths.get(path));
 		return encoding.decode(ByteBuffer.wrap(encoded)).toString();
 	}

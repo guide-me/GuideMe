@@ -5,16 +5,13 @@ import org.apache.logging.log4j.Logger;
 
 import uk.co.caprica.vlcj.component.AudioMediaListPlayerComponent;
 import uk.co.caprica.vlcj.medialist.MediaList;
-//import uk.co.caprica.vlcj.player.MediaPlayer;
-//import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
 import uk.co.caprica.vlcj.player.list.MediaListPlayer;
 import uk.co.caprica.vlcj.player.list.MediaListPlayerEventAdapter;
 
 public class AudioPlayer  implements Runnable {
-	
+	//Class to play audio on a separate thread
 	private static Logger logger = LogManager.getLogger();
 	private AudioMediaListPlayerComponent audioPlayer = new AudioMediaListPlayerComponent();
-	//private MediaPlayer mediaPlayer;
 	private MediaListPlayer mediaListPlayer;
 	private MediaList mediaList;
 	private Boolean isPlaying = true;
@@ -26,6 +23,7 @@ public class AudioPlayer  implements Runnable {
 	private MainShell mainShell;
 
 	public AudioPlayer(String audioFile, String mediaOptions, int loops, String target, MainShell mainShell) {
+		//function to allow us to pass stuff to the new thread
 		this.audioFile = audioFile;
 		this.mediaOptions = mediaOptions; 
 		this.loops = loops;
@@ -45,6 +43,8 @@ public class AudioPlayer  implements Runnable {
 
 	public void run() {
 		try {
+			//Play the audio set up by AudioPlayer
+			//use a media list to play loops
 			mediaListPlayer = audioPlayer.getMediaListPlayer();
 			mediaList = mediaListPlayer.getMediaList();
 			mediaListPlayer.addMediaListPlayerEventListener(new MediaListListener());
@@ -88,6 +88,8 @@ public class AudioPlayer  implements Runnable {
 			super.mediaStateChanged(mediaListPlayer, newState);
 			logger.debug("New State " + newState);
 			logger.debug("loopCount " + loopCount);
+			//listener to handle displaying a new page when the audio ends
+			//only do it if we have done all the loops
 			if (newState == 6) {
 				if (loopCount == 0){
 					isPlaying = false;

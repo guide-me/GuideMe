@@ -22,6 +22,7 @@ public class MainLogic {
 	private static MainLogic mainLogic;
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 
+	//singleton class stuff (force there to be only one instance without making it static)
 	private MainLogic() {
 	}
 	
@@ -36,10 +37,13 @@ public class MainLogic {
 		throw new CloneNotSupportedException();
 	}
 
+	//display page without a chapter
 	public void displayPage(String pageName, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings) {
 		displayPage("default", pageName, reDisplay, guide, mainShell, appSettings);
 	}
 	
+	//main display page
+	//TODO currently chapters are ignored, need to implement
 	public void displayPage(String chapterName, String pageName, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings) {
 		// Main code that displays a page
 		String strImage;
@@ -128,7 +132,7 @@ public class MainLogic {
 				}
 			}
 
-			// display page
+			// get the page to display
 			objCurrPage = guide.getChapters().get(chapterName).getPages().get(strPageName);
 			
 			// delay
@@ -326,7 +330,7 @@ public class MainLogic {
 				}
 
 
-				// text
+				// Browser text
 		        mainShell.setBrwsText(objCurrPage.getText());
 
 				// buttons
@@ -347,7 +351,7 @@ public class MainLogic {
 				}
 				try {
 					if (appSettings.getDebug()) {
-						// add a button to trigger the delay target
+						// add a button to trigger the delay target if debug is set by the user
 						if (blnDelay) {
 							mainShell.addDelayButton(guide);
 						}
@@ -493,18 +497,22 @@ public class MainLogic {
 
 	// Wildecard filter
 	private class WildCardFileFilter implements java.io.FileFilter {
+		//Apply the wildcard filter to the file list
 		private String strFilePatern;
 		
 		public void setFilePatern(String strFilePatern) {
+			//regular patern to search for
 			this.strFilePatern = strFilePatern;
 		}
 
 		public boolean accept(File f) {
 			try {
+				//convert the regular patern to regex
 				String strPattern = strFilePatern.toLowerCase();
 				String text = f.getName().toLowerCase();
 				String strFile = text;
 				strPattern = strPattern.replace("*", ".*");
+				//test for a match
 				if (!text.matches(strPattern)) {
 					logger.debug("WildCardFileFilter accept No Match " + strFile);
 					return false;
