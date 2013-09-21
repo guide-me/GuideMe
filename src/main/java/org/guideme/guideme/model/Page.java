@@ -6,7 +6,7 @@ import org.guideme.guideme.settings.ComonFunctions;
 
 public class Page {
 	private String text = ""; //HTML to display
-	private String pageName; //Page Name
+	private String id; //Page Name
 	private ArrayList<Button> button;
 	private ArrayList<Delay> delay; 
 	private ArrayList<Video> video;
@@ -26,8 +26,8 @@ public class Page {
 	private String jScript;
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	
-	public Page(String pageName, String ifSet, String ifNotSet, String set, String unSet, boolean autoSet, String jScript) {
-		this.pageName = pageName;
+	public Page(String id, String ifSet, String ifNotSet, String set, String unSet, boolean autoSet, String jScript) {
+		this.id = id;
 		button = new ArrayList<Button>();
 		buttonCount = 0;
 		delay = new ArrayList<Delay>();
@@ -48,9 +48,9 @@ public class Page {
 		
 		if (autoSet) {
 			if (this.set.length() == 0) {
-				this.set = pageName;
+				this.set = id;
 			} else {
-				this.set = this.set + "," + pageName;
+				this.set = this.set + "," + id;
 			}
 		}
 	}
@@ -109,8 +109,8 @@ public class Page {
 		metronomeCount++;
 	}
 
-	public String getPageName() {
-		return pageName;
+	public String getId() {
+		return id;
 	}
 
 	public int getButtonCount() {
@@ -134,7 +134,7 @@ public class Page {
 	}
 
 	public boolean canShow(ArrayList<String> setList) {
-		return comonFunctions.canShow(setList, ifSet, ifNotSet, pageName);
+		return comonFunctions.canShow(setList, ifSet, ifNotSet, id);
 	}
 
 	public void setUnSet(ArrayList<String> setList) {
@@ -144,7 +144,7 @@ public class Page {
 
 	@Override
 	public String toString() {
-		return "page [Page Name=" + pageName + "]";
+		return "page [Page Name=" + id + "]";
 	}
 
 	public int getAudioCount() {

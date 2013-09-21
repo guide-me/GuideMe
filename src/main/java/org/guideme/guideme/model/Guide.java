@@ -26,7 +26,7 @@ public class Guide {
 	private String delaySet; //flags to set for currently running delay
 	private String delayUnSet; //flags to clear for currently running delay
 	private int delStartAtOffSet; //offset for currently running delay
-	private String guideName; //name for current xml that is running
+	private String id; //name for current xml that is running
 	private GuideSettings settings; //state for the currently running xml
 	private String jScript;
 	private static Guide guide;
@@ -185,14 +185,14 @@ public class Guide {
 		this.delStartAtOffSet = delStartAtOffSet;
 	}
 
-	public String getGuideName() {
-		return guideName;
+	public String getId() {
+		return id;
 	}
 
 	//we are loading a new xml so clear old settings
-	public void reset(String guideName) {
-		this.guideName = guideName;
-		settings = new GuideSettings(guideName);
+	public void reset(String id) {
+		this.id = id;
+		settings = new GuideSettings(id);
 		mediaDirectory = "";
 		delStyle = "";
 		delTarget = "";

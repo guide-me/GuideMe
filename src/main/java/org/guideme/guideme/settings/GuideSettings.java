@@ -44,16 +44,16 @@ public class GuideSettings {
 	private Logger logger = LogManager.getLogger();
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 
-	public GuideSettings(String GuideName) {
+	public GuideSettings(String GuideId) {
 		super();
-		name = GuideName;
+		name = GuideId;
 		Element elProp;
 		String key;
 		String value;
 		String type;
 		String desc;
 		AppSettings appSettings = AppSettings.getAppSettings();
-		filename = appSettings.getDataDirectory() + appSettings.getFileSeparator() + GuideName + ".state";
+		filename = appSettings.getDataDirectory() + appSettings.getFileSeparator() + GuideId + ".state";
 		try {
 			//if a state file already exists use it 
 			File xmlFile = new File(filename);

@@ -63,7 +63,7 @@ public class XmlGuideReader {
 		String strPage = "start";
 		String strFlags;
 		String strPreXMLPath;
-		String pageName; 
+		String pageId; 
 		String ifSet; 
 		String ifNotSet; 
 		String Set;
@@ -276,7 +276,7 @@ public class XmlGuideReader {
 	        		 case Page:
 	        			 try {
 	        				 logger.trace("Page Tag");
-	        				 pageName = reader.getAttributeValue(null, "id");
+	        				 pageId = reader.getAttributeValue(null, "id");
 	        				 ifSet = reader.getAttributeValue(null, "if-set");
 	        				 if (ifSet == null) ifSet = "";
 	        				 ifNotSet = reader.getAttributeValue(null, "if-not-set"); 
@@ -285,7 +285,7 @@ public class XmlGuideReader {
 	        				 if (Set == null) Set = "";
 	        				 UnSet = reader.getAttributeValue(null, "unset");
 	        				 if (UnSet == null) UnSet = "";
-	        				 page = new Page(pageName, ifSet, ifNotSet, Set, UnSet, guide.getAutoSetPage(), ""); 
+	        				 page = new Page(pageId, ifSet, ifNotSet, Set, UnSet, guide.getAutoSetPage(), ""); 
 	        			 } catch (Exception e1) {
 	        				 logger.error("loadXML Page Exception " + e1.getLocalizedMessage(), e1);
 	        			 }
@@ -378,7 +378,7 @@ public class XmlGuideReader {
 	        		 try {
 	        			 if (reader.getName().getLocalPart().equals("Page")) {
 	        				 chapter = guide.getChapters().get("default");
-	        				 chapter.getPages().put(page.getPageName(), page);
+	        				 chapter.getPages().put(page.getId(), page);
 	        			 }
 	        		 } catch (Exception e1) {
 	        			 logger.error("loadXML EndPage Exception " + e1.getLocalizedMessage(), e1);

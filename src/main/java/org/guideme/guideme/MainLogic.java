@@ -38,13 +38,13 @@ public class MainLogic {
 	}
 
 	//display page without a chapter
-	public void displayPage(String pageName, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings) {
-		displayPage("default", pageName, reDisplay, guide, mainShell, appSettings);
+	public void displayPage(String pageId, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings) {
+		displayPage("default", pageId, reDisplay, guide, mainShell, appSettings);
 	}
 	
 	//main display page
 	//TODO currently chapters are ignored, need to implement
-	public void displayPage(String chapterName, String pageName, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings) {
+	public void displayPage(String chapterName, String pageId, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings) {
 		// Main code that displays a page
 		String strImage;
 		int intDelSeconds = 0;
@@ -57,7 +57,7 @@ public class MainLogic {
 		String strMax;
 		String strPre;
 		String strPost;
-		String strPageName;
+		String strPageId;
 		String strDelStartAt;
 		boolean blnVideo;
 		boolean blnDelay;
@@ -73,31 +73,31 @@ public class MainLogic {
 		Audio objAudio;
 		String fileSeparator = appSettings.getFileSeparator();
 		
-		logger.debug("displayPage PagePassed " + pageName);
+		logger.debug("displayPage PagePassed " + pageId);
 		logger.debug("displayPage Flags " + comonFunctions.GetFlags(guide.getFlags()));
 
 		try {
 			mainShell.stopAll();
 			// handle random page
-			strPageName = pageName;
+			strPageId = pageId;
 			strPre = "";
 			strPost = "";
-			intPos1 = strPageName.indexOf("(");
+			intPos1 = strPageId.indexOf("(");
 			if (intPos1 > -1) {
-				intPos2 = strPageName.indexOf("..", intPos1);
+				intPos2 = strPageId.indexOf("..", intPos1);
 				if (intPos2 > -1) {
-					intPos3 = strPageName.indexOf(")", intPos2);
+					intPos3 = strPageId.indexOf(")", intPos2);
 					if (intPos3 > -1) {
-						strMin = strPageName.substring(intPos1 + 1, intPos2);
+						strMin = strPageId.substring(intPos1 + 1, intPos2);
 						intMin = Integer.parseInt(strMin);
-						strMax = strPageName.substring(intPos2 + 2, intPos3);
+						strMax = strPageId.substring(intPos2 + 2, intPos3);
 						intMax = Integer.parseInt(strMax);
 						if (intPos1 > 0) {
-							strPre = strPageName.substring(0, intPos1);
+							strPre = strPageId.substring(0, intPos1);
 						} else {
 							strPre = "";
 						}
-						strPost = strPageName.substring(intPos3 + 1);
+						strPost = strPageId.substring(intPos3 + 1);
 						logger.debug("displayPage Random Page Min " + strMin + " Max " + strMax + " Pre " + strPre + " strPost " + strPost);
 						String[] strPageArray;
 						strPageArray = new String[intMax];
@@ -105,18 +105,18 @@ public class MainLogic {
 						Page tmpPage;
 						// Check if we are allowed to display the pages
 						for (int i = intMin; i <= intMax; i++) {
-							strPageName = strPre + i + strPost;
-							if (guide.getChapters().get(chapterName).getPages().containsKey(strPageName)) {
-								tmpPage = guide.getChapters().get(chapterName).getPages().get(strPageName);
+							strPageId = strPre + i + strPost;
+							if (guide.getChapters().get(chapterName).getPages().containsKey(strPageId)) {
+								tmpPage = guide.getChapters().get(chapterName).getPages().get(strPageId);
 								if (tmpPage.canShow(guide.getFlags())) {
-									logger.debug("displayPage PageAllowed " + strPageName + " Yes");
+									logger.debug("displayPage PageAllowed " + strPageId + " Yes");
 									intPageArrayCount++;
-									strPageArray[intPageArrayCount] = strPageName;
+									strPageArray[intPageArrayCount] = strPageId;
 								} else {
-									logger.debug("displayPage PageAllowed " + strPageName + " No");
+									logger.debug("displayPage PageAllowed " + strPageId + " No");
 								}
 							} else {
-								logger.debug("displayPage PageAllowed " + strPageName + " No");
+								logger.debug("displayPage PageAllowed " + strPageId + " No");
 							}
 						}
 						int i1 = 0;
@@ -126,14 +126,14 @@ public class MainLogic {
 							//i1 = rndGen.nextInt(intPageArrayCount + 1);
 							logger.debug("random number between 0 and " + intPageArrayCount + " generates " + i1);
 						}
-						strPageName = strPageArray[i1];
-						logger.debug("displayPage PageChosen " + strPageName);
+						strPageId = strPageArray[i1];
+						logger.debug("displayPage PageChosen " + strPageId);
 					}
 				}
 			}
 
 			// get the page to display
-			objCurrPage = guide.getChapters().get(chapterName).getPages().get(strPageName);
+			objCurrPage = guide.getChapters().get(chapterName).getPages().get(strPageId);
 			
 			// delay
 			mainShell.setLblLeft("");
@@ -355,7 +355,7 @@ public class MainLogic {
 						if (blnDelay) {
 							mainShell.addDelayButton(guide);
 						}
-						mainShell.setLblCentre(" " + strPageName);
+						mainShell.setLblCentre(" " + strPageId);
 					} else {
 						mainShell.setLblCentre(guide.getTitle());
 					}
@@ -474,7 +474,7 @@ public class MainLogic {
 			// Save current page and flags
 			// set page
 			if (guide.getAutoSetPage()) {
-				guide.getFlags().add(strPageName);
+				guide.getFlags().add(strPageId);
 			}
 			// do page set / unset
 			try {
@@ -483,7 +483,7 @@ public class MainLogic {
 				logger.error("displayPage PageFlags Exception " + e1.getLocalizedMessage(), e1);
 			}
 
-			guide.getSettings().setPage(strPageName);
+			guide.getSettings().setPage(strPageId);
 			strFlags = comonFunctions.GetFlags(guide.getFlags());
 			logger.debug("displayPage End Flags " + strFlags);
 			guide.getSettings().setFlags(strFlags);

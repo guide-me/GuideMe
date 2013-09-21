@@ -70,15 +70,15 @@ public class ComonFunctions {
 
     
     // Overloaded function checks pages as well 
-    public boolean canShow(ArrayList<String> setList, String IifSet, String IifNotSet, String IPageName) {
+    public boolean canShow(ArrayList<String> setList, String IifSet, String IifNotSet, String IPageId) {
     	boolean icanShow = false;
     	try {
     		icanShow = canShow(setList, IifSet, IifNotSet);
     		if (icanShow) {
-    			if (IPageName.equals("")) {
+    			if (IPageId.equals("")) {
     				icanShow = true;
     			} else {
-    				icanShow = MatchesIfNotSetCondition(IPageName, setList);
+    				icanShow = MatchesIfNotSetCondition(IPageId, setList);
     			}
     		}
     	}
