@@ -104,6 +104,7 @@ public class MainShell {
 	private Thread threadMetronome;
 	private AudioPlayer audioPlayer;
 	private Thread threadAudioPlayer;
+	private Boolean videoOn = true;
 
 	public Shell createShell(final Display display) {
 		logger.trace("Enter createShell");
@@ -114,8 +115,8 @@ public class MainShell {
 		try {
 			appSettings = AppSettings.getAppSettings();
 
-			// debug flag
-			//blnDebug = appSettings.getDebug();
+			//video flag
+			videoOn = appSettings.getVideoOn();
 
 			// font size
 			MintFontSize = appSettings.getFontSize();
@@ -175,7 +176,7 @@ public class MainShell {
 
 			sashform = new SashForm(shell, SWT.HORIZONTAL);
 			sashform.setBackground(colourBlack);
-
+			
 			mediaPanel = new Composite(sashform, SWT.EMBEDDED);
 			FillLayout layout3 = new FillLayout();
 			mediaPanel.setLayout(layout3);
@@ -200,19 +201,21 @@ public class MainShell {
 			RowLayout layout2 = new RowLayout();
 			btnComp.setLayout(layout2);
 
-			videoFrame = SWT_AWT.new_Frame(mediaPanel);         
-			videoSurfaceCanvas = new Canvas();
-
-			videoSurfaceCanvas.setBackground(java.awt.Color.black);
-			videoFrame.add(videoSurfaceCanvas);
-
-			mediaPlayerFactory = new MediaPlayerFactory("--no-video-title-show");
-			mediaPlayer = mediaPlayerFactory.newEmbeddedMediaPlayer();
-
-			videoSurface = mediaPlayerFactory.newVideoSurface(videoSurfaceCanvas);
-			mediaPlayer.setVideoSurface(videoSurface);
-
-			mediaPlayer.addMediaPlayerEventListener(new MediaListener());
+			if (videoOn) {
+				videoFrame = SWT_AWT.new_Frame(mediaPanel);         
+				videoSurfaceCanvas = new Canvas();
+	
+				videoSurfaceCanvas.setBackground(java.awt.Color.black);
+				videoFrame.add(videoSurfaceCanvas);
+	
+				mediaPlayerFactory = new MediaPlayerFactory("--no-video-title-show");
+				mediaPlayer = mediaPlayerFactory.newEmbeddedMediaPlayer();
+	
+				videoSurface = mediaPlayerFactory.newVideoSurface(videoSurfaceCanvas);
+				mediaPlayer.setVideoSurface(videoSurface);
+	
+				mediaPlayer.addMediaPlayerEventListener(new MediaListener());
+			}
 
 			//Set the layout and how it responds to screen resize
 			FormData lblLeftFormData = new FormData();
@@ -336,10 +339,12 @@ public class MainShell {
 				appSettings.saveSettings();
 				controlFont.dispose();
 				stopAll();
-				VideoRelease videoRelease = new VideoRelease();
-				videoRelease.setVideoRelease(mediaPlayer, mediaPlayerFactory);
-				Thread videoReleaseThread = new Thread(videoRelease);
-				videoReleaseThread.start();
+				if (videoOn) {
+					VideoRelease videoRelease = new VideoRelease();
+					videoRelease.setVideoRelease(mediaPlayer, mediaPlayerFactory);
+					Thread videoReleaseThread = new Thread(videoRelease);
+					videoReleaseThread.start();
+				}
 				
 			}
 			catch (Exception ex) {
@@ -375,8 +380,10 @@ public class MainShell {
 		@Override
 		public void controlResized(ControlEvent e) {
 			super.controlResized(e);
-			Rectangle rect = mediaPanel.getClientArea();
-			videoFrame.setSize(rect.width, rect.height);
+			if (videoOn) {
+				Rectangle rect = mediaPanel.getClientArea();
+				videoFrame.setSize(rect.width, rect.height);
+			}
 		}
 
 	}
@@ -749,30 +756,32 @@ public class MainShell {
 		//plays a video in the area to the left of the screen
 		//sets the number of loops, start / stop time and any page to display if the video finishes
 		//starts the video using a non UI thread so VLC can't hang the application
-		try {
-			this.imageLabel.setVisible(false);
-			this.videoFrame.setVisible(true);
-			this.video = video;
-			videoLoops = loops;
-			videoTarget = target;
-			videoOptions = "";
-			if (startAt > 0 && stopAt > 0) {
-				videoOptions = "start-time=" + startAt + ",stop-time=" + stopAt;
-			} else {
-				if (startAt > 0) {
-					videoOptions = "start-time=" + startAt;
+		if (videoOn) {
+			try {
+				this.imageLabel.setVisible(false);
+				this.videoFrame.setVisible(true);
+				this.video = video;
+				videoLoops = loops;
+				videoTarget = target;
+				videoOptions = "";
+				if (startAt > 0 && stopAt > 0) {
+					videoOptions = "start-time=" + startAt + ",stop-time=" + stopAt;
+				} else {
+					if (startAt > 0) {
+						videoOptions = "start-time=" + startAt;
+					}
+					if (stopAt > 0) {
+						videoOptions = "stop-time=" + stopAt;
+					}
 				}
-				if (stopAt > 0) {
-					videoOptions = "stop-time=" + stopAt;
-				}
+				videoPlay = true;
+				VideoPlay videoPlay = new VideoPlay();
+				videoPlay.setVideoPlay(mediaPlayer, videoOptions, video);
+				Thread videoPlayThread = new Thread(videoPlay);
+				videoPlayThread.start();
+			} catch (Exception e) {
+				logger.error("playVideo " + e.getLocalizedMessage(), e);		
 			}
-			videoPlay = true;
-			VideoPlay videoPlay = new VideoPlay();
-			videoPlay.setVideoPlay(mediaPlayer, videoOptions, video);
-			Thread videoPlayThread = new Thread(videoPlay);
-			videoPlayThread.start();
-		} catch (Exception e) {
-			logger.error("playVideo " + e.getLocalizedMessage(), e);		
 		}
 	}
 
@@ -1004,19 +1013,21 @@ public class MainShell {
 	}
 
 	public void stopVideo() {
-		try {
-			if (mediaPlayer != null) {
-				videoLoops = 0;
-				videoTarget = "";
-				videoOptions = "";
-				videoPlay = false;
-				VideoStop videoStop = new VideoStop();
-				videoStop.setMediaPlayer(mediaPlayer);
-				Thread videoStopThread = new Thread(videoStop);
-				videoStopThread.start();
+		if (videoOn) {
+			try {
+				if (mediaPlayer != null) {
+					videoLoops = 0;
+					videoTarget = "";
+					videoOptions = "";
+					videoPlay = false;
+					VideoStop videoStop = new VideoStop();
+					videoStop.setMediaPlayer(mediaPlayer);
+					Thread videoStopThread = new Thread(videoStop);
+					videoStopThread.start();
+				}
+			} catch (Exception e) {
+				logger.error(" stopVideo " + e.getLocalizedMessage(), e);
 			}
-		} catch (Exception e) {
-			logger.error(" stopVideo " + e.getLocalizedMessage(), e);
 		}
 	}
 	

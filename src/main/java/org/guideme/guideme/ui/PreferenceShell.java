@@ -97,8 +97,11 @@ public class PreferenceShell {
 			//Debug
 			AddBooleanField(grpApp, "Debug", appWidgets.get("AppHtmlFontSizeNumLbl"), appWidgets.get("AppHtmlFontSizeNumCtrl"), myAppSettings.getDebug(), "AppDebug");			
 
+			//Video
+			AddBooleanField(grpApp, "Video", appWidgets.get("AppDebugBlnLbl"), appWidgets.get("AppDebugBlnCtrl"), myAppSettings.getVideoOn(), "AppVideo");			
+
 			//Data Directory
-			AddTextField(grpApp, "Data Directory", appWidgets.get("AppDebugBlnLbl"), appWidgets.get("AppDebugBlnCtrl"), myAppSettings.getDataDirectory(), "AppDataDir", false);
+			AddTextField(grpApp, "Data Directory", appWidgets.get("AppVideoBlnLbl"), appWidgets.get("AppVideoBlnCtrl"), myAppSettings.getDataDirectory(), "AppDataDir", false);
 
 			Group grpNames = new Group(composite, SWT.SHADOW_IN);
 			FormData grpNamesFormData = new FormData();
@@ -233,6 +236,9 @@ public class PreferenceShell {
 
 				btnTmp = (Button) appWidgets.get("AppDebugBlnCtrl");
 				myAppSettings.setDebug(btnTmp.getSelection());
+				
+				btnTmp = (Button) appWidgets.get("AppVideoBlnCtrl");
+				myAppSettings.setVideoOn(btnTmp.getSelection());
 				
 				txtTmp = (Text) appWidgets.get("AppDataDirCtrl");
 				myAppSettings.setDataDirectory((txtTmp.getText()));

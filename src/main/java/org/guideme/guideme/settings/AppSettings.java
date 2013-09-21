@@ -13,11 +13,12 @@ public class AppSettings {
 	private int FontSize = 20;
 	private int HtmlFontSize = 20;
 	private boolean Debug = false;
+	private boolean video = false;
 	private String DataDirectory;
 	private int[] sash1Weights = new int[2];
 	private int[] sash2Weights = new int[2];
 	private Properties appSettingsProperties = new Properties();
-	private String settingsLocation = "settings.properties";
+	private String settingsLocation;
 	private String userDir;
 	private String userHome;
 	private String userName;
@@ -42,6 +43,7 @@ public class AppSettings {
 		userHome = String.valueOf(properties.get("user.home"));
 		userName = String.valueOf(properties.get("user.name"));
 		fileSeparator = String.valueOf(properties.get("file.separator"));
+		settingsLocation = "data" + fileSeparator + "settings.properties";
 		try {
 			try {
 				appSettingsProperties.loadFromXML(new FileInputStream(settingsLocation));
@@ -53,6 +55,7 @@ public class AppSettings {
 			FontSize = Integer.parseInt(appSettingsProperties.getProperty("FontSize", "20"));
 			HtmlFontSize = Integer.parseInt(appSettingsProperties.getProperty("HtmlFontSize", "20"));
 			Debug = Boolean.parseBoolean(appSettingsProperties.getProperty("Debug", "false"));
+			video = Boolean.parseBoolean(appSettingsProperties.getProperty("Video", "true"));
 			DataDirectory = appSettingsProperties.getProperty("DataDirectory", userDir);
 			sash1Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights0", "350"));
 			sash1Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights1", "350"));
@@ -110,6 +113,7 @@ public class AppSettings {
 			appSettingsProperties.setProperty("FontSize", String.valueOf(FontSize));
 			appSettingsProperties.setProperty("HtmlFontSize", String.valueOf(HtmlFontSize));
 			appSettingsProperties.setProperty("Debug", String.valueOf(Debug));
+			appSettingsProperties.setProperty("Video", String.valueOf(video));
 			appSettingsProperties.setProperty("DataDirectory", DataDirectory);
 			appSettingsProperties.setProperty("sash1Weights0", String.valueOf(sash1Weights[0]));
 			appSettingsProperties.setProperty("sash1Weights1", String.valueOf(sash1Weights[1]));
@@ -144,6 +148,14 @@ public class AppSettings {
 
 	public String getFileSeparator() {
 		return fileSeparator;
+	}
+
+	public boolean getVideoOn() {
+		return video;
+	}
+
+	public void setVideoOn(boolean video) {
+		this.video = video;
 	}
 
 }
