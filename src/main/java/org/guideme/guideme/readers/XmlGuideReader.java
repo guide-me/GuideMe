@@ -1,5 +1,6 @@
 package org.guideme.guideme.readers;
 
+import java.io.FileInputStream;
 import java.io.FileReader;
 import java.util.HashMap;
 
@@ -82,11 +83,13 @@ public class XmlGuideReader {
 			Chapter chapter = new Chapter("default");
 			chapters.put("default", chapter);
 			guideSettings = guide.getSettings();
+
+			FileInputStream fis = new FileInputStream(strPreXMLPath);
+	        UnicodeBOMInputStream ubis = new UnicodeBOMInputStream(fis);
+	        ubis.skipBOM();
 			
 		    XMLInputFactory factory = XMLInputFactory.newInstance();
-		    XMLStreamReader reader =
-	        factory.createXMLStreamReader(
-	        		new FileReader(strPreXMLPath));
+		    XMLStreamReader reader = factory.createXMLStreamReader(ubis);
 	         
 	         while (reader.hasNext()) {
 	        	 int eventType = reader.next(); 

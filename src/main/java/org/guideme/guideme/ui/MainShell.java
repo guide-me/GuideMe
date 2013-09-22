@@ -59,6 +59,7 @@ import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 import uk.co.caprica.vlcj.player.embedded.videosurface.CanvasVideoSurface;
 
 public class MainShell {
+	private String version = "0.0.1";
 	/*
 	 Main screen and UI thread.
 	 exposes methods that allow other components to update the screen components
@@ -152,7 +153,7 @@ public class MainShell {
 			//get primary monitor and its size
 			Monitor primary = display.getPrimaryMonitor();
 			Rectangle clientArea = primary.getClientArea();
-			shell.setText("Guide Me ");
+			shell.setText("Guide Me (" + version + ")");
 			FormLayout layout = new FormLayout();
 			shell.setLayout(layout);
 

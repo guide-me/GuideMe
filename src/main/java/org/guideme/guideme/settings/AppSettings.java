@@ -27,7 +27,7 @@ public class AppSettings {
 
 	public static synchronized AppSettings getAppSettings() {
 		if (appSettings == null) {
-			appSettings = new AppSettings();
+			appSettings = new AppSettings(false);
 		}
 		return appSettings;
 	}
@@ -36,36 +36,38 @@ public class AppSettings {
 		throw new CloneNotSupportedException();
 	}
 
-	private AppSettings() {
+	protected  AppSettings(Boolean overrideconstructor) {
 		super();
-		Properties properties = java.lang.System.getProperties();
-		userDir = String.valueOf(properties.get("user.dir"));
-		userHome = String.valueOf(properties.get("user.home"));
-		userName = String.valueOf(properties.get("user.name"));
-		fileSeparator = String.valueOf(properties.get("file.separator"));
-		settingsLocation = "data" + fileSeparator + "settings.properties";
-		try {
+		if (!overrideconstructor) {
+			Properties properties = java.lang.System.getProperties();
+			userDir = String.valueOf(properties.get("user.dir"));
+			userHome = String.valueOf(properties.get("user.home"));
+			userName = String.valueOf(properties.get("user.name"));
+			fileSeparator = String.valueOf(properties.get("file.separator"));
+			settingsLocation = "data" + fileSeparator + "settings.properties";
 			try {
-				appSettingsProperties.loadFromXML(new FileInputStream(settingsLocation));
+				try {
+					appSettingsProperties.loadFromXML(new FileInputStream(settingsLocation));
+				}
+				catch (IOException ex) {
+					//failed to load file so just carry on
+					logger.error(ex.getLocalizedMessage(), ex);
+				}
+				FontSize = Integer.parseInt(appSettingsProperties.getProperty("FontSize", "20"));
+				HtmlFontSize = Integer.parseInt(appSettingsProperties.getProperty("HtmlFontSize", "20"));
+				Debug = Boolean.parseBoolean(appSettingsProperties.getProperty("Debug", "false"));
+				video = Boolean.parseBoolean(appSettingsProperties.getProperty("Video", "true"));
+				DataDirectory = appSettingsProperties.getProperty("DataDirectory", userDir);
+				sash1Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights0", "350"));
+				sash1Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights1", "350"));
+				sash2Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights0", "800"));
+				sash2Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights1", "200"));
 			}
-			catch (IOException ex) {
-				//failed to load file so just carry on
+			catch (Exception ex) {
 				logger.error(ex.getLocalizedMessage(), ex);
 			}
-			FontSize = Integer.parseInt(appSettingsProperties.getProperty("FontSize", "20"));
-			HtmlFontSize = Integer.parseInt(appSettingsProperties.getProperty("HtmlFontSize", "20"));
-			Debug = Boolean.parseBoolean(appSettingsProperties.getProperty("Debug", "false"));
-			video = Boolean.parseBoolean(appSettingsProperties.getProperty("Video", "true"));
-			DataDirectory = appSettingsProperties.getProperty("DataDirectory", userDir);
-			sash1Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights0", "350"));
-			sash1Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights1", "350"));
-			sash2Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights0", "800"));
-			sash2Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights1", "200"));
+			saveSettings();
 		}
-		catch (Exception ex) {
-			logger.error(ex.getLocalizedMessage(), ex);
-		}
-		saveSettings();
 	}
 
 	public int getFontSize() {
