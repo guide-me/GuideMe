@@ -210,7 +210,8 @@ public class MainLogic {
 								logger.info("displayPage stopat Exception " + e1.getLocalizedMessage());
 							}
 
-
+							imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
+							/*
 							strImage = strImage.replace("\\", fileSeparator);
 							logger.info("displayPage Video " + strImage);
 							int intSubDir = strImage.lastIndexOf(fileSeparator);
@@ -249,6 +250,7 @@ public class MainLogic {
 								logger.info("displayPage Non Random Video " + imgPath);
 							}
 							imgPath = imgPath.replace("\\", fileSeparator);
+							*/
 
 							try {
 								String loops = objVideo.getRepeat();
@@ -275,6 +277,8 @@ public class MainLogic {
 							objImage = objCurrPage.getImage(i2);
 							if (objImage.canShow(guide.getFlags())) {
 								strImage = objImage.getId();
+								imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
+								/*
 								logger.debug("displayPage Image " + strImage);
 								int intSubDir = strImage.lastIndexOf("\\");
 								String strSubDir;
@@ -282,13 +286,19 @@ public class MainLogic {
 									strSubDir = strImage.substring(0, intSubDir + 1);
 									strImage = strImage.substring(intSubDir + 1);
 								} else {
-									strSubDir = "\\";
+									strSubDir = appSettings.getFileSeparator();
 								}
 								// String strSubDir
 								// Handle wildcard *
 								if (strImage.indexOf("*") > -1) {
 									// get the directory
-									File f = new File(appSettings.getDataDirectory() + guide.getMediaDirectory() + strSubDir);
+									String imageDir;
+									imageDir = appSettings.getDataDirectory();
+									if (strImage.lastIndexOf("\\") > -1 && !guide.getMediaDirectory().substring(0, 1).equals(appSettings.getFileSeparator())) {
+										imageDir = imageDir + appSettings.getFileSeparator();
+									}
+									imageDir = imageDir + guide.getMediaDirectory() + strSubDir;
+									File f = new File(imageDir);
 									// wildcard filter class handles the filtering
 									WildCardFileFilter wildCardfilter = new WildCardFileFilter();
 									wildCardfilter.setFilePatern(strImage);
@@ -306,6 +316,7 @@ public class MainLogic {
 									imgPath = appSettings.getDataDirectory() + guide.getMediaDirectory() + strSubDir + strImage;
 									logger.debug("displayPage Non Random Image " + imgPath);
 								}
+								*/
 								File flImage = new File(imgPath);
 								if (flImage.exists()){
 									try {
@@ -422,7 +433,8 @@ public class MainLogic {
 									stopAtSeconds = 0;
 								}
 								
-
+								imgPath = getMediaFullPath(strAudio, fileSeparator, appSettings, guide);
+								/*
 								strAudio = strAudio.replace("\\", fileSeparator);
 								logger.debug("displayPage Audio " + strAudio);
 								int intSubDir = strAudio.lastIndexOf(fileSeparator);
@@ -459,8 +471,9 @@ public class MainLogic {
 									logger.debug("displayPage Non Random Video " + imgPath);
 								}
 								strAudio = imgPath;
+								*/
 								strAudioTarget = objAudio.getTarget();
-								mainShell.playAudio(strAudio,startAtSeconds, stopAtSeconds, intAudioLoops, strAudioTarget);
+								mainShell.playAudio(imgPath,startAtSeconds, stopAtSeconds, intAudioLoops, strAudioTarget);
 								logger.debug("displayPage Audio target " + strAudioTarget);
 							} catch (Exception e1) {
 								logger.error("displayPage Audio Exception " + e1.getLocalizedMessage(), e1);
@@ -495,6 +508,63 @@ public class MainLogic {
 		}
 	}
 
+	
+	private String getMediaFullPath(String mediaFile, String fileSeparator, AppSettings appSettings, Guide guide) {
+		String mediaFound = "";
+		String dataDirectory = appSettings.getDataDirectory();
+		String mediaDirectory = guide.getMediaDirectory();
+		dataDirectory = dataDirectory.replace("\\", fileSeparator);
+		mediaDirectory = mediaDirectory.replace("\\", fileSeparator);
+		if (dataDirectory.substring(dataDirectory.length()).equals(fileSeparator)) {
+			dataDirectory = dataDirectory + mediaDirectory;
+		} else {
+			if (mediaDirectory.substring(0, 1).equals(fileSeparator)) {
+				dataDirectory = dataDirectory + mediaDirectory;
+			} else {
+				dataDirectory = dataDirectory + fileSeparator + mediaDirectory;
+			}
+		}
+		
+		
+		String media = mediaFile.replace("\\", fileSeparator);
+		logger.debug("displayPage getMediaFullPath " + media);
+		int intSubDir = media.lastIndexOf(fileSeparator);
+		String strSubDir;
+		if (intSubDir > -1) {
+			strSubDir = media.substring(0, intSubDir + 1);
+			if (!strSubDir.startsWith(fileSeparator)) {
+				strSubDir = fileSeparator + strSubDir;
+			}
+			media = media.substring(intSubDir + 1);
+		} else {
+			strSubDir = fileSeparator;
+		}
+		// String strSubDir
+		// Handle wildcard *
+		if (media.indexOf("*") > -1) {
+			// get the directory
+			File f = new File(dataDirectory + strSubDir);
+			// wildcard filter class handles the filtering
+			WildCardFileFilter WildCardfilter = new WildCardFileFilter();
+			WildCardfilter.setFilePatern(media);
+			if (f.isDirectory()) {
+				// return a list of matching files
+				File[] children = f.listFiles(WildCardfilter);
+				// return a random image
+				int intFile = comonFunctions.getRandom("(0.." + (children.length - 1) + ")");
+				logger.debug("displayPage Random Media Index " + intFile);
+				mediaFound = dataDirectory + strSubDir + children[intFile].getName();
+				logger.debug("displayPage Random Media Chosen " + mediaFound);
+			}
+		} else {
+			// no wildcard so just use the file name
+			mediaFound = dataDirectory + strSubDir + media;
+			logger.debug("displayPage Non Random Media " + mediaFound);
+		}
+		
+		return mediaFound;
+	}
+	
 	// Wildecard filter
 	private class WildCardFileFilter implements java.io.FileFilter {
 		//Apply the wildcard filter to the file list

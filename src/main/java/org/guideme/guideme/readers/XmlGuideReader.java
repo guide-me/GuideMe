@@ -1,7 +1,6 @@
 package org.guideme.guideme.readers;
 
 import java.io.FileInputStream;
-import java.io.FileReader;
 import java.util.HashMap;
 
 import javax.xml.stream.XMLInputFactory;
