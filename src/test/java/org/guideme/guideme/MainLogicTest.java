@@ -2,6 +2,11 @@ package org.guideme.guideme;
 
 import static org.junit.Assert.*;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Set;
 
 import org.guideme.guideme.model.Chapter;
@@ -22,6 +27,10 @@ public class MainLogicTest {
 	private MainShell mainShell = new MainShellMock(); 
 	private AppSettings appSettings = AppSettingsMock.getAppSettings();
 	private XmlGuideReader xmlGuideReader = XmlGuideReader.getXmlGuideReader();
+	private String dataDirectory = "Y:\\TM\\Teases";
+	private Boolean singlePage = false;
+	private Boolean allGuides = true;
+	private Boolean scriptedTest = false;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -34,25 +43,68 @@ public class MainLogicTest {
 
 	@Test
 	public void testDisplayPageStringBooleanGuideMainShellAppSettings() {
-		String pageid;
-		appSettings.setDataDirectory("Y:\\TM\\Teases");
-		pageid = xmlGuideReader.loadXML("Y:\\TM\\Teases\\Danni's friends.xml", guide);
-		mainLogic.displayPage(pageid, false, guide, mainShell, appSettings);
+		if (singlePage) {
+			appSettings.setDataDirectory(dataDirectory);
+			xmlGuideReader.loadXML(dataDirectory + "\\Cash In My Points.xml", guide);
+			mainLogic.displayPage("start", false, guide, mainShell, appSettings);
+		}
 		assertTrue(true);
 	}
 
 	@Test
 	public void testDisplayPageStringStringBooleanGuideMainShellAppSettings() {
-		appSettings.setDataDirectory("Y:\\TM\\Teases");
-		xmlGuideReader.loadXML("Y:\\TM\\Teases\\Your choice!.xml", guide);
-		Set<String> chapters = guide.getChapters().keySet();
-		for (String chapterId : chapters) {
-		    Chapter chapter = guide.getChapters().get(chapterId);
-		    Set<String> pages = chapter.getPages().keySet();
-				for (String pageId : pages) {
-					Page page = chapter.getPages().get(pageId);
-					mainLogic.displayPage(chapter.getId(), page.getId(), false, guide, mainShell, appSettings);		
+		if (allGuides) {
+			appSettings.setDataDirectory(dataDirectory);
+			File f = new File(dataDirectory);
+			// wildcard filter class handles the filtering
+			MainLogic.WildCardFileFilter WildCardfilter = mainLogic.new WildCardFileFilter();
+			WildCardfilter.setFilePatern("*.xml");
+			if (f.isDirectory()) {
+				// return a list of matching files
+				File[] children = f.listFiles(WildCardfilter);
+				for (File file : children) {
+					guide.reset(file.getName().substring(0, file.getName().length() - 4));
+					xmlGuideReader.loadXML(file.getAbsolutePath(), guide);
+					Set<String> chapters = guide.getChapters().keySet();
+					for (String chapterId : chapters) {
+						Chapter chapter = guide.getChapters().get(chapterId);
+						Set<String> pages = chapter.getPages().keySet();
+						for (String pageId : pages) {
+							Page page = chapter.getPages().get(pageId);
+							mainLogic.displayPage(chapter.getId(), page.getId(), false, guide, mainShell, appSettings);		
+						}
+					}
 				}
+			}
+		}
+		assertTrue(true);
+	}
+	
+	@Test
+	public void scriptedTest() {
+		if (scriptedTest) {
+			String script = "data\\pageScript.txt";
+			appSettings.setDataDirectory(dataDirectory);
+			 try {
+				BufferedReader instructions = new BufferedReader(new FileReader(script));
+				String guideFile = instructions.readLine();
+				if (!guideFile.equals(null)) {
+					guide.reset(guideFile);
+					xmlGuideReader.loadXML(dataDirectory + "\\" + guideFile + ".xml", guide);
+				}
+				String instruction = instructions.readLine();
+				String fields[];
+				while (!(instruction == null)) {
+					fields = instruction.split(",");
+					mainLogic.displayPage(fields[0], fields[1], false, guide, mainShell, appSettings);
+					instruction = instructions.readLine();
+				}
+				instructions.close();
+			} catch (FileNotFoundException e) {
+				fail("scriptedTest input file not found: " + script);
+			} catch (IOException e) {
+				fail("IO Error on script file " + script);
+			}
 		}
 		assertTrue(true);
 	}

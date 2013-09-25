@@ -246,13 +246,15 @@ public class ComonFunctions {
 						intMin = Integer.parseInt(strMin);
 						strMax = random.substring(intPos2 + 2, intPos3);
 						intMax = Integer.parseInt(strMax);
-						int i1 = mRandom.nextInt(intMax - intMin) + intMin;
+						int i1 = mRandom.nextInt(intMax - intMin + 1) + intMin;
 						intRandom = i1;
 					}
 				}
 			} else {
 				intRandom = Integer.parseInt(random);
 			}
+		} catch (NumberFormatException en) {
+			intRandom = 0;
 		} catch (Exception e) {
 			logger.error(e.getLocalizedMessage(),e);
 		}

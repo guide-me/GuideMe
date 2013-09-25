@@ -511,39 +511,26 @@ public class MainLogic {
 	
 	private String getMediaFullPath(String mediaFile, String fileSeparator, AppSettings appSettings, Guide guide) {
 		String mediaFound = "";
-		String dataDirectory = appSettings.getDataDirectory();
-		String mediaDirectory = guide.getMediaDirectory();
-		dataDirectory = dataDirectory.replace("\\", fileSeparator);
-		mediaDirectory = mediaDirectory.replace("\\", fileSeparator);
-		if (dataDirectory.substring(dataDirectory.length()).equals(fileSeparator)) {
-			dataDirectory = dataDirectory + mediaDirectory;
-		} else {
-			if (mediaDirectory.substring(0, 1).equals(fileSeparator)) {
-				dataDirectory = dataDirectory + mediaDirectory;
-			} else {
-				dataDirectory = dataDirectory + fileSeparator + mediaDirectory;
-			}
-		}
+		String dataDirectory = fixSeparator(appSettings.getDataDirectory(), fileSeparator);
+		String mediaDirectory = fixSeparator(guide.getMediaDirectory(), fileSeparator);
+		dataDirectory = dataDirectory + fileSeparator + mediaDirectory;
 		
 		
-		String media = mediaFile.replace("\\", fileSeparator);
+		String media = fixSeparator(mediaFile, fileSeparator);
 		logger.debug("displayPage getMediaFullPath " + media);
 		int intSubDir = media.lastIndexOf(fileSeparator);
 		String strSubDir;
 		if (intSubDir > -1) {
-			strSubDir = media.substring(0, intSubDir + 1);
-			if (!strSubDir.startsWith(fileSeparator)) {
-				strSubDir = fileSeparator + strSubDir;
-			}
+			strSubDir = fixSeparator(media.substring(0, intSubDir + 1), fileSeparator);
 			media = media.substring(intSubDir + 1);
 		} else {
-			strSubDir = fileSeparator;
+			strSubDir = "";
 		}
 		// String strSubDir
 		// Handle wildcard *
 		if (media.indexOf("*") > -1) {
 			// get the directory
-			File f = new File(dataDirectory + strSubDir);
+			File f = new File(dataDirectory + fileSeparator + strSubDir);
 			// wildcard filter class handles the filtering
 			WildCardFileFilter WildCardfilter = new WildCardFileFilter();
 			WildCardfilter.setFilePatern(media);
@@ -553,20 +540,37 @@ public class MainLogic {
 				// return a random image
 				int intFile = comonFunctions.getRandom("(0.." + (children.length - 1) + ")");
 				logger.debug("displayPage Random Media Index " + intFile);
-				mediaFound = dataDirectory + strSubDir + children[intFile].getName();
+				mediaFound = dataDirectory + fileSeparator + strSubDir + fileSeparator + children[intFile].getName();
 				logger.debug("displayPage Random Media Chosen " + mediaFound);
 			}
 		} else {
 			// no wildcard so just use the file name
-			mediaFound = dataDirectory + strSubDir + media;
+			if (strSubDir.equals("")) {
+				mediaFound = dataDirectory + fileSeparator + media;
+			} else {
+				mediaFound = dataDirectory + fileSeparator + strSubDir + fileSeparator + media;
+			}
 			logger.debug("displayPage Non Random Media " + mediaFound);
 		}
 		
 		return mediaFound;
 	}
 	
+	private String fixSeparator(String path, String fileSeparator) {
+		String retrn = path;
+		retrn = retrn.replace("\\", fileSeparator);
+		retrn = retrn.replace("/", fileSeparator);
+		if (retrn.startsWith(fileSeparator)) {
+			retrn = retrn.substring(1, retrn.length());
+		}
+		if (retrn.endsWith(fileSeparator)) {
+			retrn = retrn.substring(0, retrn.length() - 1);
+		}
+		return retrn;
+	}
+	
 	// Wildecard filter
-	private class WildCardFileFilter implements java.io.FileFilter {
+	public class WildCardFileFilter implements java.io.FileFilter {
 		//Apply the wildcard filter to the file list
 		private String strFilePatern;
 		

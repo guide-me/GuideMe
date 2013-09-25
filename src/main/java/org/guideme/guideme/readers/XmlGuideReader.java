@@ -94,21 +94,21 @@ public class XmlGuideReader {
 	        	 int eventType = reader.next(); 
 	        	 switch (eventType) {
 	        	 case XMLStreamConstants.START_DOCUMENT:
-	        		 logger.trace("loadXML Start document " + strPreXMLPath);
+	        		 logger.trace("loadXML " + PresName + " Start document " + strPreXMLPath);
 	        		 break;
 	        	 case XMLStreamConstants.END_DOCUMENT:
-	        		 logger.trace("loadXML End document");
+	        		 logger.trace("loadXML " + PresName + " End document");
 	        		 break;
 	        	 case XMLStreamConstants.START_ELEMENT:
-	        		 logger.trace("loadXML Start tag " + reader.getName().getLocalPart());
+	        		 //logger.trace("loadXML " + PresName + " Start tag " + reader.getName().getLocalPart());
 	        		 strTag = reader.getName().getLocalPart();
 
 	        		 switch (TagName.toTag(strTag)) {
 	        		 case pref:
 	        			 String key;
-	        			 String screen;
+	        			 String screen = "";
 	        			 String type;
-	        			 String value;
+	        			 String value = "";
 	        			 key = reader.getAttributeValue(null, "key");
 	        			 type = reader.getAttributeValue(null, "type");
 	        			 if (! guideSettings.keyExists(key, type)) {
@@ -124,19 +124,19 @@ public class XmlGuideReader {
 	        						guideSettings.addPref(key, Double.parseDouble(value), screen);
 	        					}
 	        			 }
+	        			 logger.trace("loadXML " + PresName + " pref " + key + "|" + value + "|" + screen + "|" + type);
 	        			 break;
 	        		 case Title:
 	        			 try {
-	        				 logger.trace("Title Tag");
 	        				 reader.next();
 	        				 strTmpTitle = reader.getText();
 	        			 } catch (Exception e1) {
-	        				 logger.error("loadXML Title Exception " + e1.getLocalizedMessage(), e1);
+	        				 logger.error("loadXML " + PresName + " Title Exception " + e1.getLocalizedMessage(), e1);
 	        			 }
+	        			 logger.trace("loadXML " + PresName + " title " + strTmpTitle);
 	        			 break;
 	        		 case Audio:
 	        			 try {
-	        				 logger.trace("Audio Tag");
 	        				 String strId;
 	        				 String strStartAt;
 	        				 String strStopAt;
@@ -154,13 +154,13 @@ public class XmlGuideReader {
 	        				 if (ifNotSet == null) ifNotSet = "";
 	        				 Audio audio = new Audio(strId, strStartAt, strStopAt, strTarget, strTarget, ifSet, ifNotSet, "", "");
 	        				 page.addAudio(audio);
+		        			 logger.trace("loadXML " + PresName + " Audio " + strId+ "|" + strStartAt+ "|" + strStopAt+ "|" + strTarget+ "|" + strTarget+ "|" + ifSet+ "|" + ifNotSet);
 	        			 } catch (Exception e1) {
-	        				 logger.error("loadXML Audio Exception " + e1.getLocalizedMessage(), e1);
+	        				 logger.error("loadXML " + PresName + " Audio Exception " + e1.getLocalizedMessage(), e1);
 	        			 }
 	        			 break;
 	        		 case Author:
 	        			 try {
-	        				 logger.trace("Author Tag");
 	        				 int eventType2 = reader.getEventType();
 	        				 while (true) {
 	        					 if (eventType2 == XMLStreamConstants.START_ELEMENT) {
@@ -175,13 +175,13 @@ public class XmlGuideReader {
 	        						 if (reader.getName().getLocalPart().equals("Author")) break;
 	        					 }
 	        				 }
+		        			 logger.trace("loadXML " + PresName + " Author " + strTmpAuthor);
 	        			 } catch (Exception e1) {
-	        				 logger.error("loadXML Author Exception " + e1.getLocalizedMessage(), e1);
+	        				 logger.error("loadXML " + PresName + " Author Exception " + e1.getLocalizedMessage(), e1);
 	        			 }
 	        			 break;
 	        		 case Button:
 	        			 try {
-	        				 logger.trace("Button Tag");
 	        				 String strTarget;
 	        				 strTarget = reader.getAttributeValue(null, "target");
 	        				 if (strTarget == null) strTarget = "";
@@ -196,13 +196,13 @@ public class XmlGuideReader {
 	        				 reader.next();
 	        				 Button button = new Button(strTarget, reader.getText(), ifSet, ifNotSet, Set, UnSet, "");
 	        				 page.addButton(button);
+		        			 logger.trace("loadXML " + PresName + " Button " + strTarget+ "|" + reader.getText()+ "|" + ifSet+ "|" + ifNotSet+ "|" + Set+ "|" + UnSet);
 	        			 } catch (Exception e1) {
-	        				 logger.error("loadXML Button Exception " + e1.getLocalizedMessage(), e1);
+	        				 logger.error("loadXML " + PresName + " Button Exception " + e1.getLocalizedMessage(), e1);
 	        			 }
 	        			 break;
 	        		 case Delay:
 	        			 try {
-	        				 logger.trace("Delay Tag");
 	        				 String strSeconds;
 	        				 String strStartWith;
 	        				 String strStyle;
@@ -224,13 +224,13 @@ public class XmlGuideReader {
 	        				 if (UnSet == null) UnSet = "";
 	        				 Delay delay = new Delay(strTarget, strSeconds, ifSet, ifNotSet, strStartWith, strStyle, Set, UnSet, "");
 	        				 page.addDelay(delay);
+		        			 logger.trace("loadXML " + PresName + " Delay " + strTarget+ "|" + strSeconds+ "|" + ifSet+ "|" + ifNotSet+ "|" + strStartWith+ "|" + strStyle+ "|" + Set+ "|" + UnSet);
 	        			 } catch (Exception e1) {
-	        				 logger.error("loadXML Delay Exception " + e1.getLocalizedMessage(), e1);
+	        				 logger.error("loadXML " + PresName + " Delay Exception " + e1.getLocalizedMessage(), e1);
 	        			 }
 	        			 break;
 	        		 case Image:
 	        			 try {
-	        				 logger.trace("Image Tag");
 	        				 String strImage;
 	        				 strImage = reader.getAttributeValue(null, "id");
 	        				 if (strImage == null) strImage = "";
@@ -242,22 +242,23 @@ public class XmlGuideReader {
 	        					 Image image = new Image(strImage, ifSet, ifNotSet);
 	        					 page.addImage(image);
 	        				 }
+		        			 logger.trace("loadXML " + PresName + " Image " + strImage+ "|" + ifSet+ "|" + ifNotSet);
 	        			 } catch (Exception e1) {
-	        				 logger.error("loadXML Image Exception " + e1.getLocalizedMessage(), e1);
+	        				 logger.error("loadXML " + PresName + " Image Exception " + e1.getLocalizedMessage(), e1);
 	        			 }
 	        			 break;
 	        		 case MediaDirectory:
 	        			 try {
-	        				 logger.trace("MediaDirectory Tag");
 	        				 reader.next();
-	        				 guide.setMediaDirectory(reader.getText());
+	        				 String dir  = reader.getText();
+	        				 guide.setMediaDirectory(dir);
+		        			 logger.trace("loadXML " + PresName + " MediaDirectory " + dir);
 	        			 } catch (Exception e1) {
-	        				 logger.error("loadXML MediaDirectory Exception " + e1.getLocalizedMessage(), e1);
+	        				 logger.error("loadXML " + PresName + " MediaDirectory Exception " + e1.getLocalizedMessage(), e1);
 	        			 }
 	        			 break;
 	        		 case Metronome:
 	        			 try {
-	        				 logger.trace("Metronome Tag");
 	        				 String strbpm;
 	        				 strbpm = reader.getAttributeValue(null, "bpm");
 	        				 if (strbpm == null) strbpm = "";
@@ -269,15 +270,15 @@ public class XmlGuideReader {
 	        					 Metronome metronome = new Metronome(strbpm, ifSet, ifNotSet);
 	        					 page.addMetronome(metronome);
 	        				 }
+		        			 logger.trace("loadXML " + PresName + " Metronome " + strbpm + "|" + ifSet + "|" + ifNotSet);
 	        			 } catch (Exception e1) {
-	        				 logger.error("loadXML Metronome Exception " + e1.getLocalizedMessage(), e1);
+	        				 logger.error("loadXML " + PresName + " Metronome Exception " + e1.getLocalizedMessage(), e1);
 	        			 }
 	        			 break;
 	        		 case NOVALUE:
 	        			 break;
 	        		 case Page:
 	        			 try {
-	        				 logger.trace("Page Tag");
 	        				 pageId = reader.getAttributeValue(null, "id");
 	        				 ifSet = reader.getAttributeValue(null, "if-set");
 	        				 if (ifSet == null) ifSet = "";
@@ -288,13 +289,13 @@ public class XmlGuideReader {
 	        				 UnSet = reader.getAttributeValue(null, "unset");
 	        				 if (UnSet == null) UnSet = "";
 	        				 page = new Page(pageId, ifSet, ifNotSet, Set, UnSet, guide.getAutoSetPage(), ""); 
+		        			 logger.trace("loadXML " + PresName + " Page " + pageId + "|" + ifSet + "|" + ifNotSet + "|" + Set + "|" + UnSet);
 	        			 } catch (Exception e1) {
-	        				 logger.error("loadXML Page Exception " + e1.getLocalizedMessage(), e1);
+	        				 logger.error("loadXML " + PresName + " Page Exception " + e1.getLocalizedMessage(), e1);
 	        			 }
 	        			 break;
 	        		 case Settings:
 	        			 try {
-	        				 logger.trace("Settings Tag");
 	        				 int eventType2 = reader.getEventType();
 	        				 while (true) {
 	        					 if (eventType2 == XMLStreamConstants.START_ELEMENT) {
@@ -309,12 +310,11 @@ public class XmlGuideReader {
         						 }
 	        				 }
 	        			 } catch (Exception e1) {
-	        				 logger.error("loadXML Settings Exception " + e1.getLocalizedMessage(), e1);
+	        				 logger.error("loadXML " + PresName + " Settings Exception " + e1.getLocalizedMessage(), e1);
 	        			 }
 	        			 break;
 	        		 case Text:
 	        			 try {
-	        				 logger.trace("Text Tag");
 	        				 if (reader.getName().getLocalPart().equals("Text")) {
 	        					 String text = "";
 	        					 String tag = "";
@@ -342,14 +342,14 @@ public class XmlGuideReader {
 	        						 }
 	        					 }
 	        					 page.setText(text);
+			        			 logger.trace("loadXML " + PresName + " Text " + text);
 	        				 }
 	        			 } catch (Exception e1) {
-	        				 logger.error("loadXML Text Exception " + e1.getLocalizedMessage(), e1);
+	        				 logger.error("loadXML " + PresName + " Text Exception " + e1.getLocalizedMessage(), e1);
 	        			 }
 	        			 break;
 	        		 case Video:
 	        			 try {
-	        				 logger.trace("Video Tag");
 	        				 String strId;
 	        				 String strStartAt;
 	        				 String strStopAt;
@@ -367,8 +367,9 @@ public class XmlGuideReader {
 	        				 if (ifNotSet == null) ifNotSet = "";
 	        				 Video video = new Video(strId, strStartAt, strStopAt, strTarget, ifSet, ifNotSet, "", "", "");
 	        				 page.addVideo(video);
+		        			 logger.trace("loadXML " + PresName + " Video " + strId + "|" + strStartAt + "|" + strStopAt + "|" + strTarget + "|" + ifSet + "|" + ifNotSet);
 	        			 } catch (Exception e1) {
-	        				 logger.error("loadXML Video Exception " + e1.getLocalizedMessage(), e1);
+	        				 logger.error("loadXML " + PresName + " Video Exception " + e1.getLocalizedMessage(), e1);
 	        			 }
 	        			 break;
 	        		 default:
@@ -376,14 +377,14 @@ public class XmlGuideReader {
 	        		 }
 	        		 break;
 	        	 case XMLStreamConstants.END_ELEMENT:
-	        		 logger.trace("loadXML End tag " + reader.getName().getLocalPart());
+	        		 //logger.trace("loadXML End tag " + reader.getName().getLocalPart());
 	        		 try {
 	        			 if (reader.getName().getLocalPart().equals("Page")) {
 	        				 chapter = guide.getChapters().get("default");
 	        				 chapter.getPages().put(page.getId(), page);
 	        			 }
 	        		 } catch (Exception e1) {
-	        			 logger.error("loadXML EndPage Exception " + e1.getLocalizedMessage(), e1);
+	        			 logger.error("loadXML " + PresName + " EndPage Exception " + e1.getLocalizedMessage(), e1);
 	        		 }
 	        		 break;
 	        	 case XMLStreamConstants.CHARACTERS:
@@ -403,12 +404,12 @@ public class XmlGuideReader {
 					comonFunctions.SetFlags(strFlags, guide.getFlags());
 				}
 			} catch (Exception e1) {
-				logger.error("loadXML Continue Exception " + e1.getLocalizedMessage(), e1);
+				logger.error("loadXML " + PresName + " Continue Exception " + e1.getLocalizedMessage(), e1);
 			}
 			guide.setSettings(guideSettings);
 			guideSettings.saveSettings();
 		} catch (Exception e) {
-			logger.error("loadXML Exception ", e);
+			logger.error("loadXML " + xmlFileName + " Exception ", e);
 		}
 		return strPage;
 	}
