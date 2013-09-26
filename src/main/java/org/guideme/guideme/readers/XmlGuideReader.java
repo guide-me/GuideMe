@@ -129,7 +129,11 @@ public class XmlGuideReader {
 	        		 case Title:
 	        			 try {
 	        				 reader.next();
-	        				 strTmpTitle = reader.getText();
+	        				 if (reader.getEventType() == XMLStreamConstants.CHARACTERS) {
+	        					 strTmpTitle = reader.getText();
+	        				 } else {
+	        					 strTmpTitle = "";
+	        				 }
 	        			 } catch (Exception e1) {
 	        				 logger.error("loadXML " + PresName + " Title Exception " + e1.getLocalizedMessage(), e1);
 	        			 }
@@ -167,7 +171,11 @@ public class XmlGuideReader {
 	        						 if (reader.getName().getLocalPart().equals("Name")) {
 	        	        				 logger.trace("Name Tag");
 	        							 reader.next();
-	        							 strTmpAuthor = reader.getText();
+	        	        				 if (reader.getEventType() == XMLStreamConstants.CHARACTERS) {
+	        	        					 strTmpAuthor = reader.getText();
+	        	        				 } else {
+	        	        					 strTmpAuthor = "";
+	        	        				 }
 	        						 }
 	        					 }
 	        					 eventType2 = reader.next();
@@ -194,9 +202,15 @@ public class XmlGuideReader {
 	        				 ifNotSet = reader.getAttributeValue(null, "if-not-set"); 
 	        				 if (ifNotSet == null) ifNotSet = "";
 	        				 reader.next();
-	        				 Button button = new Button(strTarget, reader.getText(), ifSet, ifNotSet, Set, UnSet, "");
+	        				 String BtnText;
+	        				 if (reader.getEventType() == XMLStreamConstants.CHARACTERS) {
+	        					 BtnText = reader.getText();
+	        				 } else {
+	        					 BtnText = "";
+	        				 }
+	        				 Button button = new Button(strTarget, BtnText, ifSet, ifNotSet, Set, UnSet, "");
 	        				 page.addButton(button);
-		        			 logger.trace("loadXML " + PresName + " Button " + strTarget+ "|" + reader.getText()+ "|" + ifSet+ "|" + ifNotSet+ "|" + Set+ "|" + UnSet);
+		        			 logger.trace("loadXML " + PresName + " Button " + strTarget+ "|" + BtnText + "|" + ifSet+ "|" + ifNotSet+ "|" + Set+ "|" + UnSet);
 	        			 } catch (Exception e1) {
 	        				 logger.error("loadXML " + PresName + " Button Exception " + e1.getLocalizedMessage(), e1);
 	        			 }
@@ -250,7 +264,12 @@ public class XmlGuideReader {
 	        		 case MediaDirectory:
 	        			 try {
 	        				 reader.next();
-	        				 String dir  = reader.getText();
+	        				 String dir;
+	        				 if (reader.getEventType() == XMLStreamConstants.CHARACTERS) {
+	        					 dir  = reader.getText();
+	        				 } else {
+	        					 dir = "";
+	        				 }
 	        				 guide.setMediaDirectory(dir);
 		        			 logger.trace("loadXML " + PresName + " MediaDirectory " + dir);
 	        			 } catch (Exception e1) {
@@ -301,7 +320,11 @@ public class XmlGuideReader {
 	        					 if (eventType2 == XMLStreamConstants.START_ELEMENT) {
 	        						 if (reader.getName().getLocalPart().equals("AutoSetPageWhenSeen")) {
 	        							 reader.next();
-	        							 guide.setAutoSetPage(Boolean.parseBoolean(reader.getText()));
+	        	        				 if (reader.getEventType() == XMLStreamConstants.CHARACTERS) {
+	        	        					 guide.setAutoSetPage(Boolean.parseBoolean(reader.getText()));
+	        	        				 } else {
+	        	        					 guide.setAutoSetPage(true); 
+	        	        				 }
 	        						 }	        				 
 	        					 }
         						 eventType2 = reader.next();

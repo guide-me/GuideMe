@@ -17,8 +17,6 @@ import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.ui.MainShell;
 import org.guideme.guidme.mock.AppSettingsMock;
 import org.guideme.guidme.mock.MainShellMock;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class MainLogicTest {
@@ -29,29 +27,44 @@ public class MainLogicTest {
 	private XmlGuideReader xmlGuideReader = XmlGuideReader.getXmlGuideReader();
 	private String dataDirectory = "Y:\\TM\\Teases";
 	private Boolean singlePage = false;
-	private Boolean allGuides = true;
+	private Boolean allGuides = false;
+	private Boolean oneGuide = true;
 	private Boolean scriptedTest = false;
-
-	@BeforeClass
-	public static void setUpBeforeClass() throws Exception {
-		
-	}
-
-	@AfterClass
-	public static void tearDownAfterClass() throws Exception {
-	}
 
 	@Test
 	public void testDisplayPageStringBooleanGuideMainShellAppSettings() {
 		if (singlePage) {
+			String guideFileName = "\\A tribute to Jurgita Valts.xml";
+			String pageId = "page21";
 			appSettings.setDataDirectory(dataDirectory);
-			xmlGuideReader.loadXML(dataDirectory + "\\Cash In My Points.xml", guide);
-			mainLogic.displayPage("start", false, guide, mainShell, appSettings);
+			xmlGuideReader.loadXML(dataDirectory + guideFileName, guide);
+			mainLogic.displayPage(pageId, false, guide, mainShell, appSettings);
 		}
 		assertTrue(true);
 	}
 
 	@Test
+	public void testDisplayPageOneGuide() {
+		if (oneGuide) {
+			appSettings.setDataDirectory(dataDirectory);
+			String guideId = "A tribute to Jurgita Valts";
+			String guideFileName = "\\" + guideId + ".xml";
+			guide.reset(guideId);
+			xmlGuideReader.loadXML(dataDirectory + guideFileName, guide);
+			Set<String> chapters = guide.getChapters().keySet();
+			for (String chapterId : chapters) {
+				Chapter chapter = guide.getChapters().get(chapterId);
+				Set<String> pages = chapter.getPages().keySet();
+				for (String pageId : pages) {
+					Page page = chapter.getPages().get(pageId);
+					mainLogic.displayPage(chapter.getId(), page.getId(), false, guide, mainShell, appSettings);		
+				}
+			}
+		}
+		assertTrue(true);
+	}
+
+		@Test
 	public void testDisplayPageStringStringBooleanGuideMainShellAppSettings() {
 		if (allGuides) {
 			appSettings.setDataDirectory(dataDirectory);

@@ -261,7 +261,7 @@ public class MainLogic {
 								catch (NumberFormatException nfe) {
 								}
 								// Play video
-								mainShell.playVideo("file:///" + imgPath, intStartAt, intStopAt, repeat, objVideo.getTarget());
+								mainShell.playVideo(imgPath, intStartAt, intStopAt, repeat, objVideo.getTarget());
 							} catch (Exception e1) {
 								logger.info("displayPage Video Exception " + e1.getLocalizedMessage());
 							}
@@ -540,7 +540,11 @@ public class MainLogic {
 				// return a random image
 				int intFile = comonFunctions.getRandom("(0.." + (children.length - 1) + ")");
 				logger.debug("displayPage Random Media Index " + intFile);
-				mediaFound = dataDirectory + fileSeparator + strSubDir + fileSeparator + children[intFile].getName();
+				if (strSubDir.equals("")) {
+					mediaFound = dataDirectory + fileSeparator + children[intFile].getName();
+				} else {
+					mediaFound = dataDirectory + fileSeparator + strSubDir + fileSeparator + children[intFile].getName();
+				}
 				logger.debug("displayPage Random Media Chosen " + mediaFound);
 			}
 		} else {

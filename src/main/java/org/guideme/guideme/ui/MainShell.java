@@ -776,8 +776,9 @@ public class MainShell {
 					}
 				}
 				videoPlay = true;
+				String mrlVideo = "file:///" + video;
 				VideoPlay videoPlay = new VideoPlay();
-				videoPlay.setVideoPlay(mediaPlayer, videoOptions, video);
+				videoPlay.setVideoPlay(mediaPlayer, videoOptions, mrlVideo);
 				Thread videoPlayThread = new Thread(videoPlay);
 				videoPlayThread.start();
 			} catch (Exception e) {
