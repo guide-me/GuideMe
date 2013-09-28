@@ -5,7 +5,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -47,10 +46,12 @@ import org.guideme.guideme.MainLogic;
 import org.guideme.guideme.model.Button;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.readers.XmlGuideReader;
+import org.guideme.guideme.scripting.Jscript;
 import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
 import org.guideme.guideme.settings.UserSettings;
+import org.w3c.dom.Node;
 
 import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
@@ -465,8 +466,9 @@ public class MainShell {
 							//load the file it will return the start page and populate the guide object
 							//TODO Need to change this here to implement the new html format
 							String strPage = xmlGuideReader.loadXML(strFileToLoad, guide);
+							guideSettings = guide.getSettings();
 							//display the first page
-							mainLogic.displayPage(strPage , false, guide, mainShell, appSettings);
+							mainLogic.displayPage(strPage , false, guide, mainShell, appSettings, userSettings, guideSettings);
 						}
 					}
 					catch (Exception ex5) {
@@ -502,7 +504,8 @@ public class MainShell {
 				HashMap<String, String> scriptVariables = new HashMap<String, String>();
 				guide.getSettings().setScriptVariables(scriptVariables);
 				guide.getSettings().saveSettings();
-				mainLogic.displayPage("start", false, guide, mainShell, appSettings);
+				guideSettings = guide.getSettings();
+				mainLogic.displayPage("start", false, guide, mainShell, appSettings, userSettings, guideSettings);
 			}
 			catch (Exception ex) {
 				logger.error("Restart error " + ex.getLocalizedMessage(), ex);
@@ -640,7 +643,7 @@ public class MainShell {
 						lblLeft.setText("");
 						comonFunctions.SetFlags(guide.getDelaySet(), guide.getFlags());
 						comonFunctions.UnsetFlags(guide.getDelayUnSet(), guide.getFlags());
-						mainLogic.displayPage(guide.getDelTarget(), false, guide, mainShell, appSettings);
+						mainLogic.displayPage(guide.getDelTarget(), false, guide, mainShell, appSettings, userSettings, guideSettings);
 					} else {
 						if (guide.getDelStyle().equals("normal")) {
 							//Normal delay so display seconds left 
@@ -855,12 +858,6 @@ public class MainShell {
 			strTemp = strTemp.replace("<div>", "");
 			strTemp = strTemp.replace("</DIV>", "<br>");
 			strTemp = strTemp.replace("</div>", "<br>");
-			//Replace any string pref in the HTML with the user preference
-			//they are encoded #prefName# 
-			Set<String> set = userSettings.getStringKeys(); 
-			for (String s : set) {
-				strTemp = strTemp.replace("#" + s + "#", userSettings.getPref(s));
-			}
 			if (strTemp.endsWith("<br>")) {
 				strTemp = strTemp.substring(0, strTemp.length() - 4);
 			}
@@ -912,7 +909,7 @@ public class MainShell {
 		}
 	}
 	
-	public void addButton(Button button) {
+	public void addButton(Button button, String javascript) {
 		//add a normal button to the screen 
 		String strBtnTarget;
 		String strBtnText;
@@ -938,7 +935,7 @@ public class MainShell {
 			} else {
 				btnDynamic.setData("UnSet", "");
 			}
-
+			btnDynamic.setData("javascript", javascript);
 			logger.debug("displayPage Button Text " + strBtnText + " Target " + strBtnTarget + " Set " + strButtonSet + " UnSet " + strButtonUnSet);
 
 			btnDynamic.setData("Target", strBtnTarget);
@@ -967,7 +964,14 @@ public class MainShell {
 					comonFunctions.UnsetFlags(strTag, guide.getFlags());
 				}
 				strTag = (String) btnClicked.getData("Target");
-				mainLogic.displayPage(strTag, false, guide, mainShell, appSettings);
+				String javascript = (String) btnClicked.getData("javascript");
+				if (! javascript.equals("")) {
+					//TODO get formfields
+					getFormFields();
+					Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
+					jscript.runScript(javascript);
+				}
+				mainLogic.displayPage(strTag, false, guide, mainShell, appSettings, userSettings, guideSettings);
 			}
 			catch (Exception ex) {
 				logger.error(" DynamicButtonListner " + ex.getLocalizedMessage(), ex);
@@ -976,6 +980,35 @@ public class MainShell {
 		}
 	}
 
+	
+	private void getFormFields() {
+		String node = (String) brwsText.evaluate("var vforms = document.forms;var vreturn = '';for (var formidx = 0; formidx < vforms.length; formidx++) {var vform = vforms[formidx];for (var controlIdx = 0; controlIdx < vform.length; controlIdx++) {var control = vform.elements[controlIdx];vreturn = vreturn + control.name + '¬' + control.value + '¬' + control.type + '¬' + control.checked + '|';}}return vreturn;");
+		String fields[] = node.split("\\|");
+		String values[]; 
+		String name;
+		String value;
+		String type;
+		String checked;
+		for (int i = 0; i < fields.length; i++) {
+			values = fields[i].split("¬");
+			name = values[0];
+			value = values[1];
+			type = values[2];
+			checked = values[3];
+			if (type.equals("checkbox")) {
+				guideSettings.setFormField(name, checked);
+			}
+			if (type.equals("radio")) {
+				if (checked.equals("true")) {
+					guideSettings.setFormField(name, value);
+				}
+			}
+			if (type.equals("text")) {
+				guideSettings.setFormField(name, value);
+			}
+			logger.info(name + "|" + value +  "|" + type +  "|" + checked);
+		}
+	}
 	//force a redisplay of the button are
 	//set focus to the first button
 	public void layoutButtons() {
@@ -999,7 +1032,7 @@ public class MainShell {
 	}
 
 	public void displayPage(String target) {
-		mainLogic.displayPage(target, false, guide, mainShell, appSettings);
+		mainLogic.displayPage(target, false, guide, mainShell, appSettings, userSettings, guideSettings);
 	}
 	
 	public void stopMetronome() {

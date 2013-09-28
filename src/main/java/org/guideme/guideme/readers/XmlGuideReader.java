@@ -44,7 +44,7 @@ public class XmlGuideReader {
 	
 	private enum TagName
 	{
-		pref, Title, Author, MediaDirectory, Settings, Page, Metronome, Image, Audio, Video, Delay, Button, Text, NOVALUE;
+		pref, Title, Author, MediaDirectory, Settings, Page, Metronome, Image, Audio, Video, Delay, Button, Text, javascript, NOVALUE;
 
 	    public static TagName toTag(String str)
 	    {
@@ -201,6 +201,8 @@ public class XmlGuideReader {
 	        				 if (ifSet == null) ifSet = "";
 	        				 ifNotSet = reader.getAttributeValue(null, "if-not-set"); 
 	        				 if (ifNotSet == null) ifNotSet = "";
+	        				 String javascript = reader.getAttributeValue(null, "javascript");
+	        				 if (javascript == null) javascript = "";
 	        				 reader.next();
 	        				 String BtnText;
 	        				 if (reader.getEventType() == XMLStreamConstants.CHARACTERS) {
@@ -208,9 +210,9 @@ public class XmlGuideReader {
 	        				 } else {
 	        					 BtnText = "";
 	        				 }
-	        				 Button button = new Button(strTarget, BtnText, ifSet, ifNotSet, Set, UnSet, "");
+	        				 Button button = new Button(strTarget, BtnText, ifSet, ifNotSet, Set, UnSet, javascript);
 	        				 page.addButton(button);
-		        			 logger.trace("loadXML " + PresName + " Button " + strTarget+ "|" + BtnText + "|" + ifSet+ "|" + ifNotSet+ "|" + Set+ "|" + UnSet);
+		        			 logger.trace("loadXML " + PresName + " Button " + strTarget+ "|" + BtnText + "|" + ifSet+ "|" + ifNotSet+ "|" + Set+ "|" + UnSet + "|" + javascript);
 	        			 } catch (Exception e1) {
 	        				 logger.error("loadXML " + PresName + " Button Exception " + e1.getLocalizedMessage(), e1);
 	        			 }
@@ -307,7 +309,7 @@ public class XmlGuideReader {
 	        				 if (Set == null) Set = "";
 	        				 UnSet = reader.getAttributeValue(null, "unset");
 	        				 if (UnSet == null) UnSet = "";
-	        				 page = new Page(pageId, ifSet, ifNotSet, Set, UnSet, guide.getAutoSetPage(), ""); 
+	        				 page = new Page(pageId, ifSet, ifNotSet, Set, UnSet, guide.getAutoSetPage()); 
 		        			 logger.trace("loadXML " + PresName + " Page " + pageId + "|" + ifSet + "|" + ifNotSet + "|" + Set + "|" + UnSet);
 	        			 } catch (Exception e1) {
 	        				 logger.error("loadXML " + PresName + " Page Exception " + e1.getLocalizedMessage(), e1);
@@ -393,6 +395,36 @@ public class XmlGuideReader {
 		        			 logger.trace("loadXML " + PresName + " Video " + strId + "|" + strStartAt + "|" + strStopAt + "|" + strTarget + "|" + ifSet + "|" + ifNotSet);
 	        			 } catch (Exception e1) {
 	        				 logger.error("loadXML " + PresName + " Video Exception " + e1.getLocalizedMessage(), e1);
+	        			 }
+	        			 break;
+	        		 case javascript:
+	        			 try {
+	        				 if (reader.getName().getLocalPart().equals("javascript")) {
+			        			 String id = reader.getAttributeValue(null, "id");
+			        			 String javascript = "";
+	        					 int eventType2 = reader.next();
+	        					 while (true) {
+	        						 switch (eventType2) {
+	        						 case XMLStreamConstants.START_ELEMENT:
+	        							 break;
+	        						 case XMLStreamConstants.END_ELEMENT:
+	        							 break;
+	        						 case XMLStreamConstants.CHARACTERS:
+	        							 javascript = javascript + reader.getText();
+	        							 break;
+	        						 }
+	        						 eventType2 = reader.next();
+	        						 if (eventType2 == XMLStreamConstants.END_ELEMENT) {
+	        							 if (reader.getName().getLocalPart().equals("javascript")) break;
+	        						 }
+	        					 }
+			        			 logger.trace("loadXML " + PresName + " javascript " + id  + "|" + javascript);
+			        			 if (! javascript.equals("")) {
+			        				 page.setjScript(id, javascript);
+			        			 }
+	        				 }
+	        			 } catch (Exception e1) {
+	        				 logger.error("loadXML " + PresName + " Text Exception " + e1.getLocalizedMessage(), e1);
 	        			 }
 	        			 break;
 	        		 default:

@@ -14,6 +14,8 @@ import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Page;
 import org.guideme.guideme.readers.XmlGuideReader;
 import org.guideme.guideme.settings.AppSettings;
+import org.guideme.guideme.settings.GuideSettings;
+import org.guideme.guideme.settings.UserSettings;
 import org.guideme.guideme.ui.MainShell;
 import org.guideme.guidme.mock.AppSettingsMock;
 import org.guideme.guidme.mock.MainShellMock;
@@ -24,6 +26,8 @@ public class MainLogicTest {
 	private Guide guide = Guide.getGuide();
 	private MainShell mainShell = new MainShellMock(); 
 	private AppSettings appSettings = AppSettingsMock.getAppSettings();
+	private UserSettings userSettings = UserSettings.getUserSettings();
+	private GuideSettings guideSettings;
 	private XmlGuideReader xmlGuideReader = XmlGuideReader.getXmlGuideReader();
 	private String dataDirectory = "Y:\\TM\\Teases";
 	private Boolean singlePage = false;
@@ -38,7 +42,8 @@ public class MainLogicTest {
 			String pageId = "page21";
 			appSettings.setDataDirectory(dataDirectory);
 			xmlGuideReader.loadXML(dataDirectory + guideFileName, guide);
-			mainLogic.displayPage(pageId, false, guide, mainShell, appSettings);
+			guideSettings = guide.getSettings();
+			mainLogic.displayPage(pageId, false, guide, mainShell, appSettings, userSettings, guideSettings);
 		}
 		assertTrue(true);
 	}
@@ -47,17 +52,18 @@ public class MainLogicTest {
 	public void testDisplayPageOneGuide() {
 		if (oneGuide) {
 			appSettings.setDataDirectory(dataDirectory);
-			String guideId = "A tribute to Jurgita Valts";
+			String guideId = "SWTPortTest";
 			String guideFileName = "\\" + guideId + ".xml";
 			guide.reset(guideId);
 			xmlGuideReader.loadXML(dataDirectory + guideFileName, guide);
+			guideSettings = guide.getSettings();
 			Set<String> chapters = guide.getChapters().keySet();
 			for (String chapterId : chapters) {
 				Chapter chapter = guide.getChapters().get(chapterId);
 				Set<String> pages = chapter.getPages().keySet();
 				for (String pageId : pages) {
 					Page page = chapter.getPages().get(pageId);
-					mainLogic.displayPage(chapter.getId(), page.getId(), false, guide, mainShell, appSettings);		
+					mainLogic.displayPage(chapter.getId(), page.getId(), false, guide, mainShell, appSettings, userSettings, guideSettings);		
 				}
 			}
 		}
@@ -78,13 +84,14 @@ public class MainLogicTest {
 				for (File file : children) {
 					guide.reset(file.getName().substring(0, file.getName().length() - 4));
 					xmlGuideReader.loadXML(file.getAbsolutePath(), guide);
+					guideSettings = guide.getSettings();
 					Set<String> chapters = guide.getChapters().keySet();
 					for (String chapterId : chapters) {
 						Chapter chapter = guide.getChapters().get(chapterId);
 						Set<String> pages = chapter.getPages().keySet();
 						for (String pageId : pages) {
 							Page page = chapter.getPages().get(pageId);
-							mainLogic.displayPage(chapter.getId(), page.getId(), false, guide, mainShell, appSettings);		
+							mainLogic.displayPage(chapter.getId(), page.getId(), false, guide, mainShell, appSettings, userSettings, guideSettings);		
 						}
 					}
 				}
@@ -104,12 +111,13 @@ public class MainLogicTest {
 				if (!guideFile.equals(null)) {
 					guide.reset(guideFile);
 					xmlGuideReader.loadXML(dataDirectory + "\\" + guideFile + ".xml", guide);
+					guideSettings = guide.getSettings();
 				}
 				String instruction = instructions.readLine();
 				String fields[];
 				while (!(instruction == null)) {
 					fields = instruction.split(",");
-					mainLogic.displayPage(fields[0], fields[1], false, guide, mainShell, appSettings);
+					mainLogic.displayPage(fields[0], fields[1], false, guide, mainShell, appSettings, userSettings, guideSettings);
 					instruction = instructions.readLine();
 				}
 				instructions.close();

@@ -1,6 +1,7 @@
 package org.guideme.guideme.model;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.guideme.guideme.settings.ComonFunctions;
 
@@ -23,10 +24,10 @@ public class Page {
 	private String ifNotSet;
 	private String set;
 	private String unSet;
-	private String jScript;
+	private HashMap<String, String> jScript = new HashMap<String, String>();
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	
-	public Page(String id, String ifSet, String ifNotSet, String set, String unSet, boolean autoSet, String jScript) {
+	public Page(String id, String ifSet, String ifNotSet, String set, String unSet, boolean autoSet) {
 		this.id = id;
 		button = new ArrayList<Button>();
 		buttonCount = 0;
@@ -44,7 +45,6 @@ public class Page {
 		this.ifNotSet = ifNotSet;
 		this.set = set;
 		this.unSet = unSet;
-		this.jScript = jScript;
 		
 		if (autoSet) {
 			if (this.set.length() == 0) {
@@ -159,12 +159,16 @@ public class Page {
 		this.text = text;
 	}
 
-	public String getjScript() {
-		return jScript;
+	public String getjScript(String key) {
+		String script = jScript.get(key);
+		if (script == null) {
+			script = "";
+		}
+		return script;
 	}
 
-	public void setjScript(String jScript) {
-		this.jScript = jScript;
+	public void setjScript(String key, String jScript) {
+		this.jScript.put(key, jScript);
 	}
 
 }

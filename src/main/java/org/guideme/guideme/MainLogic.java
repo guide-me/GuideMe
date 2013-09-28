@@ -2,6 +2,7 @@ package org.guideme.guideme;
 
 import java.io.File;
 import java.util.Calendar;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,8 +14,11 @@ import org.guideme.guideme.model.Image;
 import org.guideme.guideme.model.Metronome;
 import org.guideme.guideme.model.Page;
 import org.guideme.guideme.model.Video;
+import org.guideme.guideme.scripting.Jscript;
 import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
+import org.guideme.guideme.settings.GuideSettings;
+import org.guideme.guideme.settings.UserSettings;
 import org.guideme.guideme.ui.MainShell;
 
 public class MainLogic {
@@ -38,13 +42,13 @@ public class MainLogic {
 	}
 
 	//display page without a chapter
-	public void displayPage(String pageId, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings) {
-		displayPage("default", pageId, reDisplay, guide, mainShell, appSettings);
+	public void displayPage(String pageId, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings, UserSettings userSettings, GuideSettings guideSettings) {
+		displayPage("default", pageId, reDisplay, guide, mainShell, appSettings, userSettings, guideSettings);
 	}
 	
 	//main display page
 	//TODO currently chapters are ignored, need to implement
-	public void displayPage(String chapterName, String pageId, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings) {
+	public void displayPage(String chapterName, String pageId, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings, UserSettings userSettings, GuideSettings guideSettings) {
 		// Main code that displays a page
 		String strImage;
 		int intDelSeconds = 0;
@@ -134,6 +138,11 @@ public class MainLogic {
 
 			// get the page to display
 			objCurrPage = guide.getChapters().get(chapterName).getPages().get(strPageId);
+			String pageJavascript = objCurrPage.getjScript("page");
+			if (! pageJavascript.equals("")) {
+				Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
+				jscript.runScript(pageJavascript);
+			}
 			
 			// delay
 			mainShell.setLblLeft("");
@@ -211,46 +220,6 @@ public class MainLogic {
 							}
 
 							imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
-							/*
-							strImage = strImage.replace("\\", fileSeparator);
-							logger.info("displayPage Video " + strImage);
-							int intSubDir = strImage.lastIndexOf(fileSeparator);
-							String strSubDir;
-							if (intSubDir > -1) {
-								strSubDir = strImage.substring(0, intSubDir + 1);
-								if (!strSubDir.startsWith(fileSeparator)) {
-									strSubDir = fileSeparator + strSubDir;
-								}
-								strImage = strImage.substring(intSubDir + 1);
-							} else {
-								strSubDir = fileSeparator;
-							}
-							
-							// String strSubDir
-							// Handle wildcard *
-							imgPath = "";
-							if (strImage.indexOf("*") > -1) {
-								// get the directory
-								File f = new File(appSettings.getDataDirectory() + guide.getMediaDirectory() + strSubDir);
-								// wildcard filter class handles the filtering
-								WildCardFileFilter wildCardfilter = new WildCardFileFilter();
-								wildCardfilter.setFilePatern(strImage);
-								if (f.isDirectory()) {
-									// return a list of matching files
-									File[] children = f.listFiles(wildCardfilter);
-									// return a random image
-									int intFile = comonFunctions.getRandom("(0.." + (children.length - 1) + ")" );
-									logger.info("displayPage Random Video Index " + intFile);
-									imgPath = appSettings.getDataDirectory() + guide.getMediaDirectory() + strSubDir + children[intFile].getName();
-									logger.info("displayPage Random Video Chosen " + imgPath);
-								}
-							} else {
-								// no wildcard so just use the file name
-								imgPath = appSettings.getDataDirectory() + guide.getMediaDirectory() + strSubDir + strImage;
-								logger.info("displayPage Non Random Video " + imgPath);
-							}
-							imgPath = imgPath.replace("\\", fileSeparator);
-							*/
 
 							try {
 								String loops = objVideo.getRepeat();
@@ -278,45 +247,6 @@ public class MainLogic {
 							if (objImage.canShow(guide.getFlags())) {
 								strImage = objImage.getId();
 								imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
-								/*
-								logger.debug("displayPage Image " + strImage);
-								int intSubDir = strImage.lastIndexOf("\\");
-								String strSubDir;
-								if (intSubDir > -1) {
-									strSubDir = strImage.substring(0, intSubDir + 1);
-									strImage = strImage.substring(intSubDir + 1);
-								} else {
-									strSubDir = appSettings.getFileSeparator();
-								}
-								// String strSubDir
-								// Handle wildcard *
-								if (strImage.indexOf("*") > -1) {
-									// get the directory
-									String imageDir;
-									imageDir = appSettings.getDataDirectory();
-									if (strImage.lastIndexOf("\\") > -1 && !guide.getMediaDirectory().substring(0, 1).equals(appSettings.getFileSeparator())) {
-										imageDir = imageDir + appSettings.getFileSeparator();
-									}
-									imageDir = imageDir + guide.getMediaDirectory() + strSubDir;
-									File f = new File(imageDir);
-									// wildcard filter class handles the filtering
-									WildCardFileFilter wildCardfilter = new WildCardFileFilter();
-									wildCardfilter.setFilePatern(strImage);
-									if (f.isDirectory()) {
-										// return a list of matching files
-										File[] children = f.listFiles(wildCardfilter);
-										// return a random image
-										int intFile = comonFunctions.getRandom("(0.." + (children.length - 1) + ")");
-										logger.debug("displayPage Random Image Index " + intFile);
-										imgPath = appSettings.getDataDirectory() + guide.getMediaDirectory() + strSubDir + children[intFile].getName();
-										logger.debug("displayPage Random Image Chosen " + imgPath);
-									}
-								} else {
-									// no wildcard so just use the file name
-									imgPath = appSettings.getDataDirectory() + guide.getMediaDirectory() + strSubDir + strImage;
-									logger.debug("displayPage Non Random Image " + imgPath);
-								}
-								*/
 								File flImage = new File(imgPath);
 								if (flImage.exists()){
 									try {
@@ -342,7 +272,43 @@ public class MainLogic {
 
 
 				// Browser text
-		        mainShell.setBrwsText(objCurrPage.getText());
+				//Replace any string pref in the HTML with the user preference
+				//they are encoded #prefName# 
+		        String displayText = "";
+		        if (guideSettings.getHtml().equals("")) {
+		        	displayText = objCurrPage.getText();
+		        } else {
+		        	displayText = guideSettings.getHtml();
+		        	guideSettings.setHtml("");
+		        }
+		        
+				Set<String> set = guideSettings.getStringKeys(); 
+				for (String s : set) {
+					displayText = displayText.replace("#" + s + "#", guideSettings.getPref(s));
+				}
+
+				set = guideSettings.getNumberKeys(); 
+				String numberRet = "";
+				for (String s : set) {
+					//displayText = displayText.replace("#" + s + "#", String.valueOf(guideSettings.getPrefNumber(s)));
+					//numberRet = String.format("$#", guideSettings.getPrefNumber(s));
+					numberRet = FormatNumPref(guideSettings.getPrefNumber(s));
+					displayText = displayText.replace("#" + s + "#", numberRet);
+				}
+
+				set = userSettings.getStringKeys(); 
+				for (String s : set) {
+					displayText = displayText.replace("#" + s + "#", userSettings.getPref(s));
+				}
+				
+				set = userSettings.getNumberKeys(); 
+				for (String s : set) {
+					//displayText = displayText.replace("#" + s + "#", String.valueOf(userSettings.getPrefNumber(s)));
+					displayText = displayText.replace("#" + s + "#", FormatNumPref(userSettings.getPrefNumber(s)));
+				}
+
+				
+		        mainShell.setBrwsText(displayText);
 
 				// buttons
 				// remove old buttons
@@ -352,9 +318,15 @@ public class MainLogic {
 				for (int i1 = objCurrPage.getButtonCount() - 1; i1 >= 0; i1--) {
 					try {
 						objButton = objCurrPage.getButton(i1);
-
 							if (objButton.canShow(guide.getFlags())) {
-								mainShell.addButton(objButton);
+								String javascriptid = objButton.getjScript();
+								String javascript;
+								if (javascriptid.equals("")){
+									javascript = "";
+								} else {
+									javascript = objCurrPage.getjScript(javascriptid);
+								}
+								mainShell.addButton(objButton, javascript);
 							}
 					} catch (Exception e1) {
 						logger.error("displayPage Buttons Exception " + e1.getLocalizedMessage(), e1);
@@ -434,44 +406,6 @@ public class MainLogic {
 								}
 								
 								imgPath = getMediaFullPath(strAudio, fileSeparator, appSettings, guide);
-								/*
-								strAudio = strAudio.replace("\\", fileSeparator);
-								logger.debug("displayPage Audio " + strAudio);
-								int intSubDir = strAudio.lastIndexOf(fileSeparator);
-								String strSubDir;
-								if (intSubDir > -1) {
-									strSubDir = strAudio.substring(0, intSubDir + 1);
-									if (!strSubDir.startsWith(fileSeparator)) {
-										strSubDir = fileSeparator + strSubDir;
-									}
-									strAudio = strAudio.substring(intSubDir + 1);
-								} else {
-									strSubDir = fileSeparator;
-								}
-								// String strSubDir
-								// Handle wildcard *
-								if (strAudio.indexOf("*") > -1) {
-									// get the directory
-									File f = new File(appSettings.getDataDirectory() + guide.getMediaDirectory() + strSubDir);
-									// wildcard filter class handles the filtering
-									WildCardFileFilter WildCardfilter = new WildCardFileFilter();
-									WildCardfilter.setFilePatern(strAudio);
-									if (f.isDirectory()) {
-										// return a list of matching files
-										File[] children = f.listFiles(WildCardfilter);
-										// return a random image
-										int intFile = comonFunctions.getRandom("(0.." + (children.length - 1) + ")");
-										logger.debug("displayPage Random Audio Index " + intFile);
-										imgPath = appSettings.getDataDirectory() + guide.getMediaDirectory() + strSubDir + children[intFile].getName();
-										logger.debug("displayPage Random Audio Chosen " + imgPath);
-									}
-								} else {
-									// no wildcard so just use the file name
-									imgPath = appSettings.getDataDirectory() + guide.getMediaDirectory() + strSubDir + strAudio;
-									logger.debug("displayPage Non Random Video " + imgPath);
-								}
-								strAudio = imgPath;
-								*/
 								strAudioTarget = objAudio.getTarget();
 								mainShell.playAudio(imgPath,startAtSeconds, stopAtSeconds, intAudioLoops, strAudioTarget);
 								logger.debug("displayPage Audio target " + strAudioTarget);
@@ -502,12 +436,21 @@ public class MainLogic {
 			guide.getSettings().setFlags(strFlags);
 			guide.getSettings().saveSettings();
 			appSettings.saveSettings();
+			guide.getSettings().formFieldsReset();
 			mainShell.layoutButtons();
 		} catch (Exception e) {
 			logger.error("displayPage Exception ", e);
 		}
 	}
 
+	
+	private String FormatNumPref(double prefNumber)
+	{
+	    if(prefNumber == (int) prefNumber)
+	        return String.format("%d",(int) prefNumber);
+	    else
+	        return String.format("%s",prefNumber);
+	}	
 	
 	private String getMediaFullPath(String mediaFile, String fileSeparator, AppSettings appSettings, Guide guide) {
 		String mediaFound = "";

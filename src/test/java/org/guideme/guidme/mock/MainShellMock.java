@@ -107,8 +107,8 @@ public class MainShellMock extends MainShell {
 	}
 
 	@Override
-	public void addButton(Button button) {
-		logger.debug("MainShellMock addButton text:" + button.getText() + " Set:" + button.getSet() + " UnSet:" + button.getUnSet());
+	public void addButton(Button button, String javascript) {
+		logger.debug("MainShellMock addButton text:" + button.getText() + " Set:" + button.getSet() + " UnSet:" + button.getUnSet() + " javascript:" + javascript);
 	}
 
 	@Override

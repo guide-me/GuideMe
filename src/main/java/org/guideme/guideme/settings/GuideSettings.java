@@ -34,6 +34,7 @@ public class GuideSettings {
 	private String image = ""; //used to pass back replacement image from javascript 
 	private String filename; //name of file to store persistent state
 	private String name;
+	private HashMap<String, String> formFields = new HashMap<String, String>(); 
 	private HashMap<String, String> scriptVariables = new HashMap<String, String>(); //variables used by javascript
 	private HashMap<String, String> userStringPrefs = new HashMap<String, String>(); 
 	private HashMap<String, String> userStringDesc = new HashMap<String, String>(); 
@@ -396,4 +397,21 @@ public class GuideSettings {
 		}
 	}
 
+	public void formFieldsReset() {
+		formFields = new HashMap<String, String>();
+	}
+	
+	public String getFormField(String key) {
+		String value = formFields.get(key);
+		if (value == null) {
+			value = "";
+		}
+		return value;
+	}
+	
+	public void setFormField(String key, String value) {
+		formFields.put(key, value);
+	}
+
 }
+
