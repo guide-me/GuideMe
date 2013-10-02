@@ -400,7 +400,6 @@ public class XmlGuideReader {
 	        		 case javascript:
 	        			 try {
 	        				 if (reader.getName().getLocalPart().equals("javascript")) {
-			        			 String id = reader.getAttributeValue(null, "id");
 			        			 String javascript = "";
 	        					 int eventType2 = reader.next();
 	        					 while (true) {
@@ -418,9 +417,9 @@ public class XmlGuideReader {
 	        							 if (reader.getName().getLocalPart().equals("javascript")) break;
 	        						 }
 	        					 }
-			        			 logger.trace("loadXML " + PresName + " javascript " + id  + "|" + javascript);
+			        			 logger.trace("loadXML " + PresName + " javascript " + javascript);
 			        			 if (! javascript.equals("")) {
-			        				 page.setjScript(id, javascript);
+			        				 page.setjScript(javascript);
 			        			 }
 	        				 }
 	        			 } catch (Exception e1) {

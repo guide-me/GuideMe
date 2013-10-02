@@ -8,39 +8,26 @@ import org.guideme.guideme.settings.ComonFunctions;
 public class Page {
 	private String text = ""; //HTML to display
 	private String id; //Page Name
-	private ArrayList<Button> button;
-	private ArrayList<Delay> delay; 
-	private ArrayList<Video> video;
-	private ArrayList<Image> image;
-	private ArrayList<Audio> audio;
-	private ArrayList<Metronome> metronome;
-	private int buttonCount;
-	private int delayCount;
-	private int videoCount;
-	private int imageCount;
-	private int audioCount;
-	private int metronomeCount;
+	private ArrayList<Button> button = new ArrayList<Button>();
+	private ArrayList<Delay> delay = new ArrayList<Delay>(); 
+	private ArrayList<Video> video = new ArrayList<Video>();
+	private ArrayList<Image> image = new ArrayList<Image>();
+	private ArrayList<Audio> audio = new ArrayList<Audio>();
+	private ArrayList<Metronome> metronome = new ArrayList<Metronome>();
 	private String ifSet;
 	private String ifNotSet;
 	private String set;
 	private String unSet;
-	private HashMap<String, String> jScript = new HashMap<String, String>();
+	private String jScript = "";
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	
+	
+	public Page(String id) {
+		this.id = id;
+	}
+
 	public Page(String id, String ifSet, String ifNotSet, String set, String unSet, boolean autoSet) {
 		this.id = id;
-		button = new ArrayList<Button>();
-		buttonCount = 0;
-		delay = new ArrayList<Delay>();
-		delayCount = 0;
-		video = new ArrayList<Video>();
-		videoCount = 0;
-		image = new ArrayList<Image>();
-		imageCount = 0;
-		audio = new ArrayList<Audio>();
-		audioCount = 0;
-		metronome = new ArrayList<Metronome>();
-		metronomeCount = 0;
 		this.ifSet = ifSet;
 		this.ifNotSet = ifNotSet;
 		this.set = set;
@@ -55,13 +42,13 @@ public class Page {
 		}
 	}
 
+
 	public Button getButton(int butIndex) {
 		return button.get(butIndex);
 	}
 
 	public void addButton(Button button) {
 		this.button.add(button);
-		buttonCount++;
 	}
 
 	public Delay getDelay(int delIndex) {
@@ -70,7 +57,6 @@ public class Page {
 
 	public void addDelay(Delay delay) {
 		this.delay.add(delay);
-		delayCount++;
 	}
 
 	public Video getVideo(int vidIndex) {
@@ -79,7 +65,6 @@ public class Page {
 	
 	public void addVideo(Video video) {
 		this.video.add(video);
-		videoCount++;
 	}
 
 	public Image getImage(int imgIndex) {
@@ -88,7 +73,6 @@ public class Page {
 	
 	public void addImage(Image image) {
 		this.image.add(image);
-		imageCount++;
 	}
 
 	public Audio getAudio(int audIndex) {
@@ -97,7 +81,6 @@ public class Page {
 	
 	public void addAudio(Audio audio) {
 		this.audio.add(audio);
-		audioCount++;
 	}
 
 	public Metronome getMetronome(int metIndex) {
@@ -106,7 +89,6 @@ public class Page {
 	
 	public void addMetronome(Metronome metronome) {
 		this.metronome.add(metronome);
-		metronomeCount++;
 	}
 
 	public String getId() {
@@ -114,23 +96,23 @@ public class Page {
 	}
 
 	public int getButtonCount() {
-		return buttonCount;
+		return button.size();
 	}
 
 	public int getDelayCount() {
-		return delayCount;
+		return delay.size();
 	}
 
 	public int getVideoCount() {
-		return videoCount;
+		return video.size();
 	}
 
 	public int getImageCount() {
-		return imageCount;
+		return image.size();
 	}
 
 	public int getMetronomeCount() {
-		return metronomeCount;
+		return metronome.size();
 	}
 
 	public boolean canShow(ArrayList<String> setList) {
@@ -148,7 +130,7 @@ public class Page {
 	}
 
 	public int getAudioCount() {
-		return audioCount;
+		return audio.size();
 	}
 
 	public String getText() {
@@ -159,16 +141,12 @@ public class Page {
 		this.text = text;
 	}
 
-	public String getjScript(String key) {
-		String script = jScript.get(key);
-		if (script == null) {
-			script = "";
-		}
-		return script;
+	public String getjScript() {
+		return jScript;
 	}
 
-	public void setjScript(String key, String jScript) {
-		this.jScript.put(key, jScript);
+	public void setjScript(String jScript) {
+		this.jScript = jScript;
 	}
 
 }

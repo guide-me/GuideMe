@@ -138,7 +138,8 @@ public class MainLogic {
 
 			// get the page to display
 			objCurrPage = guide.getChapters().get(chapterName).getPages().get(strPageId);
-			String pageJavascript = objCurrPage.getjScript("page");
+			String pageJavascript = objCurrPage.getjScript();
+			//TODO call function
 			if (! pageJavascript.equals("")) {
 				Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
 				jscript.runScript(pageJavascript);
@@ -284,7 +285,7 @@ public class MainLogic {
 		        
 				Set<String> set = guideSettings.getStringKeys(); 
 				for (String s : set) {
-					displayText = displayText.replace("#" + s + "#", guideSettings.getPref(s));
+					displayText = displayText.replace("<span>" + s + "</span>", guideSettings.getPref(s));
 				}
 
 				set = guideSettings.getNumberKeys(); 
@@ -293,18 +294,18 @@ public class MainLogic {
 					//displayText = displayText.replace("#" + s + "#", String.valueOf(guideSettings.getPrefNumber(s)));
 					//numberRet = String.format("$#", guideSettings.getPrefNumber(s));
 					numberRet = FormatNumPref(guideSettings.getPrefNumber(s));
-					displayText = displayText.replace("#" + s + "#", numberRet);
+					displayText = displayText.replace("<span>" + s + "</span>", numberRet);
 				}
 
 				set = userSettings.getStringKeys(); 
 				for (String s : set) {
-					displayText = displayText.replace("#" + s + "#", userSettings.getPref(s));
+					displayText = displayText.replace("<span>" + s + "</span>", userSettings.getPref(s));
 				}
 				
 				set = userSettings.getNumberKeys(); 
 				for (String s : set) {
 					//displayText = displayText.replace("#" + s + "#", String.valueOf(userSettings.getPrefNumber(s)));
-					displayText = displayText.replace("#" + s + "#", FormatNumPref(userSettings.getPrefNumber(s)));
+					displayText = displayText.replace("<span>" + s + "</span>", FormatNumPref(userSettings.getPrefNumber(s)));
 				}
 
 				
@@ -320,13 +321,7 @@ public class MainLogic {
 						objButton = objCurrPage.getButton(i1);
 							if (objButton.canShow(guide.getFlags())) {
 								String javascriptid = objButton.getjScript();
-								String javascript;
-								if (javascriptid.equals("")){
-									javascript = "";
-								} else {
-									javascript = objCurrPage.getjScript(javascriptid);
-								}
-								mainShell.addButton(objButton, javascript);
+								mainShell.addButton(objButton, javascriptid);
 							}
 					} catch (Exception e1) {
 						logger.error("displayPage Buttons Exception " + e1.getLocalizedMessage(), e1);
