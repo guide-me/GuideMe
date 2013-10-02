@@ -1,7 +1,6 @@
 package org.guideme.guideme.model;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import org.guideme.guideme.settings.ComonFunctions;
 
