@@ -82,6 +82,7 @@ public class MainLogic {
 
 		try {
 			mainShell.stopAll();
+			guideSettings.setChapter(chapterName);
 			// handle random page
 			strPageId = pageId;
 			strPre = "";
@@ -141,8 +142,10 @@ public class MainLogic {
 			String pageJavascript = objCurrPage.getjScript();
 			//TODO call function
 			if (! pageJavascript.equals("")) {
-				Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
-				jscript.runScript(pageJavascript);
+				if (pageJavascript.contains("pageLoad")) {
+					Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
+					jscript.runScript(pageJavascript, "pageLoad");
+				}
 			}
 			
 			// delay

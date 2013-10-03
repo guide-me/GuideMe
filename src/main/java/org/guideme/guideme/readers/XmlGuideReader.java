@@ -201,7 +201,7 @@ public class XmlGuideReader {
 	        				 if (ifSet == null) ifSet = "";
 	        				 ifNotSet = reader.getAttributeValue(null, "if-not-set"); 
 	        				 if (ifNotSet == null) ifNotSet = "";
-	        				 String javascript = reader.getAttributeValue(null, "javascript");
+	        				 String javascript = reader.getAttributeValue(null, "onclick");
 	        				 if (javascript == null) javascript = "";
 	        				 reader.next();
 	        				 String BtnText;

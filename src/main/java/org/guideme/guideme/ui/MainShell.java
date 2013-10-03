@@ -45,6 +45,7 @@ import org.eclipse.swt.widgets.Control;
 import org.guideme.guideme.MainLogic;
 import org.guideme.guideme.model.Button;
 import org.guideme.guideme.model.Guide;
+import org.guideme.guideme.model.Page;
 import org.guideme.guideme.readers.XmlGuideReader;
 import org.guideme.guideme.scripting.Jscript;
 import org.guideme.guideme.settings.AppSettings;
@@ -969,7 +970,9 @@ public class MainShell {
 					//TODO get formfields
 					getFormFields();
 					Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
-					jscript.runScript(javascript);
+					Page objCurrPage = guide.getChapters().get(guideSettings.getChapter()).getPages().get(guideSettings.getPage());
+					String pageJavascript = objCurrPage.getjScript();
+					jscript.runScript(pageJavascript, javascript);
 				}
 				mainLogic.displayPage(strTag, false, guide, mainShell, appSettings, userSettings, guideSettings);
 			}
