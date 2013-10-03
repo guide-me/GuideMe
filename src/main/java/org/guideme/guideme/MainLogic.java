@@ -140,7 +140,6 @@ public class MainLogic {
 			// get the page to display
 			objCurrPage = guide.getChapters().get(chapterName).getPages().get(strPageId);
 			String pageJavascript = objCurrPage.getjScript();
-			//TODO call function
 			if (! pageJavascript.equals("")) {
 				if (pageJavascript.contains("pageLoad")) {
 					Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
@@ -161,6 +160,7 @@ public class MainLogic {
 							logger.debug("displayPage Delay");
 							guide.setDelStyle(objDelay.getstyle());
 							guide.setDelTarget(objDelay.getTarget());
+							guide.setDelayjScript(objDelay.getjScript());
 							strDelStartAt = objDelay.getStartWith();
 							intDelSeconds = objDelay.getDelaySec();
 							try {
@@ -311,6 +311,10 @@ public class MainLogic {
 					displayText = displayText.replace("<span>" + s + "</span>", FormatNumPref(userSettings.getPrefNumber(s)));
 				}
 
+				set = guideSettings.getScriptVariables().keySet();
+				for (String s :set) {
+					displayText = displayText.replace("<span>" + s + "</span>", guideSettings.getScriptVariables().get(s));
+				}
 				
 		        mainShell.setBrwsText(displayText);
 

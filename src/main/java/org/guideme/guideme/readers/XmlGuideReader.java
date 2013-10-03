@@ -238,7 +238,9 @@ public class XmlGuideReader {
 	        				 if (Set == null) Set = "";
 	        				 UnSet = reader.getAttributeValue(null, "unset");
 	        				 if (UnSet == null) UnSet = "";
-	        				 Delay delay = new Delay(strTarget, strSeconds, ifSet, ifNotSet, strStartWith, strStyle, Set, UnSet, "");
+	        				 String javascript = reader.getAttributeValue(null, "onTriggered");
+	        				 if (javascript == null) javascript = "";
+	        				 Delay delay = new Delay(strTarget, strSeconds, ifSet, ifNotSet, strStartWith, strStyle, Set, UnSet, javascript);
 	        				 page.addDelay(delay);
 		        			 logger.trace("loadXML " + PresName + " Delay " + strTarget+ "|" + strSeconds+ "|" + ifSet+ "|" + ifNotSet+ "|" + strStartWith+ "|" + strStyle+ "|" + Set+ "|" + UnSet);
 	        			 } catch (Exception e1) {

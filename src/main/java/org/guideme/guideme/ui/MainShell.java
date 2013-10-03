@@ -644,6 +644,14 @@ public class MainShell {
 						lblLeft.setText("");
 						comonFunctions.SetFlags(guide.getDelaySet(), guide.getFlags());
 						comonFunctions.UnsetFlags(guide.getDelayUnSet(), guide.getFlags());
+						String javascript = guide.getDelayjScript();
+						if (! javascript.equals("")) {
+							getFormFields();
+							Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
+							Page objCurrPage = guide.getChapters().get(guideSettings.getChapter()).getPages().get(guideSettings.getPage());
+							String pageJavascript = objCurrPage.getjScript();
+							jscript.runScript(pageJavascript, javascript);
+						}
 						mainLogic.displayPage(guide.getDelTarget(), false, guide, mainShell, appSettings, userSettings, guideSettings);
 					} else {
 						if (guide.getDelStyle().equals("normal")) {
@@ -904,6 +912,7 @@ public class MainShell {
 				btnDynamic.setData("UnSet", "");
 			}
 			btnDynamic.setData("Target", guide.getDelTarget());
+			btnDynamic.setData("javascript", guide.getDelayjScript());
 			btnDynamic.addSelectionListener(new DynamicButtonListner());
 		} catch (Exception e) {
 			logger.error("addDelayButton " + e.getLocalizedMessage(), e);		
@@ -966,8 +975,8 @@ public class MainShell {
 				}
 				strTag = (String) btnClicked.getData("Target");
 				String javascript = (String) btnClicked.getData("javascript");
+				if (javascript== null) javascript = "";
 				if (! javascript.equals("")) {
-					//TODO get formfields
 					getFormFields();
 					Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
 					Page objCurrPage = guide.getChapters().get(guideSettings.getChapter()).getPages().get(guideSettings.getPage());
@@ -994,24 +1003,28 @@ public class MainShell {
 		String checked;
 		for (int i = 0; i < fields.length; i++) {
 			values = fields[i].split("¬");
-			name = values[0];
-			value = values[1];
-			type = values[2];
-			checked = values[3];
-			if (type.equals("checkbox")) {
-				guideSettings.setFormField(name, checked);
-			}
-			if (type.equals("radio")) {
-				if (checked.equals("true")) {
+			if (!fields[i].equals("")) {
+				name = values[0];
+				value = values[1];
+				type = values[2];
+				checked = values[3];
+				if (type.equals("checkbox")) {
+					guideSettings.setFormField(name, checked);
+				}
+				if (type.equals("radio")) {
+					if (checked.equals("true")) {
+						guideSettings.setFormField(name, value);
+					}
+				}
+				if (type.equals("text")) {
 					guideSettings.setFormField(name, value);
 				}
+				logger.info(name + "|" + value +  "|" + type +  "|" + checked);
 			}
-			if (type.equals("text")) {
-				guideSettings.setFormField(name, value);
-			}
-			logger.info(name + "|" + value +  "|" + type +  "|" + checked);
 		}
 	}
+		
+		
 	//force a redisplay of the button are
 	//set focus to the first button
 	public void layoutButtons() {

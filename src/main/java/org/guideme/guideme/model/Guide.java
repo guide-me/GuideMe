@@ -29,6 +29,7 @@ public class Guide {
 	private String id; //name for current xml that is running
 	private GuideSettings settings; //state for the currently running xml
 	private String jScript;
+	private String delayjScript;
 	private static Guide guide;
 	
 	private Guide() {
@@ -220,6 +221,14 @@ public class Guide {
 	
 	public void setSettings(GuideSettings settings) {
 		this.settings = settings;
+	}
+
+	public String getDelayjScript() {
+		return delayjScript;
+	}
+
+	public void setDelayjScript(String delayjScript) {
+		this.delayjScript = delayjScript;
 	}
 
 	
