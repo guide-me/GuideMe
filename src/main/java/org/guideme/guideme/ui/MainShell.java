@@ -997,7 +997,24 @@ public class MainShell {
 	}
 
 	private void getFormFields() {
-		String node = (String) brwsText.evaluate("var vforms = document.forms;var vreturn = '';for (var formidx = 0; formidx < vforms.length; formidx++) {var vform = vforms[formidx];for (var controlIdx = 0; controlIdx < vform.length; controlIdx++) {var control = vform.elements[controlIdx];vreturn = vreturn + control.name + '¬' + control.value + '¬' + control.type + '¬' + control.checked + '|';}}return vreturn;");
+		String evaluateScript = "" +
+				"var vforms = document.forms;" +
+				"var vreturn = '';" +
+				"for (var formidx = 0; formidx < vforms.length; formidx++) {" +
+					"var vform = vforms[formidx];" +
+					"for (var controlIdx = 0; controlIdx < vform.length; controlIdx++) {" +
+						"var control = vform.elements[controlIdx];" +
+						"if (control.type === \"select-one\") {" +
+							"var item = control.selectedIndex;" +
+							"var value = control.item(item).value;" +
+							"vreturn = vreturn + control.name + '¬' + value + '¬' + control.type + '¬' + control.checked + '|';" +
+						"} else {" +
+							"vreturn = vreturn + control.name + '¬' + control.value + '¬' + control.type + '¬' + control.checked + '|';" +
+						"}" +
+					"}" +
+				"}" +
+				"return vreturn;";
+		String node = (String) brwsText.evaluate(evaluateScript);
 		String fields[] = node.split("\\|");
 		String values[]; 
 		String name;
@@ -1022,6 +1039,11 @@ public class MainShell {
 				if (type.equals("text")) {
 					guideSettings.setFormField(name, value);
 				}
+				
+				if (type.equals("select-one")) {
+					guideSettings.setFormField(name, value);
+				}
+
 				logger.info(name + "|" + value +  "|" + type +  "|" + checked);
 			}
 		}
