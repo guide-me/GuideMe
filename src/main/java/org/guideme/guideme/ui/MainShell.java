@@ -32,6 +32,7 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.RowLayout;
 import java.awt.Canvas;
+import java.io.File;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -793,7 +794,7 @@ public class MainShell {
 		@Override
 		public void run() {
 			try {
-				if (videoStartAt == 0 && videoStopAt == 0) {
+				if (videoStartAt == 0 && videoStopAt == 0 && videoLoops == 0) {
 					mediaPlayer.playMedia(video);
 				} else {
 					 List<String> vlcArgs = new ArrayList<String>();
@@ -829,18 +830,7 @@ public class MainShell {
 	public void playAudio(String audio, int startAt, int stopAt, int loops, String target, String jscript) {
 		// run audio on another thread
 		try {
-			String options = "";
-			if (startAt > 0 && stopAt > 0) {
-				options = "start-time=" + startAt + ", stop-time=" + stopAt;
-			} else {
-				if (startAt > 0) {
-					options = "start-time=" + startAt;
-				}
-				if (stopAt > 0) {
-					options = "stop-time=" + stopAt;
-				}
-			}
-			audioPlayer = new AudioPlayer(audio, options, loops, target, mainShell, jscript, myDisplay);
+			audioPlayer = new AudioPlayer(audio, startAt, stopAt, loops, target, mainShell, jscript);
 			threadAudioPlayer = new Thread(audioPlayer);
 			threadAudioPlayer.start();
 		} catch (Exception e) {
@@ -917,12 +907,27 @@ public class MainShell {
 		//add a normal button to the screen 
 		String strBtnTarget;
 		String strBtnText;
+		String strBtnImage;
 		try {
 			strBtnTarget = button.getTarget();
 			strBtnText = button.getText();
+			strBtnImage = button.getImage();
+			if (!strBtnImage.equals("")){
+				String imgPath = mainLogic.getMediaFullPath(strBtnImage, appSettings.getFileSeparator(), appSettings, guide);
+				File flImage = new File(imgPath);
+				if (flImage.exists()){
+					strBtnImage = imgPath;
+				} else {
+					strBtnImage = "";
+				}
+			}
 			com.snapps.swt.SquareButton btnDynamic = new com.snapps.swt.SquareButton(btnComp, SWT.PUSH );
 			btnDynamic.setFont(controlFont);
 			btnDynamic.setText(strBtnText);
+			if (!strBtnImage.equals("")){
+				btnDynamic.setBackgroundImage(new Image(myDisplay, strBtnImage));
+				btnDynamic.setBackgroundImageStyle(com.snapps.swt.SquareButton.BG_IMAGE_FIT);
+			}
 
 			// record any button set / unset
 			String strButtonSet;
@@ -987,7 +992,7 @@ public class MainShell {
 			Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
 			Page objCurrPage = guide.getChapters().get(guideSettings.getChapter()).getPages().get(guideSettings.getPage());
 			String pageJavascript = objCurrPage.getjScript();
-			jscript.runScript(pageJavascript, function);
+			jscript.runScript(pageJavascript, function, false);
 		}
 	}
 

@@ -52,7 +52,7 @@ public class JscriptTest {
 		try {
 			String source = comonFunctions.readFile("test.js", Charset.defaultCharset());
 			Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
-			jscript.runScript(source, "test");
+			jscript.runScript(source, "test", false);
 		} catch (IOException e) {
 			logger.error(" Run Script " + e.getLocalizedMessage(), e);
 		}				

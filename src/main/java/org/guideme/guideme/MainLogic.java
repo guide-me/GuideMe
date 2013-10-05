@@ -6,7 +6,6 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.swt.widgets.Display;
 import org.guideme.guideme.model.Audio;
 import org.guideme.guideme.model.Button;
 import org.guideme.guideme.model.Delay;
@@ -15,6 +14,7 @@ import org.guideme.guideme.model.Image;
 import org.guideme.guideme.model.Metronome;
 import org.guideme.guideme.model.Page;
 import org.guideme.guideme.model.Video;
+import org.guideme.guideme.scripting.Buttons;
 import org.guideme.guideme.scripting.Jscript;
 import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
@@ -26,6 +26,7 @@ public class MainLogic {
 	private static Logger logger = LogManager.getLogger();
 	private static MainLogic mainLogic;
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
+	private Buttons buttons = new Buttons();
 
 	//singleton class stuff (force there to be only one instance without making it static)
 	private MainLogic() {
@@ -84,6 +85,7 @@ public class MainLogic {
 		try {
 			//Display display = Display.getDefault();
 			mainShell.stopAll();
+			buttons.clear();
 			guideSettings.setChapter(chapterName);
 			// handle random page
 			strPageId = pageId;
@@ -141,12 +143,13 @@ public class MainLogic {
 
 			// get the page to display
 			objCurrPage = guide.getChapters().get(chapterName).getPages().get(strPageId);
-			//runn the pageLoad script
+			//run the pageLoad script
 			String pageJavascript = objCurrPage.getjScript();
 			if (! pageJavascript.equals("")) {
 				if (pageJavascript.contains("pageLoad")) {
 					Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
-					jscript.runScript(pageJavascript, "pageLoad");
+					jscript.setButtons(buttons);
+					jscript.runScript(pageJavascript, "pageLoad", true);
 				}
 			}
 			
@@ -356,6 +359,20 @@ public class MainLogic {
 						logger.error("displayPage Buttons Exception " + e1.getLocalizedMessage(), e1);
 					}
 				}
+				
+				//add any buttons added by javascript
+				for (int i1 = buttons.buttonCount() - 1; i1 >= 0; i1--) {
+					try {
+						objButton = buttons.getButton(i1);
+							if (objButton.canShow(guide.getFlags())) {
+								String javascriptid = objButton.getjScript();
+								mainShell.addButton(objButton, javascriptid);
+							}
+					} catch (Exception e1) {
+						logger.error("displayPage Buttons Exception " + e1.getLocalizedMessage(), e1);
+					}
+				}
+				
 				try {
 					if (appSettings.getDebug()) {
 						// add a button to trigger the delay target if debug is set by the user
@@ -476,7 +493,7 @@ public class MainLogic {
 	        return String.format("%s",prefNumber);
 	}	
 	
-	private String getMediaFullPath(String mediaFile, String fileSeparator, AppSettings appSettings, Guide guide) {
+	public String getMediaFullPath(String mediaFile, String fileSeparator, AppSettings appSettings, Guide guide) {
 		String mediaFound = "";
 		String dataDirectory = fixSeparator(appSettings.getDataDirectory(), fileSeparator);
 		String mediaDirectory = fixSeparator(guide.getMediaDirectory(), fileSeparator);

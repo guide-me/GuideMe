@@ -67,11 +67,14 @@ public class AudioTestShell {
 			//File
 			AddTextField(composite, "Audio File", tmpWidget, tmpWidget2, "f:\\test\\music.mp3", "File");
 			
-			//Options
-			AddTextField(composite, "Audio Options", appWidgets.get("FileLbl"), appWidgets.get("FileCtrl"), "start-time=108,stop-time=131", "Options");
+			//start at
+			AddTextField(composite, "Audio Start at", appWidgets.get("FileLbl"), appWidgets.get("FileCtrl"), "108", "StartAt");
+
+			//stop at
+			AddTextField(composite, "Audio Stop at", appWidgets.get("StartAtLbl"), appWidgets.get("StartAtCtrl"), "131", "StopAt");
 
 			//Loops
-			AddTextField(composite, "Audio Loops", appWidgets.get("OptionsLbl"), appWidgets.get("OptionsCtrl"), "0", "Loops");
+			AddTextField(composite, "Audio Loops", appWidgets.get("StopAtLbl"), appWidgets.get("StopAtCtrl"), "0", "Loops");
 
 			SquareButton btnCancel = new SquareButton(composite, SWT.PUSH);
 			btnCancel.setText("Start");
@@ -110,16 +113,20 @@ public class AudioTestShell {
 			try {
 				logger.trace("Enter StartButtonListener");
 				String file; //filename and path to sound file
-				String options; //options to pass to the player
+				int startAt; //start at in seconds
+				int stopAt; //stop at in seconds
 				int loops; //number of times to loop
 				Text txtTmp;
 
 				txtTmp = (Text) appWidgets.get("FileCtrl");
 				file = txtTmp.getText();
 
-				txtTmp = (Text) appWidgets.get("OptionsCtrl");
-				options = txtTmp.getText();
+				txtTmp = (Text) appWidgets.get("StartAtCtrl");
+				startAt = Integer.parseInt(txtTmp.getText());
 				
+				txtTmp = (Text) appWidgets.get("StopAtCtrl");
+				stopAt = Integer.parseInt(txtTmp.getText());
+
 				txtTmp = (Text) appWidgets.get("LoopsCtrl");
 				loops = Integer.parseInt(txtTmp.getText());
 				
@@ -127,7 +134,7 @@ public class AudioTestShell {
 				if (audio != null) {
 					audio.audioStop();
 				}
-				audio = new AudioPlayer(file, options, loops, "", null, "", myDisplay);
+				audio = new AudioPlayer(file, startAt, stopAt, loops, "", null, "");
 				threadAudio = new Thread(audio);
 				threadAudio.start();
 			}

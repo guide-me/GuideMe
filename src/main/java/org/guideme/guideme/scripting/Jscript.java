@@ -22,6 +22,7 @@ public class Jscript {
 	private static GuideSettings guideSettings;
 	private static UserSettings userSettings;
 	private static AppSettings appSettings;
+	private static Buttons buttons;
 	private static Logger logger = LogManager.getLogger();
 	private static final Marker JSCRIPT_MARKER = MarkerManager.getMarker("JSCRIPT");
 
@@ -41,23 +42,7 @@ public class Jscript {
 		logger.info(JSCRIPT_MARKER, strMessage);
 	}
 
-	/*
-	String script = "function abc(x,y) {return x+y;}"
-	        + "function def(u,v) {return u-v;}";
-	Context context = Context.enter();
-	try {
-	    ScriptableObject scope = context.initStandardObjects();
-	    context.evaluateString(scope, script, "script", 1, null);
-	    Function fct = (Function)scope.get("abc", scope);
-	    Object result = fct.call(
-	            context, scope, scope, new Object[] {2, 3});
-	    System.out.println(Context.jsToJava(result, int.class));
-	} finally {
-	    Context.exit();
-	}			 */
-
-
-	public void runScript(String javaScriptText, String javaFunction) {
+	public void runScript(String javaScriptText, String javaFunction, boolean pageloading) {
 		try {
 			ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 			HashMap<String, String> scriptVars;
@@ -81,6 +66,11 @@ public class Jscript {
 			ScriptableObject.putProperty(scope, "jscriptLog", jlog);
 			logger.info(JSCRIPT_MARKER, "ScriptVariables: " + scriptVars);
 			logger.info(JSCRIPT_MARKER, "guideSettings.Flags {" + guideSettings.getFlags() + "}");
+			
+			if (pageloading) {
+				ScriptableObject.putProperty(scope, "buttons", buttons);
+			}
+			
 			try {
 				cntx.evaluateString(scope, javaScriptText, "script", 1, null);
 				javaFunction = javaFunction.replace("()","");
@@ -104,28 +94,15 @@ public class Jscript {
 			logger.info(JSCRIPT_MARKER, "guideSettings.Flags {" + guideSettings.getFlags() + "}");
 			Context.exit();
 			guideSettings.saveSettings();
-			/*
-			HashMap<String, String> scriptVars;
-			scriptVars = guideSettings.getScriptVariables();
-			ContextFactory cntxFact = new ContextFactory();
-			Context cntx = cntxFact.enterContext();
-			Scriptable scope = cntx.initStandardObjects();
-			UserSettings cloneUS = userSettings.clone();
-			ScriptableObject.putProperty(scope, "userSettings", cloneUS);
-			guideSettings.setHtml("");
-			ScriptableObject.putProperty(scope, "guideSettings", guideSettings);
-			NativeObject nobj = new NativeObject();
-			for (Map.Entry<String, String> entry : scriptVars.entrySet()) {
-				nobj.defineProperty(entry.getKey(), entry.getValue(), NativeObject.READONLY);
-			}
-			ScriptableObject.putProperty(scope, "scriptVars", scriptVars);
-			cntx.evaluateString(scope, javaScriptText, "script", 1, null);
-			Context.exit();
-			 */
 		}
 		catch (Exception ex) {
 			logger.error(" FileRunScript " + ex.getLocalizedMessage(), ex);
 		}
+	}
+
+
+	public void setButtons(Buttons buttons) {
+		Jscript.buttons = buttons;
 	}
 
 }
