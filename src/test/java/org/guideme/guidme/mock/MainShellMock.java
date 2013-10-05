@@ -68,8 +68,8 @@ public class MainShellMock extends MainShell {
 
 	@Override
 	public void playVideo(String video, int startAt, int stopAt, int loops,
-			String target) {
-		logger.debug("MainShellMock playVideo video:" + video + " startAt:" + startAt + " stopAt:" + stopAt + " loops:" + loops + " target:" + target);
+			String target, String jscript) {
+		logger.debug("MainShellMock playVideo video:" + video + " startAt:" + startAt + " stopAt:" + stopAt + " loops:" + loops + " target:" + target + " jscript:" + jscript);
 		File f = new File(video);
 		if(!f.exists()){
 			logger.error("playVideo File " + video + " does not exist");
@@ -83,8 +83,8 @@ public class MainShellMock extends MainShell {
 
 	@Override
 	public void playAudio(String audio, int startAt, int stopAt, int loops,
-			String target) {
-		logger.debug("MainShellMock playAudio audio:" + audio + " startAt:" + startAt + " stopAt:" + stopAt + " loops:" + loops + " target:" + target);
+			String target, String jscript) {
+		logger.debug("MainShellMock playAudio audio:" + audio + " startAt:" + startAt + " stopAt:" + stopAt + " loops:" + loops + " target:" + target+ " jscript:" + jscript);
 		File f = new File(audio);
 		if(!f.exists()){
 			logger.error("playAudio File " + audio + " does not exist");

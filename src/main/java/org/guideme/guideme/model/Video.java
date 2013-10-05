@@ -15,9 +15,10 @@ public class Video
 	private String set;
 	private String unSet;
 	private String repeat;
+	private String jscript;
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 
-	public Video(String id, String startAt, String stopAt, String target, String ifSet, String ifNotSet, String set, String unSet, String repeat)
+	public Video(String id, String startAt, String stopAt, String target, String ifSet, String ifNotSet, String set, String unSet, String repeat, String jscript)
 	{
 		this.id = id;
 		this.startAt = startAt;
@@ -28,6 +29,7 @@ public class Video
 		this.set = set;
 		this.unSet = unSet;
 		this.repeat = repeat;
+		this.jscript = jscript;
 	}
 
 	public String getId() {
@@ -58,4 +60,10 @@ public class Video
 	public String getRepeat() {
 		return this.repeat;
 	}
+
+	public String getJscript() {
+		return jscript;
+	}
+
+
 }

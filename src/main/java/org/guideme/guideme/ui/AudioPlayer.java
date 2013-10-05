@@ -2,6 +2,7 @@ package org.guideme.guideme.ui;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.swt.widgets.Display;
 
 import uk.co.caprica.vlcj.component.AudioMediaListPlayerComponent;
 import uk.co.caprica.vlcj.medialist.MediaList;
@@ -21,14 +22,18 @@ public class AudioPlayer  implements Runnable {
 	private int loopCount = 0;
 	private String target;
 	private MainShell mainShell;
+	private String jscript;
+	private Display display;
 
-	public AudioPlayer(String audioFile, String mediaOptions, int loops, String target, MainShell mainShell) {
+	public AudioPlayer(String audioFile, String mediaOptions, int loops, String target, MainShell mainShell, String jscript, Display display) {
 		//function to allow us to pass stuff to the new thread
 		this.audioFile = audioFile;
 		this.mediaOptions = mediaOptions; 
 		this.loops = loops;
 		this.mainShell = mainShell;
 		this.target = target;
+		this.jscript = jscript;
+		this.display = display;
 	}
 
 	public void audioStop() {
@@ -94,8 +99,14 @@ public class AudioPlayer  implements Runnable {
 				if (loopCount == 0){
 					isPlaying = false;
 					if (!target.equals("")) {
-						mainShell.displayPage(target);
-					}
+						//run on the main UI thread
+						display.syncExec(
+								new Runnable() {
+									public void run(){
+										mainShell.runJscript(jscript);
+										mainShell.displayPage(target);
+									}
+								});											}
 					logger.debug("isPlaying " + isPlaying);
 				} else {
 					loopCount--;

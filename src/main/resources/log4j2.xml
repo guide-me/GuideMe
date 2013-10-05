@@ -1,23 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-  <appenders>
-    <Console name="Console" target="SYSTEM_OUT">
-      <PatternLayout pattern="%d{ISO8601} %-5level %logger{1} - %msg%n%throwable"/>
-    </Console>
-    <File name="File" fileName="guideme.log">
-      <PatternLayout pattern="%d{ISO8601} %-5level %logger{1} - %msg%n%throwable"/>
-      <MarkerFilter marker="JSCRIPT" onMatch="DENY" onMismatch="ACCEPT"/>
-    </File>
-    <File name="Jscript" fileName="jscript.log">
-      <PatternLayout pattern="%d{ISO8601} %-5level %logger{1} - %msg%n%throwable"/>
-      <MarkerFilter marker="JSCRIPT" onMatch="ACCEPT" onMismatch="DENY"/>
-    </File>
-    </appenders>
-  <loggers>
-    <root level="trace">
-      <appender-ref ref="Console"/>
-      <appender-ref ref="File"/>
-      <appender-ref ref="Jscript"/>
-      </root>
-  </loggers>
+	<appenders>
+		<Console name="Console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d{ISO8601} %-5level %logger{1} - %msg%n%throwable" />
+		</Console>
+		<RollingFile name="File" fileName="logs/guideme.log" 
+			filePattern="logs/$${date:yyyy-MM}/guideme-%d{MM-dd-yyyy}-%i.log">
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="10 MB" />
+			</Policies>
+			<DefaultRolloverStrategy max="3" />
+			<PatternLayout pattern="%d{ISO8601} %-5level %logger{1} - %msg%n%throwable" />
+			<MarkerFilter marker="JSCRIPT" onMatch="DENY"
+				onMismatch="ACCEPT" />
+		</RollingFile>
+		<RollingFile name="Jscript" fileName="logs/jscript.log" 
+			filePattern="logs/$${date:yyyy-MM}/jscript-%d{MM-dd-yyyy}-%i.log">
+			<Policies>
+				<TimeBasedTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="10 MB" />
+			</Policies>
+			<DefaultRolloverStrategy max="3" />
+			<PatternLayout pattern="%d{ISO8601} %-5level %logger{1} - %msg%n%throwable" />
+			<MarkerFilter marker="JSCRIPT" onMatch="ACCEPT"
+				onMismatch="DENY" />
+		</RollingFile>
+	</appenders>
+	<loggers>
+		<root level="trace">
+			<appender-ref ref="Console" />
+			<appender-ref ref="File" />
+			<appender-ref ref="Jscript" />
+		</root>
+	</loggers>
 </configuration>

@@ -14,10 +14,11 @@ public class Audio {
 	private String repeat; //number of times to repeat the audio
 	private String ifSet; //only play the audio if theses flags are set
 	private String ifNotSet; //don't play the audo if these flags are set
+	private String jscript; //javascript function to run on audio finish
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	
 
-	public Audio(String id, String startAt, String stopAt, String target, String ifSet, String ifNotSet, String set, String unSet, String repeat) {
+	public Audio(String id, String startAt, String stopAt, String target, String ifSet, String ifNotSet, String set, String unSet, String repeat, String jscript) {
 		this.id = id;
 		this.startAt = startAt;
 		this.stopAt = stopAt;
@@ -27,6 +28,7 @@ public class Audio {
 		this.set = set;
 		this.unSet = unSet;
 		this.repeat = repeat;
+		this.jscript = jscript;
 	}
 
 	public String getId() {
@@ -58,6 +60,10 @@ public class Audio {
 
 	public String getRepeat() {
 		return repeat;
+	}
+
+	public String getJscript() {
+		return jscript;
 	}
 
 }

@@ -156,9 +156,13 @@ public class XmlGuideReader {
 	        				 if (ifSet == null) ifSet = "";
 	        				 ifNotSet = reader.getAttributeValue(null, "if-not-set"); 
 	        				 if (ifNotSet == null) ifNotSet = "";
-	        				 Audio audio = new Audio(strId, strStartAt, strStopAt, strTarget, strTarget, ifSet, ifNotSet, "", "");
+	        				 String loops = reader.getAttributeValue(null, "loops"); 
+	        				 if (loops == null) loops = "0";
+	        				 String javascript = reader.getAttributeValue(null, "onTriggered");
+	        				 if (javascript == null) javascript = "";
+	        				 Audio audio = new Audio(strId, strStartAt, strStopAt, strTarget, ifSet, ifNotSet, "", "", loops, javascript);
 	        				 page.addAudio(audio);
-		        			 logger.trace("loadXML " + PresName + " Audio " + strId+ "|" + strStartAt+ "|" + strStopAt+ "|" + strTarget+ "|" + strTarget+ "|" + ifSet+ "|" + ifNotSet);
+		        			 logger.trace("loadXML " + PresName + " Audio " + strId+ "|" + strStartAt+ "|" + strStopAt+ "|" + strTarget+ "|" + javascript+ "|" + ifSet+ "|" + ifNotSet);
 	        			 } catch (Exception e1) {
 	        				 logger.error("loadXML " + PresName + " Audio Exception " + e1.getLocalizedMessage(), e1);
 	        			 }
@@ -392,9 +396,13 @@ public class XmlGuideReader {
 	        				 if (ifSet == null) ifSet = "";
 	        				 ifNotSet = reader.getAttributeValue(null, "if-not-set"); 
 	        				 if (ifNotSet == null) ifNotSet = "";
-	        				 Video video = new Video(strId, strStartAt, strStopAt, strTarget, ifSet, ifNotSet, "", "", "");
+	        				 String loops = reader.getAttributeValue(null, "loops"); 
+	        				 if (loops == null) loops = "0";
+	        				 String javascript = reader.getAttributeValue(null, "onTriggered");
+	        				 if (javascript == null) javascript = "";
+	        				 Video video = new Video(strId, strStartAt, strStopAt, strTarget, ifSet, ifNotSet, "", "", loops, javascript);
 	        				 page.addVideo(video);
-		        			 logger.trace("loadXML " + PresName + " Video " + strId + "|" + strStartAt + "|" + strStopAt + "|" + strTarget + "|" + ifSet + "|" + ifNotSet);
+		        			 logger.trace("loadXML " + PresName + " Video " + strId + "|" + strStartAt + "|" + strStopAt + "|" + strTarget + "|" + ifSet + "|" + ifNotSet + "|" + "" + "|" + "" + "|" + loops + "|" + javascript);
 	        			 } catch (Exception e1) {
 	        				 logger.error("loadXML " + PresName + " Video Exception " + e1.getLocalizedMessage(), e1);
 	        			 }

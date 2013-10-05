@@ -3,8 +3,10 @@ package org.guideme.guideme.ui;
 import java.awt.Frame;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -52,7 +54,6 @@ import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
 import org.guideme.guideme.settings.UserSettings;
-import org.w3c.dom.Node;
 
 import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
@@ -74,9 +75,10 @@ public class MainShell {
 	private int MintHtmlFontSize;
 	private String strGuidePath;
 	private int videoLoops = 0;
+	private int videoStartAt = 0;
+	private int videoStopAt = 0;
 	private String videoTarget = "";
-	private String videoOptions = "";
-	private String video = "";
+	private String videoJscript = "";
 	private Boolean videoPlay = false;
 	private GuideSettings guideSettings = new GuideSettings("startup");
 	private UserSettings userSettings = null;
@@ -215,8 +217,9 @@ public class MainShell {
 				mediaPlayer = mediaPlayerFactory.newEmbeddedMediaPlayer();
 	
 				videoSurface = mediaPlayerFactory.newVideoSurface(videoSurfaceCanvas);
+
 				mediaPlayer.setVideoSurface(videoSurface);
-	
+
 				mediaPlayer.addMediaPlayerEventListener(new MediaListener());
 			}
 
@@ -412,23 +415,21 @@ public class MainShell {
 		//videoPlay can be set to false outside the code to tell it to stop
 		//if the video finishes loop round again if a number of repeats has been set
 		@Override
-		public void mediaStateChanged(MediaPlayer mediaPlayer, int newState) {
-			super.mediaStateChanged(mediaPlayer, newState);
-			logger.debug("MediaListener newState " + newState);
+		public void mediaStateChanged(MediaPlayer lmediaPlayer, int newState) {
+			super.mediaStateChanged(lmediaPlayer, newState);
+			logger.debug("MediaListener newState " + newState + " videoPlay:" + videoPlay);
 			try {
-				if (newState==5 && videoPlay){
-					if (videoLoops > 0) {
-						videoLoops--;
-						if (videoOptions.equals("")) {
-							mediaPlayer.playMedia(video);
-						} else {
-							mediaPlayer.playMedia(video, videoOptions);
-						}
-					} else {
+				if ((newState==5 || newState==6) && videoPlay){
 						if (!videoTarget.equals(""))  {
-							displayPage(videoTarget);
+							//run on the main UI thread
+							myDisplay.syncExec(
+									new Runnable() {
+										public void run(){
+											mainShell.runJscript(videoJscript);
+											mainShell.displayPage(videoTarget);
+										}
+									});											
 						}
-					}
 				}
 			} catch (Exception e) {
 				logger.error("mediaStateChanged " + e.getLocalizedMessage(), e);
@@ -645,13 +646,7 @@ public class MainShell {
 						comonFunctions.SetFlags(guide.getDelaySet(), guide.getFlags());
 						comonFunctions.UnsetFlags(guide.getDelayUnSet(), guide.getFlags());
 						String javascript = guide.getDelayjScript();
-						if (! javascript.equals("")) {
-							getFormFields();
-							Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
-							Page objCurrPage = guide.getChapters().get(guideSettings.getChapter()).getPages().get(guideSettings.getPage());
-							String pageJavascript = objCurrPage.getjScript();
-							jscript.runScript(pageJavascript, javascript);
-						}
+						mainShell.runJscript(javascript);
 						mainLogic.displayPage(guide.getDelTarget(), false, guide, mainShell, appSettings, userSettings, guideSettings);
 					} else {
 						if (guide.getDelStyle().equals("normal")) {
@@ -765,7 +760,7 @@ public class MainShell {
     	this.imageLabel.setVisible(true);
 	}
 
-	public void playVideo(String video, int startAt, int stopAt, int loops, String target) {
+	public void playVideo(String video, int startAt, int stopAt, int loops, String target, String jscript) {
 		//plays a video in the area to the left of the screen
 		//sets the number of loops, start / stop time and any page to display if the video finishes
 		//starts the video using a non UI thread so VLC can't hang the application
@@ -773,24 +768,15 @@ public class MainShell {
 			try {
 				this.imageLabel.setVisible(false);
 				this.videoFrame.setVisible(true);
-				this.video = video;
 				videoLoops = loops;
 				videoTarget = target;
-				videoOptions = "";
-				if (startAt > 0 && stopAt > 0) {
-					videoOptions = "start-time=" + startAt + ",stop-time=" + stopAt;
-				} else {
-					if (startAt > 0) {
-						videoOptions = "start-time=" + startAt;
-					}
-					if (stopAt > 0) {
-						videoOptions = "stop-time=" + stopAt;
-					}
-				}
+				videoStartAt = startAt;
+				videoStopAt = stopAt;
+				videoJscript = jscript;
 				videoPlay = true;
 				String mrlVideo = "file:///" + video;
 				VideoPlay videoPlay = new VideoPlay();
-				videoPlay.setVideoPlay(mediaPlayer, videoOptions, mrlVideo);
+				videoPlay.setVideoPlay(mediaPlayer, mrlVideo);
 				Thread videoPlayThread = new Thread(videoPlay);
 				videoPlayThread.start();
 			} catch (Exception e) {
@@ -802,25 +788,33 @@ public class MainShell {
 	class VideoPlay implements Runnable {
 		//code to start the video on a separate thread
 		private EmbeddedMediaPlayer mediaPlayer;
-		private String videoOptions;
 		private String video;
 		
 		@Override
 		public void run() {
 			try {
-				if (videoOptions.equals("")) {
+				if (videoStartAt == 0 && videoStopAt == 0) {
 					mediaPlayer.playMedia(video);
 				} else {
-					mediaPlayer.playMedia(video, videoOptions);
+					 List<String> vlcArgs = new ArrayList<String>();
+					 if (videoStartAt > 0) {
+						 vlcArgs.add("start-time=" + videoStartAt);
+					 }
+					 if (videoStopAt > 0) {
+						 vlcArgs.add("stop-time=" + videoStopAt);
+					 }
+					 if (videoLoops > 0) {
+						 vlcArgs.add("input-repeat=" + videoLoops);
+					 }
+					 mediaPlayer.playMedia(video, vlcArgs.toArray(new String[vlcArgs.size()]));
 				}
 			} catch (Exception e) {
 				logger.error("VideoPlay run " + e.getLocalizedMessage(), e);		
 			}
 		}
 
-		public void setVideoPlay(EmbeddedMediaPlayer mediaPlayer, String videoOptions, String video) {
+		public void setVideoPlay(EmbeddedMediaPlayer mediaPlayer, String video) {
 			this.mediaPlayer = mediaPlayer;
-			this.videoOptions = videoOptions;
 			this.video = video;
 		}
 
@@ -832,12 +826,12 @@ public class MainShell {
 
 	
 	
-	public void playAudio(String audio, int startAt, int stopAt, int loops, String target) {
+	public void playAudio(String audio, int startAt, int stopAt, int loops, String target, String jscript) {
 		// run audio on another thread
 		try {
 			String options = "";
 			if (startAt > 0 && stopAt > 0) {
-				options = "start-time=" + startAt + ",stop-time=" + stopAt;
+				options = "start-time=" + startAt + ", stop-time=" + stopAt;
 			} else {
 				if (startAt > 0) {
 					options = "start-time=" + startAt;
@@ -846,7 +840,7 @@ public class MainShell {
 					options = "stop-time=" + stopAt;
 				}
 			}
-			audioPlayer = new AudioPlayer(audio, options, loops, target, mainShell);
+			audioPlayer = new AudioPlayer(audio, options, loops, target, mainShell, jscript, myDisplay);
 			threadAudioPlayer = new Thread(audioPlayer);
 			threadAudioPlayer.start();
 		} catch (Exception e) {
@@ -975,14 +969,7 @@ public class MainShell {
 				}
 				strTag = (String) btnClicked.getData("Target");
 				String javascript = (String) btnClicked.getData("javascript");
-				if (javascript== null) javascript = "";
-				if (! javascript.equals("")) {
-					getFormFields();
-					Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
-					Page objCurrPage = guide.getChapters().get(guideSettings.getChapter()).getPages().get(guideSettings.getPage());
-					String pageJavascript = objCurrPage.getjScript();
-					jscript.runScript(pageJavascript, javascript);
-				}
+				runJscript(javascript);
 				mainLogic.displayPage(strTag, false, guide, mainShell, appSettings, userSettings, guideSettings);
 			}
 			catch (Exception ex) {
@@ -992,7 +979,18 @@ public class MainShell {
 		}
 	}
 
-	
+
+	public void runJscript(String function) {
+		if (function == null) function = "";
+		if (! function.equals("")) {
+			getFormFields();
+			Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
+			Page objCurrPage = guide.getChapters().get(guideSettings.getChapter()).getPages().get(guideSettings.getPage());
+			String pageJavascript = objCurrPage.getjScript();
+			jscript.runScript(pageJavascript, function);
+		}
+	}
+
 	private void getFormFields() {
 		String node = (String) brwsText.evaluate("var vforms = document.forms;var vreturn = '';for (var formidx = 0; formidx < vforms.length; formidx++) {var vform = vforms[formidx];for (var controlIdx = 0; controlIdx < vform.length; controlIdx++) {var control = vform.elements[controlIdx];vreturn = vreturn + control.name + '¬' + control.value + '¬' + control.type + '¬' + control.checked + '|';}}return vreturn;");
 		String fields[] = node.split("\\|");
@@ -1069,7 +1067,6 @@ public class MainShell {
 				if (mediaPlayer != null) {
 					videoLoops = 0;
 					videoTarget = "";
-					videoOptions = "";
 					videoPlay = false;
 					VideoStop videoStop = new VideoStop();
 					videoStop.setMediaPlayer(mediaPlayer);

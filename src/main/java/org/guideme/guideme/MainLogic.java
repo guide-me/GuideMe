@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.swt.widgets.Display;
 import org.guideme.guideme.model.Audio;
 import org.guideme.guideme.model.Button;
 import org.guideme.guideme.model.Delay;
@@ -81,6 +82,7 @@ public class MainLogic {
 		logger.debug("displayPage Flags " + comonFunctions.GetFlags(guide.getFlags()));
 
 		try {
+			//Display display = Display.getDefault();
 			mainShell.stopAll();
 			guideSettings.setChapter(chapterName);
 			// handle random page
@@ -234,7 +236,7 @@ public class MainLogic {
 								catch (NumberFormatException nfe) {
 								}
 								// Play video
-								mainShell.playVideo(imgPath, intStartAt, intStopAt, repeat, objVideo.getTarget());
+								mainShell.playVideo(imgPath, intStartAt, intStopAt, repeat, objVideo.getTarget(), objVideo.getJscript());
 							} catch (Exception e1) {
 								logger.info("displayPage Video Exception " + e1.getLocalizedMessage());
 							}
@@ -409,7 +411,7 @@ public class MainLogic {
 								
 								imgPath = getMediaFullPath(strAudio, fileSeparator, appSettings, guide);
 								strAudioTarget = objAudio.getTarget();
-								mainShell.playAudio(imgPath,startAtSeconds, stopAtSeconds, intAudioLoops, strAudioTarget);
+								mainShell.playAudio(imgPath,startAtSeconds, stopAtSeconds, intAudioLoops, strAudioTarget, objAudio.getJscript());
 								logger.debug("displayPage Audio target " + strAudioTarget);
 							} catch (Exception e1) {
 								logger.error("displayPage Audio Exception " + e1.getLocalizedMessage(), e1);
