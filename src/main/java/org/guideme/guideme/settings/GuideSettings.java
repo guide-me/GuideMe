@@ -33,7 +33,7 @@ public class GuideSettings {
 	private String text = ""; //used to pass back replacement text from javascript 
 	private String image = ""; //used to pass back replacement image from javascript 
 	private String filename; //name of file to store persistent state
-	private String name;
+	private String name; //GuideId for these settings
 	private HashMap<String, String> formFields = new HashMap<String, String>(); 
 	private HashMap<String, String> scriptVariables = new HashMap<String, String>(); //variables used by javascript
 	private HashMap<String, String> userStringPrefs = new HashMap<String, String>(); 

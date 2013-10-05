@@ -141,6 +141,7 @@ public class MainLogic {
 
 			// get the page to display
 			objCurrPage = guide.getChapters().get(chapterName).getPages().get(strPageId);
+			//runn the pageLoad script
 			String pageJavascript = objCurrPage.getjScript();
 			if (! pageJavascript.equals("")) {
 				if (pageJavascript.contains("pageLoad")) {
@@ -247,33 +248,52 @@ public class MainLogic {
 
 		        if (!blnVideo) {
 					// image
-					if (objCurrPage.getImageCount() > 0) {
-						for (int i2 = 0; i2 < objCurrPage.getImageCount(); i2++) {
-							objImage = objCurrPage.getImage(i2);
-							if (objImage.canShow(guide.getFlags())) {
-								strImage = objImage.getId();
-								imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
-								File flImage = new File(imgPath);
-								if (flImage.exists()){
-									try {
-										mainShell.setImageLabel(imgPath, strImage);
-									} catch (Exception e1) {
-										logger.error("displayPage Image Exception " + e1.getLocalizedMessage(), e1);
-										mainShell.clearImage();
-									}
-								} else {
-									// No image
-									mainShell.clearImage();
-								}
-							} else {
-								// No image
-								mainShell.clearImage();
-							}
-						}
-					} else {
-						mainShell.clearImage();
-						// No image
-					}
+		        	// if there is an image over ride from javascript use it
+		        	if (!guideSettings.getImage().equals("")) {
+    					strImage = guideSettings.getImage();
+    					guideSettings.setImage("");
+    					imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
+    					File flImage = new File(imgPath);
+    					if (flImage.exists()){
+    						try {
+    							mainShell.setImageLabel(imgPath, strImage);
+    						} catch (Exception e1) {
+    							logger.error("displayPage Image Exception " + e1.getLocalizedMessage(), e1);
+    							mainShell.clearImage();
+    						}
+    					} else {
+    						// No image
+    						mainShell.clearImage();
+    					}
+		        	} else {
+		        		if (objCurrPage.getImageCount() > 0) {
+		        			for (int i2 = 0; i2 < objCurrPage.getImageCount(); i2++) {
+		        				objImage = objCurrPage.getImage(i2);
+		        				if (objImage.canShow(guide.getFlags())) {
+		        					strImage = objImage.getId();
+		        					imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
+		        					File flImage = new File(imgPath);
+		        					if (flImage.exists()){
+		        						try {
+		        							mainShell.setImageLabel(imgPath, strImage);
+		        						} catch (Exception e1) {
+		        							logger.error("displayPage Image Exception " + e1.getLocalizedMessage(), e1);
+		        							mainShell.clearImage();
+		        						}
+		        					} else {
+		        						// No image
+		        						mainShell.clearImage();
+		        					}
+		        				} else {
+		        					// No image
+		        					mainShell.clearImage();
+		        				}
+		        			}
+		        		} else {
+		        			mainShell.clearImage();
+		        			// No image
+		        		}
+		        	}
 				}
 
 
