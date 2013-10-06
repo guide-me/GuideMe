@@ -28,7 +28,7 @@
 		</RollingFile>
 	</appenders>
 	<loggers>
-		<root level="info">
+		<root level="trace">
 			<appender-ref ref="Console" />
 			<appender-ref ref="File" />
 			<appender-ref ref="Jscript" />

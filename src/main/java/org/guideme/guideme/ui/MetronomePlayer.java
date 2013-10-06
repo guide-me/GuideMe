@@ -38,7 +38,9 @@ public class MetronomePlayer  implements Runnable {
 		//stop the sequencer 
 		//there is a loop lower which checks if the sequencer is still running
 		//and will exit the thread if it stops
-		sequencer.stop();
+		if (sequencer != null) {
+			sequencer.stop();
+		}
 	}
 
 	public void run() {

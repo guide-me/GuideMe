@@ -14,7 +14,7 @@ import org.guideme.guideme.model.Image;
 import org.guideme.guideme.model.Metronome;
 import org.guideme.guideme.model.Page;
 import org.guideme.guideme.model.Video;
-import org.guideme.guideme.scripting.Buttons;
+import org.guideme.guideme.scripting.OverRide;
 import org.guideme.guideme.scripting.Jscript;
 import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
@@ -26,7 +26,7 @@ public class MainLogic {
 	private static Logger logger = LogManager.getLogger();
 	private static MainLogic mainLogic;
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
-	private Buttons buttons = new Buttons();
+	private OverRide overRide = new OverRide();
 
 	//singleton class stuff (force there to be only one instance without making it static)
 	private MainLogic() {
@@ -68,6 +68,8 @@ public class MainLogic {
 		boolean blnVideo;
 		boolean blnDelay;
 		boolean blnMetronome;
+		boolean blnImage;
+		boolean blnAudio;
 		String imgPath = null;
 		String strFlags;
 		Page objCurrPage;
@@ -85,7 +87,7 @@ public class MainLogic {
 		try {
 			//Display display = Display.getDefault();
 			mainShell.stopAll();
-			buttons.clear();
+			overRide.clear();
 			guideSettings.setChapter(chapterName);
 			// handle random page
 			strPageId = pageId;
@@ -143,207 +145,231 @@ public class MainLogic {
 
 			// get the page to display
 			objCurrPage = guide.getChapters().get(chapterName).getPages().get(strPageId);
+			
 			//run the pageLoad script
-			String pageJavascript = objCurrPage.getjScript();
-			if (! pageJavascript.equals("")) {
-				if (pageJavascript.contains("pageLoad")) {
-					Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
-					jscript.setButtons(buttons);
-					jscript.runScript(pageJavascript, "pageLoad", true);
+			try {
+				String pageJavascript = objCurrPage.getjScript();
+				if (! pageJavascript.equals("")) {
+					if (pageJavascript.contains("pageLoad")) {
+						Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
+						jscript.setOverRide(overRide);
+						jscript.runScript(pageJavascript, "pageLoad", true);
+					}
 				}
+			} catch (Exception e) {
+				logger.error("displayPage javascript Exception " + e.getLocalizedMessage(), e);
 			}
 			
 			// delay
 			mainShell.setLblLeft("");
 			blnDelay = false;
 			intDelSeconds = 1;
-			if (objCurrPage.getDelayCount() > 0) {
-				try {
-					for (int i2 = 0; i2 < objCurrPage.getDelayCount(); i2++) {
-						objDelay = objCurrPage.getDelay(i2);
-						if (objDelay.canShow(guide.getFlags())) {
-							blnDelay = true;
-							logger.debug("displayPage Delay");
-							guide.setDelStyle(objDelay.getstyle());
-							guide.setDelTarget(objDelay.getTarget());
-							guide.setDelayjScript(objDelay.getjScript());
-							strDelStartAt = objDelay.getStartWith();
-							intDelSeconds = objDelay.getDelaySec();
-							try {
-								guide.setDelStartAtOffSet(Integer.parseInt(strDelStartAt));
-								guide.setDelStartAtOffSet(guide.getDelStartAtOffSet() - intDelSeconds);
-							} catch (Exception etemp) {
-								guide.setDelStartAtOffSet(0);
+			try {
+				objDelay = overRide.getDelay();
+				if (objDelay != null) {
+					blnDelay = true;
+				} else {
+					if (objCurrPage.getDelayCount() > 0) {
+						for (int i2 = 0; i2 < objCurrPage.getDelayCount(); i2++) {
+							objDelay = objCurrPage.getDelay(i2);
+							if (objDelay.canShow(guide.getFlags())) {
+								blnDelay = true;
+								break;
 							}
-
-							// record any delay set / unset
-							guide.setDelaySet(objDelay.getSet());
-							guide.setDelayUnSet(objDelay.getUnSet());
-                            logger.debug("displayPage Delay Seconds " + intDelSeconds + " Style " + guide.getDelStyle() + " Target " + guide.getDelTarget() + " Set " + guide.getDelaySet() + " UnSet " + guide.getDelayUnSet());
-                            Calendar calCountDown = Calendar.getInstance();
-            				calCountDown.add(Calendar.SECOND, intDelSeconds);
-            				mainShell.setCalCountDown(calCountDown);
-							break;
-						} else {
-							mainShell.setLblLeft("");
 						}
 					}
-				} catch (Exception e1) {
-					logger.error("displayPage Delay Exception " + e1.getLocalizedMessage(), e1);
+				}
+				if (blnDelay) {
+					logger.debug("displayPage Delay");
+					guide.setDelStyle(objDelay.getstyle());
+					guide.setDelTarget(objDelay.getTarget());
+					guide.setDelayjScript(objDelay.getjScript());
+					strDelStartAt = objDelay.getStartWith();
+					intDelSeconds = objDelay.getDelaySec();
+					try {
+						guide.setDelStartAtOffSet(Integer.parseInt(strDelStartAt));
+						guide.setDelStartAtOffSet(guide.getDelStartAtOffSet() - intDelSeconds);
+					} catch (Exception etemp) {
+						guide.setDelStartAtOffSet(0);
+					}
+
+					// record any delay set / unset
+					guide.setDelaySet(objDelay.getSet());
+					guide.setDelayUnSet(objDelay.getUnSet());
+					logger.debug("displayPage Delay Seconds " + intDelSeconds + " Style " + guide.getDelStyle() + " Target " + guide.getDelTarget() + " Set " + guide.getDelaySet() + " UnSet " + guide.getDelayUnSet());
+					Calendar calCountDown = Calendar.getInstance();
+					calCountDown.add(Calendar.SECOND, intDelSeconds);
+					mainShell.setCalCountDown(calCountDown);
+				} else {
 					mainShell.setLblLeft("");
 				}
+			} catch (Exception e1) {
+				logger.error("displayPage Delay Exception " + e1.getLocalizedMessage(), e1);
+				mainShell.setLblLeft("");
 			}
 
 
 			if (!(intDelSeconds == 0)) { 
 				// Video
 				blnVideo = false;
-				if (objCurrPage.getVideoCount() > 0) {
-					for (int i2 = 0; i2 < objCurrPage.getVideoCount(); i2++) {
-						objVideo = objCurrPage.getVideo(i2);
-						if (objVideo.canShow(guide.getFlags())) {
-							blnVideo = true;
-							strImage = objVideo.getId();
-							logger.info("displayPage Video " + strImage);
-							String strStartAt = objVideo.getStartAt();
-							logger.info("displayPage Video Start At " + strStartAt);
-							int intStartAt = 0;
-							try {
-								if (strStartAt != "") {
-									intStartAt = comonFunctions.getMilisecFromTime(strStartAt) / 1000;
+				objVideo = overRide.getVideo();
+				try {
+					if (objVideo != null) {
+						blnVideo = true;
+					} else {
+						if (objCurrPage.getVideoCount() > 0) {
+							for (int i2 = 0; i2 < objCurrPage.getVideoCount(); i2++) {
+								objVideo = objCurrPage.getVideo(i2);
+								if (objVideo.canShow(guide.getFlags())) {
+									blnVideo = true;
+									break;
 								}
-							} catch (Exception e1) {
-								intStartAt = 0;
-								logger.info("displayPage startat Exception " + e1.getLocalizedMessage());
 							}
-
-							String strStopAt = objVideo.getStopAt();
-							logger.info("displayPage Video Stop At " + strStopAt);
-							int intStopAt = 0;
-							try {
-								if (strStopAt != "") {
-									intStopAt = comonFunctions.getMilisecFromTime(strStopAt) / 1000;
-								}
-							} catch (Exception e1) {
-								intStopAt = 0;
-								logger.info("displayPage stopat Exception " + e1.getLocalizedMessage());
-							}
-
-							imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
-
-							try {
-								String loops = objVideo.getRepeat();
-								int repeat = 0;
-								try {
-									repeat = Integer.parseInt(loops);
-								} 
-								catch (NumberFormatException nfe) {
-								}
-								// Play video
-								mainShell.playVideo(imgPath, intStartAt, intStopAt, repeat, objVideo.getTarget(), objVideo.getJscript());
-							} catch (Exception e1) {
-								logger.info("displayPage Video Exception " + e1.getLocalizedMessage());
-							}
-							break;
-						}
+						} 
 					}
-				} 
+					if (blnVideo) {
+						strImage = objVideo.getId();
+						logger.info("displayPage Video " + strImage);
+						String strStartAt = objVideo.getStartAt();
+						logger.info("displayPage Video Start At " + strStartAt);
+						int intStartAt = 0;
+						try {
+							if (strStartAt != "") {
+								intStartAt = comonFunctions.getMilisecFromTime(strStartAt) / 1000;
+							}
+						} catch (Exception e1) {
+							intStartAt = 0;
+							logger.info("displayPage startat Exception " + e1.getLocalizedMessage());
+						}
 
-		        if (!blnVideo) {
-					// image
-		        	// if there is an image over ride from javascript use it
-		        	if (!guideSettings.getImage().equals("")) {
-    					strImage = guideSettings.getImage();
-    					guideSettings.setImage("");
-    					imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
-    					File flImage = new File(imgPath);
-    					if (flImage.exists()){
-    						try {
-    							mainShell.setImageLabel(imgPath, strImage);
-    						} catch (Exception e1) {
-    							logger.error("displayPage Image Exception " + e1.getLocalizedMessage(), e1);
-    							mainShell.clearImage();
-    						}
-    					} else {
-    						// No image
-    						mainShell.clearImage();
-    					}
-		        	} else {
-		        		if (objCurrPage.getImageCount() > 0) {
-		        			for (int i2 = 0; i2 < objCurrPage.getImageCount(); i2++) {
-		        				objImage = objCurrPage.getImage(i2);
-		        				if (objImage.canShow(guide.getFlags())) {
-		        					strImage = objImage.getId();
-		        					imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
-		        					File flImage = new File(imgPath);
-		        					if (flImage.exists()){
-		        						try {
-		        							mainShell.setImageLabel(imgPath, strImage);
-		        						} catch (Exception e1) {
-		        							logger.error("displayPage Image Exception " + e1.getLocalizedMessage(), e1);
-		        							mainShell.clearImage();
-		        						}
-		        					} else {
-		        						// No image
-		        						mainShell.clearImage();
-		        					}
-		        				} else {
-		        					// No image
-		        					mainShell.clearImage();
-		        				}
-		        			}
-		        		} else {
-		        			mainShell.clearImage();
-		        			// No image
-		        		}
-		        	}
+						String strStopAt = objVideo.getStopAt();
+						logger.info("displayPage Video Stop At " + strStopAt);
+						int intStopAt = 0;
+						try {
+							if (strStopAt != "") {
+								intStopAt = comonFunctions.getMilisecFromTime(strStopAt) / 1000;
+							}
+						} catch (Exception e1) {
+							intStopAt = 0;
+							logger.info("displayPage stopat Exception " + e1.getLocalizedMessage());
+						}
+
+						imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
+
+						String loops = objVideo.getRepeat();
+						int repeat = 0;
+						try {
+							repeat = Integer.parseInt(loops);
+						} 
+						catch (NumberFormatException nfe) {
+						}
+						// Play video
+						mainShell.playVideo(imgPath, intStartAt, intStopAt, repeat, objVideo.getTarget(), objVideo.getJscript());
+					}
+				} catch (Exception e1) {
+					logger.info("displayPage Video Exception " + e1.getLocalizedMessage());
+				}
+
+				try {
+					if (!blnVideo) {
+						// image
+						// if there is an image over ride from javascript use it
+						blnImage = false;
+						strImage = overRide.getImage();
+						if (!strImage.equals("")) {
+							imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
+							File flImage = new File(imgPath);
+							if (flImage.exists()){
+								blnImage = true;
+							}
+						} 
+						if (!blnImage) {
+							if (objCurrPage.getImageCount() > 0) {
+								for (int i2 = 0; i2 < objCurrPage.getImageCount(); i2++) {
+									objImage = objCurrPage.getImage(i2);
+									if (objImage.canShow(guide.getFlags())) {
+										strImage = objImage.getId();
+										imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
+										File flImage = new File(imgPath);
+										if (flImage.exists()){
+											blnImage = true;
+										}
+									}
+								}
+							}
+						}
+						if (blnImage) {
+							try {
+								mainShell.setImageLabel(imgPath, strImage);
+							} catch (Exception e1) {
+								logger.error("displayPage Image Exception " + e1.getLocalizedMessage(), e1);
+								mainShell.clearImage();
+							}
+						} else {
+							mainShell.clearImage();
+							// No image
+						}
+					} else {
+						mainShell.clearImage();
+						// No image
+					}
+				} catch (Exception e) {
+					logger.error("displayPage Image Exception " + e.getLocalizedMessage(), e);
+					mainShell.clearImage();
 				}
 
 
 				// Browser text
 				//Replace any string pref in the HTML with the user preference
 				//they are encoded #prefName# 
-		        String displayText = "";
-		        if (guideSettings.getHtml().equals("")) {
-		        	displayText = objCurrPage.getText();
-		        } else {
-		        	displayText = guideSettings.getHtml();
-		        	guideSettings.setHtml("");
-		        }
-		        
-				Set<String> set = guideSettings.getStringKeys(); 
-				for (String s : set) {
-					displayText = displayText.replace("<span>" + s + "</span>", guideSettings.getPref(s));
+				try {
+					String displayText = "";
+					if (overRide.getHtml().equals("")) {
+						displayText = objCurrPage.getText();
+					} else {
+						displayText = overRide.getHtml();
+						overRide.setHtml("");
+					}
+					
+					// Script Variables
+					Set<String> set = guideSettings.getScriptVariables().keySet();
+					for (String s :set) {
+						displayText = displayText.replace("<span>" + s + "</span>", guideSettings.getScriptVariables().get(s));
+					}
+
+					// String Guide Preferences
+					set = guideSettings.getStringKeys(); 
+					for (String s : set) {
+						displayText = displayText.replace("<span>" + s + "</span>", guideSettings.getPref(s));
+					}
+
+					// Number Guide Preferences
+					set = guideSettings.getNumberKeys(); 
+					String numberRet = "";
+					for (String s : set) {
+						numberRet = FormatNumPref(guideSettings.getPrefNumber(s));
+						displayText = displayText.replace("<span>" + s + "</span>", numberRet);
+					}
+
+					// String User Preferences
+					set = userSettings.getStringKeys(); 
+					for (String s : set) {
+						displayText = displayText.replace("<span>" + s + "</span>", userSettings.getPref(s));
+					}
+
+					// Number User Preferences
+					set = userSettings.getNumberKeys(); 
+					for (String s : set) {
+						displayText = displayText.replace("<span>" + s + "</span>", FormatNumPref(userSettings.getPrefNumber(s)));
+					}
+
+					mainShell.setBrwsText(displayText);
+				} catch (Exception e) {
+					logger.error("displayPage BrwsText Exception " + e.getLocalizedMessage(), e);
+					mainShell.setBrwsText("");
 				}
 
-				set = guideSettings.getNumberKeys(); 
-				String numberRet = "";
-				for (String s : set) {
-					//displayText = displayText.replace("#" + s + "#", String.valueOf(guideSettings.getPrefNumber(s)));
-					//numberRet = String.format("$#", guideSettings.getPrefNumber(s));
-					numberRet = FormatNumPref(guideSettings.getPrefNumber(s));
-					displayText = displayText.replace("<span>" + s + "</span>", numberRet);
-				}
-
-				set = userSettings.getStringKeys(); 
-				for (String s : set) {
-					displayText = displayText.replace("<span>" + s + "</span>", userSettings.getPref(s));
-				}
-				
-				set = userSettings.getNumberKeys(); 
-				for (String s : set) {
-					//displayText = displayText.replace("#" + s + "#", String.valueOf(userSettings.getPrefNumber(s)));
-					displayText = displayText.replace("<span>" + s + "</span>", FormatNumPref(userSettings.getPrefNumber(s)));
-				}
-
-				set = guideSettings.getScriptVariables().keySet();
-				for (String s :set) {
-					displayText = displayText.replace("<span>" + s + "</span>", guideSettings.getScriptVariables().get(s));
-				}
-				
-		        mainShell.setBrwsText(displayText);
-
-				// buttons
+				// overRide
 				// remove old buttons
 				mainShell.removeButtons();
 
@@ -356,20 +382,20 @@ public class MainLogic {
 								mainShell.addButton(objButton, javascriptid);
 							}
 					} catch (Exception e1) {
-						logger.error("displayPage Buttons Exception " + e1.getLocalizedMessage(), e1);
+						logger.error("displayPage Button Exception " + e1.getLocalizedMessage(), e1);
 					}
 				}
 				
 				//add any buttons added by javascript
-				for (int i1 = buttons.buttonCount() - 1; i1 >= 0; i1--) {
+				for (int i1 = overRide.buttonCount() - 1; i1 >= 0; i1--) {
 					try {
-						objButton = buttons.getButton(i1);
+						objButton = overRide.getButton(i1);
 							if (objButton.canShow(guide.getFlags())) {
 								String javascriptid = objButton.getjScript();
 								mainShell.addButton(objButton, javascriptid);
 							}
 					} catch (Exception e1) {
-						logger.error("displayPage Buttons Exception " + e1.getLocalizedMessage(), e1);
+						logger.error("displayPage OverRide Exception " + e1.getLocalizedMessage(), e1);
 					}
 				}
 				
@@ -392,78 +418,101 @@ public class MainLogic {
 			if (!reDisplay) {
 				// Audio / Metronome
 				blnMetronome = false;
-				if (objCurrPage.getMetronomeCount() > 0) {
-					for (int i2 = 0; i2 < objCurrPage.getMetronomeCount(); i2++) {
-						objMetronome = objCurrPage.getMetronome(i2);
-						if (objMetronome.canShow(guide.getFlags())) {
-							blnMetronome = true;
-							// Metronome
-							int intbpm = objMetronome.getbpm();
-							logger.debug("displayPage Metronome " + intbpm + " BPM");
-							try {
-								mainShell.setMetronomeBPM(objMetronome.getbpm(), objMetronome.getInstrument(), objMetronome.getLoops(), objMetronome.getResolution(), objMetronome.getRhythm());
-							} catch (IllegalArgumentException e) {
-								logger.error("displayPage IllegalArgumentException ", e);
-							} catch (IllegalStateException e) {
-								logger.error("displayPage IllegalStateException ", e);
-							} catch (Exception e) {
-								logger.error("displayPage Exception ", e);
+				try {
+					objMetronome = overRide.getMetronome();
+					if (objMetronome != null) {
+						blnMetronome = true;
+					} else {
+						if (objCurrPage.getMetronomeCount() > 0) {
+							for (int i2 = 0; i2 < objCurrPage.getMetronomeCount(); i2++) {
+								objMetronome = objCurrPage.getMetronome(i2);
+								if (objMetronome.canShow(guide.getFlags())) {
+									blnMetronome = true;
+								}
 							}
 						}
 					}
-				}
-			
-			if (!blnMetronome) {
-				// Audio
-				if (objCurrPage.getAudioCount() > 0) {
-					for (int i2 = 0; i2 < objCurrPage.getAudioCount(); i2++) {
-						objAudio = objCurrPage.getAudio(i2);
-						if (objAudio.canShow(guide.getFlags())) {
-							try {
-								int intAudioLoops;
-								String strAudio;
-								String strAudioTarget;
-								String strIntAudio = objAudio.getRepeat();
-								if (strIntAudio.equals("")) {
-									intAudioLoops = 0;
-								} else {
-									intAudioLoops = Integer.parseInt(strIntAudio);
-								}
-								strAudio = objAudio.getId();
-								logger.debug("displayPage Audio " + strAudio);
-								String strStartAt = objAudio.getStartAt();
-								int startAtSeconds;
-								if (!strStartAt.equals("")) {
-									startAtSeconds = comonFunctions.getMilisecFromTime(strStartAt) / 1000;
-								} else {
-									startAtSeconds = 0;
-								}
-								String strStopAt = objAudio.getStopAt();
-								int stopAtSeconds;
-								if (!strStopAt.equals("")) {
-									stopAtSeconds = comonFunctions.getMilisecFromTime(strStopAt) / 1000;
-								} else {
-									stopAtSeconds = 0;
-								}
-								
-								imgPath = getMediaFullPath(strAudio, fileSeparator, appSettings, guide);
-								strAudioTarget = objAudio.getTarget();
-								mainShell.playAudio(imgPath,startAtSeconds, stopAtSeconds, intAudioLoops, strAudioTarget, objAudio.getJscript());
-								logger.debug("displayPage Audio target " + strAudioTarget);
-							} catch (Exception e1) {
-								logger.error("displayPage Audio Exception " + e1.getLocalizedMessage(), e1);
-							}
+					if (blnMetronome) {
+						// Metronome
+						int intbpm = objMetronome.getbpm();
+						logger.debug("displayPage Metronome " + intbpm + " BPM");
+						try {
+							mainShell.setMetronomeBPM(objMetronome.getbpm(), objMetronome.getInstrument(), objMetronome.getLoops(), objMetronome.getResolution(), objMetronome.getRhythm());
+						} catch (IllegalArgumentException e) {
+							logger.error("displayPage Metronome IllegalArgumentException ", e);
+						} catch (IllegalStateException e) {
+							logger.error("displayPage Metronome IllegalStateException ", e);
+						} catch (Exception e) {
+							logger.error("displayPage Metronome Exception ", e);
 						}
 					}
+				} catch (Exception e) {
+					logger.error("displayPage Metronome Exception ", e);
 				}
+
+				if (!blnMetronome) {
+					// Audio
+					blnAudio = false;
+					objAudio = overRide.getAudio();
+					try {
+						if (objAudio != null) {
+							blnAudio = true;
+						} else {
+							if (objCurrPage.getAudioCount() > 0) {
+								for (int i2 = 0; i2 < objCurrPage.getAudioCount(); i2++) {
+									objAudio = objCurrPage.getAudio(i2);
+									if (objAudio.canShow(guide.getFlags())) {
+										blnAudio = true;
+										break;
+									}
+								}
+							}
+						}
+						if (blnAudio) {
+							int intAudioLoops;
+							String strAudio;
+							String strAudioTarget;
+							String strIntAudio = objAudio.getRepeat();
+							if (strIntAudio.equals("")) {
+								intAudioLoops = 0;
+							} else {
+								intAudioLoops = Integer.parseInt(strIntAudio);
+							}
+							strAudio = objAudio.getId();
+							logger.debug("displayPage Audio " + strAudio);
+							String strStartAt = objAudio.getStartAt();
+							int startAtSeconds;
+							if (!strStartAt.equals("")) {
+								startAtSeconds = comonFunctions.getMilisecFromTime(strStartAt) / 1000;
+							} else {
+								startAtSeconds = 0;
+							}
+							String strStopAt = objAudio.getStopAt();
+							int stopAtSeconds;
+							if (!strStopAt.equals("")) {
+								stopAtSeconds = comonFunctions.getMilisecFromTime(strStopAt) / 1000;
+							} else {
+								stopAtSeconds = 0;
+							}
+
+							imgPath = getMediaFullPath(strAudio, fileSeparator, appSettings, guide);
+							strAudioTarget = objAudio.getTarget();
+							mainShell.playAudio(imgPath,startAtSeconds, stopAtSeconds, intAudioLoops, strAudioTarget, objAudio.getJscript());
+							logger.debug("displayPage Audio target " + strAudioTarget);
+						}
+					} catch (Exception e) {
+						logger.error("displayPage Audio Exception " + e.getLocalizedMessage(), e);
+					}
+				}
+
 			}
-			
-			}
+
 			// Save current page and flags
 			// set page
 			if (guide.getAutoSetPage()) {
 				guide.getFlags().add(strPageId);
 			}
+
 			// do page set / unset
 			try {
 				objCurrPage.setUnSet(guide.getFlags());

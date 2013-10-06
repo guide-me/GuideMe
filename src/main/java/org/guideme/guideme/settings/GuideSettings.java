@@ -29,9 +29,6 @@ public class GuideSettings {
 	private String chapter = ""; //current chapter
 	private String page = "start"; //current page
 	private String flags = ""; //current flags
-	private String html = ""; //used to pass back replacement html from javascript 
-	private String text = ""; //used to pass back replacement text from javascript 
-	private String image = ""; //used to pass back replacement image from javascript 
 	private String filename; //name of file to store persistent state
 	private String name; //GuideId for these settings
 	private HashMap<String, String> formFields = new HashMap<String, String>(); 
@@ -162,31 +159,6 @@ public class GuideSettings {
 	public void setScriptVariables(HashMap<String, String> scriptVariables) {
 		this.scriptVariables = scriptVariables;
 	}
-
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
-
-	public String getHtml() {
-		return html;
-	}
-
-	public void setHtml(String html) {
-		this.html = html;
-	}
-	
-	public String getImage() {
-		return image;
-	}
-
-	public void setImage(String image) {
-		this.image = image;
-	}
-
 	public Set<String> getStringKeys() {
 		return userStringPrefs.keySet();
 	}

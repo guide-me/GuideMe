@@ -22,7 +22,7 @@ public class Jscript {
 	private static GuideSettings guideSettings;
 	private static UserSettings userSettings;
 	private static AppSettings appSettings;
-	private static Buttons buttons;
+	private static OverRide overRide;
 	private static Logger logger = LogManager.getLogger();
 	private static final Marker JSCRIPT_MARKER = MarkerManager.getMarker("JSCRIPT");
 
@@ -52,7 +52,6 @@ public class Jscript {
 			Scriptable scope = cntx.initStandardObjects();
 			UserSettings cloneUS = userSettings.clone();
 			ScriptableObject.putProperty(scope, "userSettings", cloneUS);
-			guideSettings.setHtml("");
 			@SuppressWarnings("rawtypes")
 			Class[] cArg = new Class[1];
 			cArg[0] = String.class;
@@ -68,7 +67,7 @@ public class Jscript {
 			logger.info(JSCRIPT_MARKER, "guideSettings.Flags {" + guideSettings.getFlags() + "}");
 			
 			if (pageloading) {
-				ScriptableObject.putProperty(scope, "buttons", buttons);
+				ScriptableObject.putProperty(scope, "overRide", overRide);
 			}
 			
 			try {
@@ -101,8 +100,8 @@ public class Jscript {
 	}
 
 
-	public void setButtons(Buttons buttons) {
-		Jscript.buttons = buttons;
+	public void setOverRide(OverRide overRide) {
+		Jscript.overRide = overRide;
 	}
 
 }

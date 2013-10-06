@@ -33,6 +33,7 @@ public class JscriptTest {
 	private static Font controlFont;
 	private static HashMap<String, FormData> appFormdata = new HashMap<String, FormData>();
 	private static HashMap<String, Control> appWidgets = new HashMap<String, Control>();
+	private static OverRide overRide = new OverRide();
 
 	public static void main(String[] args) {
 		Control tmpWidget;
@@ -52,7 +53,8 @@ public class JscriptTest {
 		try {
 			String source = comonFunctions.readFile("test.js", Charset.defaultCharset());
 			Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
-			jscript.runScript(source, "test", false);
+			jscript.setOverRide(overRide);
+			jscript.runScript(source, "test", true);
 		} catch (IOException e) {
 			logger.error(" Run Script " + e.getLocalizedMessage(), e);
 		}				
@@ -89,7 +91,7 @@ public class JscriptTest {
 		AddTextField(grpNames, "ScriptVars" , tmpWidget, tmpWidget2, guideSettings.getScriptVariables().toString(), "ScriptVars", false);
 		tmpWidget = appWidgets.get("ScriptVars" + "Lbl");
 		tmpWidget2 = appWidgets.get("ScriptVars" + "Ctrl");
-		AddTextField(grpNames, "Html", tmpWidget, tmpWidget2, guideSettings.getHtml(), "html", false);
+		AddTextField(grpNames, "Html", tmpWidget, tmpWidget2, overRide.getHtml(), "html", false);
 		tmpWidget = appWidgets.get("html" + "Lbl");
 		tmpWidget2 = appWidgets.get("html" + "Ctrl");
 		AddTextField(grpNames, "page", tmpWidget, tmpWidget2, guideSettings.getPage(), "page", false);

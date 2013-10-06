@@ -333,22 +333,22 @@ function test() {
 	  break;
 	}
 	jscriptLog("-- card2 is " + card2);
-	guideSettings.html = "pref PetName = " + guideSettings.getPref("favpet") + "<p/>";
-	guideSettings.html  = guideSettings.html + "I like soccer: " + guideSettings.isPref("soccer") +  "<p/>";
-	guideSettings.html  = guideSettings.html + "I ate " + guideSettings.getPrefNumber("doughnuts") + " doughnuts this week " + "<p/>";
+	overRide.html = "pref PetName = " + guideSettings.getPref("favpet") + "<p/>";
+	overRide.html  = overRide.html + "I like soccer: " + guideSettings.isPref("soccer") +  "<p/>";
+	overRide.html  = overRide.html + "I ate " + guideSettings.getPrefNumber("doughnuts") + " doughnuts this week " + "<p/>";
 	if (random > random2) {
 		pl1Count = pl1Count + 1;
 		if (pl1Count == 11) {
-			guideSettings.html = guideSettings.html + userSettings.getPref("myName") + "'s card is " + card + " <p/>" + userSettings.getPref("herName1") + "'s card is " + card2 + ". <p/>Score is " + userSettings.getPref("myName") + " " + pl1Count + " " + userSettings.getPref("herName1") + " " + pl2Count + "<p/><p/>Congratulations <em>" + userSettings.getPref("myName") + "</em> you have won this game.";
+			overRide.html = overRide.html + userSettings.getPref("myName") + "'s card is " + card + " <p/>" + userSettings.getPref("herName1") + "'s card is " + card2 + ". <p/>Score is " + userSettings.getPref("myName") + " " + pl1Count + " " + userSettings.getPref("herName1") + " " + pl2Count + "<p/><p/>Congratulations <em>" + userSettings.getPref("myName") + "</em> you have won this game.";
 		} else {
-			guideSettings.html = guideSettings.html + userSettings.getPref("myName") + "'s card is " + card + " <p/>" + userSettings.getPref("herName1") + "'s card is " + card2 + ". <p/><em>" + userSettings.getPref("myName") + "</em> wins this round.<p/>Score is " + userSettings.getPref("myName") + " " + pl1Count + " " + userSettings.getPref("herName1") + " " + pl2Count;
+			overRide.html = overRide.html + userSettings.getPref("myName") + "'s card is " + card + " <p/>" + userSettings.getPref("herName1") + "'s card is " + card2 + ". <p/><em>" + userSettings.getPref("myName") + "</em> wins this round.<p/>Score is " + userSettings.getPref("myName") + " " + pl1Count + " " + userSettings.getPref("herName1") + " " + pl2Count;
 		}
 	} else {
 		pl2Count = pl2Count + 1;
 		if (pl2Count == 11) {
-			guideSettings.html = guideSettings.html + userSettings.getPref("myName") + "'s card is " + card + " <p/>" + userSettings.getPref("herName1") + "'s card is " + card2 + ". <p/>Score is " + userSettings.getPref("myName") + " " + pl1Count + " " + userSettings.getPref("herName1") + " " + pl2Count + "<p/><p/>Congratulations <em>" + userSettings.herName1 + "</em> you have won this game.";
+			overRide.html = overRide.html + userSettings.getPref("myName") + "'s card is " + card + " <p/>" + userSettings.getPref("herName1") + "'s card is " + card2 + ". <p/>Score is " + userSettings.getPref("myName") + " " + pl1Count + " " + userSettings.getPref("herName1") + " " + pl2Count + "<p/><p/>Congratulations <em>" + userSettings.herName1 + "</em> you have won this game.";
 		} else {
-			guideSettings.html = guideSettings.html + userSettings.getPref("myName") + "'s card is " + card + " <p/>" + userSettings.getPref("herName1") + "'s card is " + card2 + ". <p/><em>" + userSettings.getPref("herName1") + "</em> wins this round.<p/>Score is " + userSettings.getPref("myName") + " " + pl1Count + " " + userSettings.getPref("herName1") + " " + pl2Count;
+			overRide.html = overRide.html + userSettings.getPref("myName") + "'s card is " + card + " <p/>" + userSettings.getPref("herName1") + "'s card is " + card2 + ". <p/><em>" + userSettings.getPref("herName1") + "</em> wins this round.<p/>Score is " + userSettings.getPref("myName") + " " + pl1Count + " " + userSettings.getPref("herName1") + " " + pl2Count;
 		}
 	}
 	scriptVars.put("pl1Count", pl1Count);
