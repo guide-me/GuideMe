@@ -14,8 +14,8 @@ public class AppSettings {
 	private int HtmlFontSize = 20;
 	private int midiVolume = 0;
 	private int midiInstrument = 76;
-	private int musicVolume = 0;
-	private int videoVolume = 0;
+	private int musicVolume = 400;
+	private int videoVolume = 400;
 	
 	
 	private boolean Debug = false;
@@ -63,8 +63,8 @@ public class AppSettings {
 				HtmlFontSize = Integer.parseInt(appSettingsProperties.getProperty("HtmlFontSize", "20"));
 				midiInstrument = Integer.parseInt(appSettingsProperties.getProperty("midiInstrument", "76"));
 				midiVolume = Integer.parseInt(appSettingsProperties.getProperty("midiVolume", "100"));
-				musicVolume = Integer.parseInt(appSettingsProperties.getProperty("musicVolume", "50"));
-				videoVolume = Integer.parseInt(appSettingsProperties.getProperty("videoVolume", "50"));
+				musicVolume = Integer.parseInt(appSettingsProperties.getProperty("musicVolume", "400"));
+				videoVolume = Integer.parseInt(appSettingsProperties.getProperty("videoVolume", "400"));
 				Debug = Boolean.parseBoolean(appSettingsProperties.getProperty("Debug", "false"));
 				video = Boolean.parseBoolean(appSettingsProperties.getProperty("Video", "true"));
 				DataDirectory = appSettingsProperties.getProperty("DataDirectory", userDir);

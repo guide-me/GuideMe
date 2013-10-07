@@ -20,7 +20,7 @@ public class Metronome {
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 
 	public Metronome(String bpm, String ifSet, String ifNotSet) {
-		this(bpm, ifSet, ifNotSet, 1, -1, "");
+		this(bpm, ifSet, ifNotSet, 4, -1, "");
 	}
 	
 	public Metronome(String bpm, String ifSet, String ifNotSet, int resolution,	int loops, String rhythm) {

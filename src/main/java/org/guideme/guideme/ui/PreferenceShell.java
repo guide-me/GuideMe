@@ -110,10 +110,10 @@ public class PreferenceShell {
 			AddTextField(grpApp, "Midi Volume (0 - 127)", appWidgets.get("AppMidiInstrumentNumLbl"), appWidgets.get("AppMidiInstrumentNumCtrl"), String.valueOf(myAppSettings.getMidiVolume()), "AppMidiVolume", true);
 
 			//HTML Font Size
-			AddTextField(grpApp, "Music Volume (0 - 100)", appWidgets.get("AppMidiVolumeNumLbl"), appWidgets.get("AppMidiVolumeNumCtrl"), String.valueOf(myAppSettings.getMusicVolume()), "AppMusicVolume", true);
+			AddTextField(grpApp, "Music Volume (0 and 200)", appWidgets.get("AppMidiVolumeNumLbl"), appWidgets.get("AppMidiVolumeNumCtrl"), String.valueOf(myAppSettings.getMusicVolume()), "AppMusicVolume", true);
 
 			//HTML Font Size
-			AddTextField(grpApp, "Video volume (0 - 100)", appWidgets.get("AppMusicVolumeNumLbl"), appWidgets.get("AppMusicVolumeNumCtrl"), String.valueOf(myAppSettings.getVideoVolume()), "AppVideoVolume", true);
+			AddTextField(grpApp, "Video volume (0 and 200)", appWidgets.get("AppMusicVolumeNumLbl"), appWidgets.get("AppMusicVolumeNumCtrl"), String.valueOf(myAppSettings.getVideoVolume()), "AppVideoVolume", true);
 
 			Group grpNames = new Group(composite, SWT.SHADOW_IN);
 			FormData grpNamesFormData = new FormData();

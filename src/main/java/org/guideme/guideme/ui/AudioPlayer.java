@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.widgets.Display;
+import org.guideme.guideme.settings.AppSettings;
 
 import uk.co.caprica.vlcj.component.AudioMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.MediaPlayer;
@@ -52,6 +53,7 @@ public class AudioPlayer  implements Runnable {
 			//use a media list to play loops
 			mediaPlayer = audioPlayerComponent.getMediaPlayer();
 			mediaPlayer.addMediaPlayerEventListener(new MediaListener());
+			mediaPlayer.setVolume(AppSettings.getAppSettings().getMusicVolume());
 			if (startAt == 0 && stopAt == 0 && loops == 0) {
 				mediaPlayer.playMedia(audioFile);
 			} else {

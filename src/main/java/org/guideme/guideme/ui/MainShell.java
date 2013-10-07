@@ -794,6 +794,7 @@ public class MainShell {
 		@Override
 		public void run() {
 			try {
+				mediaPlayer.setVolume(appSettings.getVideoVolume());
 				if (videoStartAt == 0 && videoStopAt == 0 && videoLoops == 0) {
 					mediaPlayer.playMedia(video);
 				} else {
