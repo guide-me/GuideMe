@@ -1061,10 +1061,10 @@ public class MainShell {
 	    controls = null;
 	}
 
-	public void setMetronomeBPM(int metronomeBPM, int instrument, int loops, int resolution, String Rhythm) {
+	public void setMetronomeBPM(int metronomeBPM, int loops, int resolution, String Rhythm) {
 		// run metronome on another thread
 		try {
-			metronome = new MetronomePlayer(metronomeBPM, instrument, loops, resolution, Rhythm);
+			metronome = new MetronomePlayer(metronomeBPM, appSettings.getMidiInstrument(), loops, resolution, Rhythm, appSettings.getMidiVolume());
 			threadMetronome = new Thread(metronome);
 			threadMetronome.start();
 		} catch (Exception e) {

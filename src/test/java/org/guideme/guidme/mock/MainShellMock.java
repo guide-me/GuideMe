@@ -117,9 +117,9 @@ public class MainShellMock extends MainShell {
 	}
 
 	@Override
-	public void setMetronomeBPM(int metronomeBPM, int instrument, int loops,
+	public void setMetronomeBPM(int metronomeBPM, int loops,
 			int resolution, String Rhythm) {
-		logger.debug("MainShellMock setMetronomeBPM metronomeBPM:" + metronomeBPM + " instrument:" + instrument + " loops:" + loops + " resolution:" + resolution + " Rhythm:" + Rhythm);
+		logger.debug("MainShellMock setMetronomeBPM metronomeBPM:" + metronomeBPM + " loops:" + loops + " resolution:" + resolution + " Rhythm:" + Rhythm);
 	}
 
 	@Override

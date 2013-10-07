@@ -16,6 +16,7 @@ public class MetronomePlayer  implements Runnable {
 	int instrument; //instrument number (uses midi percussion http://en.wikipedia.org/wiki/General_MIDI#Percussion)
 	int loops; // number of times it repeats (e.g. 3 loops would play it 4 times in total)
 	int resolution; // ticks per beat
+	int volume; // volume 0 - 127 
 	String rhythm; //comma separated list of when to play. 
 		//A bpm of 60 and resolution of 4 gives 4 ticks per second
 		//so if the rhythm is "1,5,12,14,20" it will sound at 0.25, 1.25, 3, 3.5 and 5 seconds
@@ -26,12 +27,13 @@ public class MetronomePlayer  implements Runnable {
 	private static Logger logger = LogManager.getLogger();
 
 	public MetronomePlayer(int metronomeBPM, int instrument, int loops,
-			int resolution, String rhythm) {
+			int resolution, String rhythm, int volume) {
 		this.metronomeBPM = metronomeBPM;
 		this.instrument = instrument;
 		this.loops = loops;
 		this.resolution = resolution;
 		this.rhythm = rhythm;
+		this.volume = volume;
 	}
 
 	public void metronomeStop() {
@@ -47,13 +49,16 @@ public class MetronomePlayer  implements Runnable {
 		Track track;
 		Sequence sequence = null;
 		int channel = 9; //Percussion track
-		int volume = 64; //volume (velocity) 
 		try {
 			sequence = new Sequence(Sequence.PPQ, resolution);
 			track = sequence.createTrack();
 			ShortMessage sm = new ShortMessage( );
 			sm.setMessage(ShortMessage.PROGRAM_CHANGE, channel, 0, 0);
 			track.add(new MidiEvent(sm, 0));
+			ShortMessage volMessage = new ShortMessage();
+			volMessage.setMessage(ShortMessage.CONTROL_CHANGE, channel, 7, volume);
+			track.add(new MidiEvent(volMessage, 0));
+
 			if (rhythm.equals("")) {
 				// simple bpm over ride any loops / resolution
 				loops = -1;
@@ -98,8 +103,12 @@ public class MetronomePlayer  implements Runnable {
 			}
 			sequencer = MidiSystem.getSequencer();
 			sequencer.open();
+			
 			sequencer.setTempoInBPM(metronomeBPM);
+
 			sequencer.setSequence(sequence);
+			
+
 			// if we have a number of loops do some additional processing
 			if (loops != 0) {
 				logger.debug("MetronomePlayer loops " + loops);
@@ -113,6 +122,7 @@ public class MetronomePlayer  implements Runnable {
 			} else {
 				sequencer.start();
 			}
+			
 			while (sequencer.isRunning()) {
 				// while the metronome is still running carry on looping
 				Thread.sleep(5000);

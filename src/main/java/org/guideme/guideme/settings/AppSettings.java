@@ -12,6 +12,12 @@ public class AppSettings {
 	private Logger logger = LogManager.getLogger();
 	private int FontSize = 20;
 	private int HtmlFontSize = 20;
+	private int midiVolume = 0;
+	private int midiInstrument = 76;
+	private int musicVolume = 0;
+	private int videoVolume = 0;
+	
+	
 	private boolean Debug = false;
 	private boolean video = false;
 	private String DataDirectory;
@@ -55,6 +61,10 @@ public class AppSettings {
 				}
 				FontSize = Integer.parseInt(appSettingsProperties.getProperty("FontSize", "20"));
 				HtmlFontSize = Integer.parseInt(appSettingsProperties.getProperty("HtmlFontSize", "20"));
+				midiInstrument = Integer.parseInt(appSettingsProperties.getProperty("midiInstrument", "76"));
+				midiVolume = Integer.parseInt(appSettingsProperties.getProperty("midiVolume", "100"));
+				musicVolume = Integer.parseInt(appSettingsProperties.getProperty("musicVolume", "50"));
+				videoVolume = Integer.parseInt(appSettingsProperties.getProperty("videoVolume", "50"));
 				Debug = Boolean.parseBoolean(appSettingsProperties.getProperty("Debug", "false"));
 				video = Boolean.parseBoolean(appSettingsProperties.getProperty("Video", "true"));
 				DataDirectory = appSettingsProperties.getProperty("DataDirectory", userDir);
@@ -114,6 +124,10 @@ public class AppSettings {
 		try {
 			appSettingsProperties.setProperty("FontSize", String.valueOf(FontSize));
 			appSettingsProperties.setProperty("HtmlFontSize", String.valueOf(HtmlFontSize));
+			appSettingsProperties.setProperty("midiInstrument", String.valueOf(midiInstrument));
+			appSettingsProperties.setProperty("midiVolume", String.valueOf(midiVolume));
+			appSettingsProperties.setProperty("musicVolume", String.valueOf(musicVolume));
+			appSettingsProperties.setProperty("videoVolume", String.valueOf(videoVolume));
 			appSettingsProperties.setProperty("Debug", String.valueOf(Debug));
 			appSettingsProperties.setProperty("Video", String.valueOf(video));
 			appSettingsProperties.setProperty("DataDirectory", DataDirectory);
@@ -158,6 +172,38 @@ public class AppSettings {
 
 	public void setVideoOn(boolean video) {
 		this.video = video;
+	}
+
+	public int getMidiVolume() {
+		return midiVolume;
+	}
+
+	public void setMidiVolume(int midiVolume) {
+		this.midiVolume = midiVolume;
+	}
+
+	public int getMidiInstrument() {
+		return midiInstrument;
+	}
+
+	public void setMidiInstrument(int midiInstrument) {
+		this.midiInstrument = midiInstrument;
+	}
+
+	public int getMusicVolume() {
+		return musicVolume;
+	}
+
+	public void setMusicVolume(int musicVolume) {
+		this.musicVolume = musicVolume;
+	}
+
+	public int getVideoVolume() {
+		return videoVolume;
+	}
+
+	public void setVideoVolume(int videoVolume) {
+		this.videoVolume = videoVolume;
 	}
 
 }

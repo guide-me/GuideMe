@@ -103,6 +103,18 @@ public class PreferenceShell {
 			//Data Directory
 			AddTextField(grpApp, "Data Directory", appWidgets.get("AppVideoBlnLbl"), appWidgets.get("AppVideoBlnCtrl"), myAppSettings.getDataDirectory(), "AppDataDir", false);
 
+			//midiInstrument
+			AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppDataDirLbl"), appWidgets.get("AppDataDirCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
+
+			//midiVolume
+			AddTextField(grpApp, "Midi Volume (0 - 127)", appWidgets.get("AppMidiInstrumentNumLbl"), appWidgets.get("AppMidiInstrumentNumCtrl"), String.valueOf(myAppSettings.getMidiVolume()), "AppMidiVolume", true);
+
+			//HTML Font Size
+			AddTextField(grpApp, "Music Volume (0 - 100)", appWidgets.get("AppMidiVolumeNumLbl"), appWidgets.get("AppMidiVolumeNumCtrl"), String.valueOf(myAppSettings.getMusicVolume()), "AppMusicVolume", true);
+
+			//HTML Font Size
+			AddTextField(grpApp, "Video volume (0 - 100)", appWidgets.get("AppMusicVolumeNumLbl"), appWidgets.get("AppMusicVolumeNumCtrl"), String.valueOf(myAppSettings.getVideoVolume()), "AppVideoVolume", true);
+
 			Group grpNames = new Group(composite, SWT.SHADOW_IN);
 			FormData grpNamesFormData = new FormData();
 			grpNamesFormData.top = new FormAttachment(grpApp,5);
@@ -231,6 +243,7 @@ public class PreferenceShell {
 
 				txtTmp = (Text) appWidgets.get("AppFontSizeNumCtrl");
 				myAppSettings.setFontSize(Integer.parseInt(txtTmp.getText()));
+
 				txtTmp = (Text) appWidgets.get("AppHtmlFontSizeNumCtrl");
 				myAppSettings.setHtmlFontSize(Integer.parseInt(txtTmp.getText()));
 
@@ -242,6 +255,18 @@ public class PreferenceShell {
 				
 				txtTmp = (Text) appWidgets.get("AppDataDirCtrl");
 				myAppSettings.setDataDirectory((txtTmp.getText()));
+
+				txtTmp = (Text) appWidgets.get("AppMidiInstrumentNumCtrl");
+				myAppSettings.setMidiInstrument(Integer.parseInt(txtTmp.getText()));
+
+				txtTmp = (Text) appWidgets.get("AppMidiVolumeNumCtrl");
+				myAppSettings.setMidiVolume(Integer.parseInt(txtTmp.getText()));
+
+				txtTmp = (Text) appWidgets.get("AppMusicVolumeNumCtrl");
+				myAppSettings.setMusicVolume(Integer.parseInt(txtTmp.getText()));
+
+				txtTmp = (Text) appWidgets.get("AppVideoVolumeNumCtrl");
+				myAppSettings.setVideoVolume(Integer.parseInt(txtTmp.getText()));
 
 				Set<String> set = myUserSettings.getStringKeys();
 				for (String s : set) {

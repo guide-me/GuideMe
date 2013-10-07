@@ -437,7 +437,7 @@ public class MainLogic {
 						int intbpm = objMetronome.getbpm();
 						logger.debug("displayPage Metronome " + intbpm + " BPM");
 						try {
-							mainShell.setMetronomeBPM(objMetronome.getbpm(), objMetronome.getInstrument(), objMetronome.getLoops(), objMetronome.getResolution(), objMetronome.getRhythm());
+							mainShell.setMetronomeBPM(objMetronome.getbpm(), objMetronome.getLoops(), objMetronome.getResolution(), objMetronome.getRhythm());
 						} catch (IllegalArgumentException e) {
 							logger.error("displayPage Metronome IllegalArgumentException ", e);
 						} catch (IllegalStateException e) {

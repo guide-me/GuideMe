@@ -9,7 +9,6 @@ public class Metronome {
 	private String ifNotSet;
 	private String bpm; //beats per minute
 	private int resolution = 4; //ticks per beat
-	private int instrument = 76; //midi instrument number
 	private int loops = -1;//number of loops, -1 infinite, 0 play once, 1 repeat once
 	private String rhythm = ""; //beat rhythm 
 	/*
@@ -45,10 +44,6 @@ public class Metronome {
 
 	public int getResolution() {
 		return resolution;
-	}
-
-	public int getInstrument() {
-		return instrument;
 	}
 
 	public int getLoops() {
