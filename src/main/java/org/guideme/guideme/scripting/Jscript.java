@@ -44,6 +44,11 @@ public class Jscript {
 
 	public void runScript(String javaScriptText, String javaFunction, boolean pageloading) {
 		try {
+			logger.info(JSCRIPT_MARKER, "Chapter: " + guideSettings.getChapter());
+			logger.info(JSCRIPT_MARKER, "Page: " + guideSettings.getPage());
+			logger.info(JSCRIPT_MARKER, "javaFunction: " + javaFunction);
+			logger.info(JSCRIPT_MARKER, "pageloading: " + pageloading);
+			logger.info(JSCRIPT_MARKER, "javaScriptText: " + javaScriptText);
 			ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 			HashMap<String, String> scriptVars;
 			scriptVars = guideSettings.getScriptVariables();
@@ -63,8 +68,8 @@ public class Jscript {
 			ScriptableObject.putProperty(scope, "mediaDir", appSettings.getDataDirectory());
 			ScriptableObject.putProperty(scope, "fileSeparator", java.lang.System.getProperty("file.separator"));
 			ScriptableObject.putProperty(scope, "jscriptLog", jlog);
-			logger.info(JSCRIPT_MARKER, "ScriptVariables: " + scriptVars);
-			logger.info(JSCRIPT_MARKER, "guideSettings.Flags {" + guideSettings.getFlags() + "}");
+			logger.info(JSCRIPT_MARKER, "Starting ScriptVariables: " + scriptVars);
+			logger.info(JSCRIPT_MARKER, "Starting Flags {" + guideSettings.getFlags() + "}");
 			
 			if (pageloading) {
 				ScriptableObject.putProperty(scope, "overRide", overRide);
@@ -89,8 +94,8 @@ public class Jscript {
 				logger.error(JSCRIPT_MARKER, " FileRunScript " + ex.getLocalizedMessage(), ex);
 				logger.error(" FileRunScript " + ex.getLocalizedMessage(), ex);
 			}
-			logger.info(JSCRIPT_MARKER, "ScriptVariables: " + scriptVars);
-			logger.info(JSCRIPT_MARKER, "guideSettings.Flags {" + guideSettings.getFlags() + "}");
+			logger.info(JSCRIPT_MARKER, "Ending ScriptVariables: " + scriptVars);
+			logger.info(JSCRIPT_MARKER, "Ending Flags {" + guideSettings.getFlags() + "}");
 			Context.exit();
 			guideSettings.saveSettings();
 		}

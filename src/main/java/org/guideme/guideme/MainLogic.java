@@ -229,9 +229,9 @@ public class MainLogic {
 					}
 					if (blnVideo) {
 						strImage = objVideo.getId();
-						logger.info("displayPage Video " + strImage);
+						logger.trace("displayPage Video " + strImage);
 						String strStartAt = objVideo.getStartAt();
-						logger.info("displayPage Video Start At " + strStartAt);
+						logger.trace("displayPage Video Start At " + strStartAt);
 						int intStartAt = 0;
 						try {
 							if (strStartAt != "") {
@@ -239,11 +239,11 @@ public class MainLogic {
 							}
 						} catch (Exception e1) {
 							intStartAt = 0;
-							logger.info("displayPage startat Exception " + e1.getLocalizedMessage());
+							logger.trace("displayPage startat Exception " + e1.getLocalizedMessage());
 						}
 
 						String strStopAt = objVideo.getStopAt();
-						logger.info("displayPage Video Stop At " + strStopAt);
+						logger.trace("displayPage Video Stop At " + strStopAt);
 						int intStopAt = 0;
 						try {
 							if (strStopAt != "") {
@@ -251,7 +251,7 @@ public class MainLogic {
 							}
 						} catch (Exception e1) {
 							intStopAt = 0;
-							logger.info("displayPage stopat Exception " + e1.getLocalizedMessage());
+							logger.trace("displayPage stopat Exception " + e1.getLocalizedMessage());
 						}
 
 						imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
@@ -267,7 +267,7 @@ public class MainLogic {
 						mainShell.playVideo(imgPath, intStartAt, intStopAt, repeat, objVideo.getTarget(), objVideo.getJscript());
 					}
 				} catch (Exception e1) {
-					logger.info("displayPage Video Exception " + e1.getLocalizedMessage());
+					logger.trace("displayPage Video Exception " + e1.getLocalizedMessage());
 				}
 
 				try {

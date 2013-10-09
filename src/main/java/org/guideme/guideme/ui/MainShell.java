@@ -579,19 +579,19 @@ public class MainShell {
 					double imageRatio = ((Double) me.getData("imageRatio")).doubleValue();
 					Rectangle RectImage = me.getBounds();
 					double dblScreenRatio = (double) RectImage.height / (double) RectImage.width;
-					logger.info("dblScreenRatio: " + dblScreenRatio);
-					logger.info("dblImageRatio: " + imageRatio);
-					logger.info("Lable Height: " + RectImage.height);
-					logger.info("Lable Width: " + RectImage.width);
+					logger.trace("dblScreenRatio: " + dblScreenRatio);
+					logger.trace("dblImageRatio: " + imageRatio);
+					logger.trace("Lable Height: " + RectImage.height);
+					logger.trace("Lable Width: " + RectImage.width);
 
 					if (dblScreenRatio > imageRatio) {
 						newHeight = (int) ((double) RectImage.width * imageRatio);
 						newWidth = RectImage.width;
-						logger.info("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
+						logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
 					} else {
 						newHeight = RectImage.height;
 						newWidth = (int) ((double) RectImage.height / imageRatio);
-						logger.info("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
+						logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
 					}
 					Image tmpImage = me.getImage();
 					me.setImage(resize(myImage, newWidth, newHeight));
@@ -729,22 +729,22 @@ public class MainShell {
 			ImageData imgData = memImage.getImageData();
 			Rectangle RectImage = imageLabel.getBounds();
 			double dblScreenRatio = (double) RectImage.height / (double) RectImage.width;
-			logger.info("dblScreenRatio: " + dblScreenRatio);
+			logger.trace("dblScreenRatio: " + dblScreenRatio);
 			double dblImageRatio = (double) imgData.height / (double) imgData.width;
 			imageLabel.setData("imageRatio", Double.valueOf(dblImageRatio));
-			logger.info("Lable Height: " + RectImage.height);
-			logger.info("Lable Width: " + RectImage.width);
-			logger.info("Image Height: " + imgData.height);
-			logger.info("Image Width: " + imgData.width);
+			logger.trace("Lable Height: " + RectImage.height);
+			logger.trace("Lable Width: " + RectImage.width);
+			logger.trace("Image Height: " + imgData.height);
+			logger.trace("Image Width: " + imgData.width);
 
 			if (dblScreenRatio > dblImageRatio) {
 				newHeight = (int) ((double) RectImage.width * dblImageRatio);
 				newWidth = RectImage.width;
-				logger.info("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
+				logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
 			} else {
 				newHeight = RectImage.height;
 				newWidth = (int) ((double) RectImage.height / dblImageRatio);
-				logger.info("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
+				logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
 			}
 			Image tmpImage2 = imageLabel.getImage();
 			imageLabel.setImage(resize(memImage, newWidth, newHeight));
@@ -752,7 +752,7 @@ public class MainShell {
 			if (tmpImage2 != null) {
 				tmpImage2.dispose();
 			}
-			logger.info("Open: " + strImage);
+			logger.trace("Open: " + strImage);
 		}
 		catch (Exception ex6) {
 			logger.error("Process Image error " + ex6.getLocalizedMessage(), ex6);
@@ -1045,7 +1045,7 @@ public class MainShell {
 					guideSettings.setFormField(name, value);
 				}
 
-				logger.info(name + "|" + value +  "|" + type +  "|" + checked);
+				logger.trace(name + "|" + value +  "|" + type +  "|" + checked);
 			}
 		}
 	}
