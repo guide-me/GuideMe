@@ -20,13 +20,31 @@ import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 public class ComonFunctions {
-	private static SecureRandom mRandom = new SecureRandom();
+	private SecureRandom mRandom = new SecureRandom();
 	private static Logger logger = LogManager.getLogger();
-    private static XPathFactory factory = XPathFactory.newInstance();
-    private static XPath xpath = factory.newXPath();
+    private XPathFactory factory = XPathFactory.newInstance();
+    private XPath xpath = factory.newXPath();
 
+	private static ComonFunctions comonFunctions;
+
+	private ComonFunctions() {
+	}
+	
+	public static synchronized ComonFunctions getComonFunctions() {
+		if (comonFunctions == null) {
+			comonFunctions = new ComonFunctions();
+		}
+		return comonFunctions;
+	}
+	
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
+	}
+
+    
+    
     //checks to see if the flags match
-    public static boolean canShow(ArrayList<String> setList, String IifSet, String IifNotSet) {
+    public boolean canShow(ArrayList<String> setList, String IifSet, String IifNotSet) {
     	boolean icanShow = false;
     	boolean blnSet = true;
     	boolean blnNotSet = true;
@@ -52,15 +70,15 @@ public class ComonFunctions {
 
     
     // Overloaded function checks pages as well 
-    public static boolean canShow(ArrayList<String> setList, String IifSet, String IifNotSet, String IPageName) {
+    public boolean canShow(ArrayList<String> setList, String IifSet, String IifNotSet, String IPageId) {
     	boolean icanShow = false;
     	try {
     		icanShow = canShow(setList, IifSet, IifNotSet);
     		if (icanShow) {
-    			if (IPageName.equals("")) {
+    			if (IPageId.equals("")) {
     				icanShow = true;
     			} else {
-    				icanShow = MatchesIfNotSetCondition(IPageName, setList);
+    				icanShow = MatchesIfNotSetCondition(IPageId, setList);
     			}
     		}
     	}
@@ -71,7 +89,7 @@ public class ComonFunctions {
 	}
 
     //checks list of flags to see if they match
-	private static boolean MatchesIfSetCondition(String condition, ArrayList<String> setList) {
+	private boolean MatchesIfSetCondition(String condition, ArrayList<String> setList) {
 		boolean blnReturn = false;
 		boolean blnAnd = false;
 		boolean blnOr = false;
@@ -114,7 +132,7 @@ public class ComonFunctions {
 	}
 	
 	//checks a list of flags to make sure they don't match
-	private static boolean MatchesIfNotSetCondition(String condition, ArrayList<String> setList) {
+	private boolean MatchesIfNotSetCondition(String condition, ArrayList<String> setList) {
 		boolean blnReturn = false;
 		boolean blnAnd = false;
 		boolean blnOr = false;
@@ -157,7 +175,7 @@ public class ComonFunctions {
 	}
 
 	// functions to handle set flags go here
-	public static void SetFlags(String flagNames, ArrayList<String> setList) {
+	public void SetFlags(String flagNames, ArrayList<String> setList) {
 		String[] flags;
 		try {
 			flags = flagNames.split(",", -1);
@@ -173,7 +191,7 @@ public class ComonFunctions {
 		}
 	}
 
-	public static String GetFlags(ArrayList<String> setList) {
+	public String GetFlags(ArrayList<String> setList) {
 		String strFlags = "";
 		try {
 			for (int i = 0; i < setList.size(); i++) {
@@ -190,7 +208,7 @@ public class ComonFunctions {
 		return strFlags;
 	}
 
-	public static void UnsetFlags(String flagNames, ArrayList<String> setList) {
+	public void UnsetFlags(String flagNames, ArrayList<String> setList) {
 		String[] flags;
 		try {
 			flags = flagNames.split(",", -1);
@@ -206,8 +224,8 @@ public class ComonFunctions {
 		}
 	}
 	
-	//Get random number between x and y where iRandom is (x..y)
-	public static int getRandom(String iRandom) {
+	//Get random number between x and y where Random is (x..y)
+	public int getRandom(String random) {
 		int intRandom = 0;
 		int intPos1;
 		int intPos2;
@@ -218,23 +236,25 @@ public class ComonFunctions {
 		String strMax;
 		
 		try {
-			intPos1 = iRandom.indexOf("(");
+			intPos1 = random.indexOf("(");
 			if (intPos1 > -1) {
-				intPos2 = iRandom.indexOf("..", intPos1);
+				intPos2 = random.indexOf("..", intPos1);
 				if (intPos2 > -1) {
-					intPos3 = iRandom.indexOf(")", intPos2);
+					intPos3 = random.indexOf(")", intPos2);
 					if (intPos3 > -1) {
-						strMin = iRandom.substring(intPos1 + 1, intPos2);
+						strMin = random.substring(intPos1 + 1, intPos2);
 						intMin = Integer.parseInt(strMin);
-						strMax = iRandom.substring(intPos2 + 2, intPos3);
+						strMax = random.substring(intPos2 + 2, intPos3);
 						intMax = Integer.parseInt(strMax);
-						int i1 = mRandom.nextInt(intMax - intMin) + intMin;
+						int i1 = mRandom.nextInt(intMax - intMin + 1) + intMin;
 						intRandom = i1;
 					}
 				}
 			} else {
-				intRandom = Integer.parseInt(iRandom);
+				intRandom = Integer.parseInt(random);
 			}
+		} catch (NumberFormatException en) {
+			intRandom = 0;
 		} catch (Exception e) {
 			logger.error(e.getLocalizedMessage(),e);
 		}
@@ -242,7 +262,7 @@ public class ComonFunctions {
 		return intRandom;
 	}
 	
-	public static int getMilisecFromTime(String iTime) {
+	public int getMilisecFromTime(String iTime) {
 		int intPos1;
 		int intPos2;
 		String strHour;
@@ -269,7 +289,8 @@ public class ComonFunctions {
 		return intTime;
 	}
 
-	public static Element getOrAddElement(String xPath, String nodeName, Element parent, Document doc) {
+	public Element getOrAddElement(String xPath, String nodeName, Element parent, Document doc) {
+		//xml helper function
 		try {
 			Element elToSet = getElement(xPath, parent);
 			if (elToSet == null) {
@@ -282,7 +303,8 @@ public class ComonFunctions {
 		}
 	}
 	
-	public static Element getElement(String xPath, Element parent) {
+	public Element getElement(String xPath, Element parent) {
+		//xml helper function
 		try {
 			XPathExpression expr = xpath.compile(xPath);
 			Object Xpathresult = expr.evaluate(parent, XPathConstants.NODESET);
@@ -299,7 +321,8 @@ public class ComonFunctions {
 		}
 	}
 	
-	public static Element addElement(String nodeName, Element parentNode, Document doc) {
+	public Element addElement(String nodeName, Element parentNode, Document doc) {
+		//xml helper function
 		try {
 			Element elToSet;
 			elToSet = doc.createElement(nodeName);
@@ -311,7 +334,8 @@ public class ComonFunctions {
 		}
 	}
 
-	public static String readFile(String path, Charset encoding) throws IOException {
+	public String readFile(String path, Charset encoding) throws IOException {
+		//returns the contents of a file as a String
 		byte[] encoded = Files.readAllBytes(Paths.get(path));
 		return encoding.decode(ByteBuffer.wrap(encoded)).toString();
 	}

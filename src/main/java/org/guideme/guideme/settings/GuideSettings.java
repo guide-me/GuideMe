@@ -29,11 +29,9 @@ public class GuideSettings {
 	private String chapter = ""; //current chapter
 	private String page = "start"; //current page
 	private String flags = ""; //current flags
-	private String html = ""; //used to pass back replacement html from javascript 
-	private String text = ""; //used to pass back replacement text from javascript 
-	private String image = ""; //used to pass back replacement image from javascript 
 	private String filename; //name of file to store persistent state
-	private String name;
+	private String name; //GuideId for these settings
+	private HashMap<String, String> formFields = new HashMap<String, String>(); 
 	private HashMap<String, String> scriptVariables = new HashMap<String, String>(); //variables used by javascript
 	private HashMap<String, String> userStringPrefs = new HashMap<String, String>(); 
 	private HashMap<String, String> userStringDesc = new HashMap<String, String>(); 
@@ -42,17 +40,18 @@ public class GuideSettings {
 	private HashMap<String, Double> userNumericPrefs = new HashMap<String, Double>(); 
 	private HashMap<String, String> userNumericDesc = new HashMap<String, String>(); 
 	private Logger logger = LogManager.getLogger();
+	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 
-	public GuideSettings(String GuideName) {
+	public GuideSettings(String GuideId) {
 		super();
-		name = GuideName;
+		name = GuideId;
 		Element elProp;
 		String key;
 		String value;
 		String type;
 		String desc;
-		AppSettings appSettings = new AppSettings();
-		filename = appSettings.getDataDirectory() + appSettings.getFileSeparator() + GuideName + ".state";
+		AppSettings appSettings = AppSettings.getAppSettings();
+		filename = appSettings.getDataDirectory() + appSettings.getFileSeparator() + GuideId + ".state";
 		try {
 			//if a state file already exists use it 
 			File xmlFile = new File(filename);
@@ -64,17 +63,17 @@ public class GuideSettings {
 				Element rootElement = doc.getDocumentElement();
 				rootElement.normalize();
 
-				Element elPage = ComonFunctions.getElement("//Page", rootElement);
+				Element elPage = comonFunctions.getElement("//Page", rootElement);
 				if (elPage != null) {
 					setPage(elPage.getTextContent());
 				}
 
-				Element elFlags = ComonFunctions.getElement("//Flags", rootElement);
+				Element elFlags = comonFunctions.getElement("//Flags", rootElement);
 				if (elFlags != null) {
 					setFlags(elFlags.getTextContent());
 				}
 				
-				Element elScriptVariables = ComonFunctions.getElement("//scriptVariables", rootElement);
+				Element elScriptVariables = comonFunctions.getElement("//scriptVariables", rootElement);
 				if (elScriptVariables != null) {
 					NodeList nodeList = elScriptVariables.getElementsByTagName("Var");
 					String strName;
@@ -90,7 +89,7 @@ public class GuideSettings {
 					}
 				}
 				
-				Element elPrefVariables = ComonFunctions.getElement("//scriptPreferences", rootElement);
+				Element elPrefVariables = comonFunctions.getElement("//scriptPreferences", rootElement);
 				if (elPrefVariables != null) {
 					for(Node childNode = elPrefVariables.getFirstChild(); childNode!=null;){
 						if (childNode.getNodeType() == Node.ELEMENT_NODE) {
@@ -160,31 +159,6 @@ public class GuideSettings {
 	public void setScriptVariables(HashMap<String, String> scriptVariables) {
 		this.scriptVariables = scriptVariables;
 	}
-
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
-	}
-
-	public String getHtml() {
-		return html;
-	}
-
-	public void setHtml(String html) {
-		this.html = html;
-	}
-	
-	public String getImage() {
-		return image;
-	}
-
-	public void setImage(String image) {
-		this.image = image;
-	}
-
 	public Set<String> getStringKeys() {
 		return userStringPrefs.keySet();
 	}
@@ -265,16 +239,31 @@ public class GuideSettings {
 	
 	public String getScreenDesc(String key, String type) {
 		String desc = "";
-		if (type.equals("s")) {
+		if (type.equals("String")) {
 			desc = userStringDesc.get(key);
 		}
-		if (type.equals("b")) {
+		if (type.equals("Boolean")) {
 			desc = userBooleanDesc.get(key);
 		}
-		if (type.equals("n")) {
+		if (type.equals("Number")) {
 			desc = userNumericDesc.get(key);
 		}
 		return desc;
+	}
+	
+	
+	public Boolean keyExists(String key, String type) {
+		Boolean exists = false;
+		if (type.equals("String")) {
+			exists = userStringDesc.containsKey(key);
+		}
+		if (type.equals("Boolean")) {
+			exists = userBooleanDesc.containsKey(key);
+		}
+		if (type.equals("Number")) {
+			exists = userNumericDesc.containsKey(key);
+		}
+		return exists;
 	}
 	
 	
@@ -305,23 +294,23 @@ public class GuideSettings {
 				doc.appendChild(rootElement);
 			}
 
-		    Element elPage = ComonFunctions.getOrAddElement("//Page", "Page", rootElement, doc);
+		    Element elPage = comonFunctions.getOrAddElement("//Page", "Page", rootElement, doc);
 		    elPage.setTextContent(getPage());
 
-		    Element elFlags = ComonFunctions.getOrAddElement("//Flags", "Flags", rootElement, doc);
+		    Element elFlags = comonFunctions.getOrAddElement("//Flags", "Flags", rootElement, doc);
 		    elFlags.setTextContent(getFlags());
 
-		    Element elScriptVariables = ComonFunctions.getElement("//scriptVariables", rootElement);
+		    Element elScriptVariables = comonFunctions.getElement("//scriptVariables", rootElement);
 		    if (elScriptVariables != null) {
 		    	rootElement.removeChild(elScriptVariables);
 		    }
-		    elScriptVariables = ComonFunctions.addElement("scriptVariables", rootElement, doc);
+		    elScriptVariables = comonFunctions.addElement("scriptVariables", rootElement, doc);
 		    
 		    Iterator<String> it = scriptVariables.keySet().iterator();
 		    Element elVar;
 		    while (it.hasNext()) {
 		    	String key = it.next();
-		    	elVar = ComonFunctions.addElement("Var", elScriptVariables, doc);
+		    	elVar = comonFunctions.addElement("Var", elScriptVariables, doc);
 		    	elVar.setAttribute("id", key);
 		    	Object value = scriptVariables.get(key);
 		    	String strValue = String.valueOf(value);
@@ -331,15 +320,15 @@ public class GuideSettings {
 		    
 			String keyVal;
 			String desc;
-		    Element elscriptPreferences = ComonFunctions.getElement("//scriptPreferences", rootElement);
+		    Element elscriptPreferences = comonFunctions.getElement("//scriptPreferences", rootElement);
 		    if (elscriptPreferences != null) {
 		    	rootElement.removeChild(elscriptPreferences);
 		    }
-		    elscriptPreferences = ComonFunctions.addElement("scriptPreferences", rootElement, doc);
+		    elscriptPreferences = comonFunctions.addElement("scriptPreferences", rootElement, doc);
 			for (Map.Entry<String, String> entry : userStringPrefs.entrySet()) {
 				keyVal = entry.getKey();
 				desc = userStringDesc.get(keyVal);
-			    Element elPref = ComonFunctions.addElement("pref", elscriptPreferences, doc);
+			    Element elPref = comonFunctions.addElement("pref", elscriptPreferences, doc);
 			    elPref.setAttribute("key",  keyVal);
 			    elPref.setAttribute("screen",  desc);
 			    elPref.setAttribute("type",  "String");
@@ -349,7 +338,7 @@ public class GuideSettings {
 			for (Map.Entry<String, Boolean> entry : userBooleanPrefs.entrySet()) {
 				keyVal = entry.getKey();
 				desc = userBooleanDesc.get(keyVal);
-			    Element elPref = ComonFunctions.addElement("pref", elscriptPreferences, doc);
+			    Element elPref = comonFunctions.addElement("pref", elscriptPreferences, doc);
 			    elPref.setAttribute("key",  keyVal);
 			    elPref.setAttribute("screen",  desc);
 			    elPref.setAttribute("type",  "Boolean");
@@ -359,7 +348,7 @@ public class GuideSettings {
 			for (Map.Entry<String, Double> entry : userNumericPrefs.entrySet()) {
 				keyVal = entry.getKey();
 				desc = userNumericDesc.get(keyVal);
-			    Element elPref = ComonFunctions.addElement("pref", elscriptPreferences, doc);
+			    Element elPref = comonFunctions.addElement("pref", elscriptPreferences, doc);
 			    elPref.setAttribute("key",  keyVal);
 			    elPref.setAttribute("screen",  desc);
 			    elPref.setAttribute("type",  "Number");
@@ -380,4 +369,21 @@ public class GuideSettings {
 		}
 	}
 
+	public void formFieldsReset() {
+		formFields = new HashMap<String, String>();
+	}
+	
+	public String getFormField(String key) {
+		String value = formFields.get(key);
+		if (value == null) {
+			value = "";
+		}
+		return value;
+	}
+	
+	public void setFormField(String key, String value) {
+		formFields.put(key, value);
+	}
+
 }
+

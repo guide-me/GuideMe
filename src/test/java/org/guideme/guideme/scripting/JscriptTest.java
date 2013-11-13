@@ -33,25 +33,28 @@ public class JscriptTest {
 	private static Font controlFont;
 	private static HashMap<String, FormData> appFormdata = new HashMap<String, FormData>();
 	private static HashMap<String, Control> appWidgets = new HashMap<String, Control>();
+	private static OverRide overRide = new OverRide();
 
 	public static void main(String[] args) {
 		Control tmpWidget;
 		Control tmpWidget2;
+		ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 		Display display = new Display();
-		AppSettings appSettings = new AppSettings();
+		AppSettings appSettings = AppSettings.getAppSettings();
 		Font sysFont = display.getSystemFont();
 		FontData[] fD = sysFont.getFontData();
 		fD[0].setHeight(appSettings.getFontSize());
 		controlFont = new Font(display, fD);
-		UserSettings userSettings = new UserSettings();
+		UserSettings userSettings = UserSettings.getUserSettings();
 		String dataDirectory = appSettings.getDataDirectory();
 		appSettings.setDataDirectory(appSettings.getUserDir());
 		appSettings.saveSettings();
 		GuideSettings guideSettings = new GuideSettings("GuideTest");
 		try {
-			String source = ComonFunctions.readFile("test.js", Charset.defaultCharset());
+			String source = comonFunctions.readFile("test.js", Charset.defaultCharset());
 			Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
-			jscript.runScript(source);
+			jscript.setOverRide(overRide);
+			jscript.runScript(source, "test", true);
 		} catch (IOException e) {
 			logger.error(" Run Script " + e.getLocalizedMessage(), e);
 		}				
@@ -88,7 +91,7 @@ public class JscriptTest {
 		AddTextField(grpNames, "ScriptVars" , tmpWidget, tmpWidget2, guideSettings.getScriptVariables().toString(), "ScriptVars", false);
 		tmpWidget = appWidgets.get("ScriptVars" + "Lbl");
 		tmpWidget2 = appWidgets.get("ScriptVars" + "Ctrl");
-		AddTextField(grpNames, "Html", tmpWidget, tmpWidget2, guideSettings.getHtml(), "html", false);
+		AddTextField(grpNames, "Html", tmpWidget, tmpWidget2, overRide.getHtml(), "html", false);
 		tmpWidget = appWidgets.get("html" + "Lbl");
 		tmpWidget2 = appWidgets.get("html" + "Ctrl");
 		AddTextField(grpNames, "page", tmpWidget, tmpWidget2, guideSettings.getPage(), "page", false);

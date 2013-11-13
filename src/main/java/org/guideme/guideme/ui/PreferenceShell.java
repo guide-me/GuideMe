@@ -1,4 +1,4 @@
-package org.guideme.guideme.settings;
+package org.guideme.guideme.ui;
 
 import java.util.HashMap;
 import java.util.Set;
@@ -24,6 +24,8 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Button;
+import org.guideme.guideme.settings.AppSettings;
+import org.guideme.guideme.settings.UserSettings;
 
 import com.snapps.swt.SquareButton;
 
@@ -95,8 +97,23 @@ public class PreferenceShell {
 			//Debug
 			AddBooleanField(grpApp, "Debug", appWidgets.get("AppHtmlFontSizeNumLbl"), appWidgets.get("AppHtmlFontSizeNumCtrl"), myAppSettings.getDebug(), "AppDebug");			
 
+			//Video
+			AddBooleanField(grpApp, "Video", appWidgets.get("AppDebugBlnLbl"), appWidgets.get("AppDebugBlnCtrl"), myAppSettings.getVideoOn(), "AppVideo");			
+
 			//Data Directory
-			AddTextField(grpApp, "Data Directory", appWidgets.get("AppDebugBlnLbl"), appWidgets.get("AppDebugBlnCtrl"), myAppSettings.getDataDirectory(), "AppDataDir", false);
+			AddTextField(grpApp, "Data Directory", appWidgets.get("AppVideoBlnLbl"), appWidgets.get("AppVideoBlnCtrl"), myAppSettings.getDataDirectory(), "AppDataDir", false);
+
+			//midiInstrument
+			AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppDataDirLbl"), appWidgets.get("AppDataDirCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
+
+			//midiVolume
+			AddTextField(grpApp, "Midi Volume (0 - 127)", appWidgets.get("AppMidiInstrumentNumLbl"), appWidgets.get("AppMidiInstrumentNumCtrl"), String.valueOf(myAppSettings.getMidiVolume()), "AppMidiVolume", true);
+
+			//HTML Font Size
+			AddTextField(grpApp, "Music Volume (0 and 200)", appWidgets.get("AppMidiVolumeNumLbl"), appWidgets.get("AppMidiVolumeNumCtrl"), String.valueOf(myAppSettings.getMusicVolume()), "AppMusicVolume", true);
+
+			//HTML Font Size
+			AddTextField(grpApp, "Video volume (0 and 200)", appWidgets.get("AppMusicVolumeNumLbl"), appWidgets.get("AppMusicVolumeNumCtrl"), String.valueOf(myAppSettings.getVideoVolume()), "AppVideoVolume", true);
 
 			Group grpNames = new Group(composite, SWT.SHADOW_IN);
 			FormData grpNamesFormData = new FormData();
@@ -226,14 +243,30 @@ public class PreferenceShell {
 
 				txtTmp = (Text) appWidgets.get("AppFontSizeNumCtrl");
 				myAppSettings.setFontSize(Integer.parseInt(txtTmp.getText()));
+
 				txtTmp = (Text) appWidgets.get("AppHtmlFontSizeNumCtrl");
 				myAppSettings.setHtmlFontSize(Integer.parseInt(txtTmp.getText()));
 
 				btnTmp = (Button) appWidgets.get("AppDebugBlnCtrl");
 				myAppSettings.setDebug(btnTmp.getSelection());
 				
+				btnTmp = (Button) appWidgets.get("AppVideoBlnCtrl");
+				myAppSettings.setVideoOn(btnTmp.getSelection());
+				
 				txtTmp = (Text) appWidgets.get("AppDataDirCtrl");
 				myAppSettings.setDataDirectory((txtTmp.getText()));
+
+				txtTmp = (Text) appWidgets.get("AppMidiInstrumentNumCtrl");
+				myAppSettings.setMidiInstrument(Integer.parseInt(txtTmp.getText()));
+
+				txtTmp = (Text) appWidgets.get("AppMidiVolumeNumCtrl");
+				myAppSettings.setMidiVolume(Integer.parseInt(txtTmp.getText()));
+
+				txtTmp = (Text) appWidgets.get("AppMusicVolumeNumCtrl");
+				myAppSettings.setMusicVolume(Integer.parseInt(txtTmp.getText()));
+
+				txtTmp = (Text) appWidgets.get("AppVideoVolumeNumCtrl");
+				myAppSettings.setVideoVolume(Integer.parseInt(txtTmp.getText()));
 
 				Set<String> set = myUserSettings.getStringKeys();
 				for (String s : set) {

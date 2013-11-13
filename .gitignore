@@ -1,3 +1,10 @@
 .DS_Store
 target/
+data/
 *.log
+*.class
+
+# Package Files #
+*.jar
+*.war
+*.ear

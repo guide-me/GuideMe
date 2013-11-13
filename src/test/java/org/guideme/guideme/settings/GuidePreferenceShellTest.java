@@ -3,8 +3,8 @@ package org.guideme.guideme.settings;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.guideme.guideme.settings.AppSettings;
-import org.guideme.guideme.settings.GuidePreferenceShell;
 import org.guideme.guideme.settings.GuideSettings;
+import org.guideme.guideme.ui.GuidePreferenceShell;
 
 public class GuidePreferenceShellTest {
 	public GuidePreferenceShellTest() {
@@ -13,7 +13,7 @@ public class GuidePreferenceShellTest {
 
 	public static void main(String[] args) {
 		Display myDisplay = new Display();
-		AppSettings appSettings = new AppSettings();
+		AppSettings appSettings = AppSettings.getAppSettings();
 		String dataDirectory = appSettings.getDataDirectory();
 		appSettings.setDataDirectory(appSettings.getUserDir());
 		appSettings.saveSettings();

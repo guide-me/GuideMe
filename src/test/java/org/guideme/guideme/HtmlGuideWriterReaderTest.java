@@ -19,7 +19,7 @@ public class HtmlGuideWriterReaderTest {
 		writer = new HtmlGuideWriter();
 		reader = new HtmlGuideReader();
 
-		originalGuide = new Guide();
+		originalGuide = Guide.getGuide();
 	}
 	
 	@Test
@@ -78,21 +78,21 @@ public class HtmlGuideWriterReaderTest {
 	
 	@Test
 	public void thumbnail() {
-		originalGuide.setThumbnail(new Image("http://url.to/thumbnail.jpg", 100, 100, "image/jpeg"));
+		originalGuide.setThumbnail(new Image("http://url.to/thumbnail.jpg", "", ""));
 		
 		Guide guide = reader.loadFromString(writer.Write(originalGuide));
 		
 		assertNotNull(guide.getThumbnail());
-		assertEquals(originalGuide.getThumbnail().getUrl(), guide.getThumbnail().getUrl());
-		assertEquals(originalGuide.getThumbnail().getWidth(), guide.getThumbnail().getWidth());
-		assertEquals(originalGuide.getThumbnail().getHeight(), guide.getThumbnail().getHeight());
-		assertEquals(originalGuide.getThumbnail().getMimeType(), guide.getThumbnail().getMimeType());
+		assertEquals(originalGuide.getThumbnail().getId(), guide.getThumbnail().getId());
+		//assertEquals(originalGuide.getThumbnail().getWidth(), guide.getThumbnail().getWidth());
+		//assertEquals(originalGuide.getThumbnail().getHeight(), guide.getThumbnail().getHeight());
+		//assertEquals(originalGuide.getThumbnail().getMimeType(), guide.getThumbnail().getMimeType());
 	}
 
 	@Test
 	public void chapters() {
-		originalGuide.getChapters().add(new Chapter());
-		originalGuide.getChapters().add(new Chapter());
+		originalGuide.getChapters().put("c-1", new Chapter("c-1"));
+		originalGuide.getChapters().put("c-2", new Chapter("c-2"));
 		
 		Guide guide = reader.loadFromString(writer.Write(originalGuide));
 
@@ -101,10 +101,10 @@ public class HtmlGuideWriterReaderTest {
 
 	@Test
 	public void pages() {
-		Chapter first = new Chapter();
-		first.getPages().add(new Page("start"));
-		first.getPages().add(new Page("p-2"));
-		originalGuide.getChapters().add(first);
+		Chapter first = new Chapter("c-1");
+		first.getPages().put("start", new Page("start", "", "", "", "", false));
+		first.getPages().put("p-2", new Page("p-2", "", "", "", "", false));
+		originalGuide.getChapters().put("first", first);
 		
 		Guide guide = reader.loadFromString(writer.Write(originalGuide));
 

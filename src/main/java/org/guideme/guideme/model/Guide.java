@@ -3,7 +3,10 @@ package org.guideme.guideme.model;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+
+import org.guideme.guideme.settings.GuideSettings;
 
 public class Guide {
 	private String title;
@@ -13,7 +16,38 @@ public class Guide {
 	private String originalUrl;
 	private String authorUrl;
 	private Image thumbnail;
-	private List<Chapter> chapters = new ArrayList<Chapter>();
+	private HashMap<String, Chapter> chapters = new HashMap<String, Chapter>();
+	
+	private String mediaDirectory; //Media subdirectory for current xml file
+	private String delStyle; //style for currently running delay
+	private String delTarget; //target for currently running delay
+	private ArrayList<String> flags = new ArrayList<String>(); //current flags
+	private Boolean autoSetPage;
+	private String delaySet; //flags to set for currently running delay
+	private String delayUnSet; //flags to clear for currently running delay
+	private int delStartAtOffSet; //offset for currently running delay
+	private String id; //name for current xml that is running
+	private GuideSettings settings; //state for the currently running xml
+	private String jScript;
+	private String delayjScript;
+	private static Guide guide;
+	
+	private Guide() {
+		
+	}
+
+	public static synchronized Guide getGuide() {
+		if (guide == null) {
+			guide = new Guide();
+		}
+		return guide;
+	}
+	
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
+	}
+
+	
 	
 	public String getTitle() {
 		return title;
@@ -80,19 +114,122 @@ public class Guide {
 		this.thumbnail = thumbnail;
 	}
 	
-	public List<Chapter> getChapters() {
+	public HashMap<String, Chapter> getChapters() {
 		return chapters;
 	}
 	
-	public Chapter addChapter(String id) {
-		Chapter chapter = new Chapter(id);
-		this.chapters.add(chapter);
-		return chapter;
+	public void setChapters(HashMap<String, Chapter> chapters) {
+		this.chapters = chapters;
 	}
 	
-	
-	public void setChapters(List<Chapter> chapters) {
-		this.chapters.clear();
-		this.chapters.addAll(chapters);
+	public String getMediaDirectory() {
+		return mediaDirectory;
 	}
+
+	public void setMediaDirectory(String mediaDirectory) {
+		this.mediaDirectory = mediaDirectory;
+	}
+
+	public String getDelStyle() {
+		return delStyle;
+	}
+
+	public void setDelStyle(String delStyle) {
+		this.delStyle = delStyle;
+	}
+
+	public String getDelTarget() {
+		return delTarget;
+	}
+
+	public void setDelTarget(String delTarget) {
+		this.delTarget = delTarget;
+	}
+
+	public ArrayList<String> getFlags() {
+		return flags;
+	}
+
+	public void setFlags(ArrayList<String> flags) {
+		this.flags = flags;
+	}
+
+	public Boolean getAutoSetPage() {
+		return autoSetPage;
+	}
+
+	public void setAutoSetPage(Boolean autoSetPage) {
+		this.autoSetPage = autoSetPage;
+	}
+
+	public String getDelaySet() {
+		return delaySet;
+	}
+
+	public void setDelaySet(String delaySet) {
+		this.delaySet = delaySet;
+	}
+
+	public String getDelayUnSet() {
+		return delayUnSet;
+	}
+
+	public void setDelayUnSet(String delayUnSet) {
+		this.delayUnSet = delayUnSet;
+	}
+
+	public int getDelStartAtOffSet() {
+		return delStartAtOffSet;
+	}
+
+	public void setDelStartAtOffSet(int delStartAtOffSet) {
+		this.delStartAtOffSet = delStartAtOffSet;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+	//we are loading a new xml so clear old settings
+	public void reset(String id) {
+		this.id = id;
+		settings = new GuideSettings(id);
+		mediaDirectory = "";
+		delStyle = "";
+		delTarget = "";
+		flags = new ArrayList<String>();
+		autoSetPage = true;
+		delaySet = "";
+		delayUnSet = "";
+		title = "";
+		chapters = new HashMap<String, Chapter>(); 
+		delStartAtOffSet = 0;
+		jScript = "";
+	}
+
+	public GuideSettings getSettings() {
+		return settings;
+	}
+	
+	public String getjScript() {
+		return jScript;
+	}
+	
+	public void setjScript(String jScript) {
+		this.jScript = jScript;
+	}
+	
+	public void setSettings(GuideSettings settings) {
+		this.settings = settings;
+	}
+
+	public String getDelayjScript() {
+		return delayjScript;
+	}
+
+	public void setDelayjScript(String delayjScript) {
+		this.delayjScript = delayjScript;
+	}
+
+	
 }

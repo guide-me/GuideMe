@@ -17,7 +17,7 @@ public class GuideSettingsTest {
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		appSettings = new AppSettings();
+		appSettings = AppSettings.getAppSettings();
 		dataDirectory = appSettings.getDataDirectory();
 		appSettings.setDataDirectory(appSettings.getUserDir());
 		appSettings.saveSettings();
@@ -110,12 +110,6 @@ public class GuideSettingsTest {
 		guideSettings.saveSettings();
 	}
 
-	@Test
-	public void testGetHtml() {
-		String returned = guideSettings.getHtml();
-		assertEquals("", returned);
-	}
-
 	@Test 
 	public void testAddPrefernces() {
 		guideSettings.addPref("favpet", "Daisy", "Favourite pet's name");
@@ -127,13 +121,4 @@ public class GuideSettingsTest {
 	}
 	
 	
-	@Test
-	public void testSetHtml() {
-		guideSettings.setHtml("Phil's card is Queen of Spades <p/>Kate's card is Ace of Hearts. <p/>Score is Phil 2 Kate 11<p/><p/>Congratulations <em>Kate</em> you have won this game.");
-		String returned = guideSettings.getHtml();
-		assertEquals("Phil's card is Queen of Spades <p/>Kate's card is Ace of Hearts. <p/>Score is Phil 2 Kate 11<p/><p/>Congratulations <em>Kate</em> you have won this game.", returned);
-		guideSettings.setHtml("");
-		returned = guideSettings.getHtml();
-		assertEquals("", returned);
-	}
 }

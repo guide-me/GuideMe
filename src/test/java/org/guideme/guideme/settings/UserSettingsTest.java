@@ -14,7 +14,7 @@ public class UserSettingsTest {
 	
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
-		userSettings = new UserSettings();
+		userSettings = UserSettings.getUserSettings();
 	}
 
 	@AfterClass

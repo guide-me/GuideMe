@@ -12,45 +12,72 @@ public class AppSettings {
 	private Logger logger = LogManager.getLogger();
 	private int FontSize = 20;
 	private int HtmlFontSize = 20;
+	private int midiVolume = 0;
+	private int midiInstrument = 76;
+	private int musicVolume = 400;
+	private int videoVolume = 400;
+	
+	
 	private boolean Debug = false;
+	private boolean video = false;
 	private String DataDirectory;
 	private int[] sash1Weights = new int[2];
 	private int[] sash2Weights = new int[2];
-	private Properties appSettings = new Properties();
-	private String settingsLocation = "settings.properties";
+	private Properties appSettingsProperties = new Properties();
+	private String settingsLocation;
 	private String userDir;
 	private String userHome;
 	private String userName;
 	private String fileSeparator;
+	private static AppSettings appSettings;
 
-	public AppSettings() {
+	public static synchronized AppSettings getAppSettings() {
+		if (appSettings == null) {
+			appSettings = new AppSettings(false);
+		}
+		return appSettings;
+	}
+	
+	public Object clone() throws CloneNotSupportedException {
+		throw new CloneNotSupportedException();
+	}
+
+	protected  AppSettings(Boolean overrideconstructor) {
 		super();
-		Properties properties = java.lang.System.getProperties();
-		userDir = String.valueOf(properties.get("user.dir"));
-		userHome = String.valueOf(properties.get("user.home"));
-		userName = String.valueOf(properties.get("user.name"));
-		fileSeparator = String.valueOf(properties.get("file.separator"));
-		try {
+		if (!overrideconstructor) {
+			Properties properties = java.lang.System.getProperties();
+			userDir = String.valueOf(properties.get("user.dir"));
+			userHome = String.valueOf(properties.get("user.home"));
+			userName = String.valueOf(properties.get("user.name"));
+			fileSeparator = String.valueOf(properties.get("file.separator"));
+			settingsLocation = "data" + fileSeparator + "settings.properties";
 			try {
-				appSettings.loadFromXML(new FileInputStream(settingsLocation));
+				try {
+					appSettingsProperties.loadFromXML(new FileInputStream(settingsLocation));
+				}
+				catch (IOException ex) {
+					//failed to load file so just carry on
+					logger.error(ex.getLocalizedMessage(), ex);
+				}
+				FontSize = Integer.parseInt(appSettingsProperties.getProperty("FontSize", "20"));
+				HtmlFontSize = Integer.parseInt(appSettingsProperties.getProperty("HtmlFontSize", "20"));
+				midiInstrument = Integer.parseInt(appSettingsProperties.getProperty("midiInstrument", "76"));
+				midiVolume = Integer.parseInt(appSettingsProperties.getProperty("midiVolume", "100"));
+				musicVolume = Integer.parseInt(appSettingsProperties.getProperty("musicVolume", "400"));
+				videoVolume = Integer.parseInt(appSettingsProperties.getProperty("videoVolume", "400"));
+				Debug = Boolean.parseBoolean(appSettingsProperties.getProperty("Debug", "false"));
+				video = Boolean.parseBoolean(appSettingsProperties.getProperty("Video", "true"));
+				DataDirectory = appSettingsProperties.getProperty("DataDirectory", userDir);
+				sash1Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights0", "350"));
+				sash1Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights1", "350"));
+				sash2Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights0", "800"));
+				sash2Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights1", "200"));
 			}
-			catch (IOException ex) {
-				//failed to load file so just carry on
+			catch (Exception ex) {
 				logger.error(ex.getLocalizedMessage(), ex);
 			}
-			FontSize = Integer.parseInt(appSettings.getProperty("FontSize", "20"));
-			HtmlFontSize = Integer.parseInt(appSettings.getProperty("HtmlFontSize", "20"));
-			Debug = Boolean.parseBoolean(appSettings.getProperty("Debug", "false"));
-			DataDirectory = appSettings.getProperty("DataDirectory", userDir);
-			sash1Weights[0] = Integer.parseInt(appSettings.getProperty("sash1Weights0", "350"));
-			sash1Weights[1] = Integer.parseInt(appSettings.getProperty("sash1Weights1", "350"));
-			sash2Weights[0] = Integer.parseInt(appSettings.getProperty("sash2Weights0", "800"));
-			sash2Weights[1] = Integer.parseInt(appSettings.getProperty("sash2Weights1", "200"));
+			saveSettings();
 		}
-		catch (Exception ex) {
-			logger.error(ex.getLocalizedMessage(), ex);
-		}
-		saveSettings();
 	}
 
 	public int getFontSize() {
@@ -95,15 +122,20 @@ public class AppSettings {
 
 	public void saveSettings() {
 		try {
-			appSettings.setProperty("FontSize", String.valueOf(FontSize));
-			appSettings.setProperty("HtmlFontSize", String.valueOf(HtmlFontSize));
-			appSettings.setProperty("Debug", String.valueOf(Debug));
-			appSettings.setProperty("DataDirectory", DataDirectory);
-			appSettings.setProperty("sash1Weights0", String.valueOf(sash1Weights[0]));
-			appSettings.setProperty("sash1Weights1", String.valueOf(sash1Weights[1]));
-			appSettings.setProperty("sash2Weights0", String.valueOf(sash2Weights[0]));
-			appSettings.setProperty("sash2Weights1", String.valueOf(sash2Weights[1]));
-			appSettings.storeToXML(new FileOutputStream(settingsLocation), null);
+			appSettingsProperties.setProperty("FontSize", String.valueOf(FontSize));
+			appSettingsProperties.setProperty("HtmlFontSize", String.valueOf(HtmlFontSize));
+			appSettingsProperties.setProperty("midiInstrument", String.valueOf(midiInstrument));
+			appSettingsProperties.setProperty("midiVolume", String.valueOf(midiVolume));
+			appSettingsProperties.setProperty("musicVolume", String.valueOf(musicVolume));
+			appSettingsProperties.setProperty("videoVolume", String.valueOf(videoVolume));
+			appSettingsProperties.setProperty("Debug", String.valueOf(Debug));
+			appSettingsProperties.setProperty("Video", String.valueOf(video));
+			appSettingsProperties.setProperty("DataDirectory", DataDirectory);
+			appSettingsProperties.setProperty("sash1Weights0", String.valueOf(sash1Weights[0]));
+			appSettingsProperties.setProperty("sash1Weights1", String.valueOf(sash1Weights[1]));
+			appSettingsProperties.setProperty("sash2Weights0", String.valueOf(sash2Weights[0]));
+			appSettingsProperties.setProperty("sash2Weights1", String.valueOf(sash2Weights[1]));
+			appSettingsProperties.storeToXML(new FileOutputStream(settingsLocation), null);
 		}
 		catch (Exception e) {
 			logger.error(e.getLocalizedMessage(), e);
@@ -132,6 +164,46 @@ public class AppSettings {
 
 	public String getFileSeparator() {
 		return fileSeparator;
+	}
+
+	public boolean getVideoOn() {
+		return video;
+	}
+
+	public void setVideoOn(boolean video) {
+		this.video = video;
+	}
+
+	public int getMidiVolume() {
+		return midiVolume;
+	}
+
+	public void setMidiVolume(int midiVolume) {
+		this.midiVolume = midiVolume;
+	}
+
+	public int getMidiInstrument() {
+		return midiInstrument;
+	}
+
+	public void setMidiInstrument(int midiInstrument) {
+		this.midiInstrument = midiInstrument;
+	}
+
+	public int getMusicVolume() {
+		return musicVolume;
+	}
+
+	public void setMusicVolume(int musicVolume) {
+		this.musicVolume = musicVolume;
+	}
+
+	public int getVideoVolume() {
+		return videoVolume;
+	}
+
+	public void setVideoVolume(int videoVolume) {
+		this.videoVolume = videoVolume;
 	}
 
 }

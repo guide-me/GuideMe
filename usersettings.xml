@@ -8,6 +8,6 @@
 <pref key="chocolate" screen="Do you like chocolate?" type="Boolean" value="true"/>
 <pref key="spicyfood" screen="Do you like spicy food?" type="Boolean" value="false"/>
 <pref key="cbt" screen="Do you enjoy Computer Based Training?" type="Boolean" value="true"/>
-<pref key="myage" screen="My Age" type="Number" value="27.0"/>
-<pref key="size" screen="How long in inches is your hand" type="Number" value="5.0"/>
+<pref key="myage" screen="My Age" type="Number" value="45.0"/>
+<pref key="size" screen="How long in inches is your hand" type="Number" value="2.5"/>
 </SETTINGS>

@@ -1,101 +1,81 @@
 package org.guideme.guideme;
 
-//import java.io.File;
-//import java.io.IOException;
-
-import java.io.File;
+import java.util.Iterator;
+import java.util.Properties;
 
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
-//import org.eclipse.swt.SWT;
-//import org.eclipse.swt.SWTError;
-//import org.eclipse.swt.browser.Browser;
-//import org.eclipse.swt.layout.GridData;
-//import org.eclipse.swt.layout.GridLayout;
-//import org.eclipse.swt.widgets.*;
 
-import org.guideme.guideme.model.*;
-import org.guideme.guideme.readers.*;
-import org.guideme.guideme.writers.*;
+import org.eclipse.swt.graphics.DeviceData;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.guideme.guideme.settings.AppSettings;
+import org.guideme.guideme.ui.MainShell;
 
 public class App 
 {
-	private static Logger log = LogManager.getLogger();
+	/*
+	 This is where it all starts from
+	 main will create and display the first shell (window) 
+	 */
+	private static Logger logger = LogManager.getLogger();
 	
-    public static void main(String[] args)
+    
+	public static void main(String[] args)
     {
-        System.out.println("Hello World!");
-        log.info("Hello Logging World!");
-        
-//        Guide guide = new Guide();
-//        guide.setTitle("Title of my guide");
-//        guide.setAuthorName("Name of the author");
-//        guide.setAuthorUrl("http://url.to/author");
-//        guide.setDescription("A short description of the tease.");
-//        guide.getKeywords().add("first");
-//        guide.getKeywords().add("second");
-//        guide.setOriginalUrl("http://url.to/original/story");
-//        guide.setThumbnail(new Image("http://url.to/thumbnail.png", 100, 100, "image/png"));
-//        
-//        Chapter chapter = new Chapter();
-//        guide.getChapters().add(chapter);
-//        
-//        Page start = new Page("start");
-//        start.setText("<p>start</p>");
-//        start.getButtons().add(new GotoButton("p-2", "next"));
-//        chapter.getPages().add(start);
-//        
-//        Page p2 = new Page("p-2");
-//        p2.setText("<p>Page 2</p>");
-//        p2.getButtons().add(new GotoButton("p-4", "skip to 4"));
-//        p2.getButtons().add(new GotoButton("p-3"));
-//        chapter.getPages().add(p2);
-//        
-//        Page p3 = new Page("p-3");
-//        p3.setText("<p>Page 3</p>");
-//        chapter.getPages().add(p3);
-//        
-//        Page p4 = new Page("p-4");
-//        p4.getButtons().add(new GotoButton("p-3", "back to 3"));
-//        chapter.getPages().add(p4);
-        
-        Guide guide = new HtmlGuideReader().loadFromFile(new File("data/sample-1.html"));
-        
-        
-        System.out.println(new HtmlGuideWriter().Write(guide));
-        
-        System.exit(0);
-//
-//        Display display = new Display();
-//		final Shell shell = new Shell(display);
-//		GridLayout gridLayout = new GridLayout();
-//		gridLayout.numColumns = 1;
-//		shell.setLayout(gridLayout);
-//		
-//		final Browser browser;
-//		try {
-//			browser = new Browser(shell, SWT.NONE);
-//		} catch (SWTError e) {
-//			System.out.println("Could not instantiate Browser: " + e.getMessage());
-//			display.dispose();
-//			return;
-//		}
-//		GridData data = new GridData();
-//		data.horizontalAlignment = GridData.FILL;
-//		data.verticalAlignment = GridData.FILL;
-//		data.horizontalSpan = 1;
-//		data.grabExcessHorizontalSpace = true;
-//		data.grabExcessVerticalSpace = true;
-//		browser.setLayoutData(data);
-//		
-//		shell.open();
-//		browser.setUrl(guideFile.getAbsolutePath());
-//		
-//		while (!shell.isDisposed()) {
-//			if (!display.readAndDispatch())
-//				display.sleep();
-//		}
-//		display.dispose();
-//        
+        try {
+            logger.trace("Enter main");
+            //Sleak will help diagnose SWT memory leaks
+            //if you set this to true you will get an additional window
+            //that allows you to track resources that are created and not destroyed correctly
+      		boolean loadSleak = false;
+
+      		AppSettings appSettings = AppSettings.getAppSettings();
+      		Display display;
+      		//user debug setting
+      		if (appSettings.getDebug()) {
+      			//debug level logging for video lan (VLC)
+        		System.setProperty("vlcj.log", "DEBUG");
+      			Properties properties = java.lang.System.getProperties();
+      			Iterator<Object> it = properties.keySet().iterator();
+      			//display all the jvm properties in the log file
+      			while (it.hasNext()) {
+      				String key = String.valueOf(it.next());
+      				String value = String.valueOf(properties.get(key));
+      				//write out at error level even though it is a debug message
+      				//so we can turn it on, on a users machine
+      				logger.error(key + " - " + value);
+      			}
+      		}
+      		appSettings = null;
+
+      		if (loadSleak) {
+      			DeviceData data = new DeviceData();
+      			data.tracking = true;
+      			display = new Display(data);
+      			Sleak sleak = new Sleak();
+      			sleak.open();
+      		} else {
+      			display = new Display();
+      		}
+
+      		logger.trace("create main shell");
+            MainShell mainShell = new MainShell();
+            logger.trace("create shell");
+            Shell shell = mainShell.createShell(display);
+            logger.trace("open shell");
+            shell.open();
+            //loop round until the window is closed
+            while (!shell.isDisposed())
+              if (!display.readAndDispatch())
+              {
+                display.sleep();
+              }
+          }
+          catch (Exception ex) {
+            logger.error("Main error " + ex.getLocalizedMessage(), ex);
+          }
+          logger.trace("Exit main");
     }
 }
+    
