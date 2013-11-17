@@ -544,17 +544,23 @@ public class MainLogic {
 	
 	public String getMediaFullPath(String mediaFile, String fileSeparator, AppSettings appSettings, Guide guide) {
 		String mediaFound = "";
-		String dataDirectory = fixSeparator(appSettings.getDataDirectory(), fileSeparator);
-		String mediaDirectory = fixSeparator(guide.getMediaDirectory(), fileSeparator);
+		String dataDirectory;
+		String prefix = "";
+		dataDirectory = appSettings.getDataDirectory();
+		if (dataDirectory.startsWith("/")) {
+			prefix = "/";
+		}
+		dataDirectory = prefix + comonFunctions.fixSeparator(appSettings.getDataDirectory(), fileSeparator);
+		String mediaDirectory = comonFunctions.fixSeparator(guide.getMediaDirectory(), fileSeparator);
 		dataDirectory = dataDirectory + fileSeparator + mediaDirectory;
 		
 		
-		String media = fixSeparator(mediaFile, fileSeparator);
+		String media = comonFunctions.fixSeparator(mediaFile, fileSeparator);
 		logger.debug("displayPage getMediaFullPath " + media);
 		int intSubDir = media.lastIndexOf(fileSeparator);
 		String strSubDir;
 		if (intSubDir > -1) {
-			strSubDir = fixSeparator(media.substring(0, intSubDir + 1), fileSeparator);
+			strSubDir = comonFunctions.fixSeparator(media.substring(0, intSubDir + 1), fileSeparator);
 			media = media.substring(intSubDir + 1);
 		} else {
 			strSubDir = "";
@@ -591,19 +597,6 @@ public class MainLogic {
 		}
 		
 		return mediaFound;
-	}
-	
-	private String fixSeparator(String path, String fileSeparator) {
-		String retrn = path;
-		retrn = retrn.replace("\\", fileSeparator);
-		retrn = retrn.replace("/", fileSeparator);
-		if (retrn.startsWith(fileSeparator)) {
-			retrn = retrn.substring(1, retrn.length());
-		}
-		if (retrn.endsWith(fileSeparator)) {
-			retrn = retrn.substring(0, retrn.length() - 1);
-		}
-		return retrn;
 	}
 	
 	// Wildecard filter

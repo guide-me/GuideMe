@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.guideme.guideme.settings.GuideSettings;
 
+import uk.co.caprica.vlcj.logger.Logger;
+
 public class Guide {
 	private String title;
 	private String authorName;
@@ -192,6 +194,7 @@ public class Guide {
 
 	//we are loading a new xml so clear old settings
 	public void reset(String id) {
+		Logger.trace("Guide reset id: " + id);
 		this.id = id;
 		settings = new GuideSettings(id);
 		mediaDirectory = "";

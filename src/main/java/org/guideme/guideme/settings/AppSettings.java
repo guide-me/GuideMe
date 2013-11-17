@@ -51,6 +51,11 @@ public class AppSettings {
 			userName = String.valueOf(properties.get("user.name"));
 			fileSeparator = String.valueOf(properties.get("file.separator"));
 			settingsLocation = "data" + fileSeparator + "settings.properties";
+			logger.debug("AppSettings userDir: " + userDir);
+			logger.debug("AppSettings userHome: " + userHome);
+			logger.debug("AppSettings userName: " + userName);
+			logger.debug("AppSettings fileSeparator: " + fileSeparator);
+			logger.debug("AppSettings settingsLocation: " + settingsLocation);
 			try {
 				try {
 					appSettingsProperties.loadFromXML(new FileInputStream(settingsLocation));

@@ -51,7 +51,18 @@ public class GuideSettings {
 		String type;
 		String desc;
 		AppSettings appSettings = AppSettings.getAppSettings();
-		filename = appSettings.getDataDirectory() + appSettings.getFileSeparator() + GuideId + ".state";
+		String dataDirectory = appSettings.getDataDirectory();
+		String prefix = "";
+		if (dataDirectory.startsWith("/")) {
+			prefix = "/";
+		}
+		dataDirectory = prefix + comonFunctions.fixSeparator(dataDirectory, appSettings.getFileSeparator());
+		filename = dataDirectory + appSettings.getFileSeparator() + GuideId + ".state";
+		logger.debug("GuideSettings appSettings.getDataDirectory(): " + appSettings.getDataDirectory());
+		logger.debug("GuideSettings dataDirectory: " + dataDirectory);
+		logger.debug("GuideSettings appSettings.getFileSeparator(): " + appSettings.getFileSeparator());
+		logger.debug("GuideSettings GuideId: " + GuideId);
+		logger.debug("GuideSettings filename: " + filename);
 		try {
 			//if a state file already exists use it 
 			File xmlFile = new File(filename);
@@ -274,6 +285,7 @@ public class GuideSettings {
 	public void saveSettings(){
 	    try {
 			File xmlFile = new File(filename);
+			logger.trace("GuideSettings saveSettings filename: " + filename);
 			Element rootElement;
 			Document doc;
 
@@ -281,12 +293,14 @@ public class GuideSettings {
 			// if nodes do not exist it will add them
 			if (xmlFile.exists())
 			{
+				logger.trace("GuideSettings saveSettings file exists ");
 				DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 				DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 				doc = docBuilder.parse(xmlFile);
 				rootElement = doc.getDocumentElement();
 				rootElement.normalize();
 			} else {
+				logger.trace("GuideSettings saveSettings does not file exist ");
 				DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
 				DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 				doc = docBuilder.newDocument();
@@ -359,6 +373,7 @@ public class GuideSettings {
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer = transformerFactory.newTransformer();
 			DOMSource source = new DOMSource(doc);
+			logger.trace("GuideSettings saveSettings save file: " + filename);
 			StreamResult result = new StreamResult(new File(filename));
 			transformer.transform(source, result);
 

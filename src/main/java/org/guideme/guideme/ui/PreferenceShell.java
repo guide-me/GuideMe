@@ -92,28 +92,28 @@ public class PreferenceShell {
 			AddTextField(grpApp, "Font Size", grpApp, grpApp, String.valueOf(myAppSettings.getFontSize()), "AppFontSize", true);
 			
 			//HTML Font Size
-			AddTextField(grpApp, "HTML Font Size", appWidgets.get("AppFontSizeNumLbl"), appWidgets.get("AppFontSizeNumCtrl"), String.valueOf(myAppSettings.getHtmlFontSize()), "AppHtmlFontSize", true);
+			AddTextField(grpApp, "HTML Font Size", appWidgets.get("AppFontSizeNumCtrl"), appWidgets.get("AppFontSizeNumCtrl"), String.valueOf(myAppSettings.getHtmlFontSize()), "AppHtmlFontSize", true);
 
 			//Debug
-			AddBooleanField(grpApp, "Debug", appWidgets.get("AppHtmlFontSizeNumLbl"), appWidgets.get("AppHtmlFontSizeNumCtrl"), myAppSettings.getDebug(), "AppDebug");			
+			AddBooleanField(grpApp, "Debug", appWidgets.get("AppHtmlFontSizeNumCtrl"), appWidgets.get("AppHtmlFontSizeNumCtrl"), myAppSettings.getDebug(), "AppDebug");			
 
 			//Video
-			AddBooleanField(grpApp, "Video", appWidgets.get("AppDebugBlnLbl"), appWidgets.get("AppDebugBlnCtrl"), myAppSettings.getVideoOn(), "AppVideo");			
+			AddBooleanField(grpApp, "Video", appWidgets.get("AppDebugBlnCtrl"), appWidgets.get("AppDebugBlnCtrl"), myAppSettings.getVideoOn(), "AppVideo");			
 
 			//Data Directory
-			AddTextField(grpApp, "Data Directory", appWidgets.get("AppVideoBlnLbl"), appWidgets.get("AppVideoBlnCtrl"), myAppSettings.getDataDirectory(), "AppDataDir", false);
+			AddTextField(grpApp, "Data Directory", appWidgets.get("AppVideoBlnCtrl"), appWidgets.get("AppVideoBlnCtrl"), myAppSettings.getDataDirectory(), "AppDataDir", false);
 
 			//midiInstrument
-			AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppDataDirLbl"), appWidgets.get("AppDataDirCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
+			AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppDataDirCtrl"), appWidgets.get("AppDataDirCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
 
 			//midiVolume
-			AddTextField(grpApp, "Midi Volume (0 - 127)", appWidgets.get("AppMidiInstrumentNumLbl"), appWidgets.get("AppMidiInstrumentNumCtrl"), String.valueOf(myAppSettings.getMidiVolume()), "AppMidiVolume", true);
+			AddTextField(grpApp, "Midi Volume (0 - 127)", appWidgets.get("AppMidiInstrumentNumCtrl"), appWidgets.get("AppMidiInstrumentNumCtrl"), String.valueOf(myAppSettings.getMidiVolume()), "AppMidiVolume", true);
 
 			//HTML Font Size
-			AddTextField(grpApp, "Music Volume (0 and 200)", appWidgets.get("AppMidiVolumeNumLbl"), appWidgets.get("AppMidiVolumeNumCtrl"), String.valueOf(myAppSettings.getMusicVolume()), "AppMusicVolume", true);
+			AddTextField(grpApp, "Music Volume (0 and 200)", appWidgets.get("AppMidiVolumeNumCtrl"), appWidgets.get("AppMidiVolumeNumCtrl"), String.valueOf(myAppSettings.getMusicVolume()), "AppMusicVolume", true);
 
 			//HTML Font Size
-			AddTextField(grpApp, "Video volume (0 and 200)", appWidgets.get("AppMusicVolumeNumLbl"), appWidgets.get("AppMusicVolumeNumCtrl"), String.valueOf(myAppSettings.getVideoVolume()), "AppVideoVolume", true);
+			AddTextField(grpApp, "Video volume (0 and 200)", appWidgets.get("AppMusicVolumeNumCtrl"), appWidgets.get("AppMusicVolumeNumCtrl"), String.valueOf(myAppSettings.getVideoVolume()), "AppVideoVolume", true);
 
 			Group grpNames = new Group(composite, SWT.SHADOW_IN);
 			FormData grpNamesFormData = new FormData();
@@ -130,7 +130,7 @@ public class PreferenceShell {
 			Set<String> set = myUserSettings.getStringKeys();
 			for (String s : set) {
 				AddTextField(grpNames, myUserSettings.getScreenDesc(s, UserSettings.STRING), tmpWidget, tmpWidget2, userSettings.getPref(s), s, false);
-				tmpWidget = appWidgets.get(s + "Lbl");
+				tmpWidget = appWidgets.get(s + "Ctrl");
 				tmpWidget2 = appWidgets.get(s + "Ctrl");
 			}
 			
@@ -149,7 +149,7 @@ public class PreferenceShell {
 			Set<String> set2 = myUserSettings.getBooleanKeys();
 			for (String s : set2) {
 				AddBooleanField(grpPrefs, myUserSettings.getScreenDesc(s, UserSettings.BOOLEAN), tmpWidget, tmpWidget2, userSettings.isPref(s), s);
-				tmpWidget = appWidgets.get(s + "BlnLbl");
+				tmpWidget = appWidgets.get(s + "BlnCtrl");
 				tmpWidget2 = appWidgets.get(s + "BlnCtrl");
 			}
 
@@ -168,7 +168,7 @@ public class PreferenceShell {
 			Set<String> set3 = myUserSettings.getNumberKeys();
 			for (String s : set3) {
 				AddTextField(grpDoubles, myUserSettings.getScreenDesc(s, UserSettings.NUMBER), tmpWidget, tmpWidget2, String.valueOf(userSettings.getPrefNumber(s)), s, true);
-				tmpWidget = appWidgets.get(s + "NumLbl");
+				tmpWidget = appWidgets.get(s + "NumCtrl");
 				tmpWidget2 = appWidgets.get(s + "NumCtrl");
 			}
 
@@ -330,7 +330,8 @@ public class PreferenceShell {
 		txtTmp.setText(value);
 		txtTmpFormData = new FormData();
 		txtTmpFormData.top = new FormAttachment(prevControl2,5);
-		txtTmpFormData.left = new FormAttachment(lblTmp,10);
+		//txtTmpFormData.left = new FormAttachment(lblTmp,20);
+		txtTmpFormData.left = new FormAttachment(40,20);
 		txtTmpFormData.right = new FormAttachment(100,-5);
 		txtTmp.setLayoutData(txtTmpFormData);
 		if (addNewmeric) {
@@ -367,7 +368,8 @@ public class PreferenceShell {
 		btnTmp.setSelection(value);
 		txtTmpFormData = new FormData();
 		txtTmpFormData.top = new FormAttachment(prevControl2,5);
-		txtTmpFormData.left = new FormAttachment(lblTmp,10);
+		//txtTmpFormData.left = new FormAttachment(lblTmp,20);
+		txtTmpFormData.left = new FormAttachment(40,20);
 		txtTmpFormData.right = new FormAttachment(100,-5);
 		btnTmp.setLayoutData(txtTmpFormData);
 		appFormdata.put(key + "BlnLbl", lblTmpFormData);

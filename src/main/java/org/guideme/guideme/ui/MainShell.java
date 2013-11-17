@@ -119,6 +119,7 @@ public class MainShell {
 		int[] intWeights2 = new int[2];
 		colourBlack = display.getSystemColor(SWT.COLOR_BLACK);
 		try {
+			logger.trace("MainShell Get appSettings");
 			appSettings = AppSettings.getAppSettings();
 
 			//video flag
@@ -468,7 +469,7 @@ public class MainShell {
 							strGuidePath = dialog.getFilterPath() + appSettings.getFileSeparator();
 							//load the file it will return the start page and populate the guide object
 							//TODO Need to change this here to implement the new html format
-							String strPage = xmlGuideReader.loadXML(strFileToLoad, guide);
+							String strPage = xmlGuideReader.loadXML(strFileToLoad, guide, appSettings);
 							guideSettings = guide.getSettings();
 							//display the first page
 							mainLogic.displayPage(strPage , false, guide, mainShell, appSettings, userSettings, guideSettings);

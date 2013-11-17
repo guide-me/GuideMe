@@ -340,4 +340,17 @@ public class ComonFunctions {
 		return encoding.decode(ByteBuffer.wrap(encoded)).toString();
 	}
 
+	public String fixSeparator(String path, String fileSeparator) {
+		String retrn = path;
+		retrn = retrn.replace("\\", fileSeparator);
+		retrn = retrn.replace("/", fileSeparator);
+		if (retrn.startsWith(fileSeparator)) {
+			retrn = retrn.substring(1, retrn.length());
+		}
+		if (retrn.endsWith(fileSeparator)) {
+			retrn = retrn.substring(0, retrn.length() - 1);
+		}
+		return retrn;
+	}
+	
 }

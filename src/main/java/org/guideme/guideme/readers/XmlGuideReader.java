@@ -18,6 +18,7 @@ import org.guideme.guideme.model.Image;
 import org.guideme.guideme.model.Metronome;
 import org.guideme.guideme.model.Page;
 import org.guideme.guideme.model.Video;
+import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
 
@@ -57,7 +58,7 @@ public class XmlGuideReader {
 	    }   
 	}	
 	
-	public String loadXML(String xmlFileName, Guide guide) {
+	public String loadXML(String xmlFileName, Guide guide, AppSettings appSettings) {
 		String strTmpTitle = "";
 		String strTmpAuthor = "";
 		String strPage = "start";
@@ -74,7 +75,7 @@ public class XmlGuideReader {
 		
 		try {
 			strPreXMLPath = xmlFileName;
-			int intPos = xmlFileName.lastIndexOf("\\");
+			int intPos = xmlFileName.lastIndexOf(appSettings.getFileSeparator());
 			int intPos2 = xmlFileName.lastIndexOf(".xml");
 			String PresName = xmlFileName.substring(intPos + 1, intPos2);
 			guide.reset(PresName);
