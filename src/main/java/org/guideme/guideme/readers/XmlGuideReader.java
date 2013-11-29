@@ -1,10 +1,12 @@
 package org.guideme.guideme.readers;
 
 import java.io.FileInputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.logging.log4j.LogManager;
@@ -350,31 +352,7 @@ public class XmlGuideReader {
 	        		 case Text:
 	        			 try {
 	        				 if (reader.getName().getLocalPart().equals("Text")) {
-	        					 String text = "";
-	        					 String tag = "";
-	        					 int eventType2 = reader.next();
-	        					 while (true) {
-	        						 switch (eventType2) {
-	        						 case XMLStreamConstants.START_ELEMENT:
-	        							 tag = reader.getName().toString();
-	        							 text = text + "<" + tag;
-	        							 for (int i=0; i < reader.getAttributeCount(); i++) {
-	        								 text = text + " " + reader.getAttributeName(i) + "=\"" + reader.getAttributeValue(i) + "\"";
-	        							 }
-	        							 text = text + ">";
-	        							 break;
-	        						 case XMLStreamConstants.END_ELEMENT:
-	        							 text = text + "</"  + tag + ">";
-	        							 break;
-	        						 case XMLStreamConstants.CHARACTERS:
-	        							 text = text + reader.getText();
-	        							 break;
-	        						 }
-	        						 eventType2 = reader.next();
-	        						 if (eventType2 == XMLStreamConstants.END_ELEMENT) {
-	        							 if (reader.getName().getLocalPart().equals("Text")) break;
-	        						 }
-	        					 }
+	        					 String text = processText(reader);
 	        					 page.setText(text);
 			        			 logger.trace("loadXML " + PresName + " Text " + text);
 	        				 }
@@ -480,5 +458,53 @@ public class XmlGuideReader {
 		}
 		return strPage;
 	}
-
+	
+	private String processText(XMLStreamReader reader) throws XMLStreamException {
+		 String text = "";
+		 ArrayList<String> tag = new ArrayList<String>();
+		 boolean emptyTagTest = false;
+		 int tagCount = -1;
+		 int eventType2 = reader.next();
+		 while (true) {
+			 switch (eventType2) {
+			 case XMLStreamConstants.START_ELEMENT:
+				 if (emptyTagTest) {
+					 text = text + ">";
+				 }
+				 emptyTagTest = true;
+				 tagCount++;
+				 if (tag.size() < tagCount + 1) {
+					 tag.add(reader.getName().toString());
+				 } else {
+					 tag.add(tagCount, reader.getName().toString());
+				 }
+				 text = text + "<" + tag.get(tagCount);
+				 for (int i=0; i < reader.getAttributeCount(); i++) {
+					 text = text + " " + reader.getAttributeName(i) + "=\"" + reader.getAttributeValue(i) + "\"";
+				 }
+				 break;
+			 case XMLStreamConstants.END_ELEMENT:
+				 if (emptyTagTest) {
+					 text = text + "/>";
+				 } else {
+					 text = text + "</"  + tag.get(tagCount) + ">";
+				 }
+				 tagCount--;
+				 emptyTagTest = false;
+				 break;
+			 case XMLStreamConstants.CHARACTERS:
+				 if (emptyTagTest) {
+					 text = text + ">";
+				 }
+				 emptyTagTest = false;
+				 text = text + reader.getText();
+				 break;
+			 }
+			 eventType2 = reader.next();
+			 if (eventType2 == XMLStreamConstants.END_ELEMENT) {
+				 if (reader.getName().getLocalPart().equals("Text")) break;
+			 }
+		 }
+		return text;
+	}
 }

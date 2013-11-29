@@ -16,6 +16,7 @@ public class OverRide {
 	private Metronome metronome = null;
 	private String image = "";
 	private String html = "";
+	private String page = "";
 	
 	public void addButton(String target, String text, String set, String unSet, String jScript, String image) {
 		Button button = new Button(target, text, "", "", set, unSet, jScript, image);
@@ -38,6 +39,7 @@ public class OverRide {
 		metronome = null;
 		image = "";
 		html = "";
+		page = "";
 	}
 
 	public Delay getDelay() {
@@ -87,5 +89,13 @@ public class OverRide {
 	public void setImage(String id) {
 		this.image = id;
 	}
-	
+
+	public String getPage() {
+		return page;
+	}
+
+	public void setPage(String page) {
+		this.page = page;
+	}
+
 }

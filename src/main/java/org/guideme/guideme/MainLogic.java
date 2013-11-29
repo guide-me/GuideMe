@@ -161,47 +161,61 @@ public class MainLogic {
 			}
 			
 			// delay
-			mainShell.setLblLeft("");
+			mainShell.setLblRight("");
 			blnDelay = false;
 			intDelSeconds = 1;
+			// override page
 			try {
-				objDelay = overRide.getDelay();
-				if (objDelay != null) {
-					blnDelay = true;
-				} else {
-					if (objCurrPage.getDelayCount() > 0) {
-						for (int i2 = 0; i2 < objCurrPage.getDelayCount(); i2++) {
-							objDelay = objCurrPage.getDelay(i2);
-							if (objDelay.canShow(guide.getFlags())) {
-								blnDelay = true;
-								break;
-							}
-						}
-					}
-				}
-				if (blnDelay) {
-					logger.debug("displayPage Delay");
-					guide.setDelStyle(objDelay.getstyle());
-					guide.setDelTarget(objDelay.getTarget());
-					guide.setDelayjScript(objDelay.getjScript());
-					strDelStartAt = objDelay.getStartWith();
-					intDelSeconds = objDelay.getDelaySec();
-					try {
-						guide.setDelStartAtOffSet(Integer.parseInt(strDelStartAt));
-						guide.setDelStartAtOffSet(guide.getDelStartAtOffSet() - intDelSeconds);
-					} catch (Exception etemp) {
-						guide.setDelStartAtOffSet(0);
-					}
-
-					// record any delay set / unset
-					guide.setDelaySet(objDelay.getSet());
-					guide.setDelayUnSet(objDelay.getUnSet());
-					logger.debug("displayPage Delay Seconds " + intDelSeconds + " Style " + guide.getDelStyle() + " Target " + guide.getDelTarget() + " Set " + guide.getDelaySet() + " UnSet " + guide.getDelayUnSet());
+				if (!overRide.getPage().equals("")) {
+					intDelSeconds = 0;
+					guide.setDelStyle("hidden");
+					guide.setDelTarget(overRide.getPage());
+					guide.setDelayjScript("");
+					guide.setDelStartAtOffSet(0);
+					guide.setDelaySet("");
+					guide.setDelayUnSet("");
 					Calendar calCountDown = Calendar.getInstance();
 					calCountDown.add(Calendar.SECOND, intDelSeconds);
 					mainShell.setCalCountDown(calCountDown);
 				} else {
-					mainShell.setLblLeft("");
+					objDelay = overRide.getDelay();
+					if (objDelay != null) {
+						blnDelay = true;
+					} else {
+						if (objCurrPage.getDelayCount() > 0) {
+							for (int i2 = 0; i2 < objCurrPage.getDelayCount(); i2++) {
+								objDelay = objCurrPage.getDelay(i2);
+								if (objDelay.canShow(guide.getFlags())) {
+									blnDelay = true;
+									break;
+								}
+							}
+						}
+					}
+					if (blnDelay) {
+						logger.debug("displayPage Delay");
+						guide.setDelStyle(objDelay.getstyle());
+						guide.setDelTarget(objDelay.getTarget());
+						guide.setDelayjScript(objDelay.getjScript());
+						strDelStartAt = objDelay.getStartWith();
+						intDelSeconds = objDelay.getDelaySec();
+						try {
+							guide.setDelStartAtOffSet(Integer.parseInt(strDelStartAt));
+							guide.setDelStartAtOffSet(guide.getDelStartAtOffSet() - intDelSeconds);
+						} catch (Exception etemp) {
+							guide.setDelStartAtOffSet(0);
+						}
+	
+						// record any delay set / unset
+						guide.setDelaySet(objDelay.getSet());
+						guide.setDelayUnSet(objDelay.getUnSet());
+						logger.debug("displayPage Delay Seconds " + intDelSeconds + " Style " + guide.getDelStyle() + " Target " + guide.getDelTarget() + " Set " + guide.getDelaySet() + " UnSet " + guide.getDelayUnSet());
+						Calendar calCountDown = Calendar.getInstance();
+						calCountDown.add(Calendar.SECOND, intDelSeconds);
+						mainShell.setCalCountDown(calCountDown);
+					} else {
+						mainShell.setLblLeft("");
+					}
 				}
 			} catch (Exception e1) {
 				logger.error("displayPage Delay Exception " + e1.getLocalizedMessage(), e1);

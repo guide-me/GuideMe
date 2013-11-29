@@ -63,7 +63,7 @@ import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 import uk.co.caprica.vlcj.player.embedded.videosurface.CanvasVideoSurface;
 
 public class MainShell {
-	private String version = "0.0.1";
+	private String version = "0.0.2";
 	/*
 	 Main screen and UI thread.
 	 exposes methods that allow other components to update the screen components
@@ -168,18 +168,19 @@ public class MainShell {
 			fD[0].setHeight(MintFontSize);
 			controlFont = new Font(display, fD);
 
+			DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+			Calendar cal = Calendar.getInstance();
 			lblLeft = new Label(shell, SWT.LEFT);
 			lblLeft.setFont(controlFont);
+			lblLeft.setText(dateFormat.format(cal.getTime()));
 
 			lblCentre = new Label(shell, SWT.CENTER);
 			lblCentre.setFont(controlFont);
 			lblCentre.setText("Title, Author");
 
-			DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-			Calendar cal = Calendar.getInstance();
 			lblRight = new Label(shell, SWT.RIGHT);
 			lblRight.setFont(controlFont);
-			lblRight.setText(dateFormat.format(cal.getTime()));
+			lblRight.setAlignment(SWT.CENTER);
 
 			sashform = new SashForm(shell, SWT.HORIZONTAL);
 			sashform.setBackground(colourBlack);
@@ -644,14 +645,20 @@ public class MainShell {
 					if (cal.after(calCountDown)){
 						//Delay has reached zero
 						calCountDown = null;
-						lblLeft.setText("");
+						lblRight.setText("");
 						comonFunctions.SetFlags(guide.getDelaySet(), guide.getFlags());
 						comonFunctions.UnsetFlags(guide.getDelayUnSet(), guide.getFlags());
 						String javascript = guide.getDelayjScript();
 						mainShell.runJscript(javascript);
 						mainLogic.displayPage(guide.getDelTarget(), false, guide, mainShell, appSettings, userSettings, guideSettings);
 					} else {
-						if (guide.getDelStyle().equals("normal")) {
+						if (guide.getDelStyle().equals("hidden")) {
+							//a hidden one
+							lblRight.setText("");
+						} else if (guide.getDelStyle().equals("secret")) {
+							//secret timer so display ?? to show there is one but not how long
+							lblRight.setText("??:??");
+						} else {
 							//Normal delay so display seconds left 
 							//(plus any offset if you are being sneaky) 
 							long diff = calCountDown.getTimeInMillis() - cal.getTimeInMillis();
@@ -666,18 +673,12 @@ public class MainShell {
 							strMinutes = "0" + strMinutes;
 							strMinutes = strMinutes.substring(strMinutes.length() - 2);
 							String strTimeLeft = strMinutes + ":" + strSeconds;
-							lblLeft.setText(strTimeLeft);
-						} else if (guide.getDelStyle().equals("secret")) {
-							//secret timer so display ?? to show there is one but not how long
-							lblLeft.setText("??:??");
-						} else {
-							//either no delay or a hidden one
-							lblLeft.setText("");
+							lblRight.setText(strTimeLeft);
 						}
 						
 					}
 				}
-				lblRight.setText(dateFormat.format(cal.getTime()));
+				lblLeft.setText(dateFormat.format(cal.getTime()));
 				//re run in 0.1 seconds
 				myDisplay.timerExec(100, this);
 			}
@@ -845,17 +846,17 @@ public class MainShell {
 		String strHTML;
 		try {
 			String strTemp = brwsText;
-			strTemp = strTemp.replace("<P>", "");
-			strTemp = strTemp.replace("<p>", "");
-			strTemp = strTemp.replace("</P>", "<br>");
-			strTemp = strTemp.replace("</p>", "<br>");
-			strTemp = strTemp.replace("<DIV>", "");
-			strTemp = strTemp.replace("<div>", "");
-			strTemp = strTemp.replace("</DIV>", "<br>");
-			strTemp = strTemp.replace("</div>", "<br>");
-			if (strTemp.endsWith("<br>")) {
-				strTemp = strTemp.substring(0, strTemp.length() - 4);
-			}
+			//strTemp = strTemp.replace("<P>", "");
+			//strTemp = strTemp.replace("<p>", "");
+			//strTemp = strTemp.replace("</P>", "<br>");
+			//strTemp = strTemp.replace("</p>", "<br>");
+			//strTemp = strTemp.replace("<DIV>", "");
+			//strTemp = strTemp.replace("<div>", "");
+			//strTemp = strTemp.replace("</DIV>", "<br>");
+			//strTemp = strTemp.replace("</div>", "<br>");
+			//if (strTemp.endsWith("<br>")) {
+			//	strTemp = strTemp.substring(0, strTemp.length() - 4);
+			//}
 				strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\"> body { color: white; background-color: black; font-family: Tahoma; font-size:"
 						+ MintHtmlFontSize + "px } </style></head><body>" + strTemp + "</body></html>";
 				this.brwsText.setText(strHTML);
@@ -1124,7 +1125,7 @@ public class MainShell {
 	
 	public void stopDelay() {
 		calCountDown = null;
-		lblLeft.setText("");
+		lblRight.setText("");
 	}
 
 	public void stopAll() {
