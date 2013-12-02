@@ -145,6 +145,7 @@ public class MainLogic {
 
 			// get the page to display
 			objCurrPage = guide.getChapters().get(chapterName).getPages().get(strPageId);
+			mainShell.clearImage();
 			
 			//run the pageLoad script
 			try {

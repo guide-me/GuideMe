@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?><SETTINGS>
-<pref key="myName" screen="My Name" type="String" value="Phil"/>
+<pref key="myName" screen="My Name" type="String" value="James"/>
 <pref key="herName1" screen="Female 1" type="String" value="Kara"/>
 <pref key="herName2" screen="Female 2" type="String" value="Emily"/>
 <pref key="hisName1" screen="Male 1" type="String" value="Edward"/>

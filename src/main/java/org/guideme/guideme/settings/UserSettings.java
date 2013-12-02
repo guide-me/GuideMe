@@ -3,6 +3,7 @@ package org.guideme.guideme.settings;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,10 +28,13 @@ public class UserSettings implements Cloneable{
 	private Logger logger = LogManager.getLogger();
 	private HashMap<String, String> userStringPrefs = new HashMap<String, String>(); 
 	private HashMap<String, String> userStringDesc = new HashMap<String, String>(); 
+	private LinkedHashSet<String> userStringKeys = new LinkedHashSet<String>(); 
 	private HashMap<String, Boolean> userBooleanPrefs = new HashMap<String, Boolean>(); 
 	private HashMap<String, String> userBooleanDesc = new HashMap<String, String>(); 
+	private LinkedHashSet<String> userBooleanKeys = new LinkedHashSet<String>(); 
 	private HashMap<String, Double> userNumericPrefs = new HashMap<String, Double>(); 
 	private HashMap<String, String> userNumericDesc = new HashMap<String, String>();
+	private LinkedHashSet<String> userNumericKeys = new LinkedHashSet<String>(); 
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	private static UserSettings userSettings;
 	
@@ -73,14 +77,17 @@ public class UserSettings implements Cloneable{
 						if (type.equals("String")) {
 							userStringPrefs.put(key, value);
 							userStringDesc.put(key, desc);
+							userStringKeys.add(key);
 						}
 						if (type.equals("Boolean")) {
 							userBooleanPrefs.put(key, Boolean.parseBoolean(value));
 							userBooleanDesc.put(key, desc);
+							userBooleanKeys.add(key);
 						}
 						if (type.equals("Number")) {
 							userNumericPrefs.put(key, Double.parseDouble(value));
 							userNumericDesc.put(key, desc);
+							userNumericKeys.add(key);
 						}
 					}
 				    Node nextChild = childNode.getNextSibling();
@@ -99,18 +106,18 @@ public class UserSettings implements Cloneable{
 		saveUserSettings();
 	}
 
-	public Set<String> getStringKeys() {
-		return userStringPrefs.keySet();
+	public LinkedHashSet<String> getStringKeys() {
+		return userStringKeys;
 	}
 	
 	
-	public Set<String> getNumberKeys() {
-		return userNumericPrefs.keySet();
+	public LinkedHashSet<String> getNumberKeys() {
+		return userNumericKeys;
 	}
 	
 	
-	public Set<String> getBooleanKeys() {
-		return userBooleanPrefs.keySet();
+	public LinkedHashSet<String> getBooleanKeys() {
+		return userBooleanKeys;
 	}
 	
 	

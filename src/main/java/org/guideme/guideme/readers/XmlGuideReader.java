@@ -292,14 +292,27 @@ public class XmlGuideReader {
 	        		 case Metronome:
 	        			 try {
 	        				 String strbpm;
+	        				 String beats;
+	        				 String loops;
+	        				 String rhythm;
 	        				 strbpm = reader.getAttributeValue(null, "bpm");
 	        				 if (strbpm == null) strbpm = "";
 	        				 ifSet = reader.getAttributeValue(null, "if-set");
 	        				 if (ifSet == null) ifSet = "";
 	        				 ifNotSet = reader.getAttributeValue(null, "if-not-set"); 
 	        				 if (ifNotSet == null) ifNotSet = "";
+	        				 ifNotSet = reader.getAttributeValue(null, "if-not-set"); 
+	        				 if (ifNotSet == null) ifNotSet = "";
+	        				 ifNotSet = reader.getAttributeValue(null, "if-not-set"); 
+	        				 if (ifNotSet == null) ifNotSet = "";
+	        				 beats = reader.getAttributeValue(null, "beats"); 
+	        				 if (beats == null) beats = "4";
+	        				 loops = reader.getAttributeValue(null, "loops"); 
+	        				 if (loops == null) loops = "-1";
+	        				 rhythm = reader.getAttributeValue(null, "rhythm"); 
+	        				 if (rhythm == null) rhythm = "";
 	        				 if (!strbpm.equals("")) {
-	        					 Metronome metronome = new Metronome(strbpm, ifSet, ifNotSet);
+	        					 Metronome metronome = new Metronome(strbpm, ifSet, ifNotSet, Integer.parseInt(beats), Integer.parseInt(loops), rhythm);
 	        					 page.addMetronome(metronome);
 	        				 }
 		        			 logger.trace("loadXML " + PresName + " Metronome " + strbpm + "|" + ifSet + "|" + ifNotSet);

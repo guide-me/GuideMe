@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,10 +36,13 @@ public class GuideSettings {
 	private HashMap<String, String> scriptVariables = new HashMap<String, String>(); //variables used by javascript
 	private HashMap<String, String> userStringPrefs = new HashMap<String, String>(); 
 	private HashMap<String, String> userStringDesc = new HashMap<String, String>(); 
+	private LinkedHashSet<String> userStringKeys = new LinkedHashSet<String>(); 
 	private HashMap<String, Boolean> userBooleanPrefs = new HashMap<String, Boolean>(); 
 	private HashMap<String, String> userBooleanDesc = new HashMap<String, String>(); 
+	private LinkedHashSet<String> userBooleanKeys = new LinkedHashSet<String>(); 
 	private HashMap<String, Double> userNumericPrefs = new HashMap<String, Double>(); 
-	private HashMap<String, String> userNumericDesc = new HashMap<String, String>(); 
+	private HashMap<String, String> userNumericDesc = new HashMap<String, String>();
+	private LinkedHashSet<String> userNumericKeys = new LinkedHashSet<String>(); 
 	private Logger logger = LogManager.getLogger();
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 
@@ -112,14 +116,17 @@ public class GuideSettings {
 							if (type.equals("String")) {
 								userStringPrefs.put(key, value);
 								userStringDesc.put(key, desc);
+								userStringKeys.add(key);
 							}
 							if (type.equals("Boolean")) {
 								userBooleanPrefs.put(key, Boolean.parseBoolean(value));
 								userBooleanDesc.put(key, desc);
+								userBooleanKeys.add(key);
 							}
 							if (type.equals("Number")) {
 								userNumericPrefs.put(key, Double.parseDouble(value));
 								userNumericDesc.put(key, desc);
+								userNumericKeys.add(key);
 							}
 						}
 					    Node nextChild = childNode.getNextSibling();
@@ -170,18 +177,18 @@ public class GuideSettings {
 	public void setScriptVariables(HashMap<String, String> scriptVariables) {
 		this.scriptVariables = scriptVariables;
 	}
-	public Set<String> getStringKeys() {
-		return userStringPrefs.keySet();
+	public LinkedHashSet<String> getStringKeys() {
+		return userStringKeys;
 	}
 	
 	
-	public Set<String> getNumberKeys() {
-		return userNumericPrefs.keySet();
+	public LinkedHashSet<String> getNumberKeys() {
+		return userNumericKeys;
 	}
 	
 	
-	public Set<String> getBooleanKeys() {
-		return userBooleanPrefs.keySet();
+	public LinkedHashSet<String> getBooleanKeys() {
+		return userBooleanKeys;
 	}
 	
 	

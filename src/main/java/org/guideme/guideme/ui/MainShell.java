@@ -63,7 +63,7 @@ import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 import uk.co.caprica.vlcj.player.embedded.videosurface.CanvasVideoSurface;
 
 public class MainShell {
-	private String version = "0.0.2";
+	private String version = "0.0.3";
 	/*
 	 Main screen and UI thread.
 	 exposes methods that allow other components to update the screen components
@@ -71,6 +71,7 @@ public class MainShell {
 	 */
 	private static Logger logger = LogManager.getLogger();
 	private static org.eclipse.swt.graphics.Color colourBlack;
+	private static org.eclipse.swt.graphics.Color colourWhite;
 	private AppSettings appSettings;
 	private int MintFontSize;
 	private int MintHtmlFontSize;
@@ -111,6 +112,7 @@ public class MainShell {
 	private AudioPlayer audioPlayer;
 	private Thread threadAudioPlayer;
 	private Boolean videoOn = true;
+	private String style = "";
 
 	public Shell createShell(final Display display) {
 		logger.trace("Enter createShell");
@@ -118,6 +120,7 @@ public class MainShell {
 		int[] intWeights1 = new int[2];
 		int[] intWeights2 = new int[2];
 		colourBlack = display.getSystemColor(SWT.COLOR_BLACK);
+		colourWhite = display.getSystemColor(SWT.COLOR_WHITE);
 		try {
 			logger.trace("MainShell Get appSettings");
 			appSettings = AppSettings.getAppSettings();
@@ -171,14 +174,20 @@ public class MainShell {
 			DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 			Calendar cal = Calendar.getInstance();
 			lblLeft = new Label(shell, SWT.LEFT);
+			lblLeft.setBackground(colourBlack);
+			lblLeft.setForeground(colourWhite);
 			lblLeft.setFont(controlFont);
 			lblLeft.setText(dateFormat.format(cal.getTime()));
 
 			lblCentre = new Label(shell, SWT.CENTER);
+			lblCentre.setBackground(colourBlack);
+			lblCentre.setForeground(colourWhite);
 			lblCentre.setFont(controlFont);
 			lblCentre.setText("Title, Author");
 
 			lblRight = new Label(shell, SWT.RIGHT);
+			lblRight.setBackground(colourBlack);
+			lblRight.setForeground(colourWhite);
 			lblRight.setFont(controlFont);
 			lblRight.setAlignment(SWT.CENTER);
 
@@ -191,15 +200,15 @@ public class MainShell {
 			mediaPanel.setBackground(colourBlack);
 			mediaPanel.addControlListener(new mediaPanelListener());
 
-			imageLabel = new Label(mediaPanel, SWT.BORDER);
+			imageLabel = new Label(mediaPanel, SWT.NONE);
 			imageLabel.setBackground(colourBlack);
 			imageLabel.setAlignment(SWT.CENTER);
 
 			sashform2 = new SashForm(sashform, SWT.VERTICAL);
 			sashform2.setBackground(colourBlack);
 
-			String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\"> body { color: white; background-color: black; font-family: Tahoma; font-size:"
-					+ MintHtmlFontSize + "px } </style></head><body></body></html>";
+			style = " body { overflow:auto; color: white; background-color: black; font-family: Tahoma; font-size:" + MintHtmlFontSize + "px } ";
+			String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style + "</style></head><body></body></html>";
 			brwsText = new Browser(sashform2, 0);
 			brwsText.setText(strHtml);
 			brwsText.setBackground(colourBlack);
@@ -857,13 +866,12 @@ public class MainShell {
 			//if (strTemp.endsWith("<br>")) {
 			//	strTemp = strTemp.substring(0, strTemp.length() - 4);
 			//}
-				strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\"> body { color: white; background-color: black; font-family: Tahoma; font-size:"
-						+ MintHtmlFontSize + "px } </style></head><body>" + strTemp + "</body></html>";
+			
+				strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style +  "</style></head><body>" + strTemp + "</body></html>";
 				this.brwsText.setText(strHTML);
 		} catch (Exception e1) {
 			logger.error("displayPage Text Exception " + e1.getLocalizedMessage(), e1);
-			strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\"> body { color: white; background-color: rgba(0,0,0,0); font-family: Tahoma; font-size:"
-					+ MintHtmlFontSize + "px } div {background-color: rgba(0,0,0,0.25); position: absolute; bottom: 0} </style></head><body><div></div></body></html>";
+			strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style +  "</style></head><body></body></html>";
 			this.brwsText.setText(strHTML);
 		}
 	}
@@ -1054,7 +1062,7 @@ public class MainShell {
 		
 		
 	//force a redisplay of the button are
-	//set focus to the first button
+	//set focus to the last button
 	public void layoutButtons() {
 		btnComp.layout();
 	    Control[] controls = this.btnComp.getChildren();
