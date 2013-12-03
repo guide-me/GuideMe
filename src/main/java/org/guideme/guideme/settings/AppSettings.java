@@ -30,6 +30,7 @@ public class AppSettings {
 	private String userName;
 	private String fileSeparator;
 	private static AppSettings appSettings;
+	private boolean fullScreen = false;
 
 	public static synchronized AppSettings getAppSettings() {
 		if (appSettings == null) {
@@ -72,6 +73,7 @@ public class AppSettings {
 				videoVolume = Integer.parseInt(appSettingsProperties.getProperty("videoVolume", "400"));
 				Debug = Boolean.parseBoolean(appSettingsProperties.getProperty("Debug", "false"));
 				video = Boolean.parseBoolean(appSettingsProperties.getProperty("Video", "true"));
+				fullScreen = Boolean.parseBoolean(appSettingsProperties.getProperty("fullScreen", "false"));
 				DataDirectory = appSettingsProperties.getProperty("DataDirectory", userDir);
 				sash1Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights0", "350"));
 				sash1Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights1", "350"));
@@ -135,6 +137,7 @@ public class AppSettings {
 			appSettingsProperties.setProperty("videoVolume", String.valueOf(videoVolume));
 			appSettingsProperties.setProperty("Debug", String.valueOf(Debug));
 			appSettingsProperties.setProperty("Video", String.valueOf(video));
+			appSettingsProperties.setProperty("fullScreen", String.valueOf(fullScreen));
 			appSettingsProperties.setProperty("DataDirectory", DataDirectory);
 			appSettingsProperties.setProperty("sash1Weights0", String.valueOf(sash1Weights[0]));
 			appSettingsProperties.setProperty("sash1Weights1", String.valueOf(sash1Weights[1]));
@@ -209,6 +212,14 @@ public class AppSettings {
 
 	public void setVideoVolume(int videoVolume) {
 		this.videoVolume = videoVolume;
+	}
+
+	public boolean isFullScreen() {
+		return fullScreen;
+	}
+
+	public void setFullScreen(boolean fullScreen) {
+		this.fullScreen = fullScreen;
 	}
 
 }

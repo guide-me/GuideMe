@@ -100,8 +100,11 @@ public class PreferenceShell {
 			//Video
 			AddBooleanField(grpApp, "Video", appWidgets.get("AppDebugBlnCtrl"), appWidgets.get("AppDebugBlnCtrl"), myAppSettings.getVideoOn(), "AppVideo");			
 
+			//Full Screen
+			AddBooleanField(grpApp, "Full Screen", appWidgets.get("AppVideoBlnCtrl"), appWidgets.get("AppVideoBlnCtrl"), myAppSettings.isFullScreen(), "AppFullScreen");			
+
 			//Data Directory
-			AddTextField(grpApp, "Data Directory", appWidgets.get("AppVideoBlnCtrl"), appWidgets.get("AppVideoBlnCtrl"), myAppSettings.getDataDirectory(), "AppDataDir", false);
+			AddTextField(grpApp, "Data Directory", appWidgets.get("AppFullScreenBlnCtrl"), appWidgets.get("AppFullScreenBlnCtrl"), myAppSettings.getDataDirectory(), "AppDataDir", false);
 
 			//midiInstrument
 			AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppDataDirCtrl"), appWidgets.get("AppDataDirCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
@@ -252,6 +255,9 @@ public class PreferenceShell {
 				
 				btnTmp = (Button) appWidgets.get("AppVideoBlnCtrl");
 				myAppSettings.setVideoOn(btnTmp.getSelection());
+				
+				btnTmp = (Button) appWidgets.get("AppFullScreenBlnCtrl");
+				myAppSettings.setFullScreen(btnTmp.getSelection());
 				
 				txtTmp = (Text) appWidgets.get("AppDataDirCtrl");
 				myAppSettings.setDataDirectory((txtTmp.getText()));

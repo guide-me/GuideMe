@@ -1,6 +1,9 @@
 package org.guideme.guideme;
 
+import java.applet.Applet;
+import java.applet.AudioClip;
 import java.io.File;
+import java.net.URL;
 import java.util.Calendar;
 import java.util.Set;
 
@@ -27,6 +30,8 @@ public class MainLogic {
 	private static MainLogic mainLogic;
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	private OverRide overRide = new OverRide();
+    private static AudioClip song; // Sound player
+    private static URL songPath;
 
 	//singleton class stuff (force there to be only one instance without making it static)
 	private MainLogic() {
@@ -35,6 +40,8 @@ public class MainLogic {
 	public static synchronized MainLogic getMainLogic() {
 		if (mainLogic == null) {
 			mainLogic = new MainLogic();
+			songPath =  MainLogic.class.getClassLoader().getResource("page.wav");
+			song = Applet.newAudioClip(songPath);
 		}
 		return mainLogic;
 	}
@@ -145,7 +152,6 @@ public class MainLogic {
 
 			// get the page to display
 			objCurrPage = guide.getChapters().get(chapterName).getPages().get(strPageId);
-			mainShell.clearImage();
 			
 			//run the pageLoad script
 			try {
@@ -160,6 +166,9 @@ public class MainLogic {
 			} catch (Exception e) {
 				logger.error("displayPage javascript Exception " + e.getLocalizedMessage(), e);
 			}
+			
+			//PageChangeClick
+			song.play();
 			
 			// delay
 			mainShell.setLblRight("");

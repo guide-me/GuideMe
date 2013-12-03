@@ -156,7 +156,11 @@ public class MainShell {
 		try {
 			//Create the main UI elements
 			myDisplay = display;
-			shell = new Shell(myDisplay);
+			if (appSettings.isFullScreen()) {
+				shell = new Shell(myDisplay, SWT.NO_TRIM);
+			} else {
+				shell = new Shell(myDisplay);
+			}
 			shell.addShellListener(new shellCloseListen());
 			
 			//get primary monitor and its size
@@ -477,6 +481,7 @@ public class MainShell {
 							//if a guide file has been chosen load it 
 							//default the initial directory for future loads to the current one
 							strGuidePath = dialog.getFilterPath() + appSettings.getFileSeparator();
+							appSettings.setDataDirectory(strGuidePath);
 							//load the file it will return the start page and populate the guide object
 							//TODO Need to change this here to implement the new html format
 							String strPage = xmlGuideReader.loadXML(strFileToLoad, guide, appSettings);
@@ -834,7 +839,7 @@ public class MainShell {
 	}
 	
 	public void clearImage() {
-		imageLabel.setBackgroundImage(null);		
+		imageLabel.setImage(null);		
 	}
 
 	
