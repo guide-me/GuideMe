@@ -31,6 +31,7 @@ public class AppSettings {
 	private String fileSeparator;
 	private static AppSettings appSettings;
 	private boolean fullScreen = false;
+	private boolean pageSound = true;
 
 	public static synchronized AppSettings getAppSettings() {
 		if (appSettings == null) {
@@ -74,6 +75,7 @@ public class AppSettings {
 				Debug = Boolean.parseBoolean(appSettingsProperties.getProperty("Debug", "false"));
 				video = Boolean.parseBoolean(appSettingsProperties.getProperty("Video", "true"));
 				fullScreen = Boolean.parseBoolean(appSettingsProperties.getProperty("fullScreen", "false"));
+				pageSound = Boolean.parseBoolean(appSettingsProperties.getProperty("pageSound", "true"));
 				DataDirectory = appSettingsProperties.getProperty("DataDirectory", userDir);
 				sash1Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights0", "350"));
 				sash1Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights1", "350"));
@@ -138,6 +140,7 @@ public class AppSettings {
 			appSettingsProperties.setProperty("Debug", String.valueOf(Debug));
 			appSettingsProperties.setProperty("Video", String.valueOf(video));
 			appSettingsProperties.setProperty("fullScreen", String.valueOf(fullScreen));
+			appSettingsProperties.setProperty("pageSound", String.valueOf(pageSound));
 			appSettingsProperties.setProperty("DataDirectory", DataDirectory);
 			appSettingsProperties.setProperty("sash1Weights0", String.valueOf(sash1Weights[0]));
 			appSettingsProperties.setProperty("sash1Weights1", String.valueOf(sash1Weights[1]));
@@ -220,6 +223,14 @@ public class AppSettings {
 
 	public void setFullScreen(boolean fullScreen) {
 		this.fullScreen = fullScreen;
+	}
+
+	public boolean isPageSound() {
+		return pageSound;
+	}
+
+	public void setPageSound(boolean pageSound) {
+		this.pageSound = pageSound;
 	}
 
 }

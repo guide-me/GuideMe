@@ -1,8 +1,14 @@
 package org.guideme.guideme;
 
-import java.applet.Applet;
-import java.applet.AudioClip;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 import java.io.File;
+import java.io.IOException;
 import java.net.URL;
 import java.util.Calendar;
 import java.util.Set;
@@ -30,7 +36,7 @@ public class MainLogic {
 	private static MainLogic mainLogic;
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	private OverRide overRide = new OverRide();
-    private static AudioClip song; // Sound player
+    private static Clip song; // Sound player
     private static URL songPath;
 
 	//singleton class stuff (force there to be only one instance without making it static)
@@ -40,8 +46,21 @@ public class MainLogic {
 	public static synchronized MainLogic getMainLogic() {
 		if (mainLogic == null) {
 			mainLogic = new MainLogic();
-			songPath =  MainLogic.class.getClassLoader().getResource("page.wav");
-			song = Applet.newAudioClip(songPath);
+			songPath =  MainLogic.class.getClassLoader().getResource("tick.wav");
+			AudioInputStream audioIn;
+			try {
+				audioIn = AudioSystem.getAudioInputStream(songPath);
+				song = AudioSystem.getClip();
+				song.open(audioIn);
+				FloatControl gainControl = (FloatControl) song.getControl(FloatControl.Type.MASTER_GAIN);
+				gainControl.setValue(-35.0f);			
+	        } catch (UnsupportedAudioFileException e) {
+				logger.error("audio clip Exception ", e);
+			} catch (IOException e) {
+				logger.error("audio clip Exception ", e);
+			} catch (LineUnavailableException e) {
+				logger.error("audio clip Exception ", e);
+			}
 		}
 		return mainLogic;
 	}
@@ -168,7 +187,10 @@ public class MainLogic {
 			}
 			
 			//PageChangeClick
-			song.play();
+			if (appSettings.isPageSound()  && guideSettings.isPageSound()) {
+				song.setFramePosition(0);
+				song.start();
+			}
 			
 			// delay
 			mainShell.setLblRight("");

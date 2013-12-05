@@ -85,6 +85,7 @@ public class XmlGuideReader {
 			Chapter chapter = new Chapter("default");
 			chapters.put("default", chapter);
 			guideSettings = guide.getSettings();
+			guideSettings.setPageSound(true);
 
 			FileInputStream fis = new FileInputStream(strPreXMLPath);
 	        UnicodeBOMInputStream ubis = new UnicodeBOMInputStream(fis);
@@ -350,6 +351,14 @@ public class XmlGuideReader {
 	        	        					 guide.setAutoSetPage(Boolean.parseBoolean(reader.getText()));
 	        	        				 } else {
 	        	        					 guide.setAutoSetPage(true); 
+	        	        				 }
+	        						 }	        				 
+	        						 if (reader.getName().getLocalPart().equals("PageSound")) {
+	        							 reader.next();
+	        	        				 if (reader.getEventType() == XMLStreamConstants.CHARACTERS) {
+	        	        					 guideSettings.setPageSound(Boolean.parseBoolean(reader.getText()));
+	        	        				 } else {
+	        	        					 guideSettings.setPageSound(true); 
 	        	        				 }
 	        						 }	        				 
 	        					 }

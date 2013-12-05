@@ -102,7 +102,9 @@ public class MetronomePlayer  implements Runnable {
 				track.add(new MidiEvent(off, totalTicks + padTicks));
 			}
 			sequencer = MidiSystem.getSequencer();
-			sequencer.open();
+			if (!sequencer.isOpen()) {
+				sequencer.open();
+			}
 			
 			sequencer.setTempoInBPM(metronomeBPM);
 
@@ -130,10 +132,12 @@ public class MetronomePlayer  implements Runnable {
 		} catch (Exception e) {
 			logger.error("MetronomePlayer run ", e);
 		}
+		/*
 		if (sequencer != null) {
 			sequencer.close();
 			sequencer = null;
 		}
+		*/
 	}
 
 }

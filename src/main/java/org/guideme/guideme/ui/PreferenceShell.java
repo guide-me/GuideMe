@@ -103,8 +103,11 @@ public class PreferenceShell {
 			//Full Screen
 			AddBooleanField(grpApp, "Full Screen", appWidgets.get("AppVideoBlnCtrl"), appWidgets.get("AppVideoBlnCtrl"), myAppSettings.isFullScreen(), "AppFullScreen");			
 
+			//Page Sound
+			AddBooleanField(grpApp, "Page Sound", appWidgets.get("AppFullScreenBlnCtrl"), appWidgets.get("AppFullScreenBlnCtrl"), myAppSettings.isPageSound(), "AppPageSound");			
+
 			//Data Directory
-			AddTextField(grpApp, "Data Directory", appWidgets.get("AppFullScreenBlnCtrl"), appWidgets.get("AppFullScreenBlnCtrl"), myAppSettings.getDataDirectory(), "AppDataDir", false);
+			AddTextField(grpApp, "Data Directory", appWidgets.get("AppPageSoundBlnCtrl"), appWidgets.get("AppPageSoundBlnCtrl"), myAppSettings.getDataDirectory(), "AppDataDir", false);
 
 			//midiInstrument
 			AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppDataDirCtrl"), appWidgets.get("AppDataDirCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
@@ -258,6 +261,9 @@ public class PreferenceShell {
 				
 				btnTmp = (Button) appWidgets.get("AppFullScreenBlnCtrl");
 				myAppSettings.setFullScreen(btnTmp.getSelection());
+				
+				btnTmp = (Button) appWidgets.get("AppPageSoundBlnCtrl");
+				myAppSettings.setPageSound(btnTmp.getSelection());
 				
 				txtTmp = (Text) appWidgets.get("AppDataDirCtrl");
 				myAppSettings.setDataDirectory((txtTmp.getText()));

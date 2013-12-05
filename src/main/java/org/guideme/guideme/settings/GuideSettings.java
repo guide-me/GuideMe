@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -45,6 +44,7 @@ public class GuideSettings {
 	private LinkedHashSet<String> userNumericKeys = new LinkedHashSet<String>(); 
 	private Logger logger = LogManager.getLogger();
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
+	private boolean pageSound = true;
 
 	public GuideSettings(String GuideId) {
 		super();
@@ -405,6 +405,14 @@ public class GuideSettings {
 	
 	public void setFormField(String key, String value) {
 		formFields.put(key, value);
+	}
+
+	public boolean isPageSound() {
+		return pageSound;
+	}
+
+	public void setPageSound(boolean pageSound) {
+		this.pageSound = pageSound;
 	}
 
 }
