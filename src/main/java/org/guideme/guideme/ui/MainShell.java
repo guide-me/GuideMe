@@ -433,7 +433,7 @@ public class MainShell {
 		@Override
 		public void mediaStateChanged(MediaPlayer lmediaPlayer, int newState) {
 			super.mediaStateChanged(lmediaPlayer, newState);
-			logger.debug("MediaListener newState " + newState + " videoPlay:" + videoPlay);
+			logger.debug("MediaListener newState: " + newState + " videoPlay: " + videoPlay +  " VideoTarget: " + videoTarget);
 			try {
 				if ((newState==5 || newState==6) && videoPlay){
 						if (!videoTarget.equals(""))  {
@@ -441,6 +441,7 @@ public class MainShell {
 							myDisplay.syncExec(
 									new Runnable() {
 										public void run(){
+											logger.debug("MediaListener Video Run: " + videoJscript + " videoTarget: " + videoTarget);
 											mainShell.runJscript(videoJscript);
 											mainShell.displayPage(videoTarget);
 										}
@@ -792,6 +793,7 @@ public class MainShell {
 				videoJscript = jscript;
 				videoPlay = true;
 				String mrlVideo = "file:///" + video;
+				logger.debug("MainShell playVideo: " + mrlVideo + " videoLoops: " + videoLoops + " videoTarget: " + videoTarget + " videoPlay: " + videoPlay);
 				VideoPlay videoPlay = new VideoPlay();
 				videoPlay.setVideoPlay(mediaPlayer, mrlVideo);
 				Thread videoPlayThread = new Thread(videoPlay);
@@ -811,6 +813,7 @@ public class MainShell {
 		public void run() {
 			try {
 				mediaPlayer.setVolume(appSettings.getVideoVolume());
+				mediaPlayer.setPlaySubItems(true);
 				if (videoStartAt == 0 && videoStopAt == 0 && videoLoops == 0) {
 					mediaPlayer.playMedia(video);
 				} else {
@@ -1111,6 +1114,7 @@ public class MainShell {
 					videoLoops = 0;
 					videoTarget = "";
 					videoPlay = false;
+					logger.debug("MainShell stopVideo ");
 					VideoStop videoStop = new VideoStop();
 					videoStop.setMediaPlayer(mediaPlayer);
 					Thread videoStopThread = new Thread(videoStop);
@@ -1131,6 +1135,7 @@ public class MainShell {
 
 		@Override
 		public void run() {
+			logger.debug("MainShell VideoStop run: " + mediaPlayer.mrl());
 			mediaPlayer.stop();
 		}
 		

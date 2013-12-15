@@ -47,6 +47,7 @@ public class MainLogic {
 		if (mainLogic == null) {
 			mainLogic = new MainLogic();
 			songPath =  MainLogic.class.getClassLoader().getResource("tick.wav");
+			logger.info("MainLogic getMainLogic songPath " + songPath);
 			AudioInputStream audioIn;
 			try {
 				audioIn = AudioSystem.getAudioInputStream(songPath);
@@ -299,7 +300,7 @@ public class MainLogic {
 							intStopAt = 0;
 							logger.trace("displayPage stopat Exception " + e1.getLocalizedMessage());
 						}
-
+						
 						imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
 
 						String loops = objVideo.getRepeat();

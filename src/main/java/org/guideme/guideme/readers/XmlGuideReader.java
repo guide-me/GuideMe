@@ -352,8 +352,7 @@ public class XmlGuideReader {
 	        	        				 } else {
 	        	        					 guide.setAutoSetPage(true); 
 	        	        				 }
-	        						 }	        				 
-	        						 if (reader.getName().getLocalPart().equals("PageSound")) {
+	        						 } else if (reader.getName().getLocalPart().equals("PageSound")) {
 	        							 reader.next();
 	        	        				 if (reader.getEventType() == XMLStreamConstants.CHARACTERS) {
 	        	        					 guideSettings.setPageSound(Boolean.parseBoolean(reader.getText()));
