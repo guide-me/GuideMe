@@ -1,5 +1,6 @@
 package org.guideme.guideme.settings;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -15,6 +16,8 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.guideme.guideme.MainLogic.WildCardFileFilter;
+import org.guideme.guideme.model.Guide;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -351,6 +354,50 @@ public class ComonFunctions {
 			retrn = retrn.substring(0, retrn.length() - 1);
 		}
 		return retrn;
+	}
+	
+	public Boolean fileExists(String fileName) {
+		AppSettings appSettings = AppSettings.getAppSettings();
+		Guide guide = Guide.getGuide(); 
+		String fileSeparator = appSettings.getFileSeparator();
+		
+		String dataDirectory;
+		String prefix = "";
+		dataDirectory = appSettings.getDataDirectory();
+		if (dataDirectory.startsWith("/")) {
+			prefix = "/";
+		}
+		dataDirectory = prefix + fixSeparator(appSettings.getDataDirectory(), fileSeparator);
+		String mediaDirectory = fixSeparator(guide.getMediaDirectory(), fileSeparator);
+		dataDirectory = dataDirectory + fileSeparator + mediaDirectory;
+		
+		
+		String media = fixSeparator(fileName, fileSeparator);
+		logger.debug("CommonFunctions fileExists getMediaFullPath " + media);
+		int intSubDir = media.lastIndexOf(fileSeparator);
+		String strSubDir;
+		if (intSubDir > -1) {
+			strSubDir = fixSeparator(media.substring(0, intSubDir + 1), fileSeparator);
+			media = media.substring(intSubDir + 1);
+		} else {
+			strSubDir = "";
+		}
+		// String strSubDir
+		// no wildcard so just use the file name
+		if (strSubDir.equals("")) {
+			fileName = dataDirectory + fileSeparator + media;
+		} else {
+			fileName = dataDirectory + fileSeparator + strSubDir + fileSeparator + media;
+		}
+		File f = new File(fileName);
+		Boolean fileexists = false;
+		if (f.exists()) {
+			if (f.isFile()) {
+				fileexists = true;
+			}
+		}
+		logger.debug("ComonFunctions FileExists check " + fileName + " " + fileexists);
+		return fileexists;
 	}
 	
 }

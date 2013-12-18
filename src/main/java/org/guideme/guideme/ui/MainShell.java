@@ -22,7 +22,7 @@ import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
-import org.eclipse.swt.graphics.GC;
+//import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Rectangle;
@@ -87,7 +87,7 @@ public class MainShell {
 	private Label lblLeft;
 	private Label lblCentre;
 	private Label lblRight;
-	private Label imageLabel;
+	private Browser imageLabel;
 	private Browser brwsText;
 	private SashForm sashform;
 	private SashForm sashform2;
@@ -113,6 +113,7 @@ public class MainShell {
 	private Thread threadAudioPlayer;
 	private Boolean videoOn = true;
 	private String style = "";
+	private Double imgOffSet = 0.96; 
 
 	public Shell createShell(final Display display) {
 		logger.trace("Enter createShell");
@@ -198,21 +199,24 @@ public class MainShell {
 			sashform = new SashForm(shell, SWT.HORIZONTAL);
 			sashform.setBackground(colourBlack);
 			
+			
 			mediaPanel = new Composite(sashform, SWT.EMBEDDED);
 			FillLayout layout3 = new FillLayout();
 			mediaPanel.setLayout(layout3);
 			mediaPanel.setBackground(colourBlack);
 			mediaPanel.addControlListener(new mediaPanelListener());
+			mediaPanel.setVisible(false);
 
-			imageLabel = new Label(mediaPanel, SWT.NONE);
+			style = "html { overflow-y: auto; } body { color: white; background-color: black; font-family: Tahoma; font-size:" + MintHtmlFontSize + "px } html, body, #wrapper { height:100%; width: 100%; margin: 0; padding: 0; border: 0; } #wrapper td { vertical-align: middle; text-align: center; }";
+			String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style + "</style></head><body></body></html>";
+			imageLabel = new Browser(sashform, 0);
+			imageLabel.setText(strHtml);
 			imageLabel.setBackground(colourBlack);
-			imageLabel.setAlignment(SWT.CENTER);
+			//imageLabel.setAlignment(SWT.CENTER);
 
 			sashform2 = new SashForm(sashform, SWT.VERTICAL);
 			sashform2.setBackground(colourBlack);
 
-			style = " body { overflow:auto; color: white; background-color: black; font-family: Tahoma; font-size:" + MintHtmlFontSize + "px } ";
-			String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style + "</style></head><body></body></html>";
 			brwsText = new Browser(sashform2, 0);
 			brwsText.setText(strHtml);
 			brwsText.setBackground(colourBlack);
@@ -330,10 +334,10 @@ public class MainShell {
 
 			// tell SWT to display the correct screen info
 			shell.pack();
+			shell.setMaximized(true);
 			sashform.setWeights(intWeights1);
 			sashform2.setWeights(intWeights2);
 			shell.setBounds(clientArea);
-			shell.setMaximized(true);
 			// timer that updates the clock field and handles any timed events
 			// when loading wait 2 seconds before running it
 			myDisplay.timerExec(2000, new shellTimer());
@@ -420,7 +424,9 @@ public class MainShell {
 			logger.debug("MediaListener finished");
 			super.finished(mediaPlayer);
 			try {
-				videoFrame.setVisible(false);
+				mediaPanel.setVisible(false);
+				//videoFrame.setVisible(false);
+				imageLabel.setVisible(true);
 			}
 			catch (Exception ex) {
 				logger.error(" MediaListener finished " + ex.getLocalizedMessage(), ex);
@@ -589,30 +595,35 @@ public class MainShell {
 			int newWidth;
 			int newHeight;
 
-			Label me = (Label)e.widget;
-			Image myImage = (Image) me.getData("image");
+			//Label me = (Label)e.widget;
+			Browser me = (Browser)e.widget;
+			//Image myImage = (Image) me.getData("image");
 			try {
-				if (myImage != null) {
+				if (me.getData("imgPath") != null) {
+					String imgPath = (String) me.getData("imgPath");
 					double imageRatio = ((Double) me.getData("imageRatio")).doubleValue();
 					Rectangle RectImage = me.getBounds();
 					double dblScreenRatio = (double) RectImage.height / (double) RectImage.width;
+					logger.trace("imgPath: " + imgPath);
 					logger.trace("dblScreenRatio: " + dblScreenRatio);
 					logger.trace("dblImageRatio: " + imageRatio);
 					logger.trace("Lable Height: " + RectImage.height);
 					logger.trace("Lable Width: " + RectImage.width);
 
 					if (dblScreenRatio > imageRatio) {
-						newHeight = (int) ((double) RectImage.width * imageRatio);
-						newWidth = RectImage.width;
+						newHeight = (int) (((double) RectImage.width * imageRatio) * imgOffSet);
+						newWidth = (int) ((double) RectImage.width * imgOffSet);
 						logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
 					} else {
-						newHeight = RectImage.height;
-						newWidth = (int) ((double) RectImage.height / imageRatio);
+						newHeight = (int) ((double) RectImage.height * imgOffSet);
+						newWidth = (int) (((double) RectImage.height / imageRatio) * imgOffSet);
 						logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
 					}
-					Image tmpImage = me.getImage();
-					me.setImage(resize(myImage, newWidth, newHeight));
-					tmpImage.dispose();
+					String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + imgPath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
+					me.setText(strHtml, true);
+					//Image tmpImage = me.getImage();
+					//me.setImage(resize(myImage, newWidth, newHeight));
+					//tmpImage.dispose();
 				}
 			}
 			catch (Exception ex7) {
@@ -622,6 +633,7 @@ public class MainShell {
 		}
 	}
 
+	/*
 	// Returns the image passed in resized to the width and height passed in
 	private static Image resize(Image image, int width, int height) {
 		try {
@@ -644,6 +656,7 @@ public class MainShell {
 		}
 
 	}
+	*/
 
 	class shellTimer implements Runnable {
 		//Timer to update:
@@ -736,12 +749,13 @@ public class MainShell {
 		//display an image in the area to the left of the screen
 		int newWidth;
 		int newHeight;
-		Image tmpImage = (Image) imageLabel.getData("image");
+		//Image tmpImage = (Image) imageLabel.getData("image");
 		Image memImage = new Image(myDisplay, imgPath);
-		imageLabel.setData("image", memImage);
-		if (tmpImage != null) {
-			tmpImage.dispose();
-		}
+		imageLabel.setData("imgPath", imgPath);
+		//imageLabel.setData("image", memImage);
+		//if (tmpImage != null) {
+		//	tmpImage.dispose();
+		//}
 		try {
 			ImageData imgData = memImage.getImageData();
 			Rectangle RectImage = imageLabel.getBounds();
@@ -755,29 +769,42 @@ public class MainShell {
 			logger.trace("Image Width: " + imgData.width);
 
 			if (dblScreenRatio > dblImageRatio) {
-				newHeight = (int) ((double) RectImage.width * dblImageRatio);
-				newWidth = RectImage.width;
+				newHeight = (int) (((double) RectImage.width * dblImageRatio) * imgOffSet);
+				newWidth = (int) ((double) RectImage.width * imgOffSet);
 				logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
 			} else {
-				newHeight = RectImage.height;
-				newWidth = (int) ((double) RectImage.height / dblImageRatio);
+				newHeight = (int) ((double) RectImage.height * imgOffSet);
+				newWidth = (int) (((double) RectImage.height / dblImageRatio) * imgOffSet);
 				logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
 			}
-			Image tmpImage2 = imageLabel.getImage();
-			imageLabel.setImage(resize(memImage, newWidth, newHeight));
+			//Image tmpImage2 = imageLabel.getImage();
+			//imageLabel.setImage(resize(memImage, newWidth, newHeight));
 			memImage = null;
-			if (tmpImage2 != null) {
-				tmpImage2.dispose();
-			}
-			logger.trace("Open: " + strImage);
+			//if (tmpImage2 != null) {
+			//	tmpImage2.dispose();
+			//}
+			String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + imgPath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
+			imageLabel.setText(strHtml, true);
+			logger.trace("Open: " + imgPath);
 		}
 		catch (Exception ex6) {
 			logger.error("Process Image error " + ex6.getLocalizedMessage(), ex6);
 		}
+		mediaPanel.setVisible(false);
 		videoFrame.setVisible(false);
     	this.imageLabel.setVisible(true);
 	}
 
+	public void setImageHtml(String leftHtml) {
+		try {
+			logger.trace("setImageHtml: " + leftHtml);
+			imageLabel.setText(leftHtml, true);
+		}
+		catch (Exception ex) {
+			logger.error("setImageHtml error " + ex.getLocalizedMessage(), ex);
+		}
+	}
+	
 	public void playVideo(String video, int startAt, int stopAt, int loops, String target, String jscript) {
 		//plays a video in the area to the left of the screen
 		//sets the number of loops, start / stop time and any page to display if the video finishes
@@ -785,6 +812,7 @@ public class MainShell {
 		if (videoOn) {
 			try {
 				this.imageLabel.setVisible(false);
+				this.mediaPanel.setVisible(true);
 				this.videoFrame.setVisible(true);
 				videoLoops = loops;
 				videoTarget = target;
@@ -842,7 +870,9 @@ public class MainShell {
 	}
 	
 	public void clearImage() {
-		imageLabel.setImage(null);		
+		//imageLabel.setImage(null);
+		String strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style +  "</style></head><body></body></html>";
+		imageLabel.setText(strHTML, true);
 	}
 
 	
@@ -1118,6 +1148,8 @@ public class MainShell {
 					VideoStop videoStop = new VideoStop();
 					videoStop.setMediaPlayer(mediaPlayer);
 					Thread videoStopThread = new Thread(videoStop);
+					mediaPanel.setVisible(false);
+					imageLabel.setVisible(true);
 					videoStopThread.start();
 				}
 			} catch (Exception e) {

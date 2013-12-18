@@ -107,7 +107,7 @@ public class MainLogic {
 		Metronome objMetronome;
 		Audio objAudio;
 		String fileSeparator = appSettings.getFileSeparator();
-		
+
 		logger.debug("displayPage PagePassed " + pageId);
 		logger.debug("displayPage Flags " + comonFunctions.GetFlags(guide.getFlags()));
 
@@ -172,7 +172,7 @@ public class MainLogic {
 
 			// get the page to display
 			objCurrPage = guide.getChapters().get(chapterName).getPages().get(strPageId);
-			
+
 			//run the pageLoad script
 			try {
 				String pageJavascript = objCurrPage.getjScript();
@@ -186,13 +186,13 @@ public class MainLogic {
 			} catch (Exception e) {
 				logger.error("displayPage javascript Exception " + e.getLocalizedMessage(), e);
 			}
-			
+
 			//PageChangeClick
 			if (appSettings.isPageSound()  && guideSettings.isPageSound()) {
 				song.setFramePosition(0);
 				song.start();
 			}
-			
+
 			// delay
 			mainShell.setLblRight("");
 			blnDelay = false;
@@ -238,7 +238,7 @@ public class MainLogic {
 						} catch (Exception etemp) {
 							guide.setDelStartAtOffSet(0);
 						}
-	
+
 						// record any delay set / unset
 						guide.setDelaySet(objDelay.getSet());
 						guide.setDelayUnSet(objDelay.getUnSet());
@@ -255,114 +255,117 @@ public class MainLogic {
 				mainShell.setLblLeft("");
 			}
 
-
 			if (!(intDelSeconds == 0)) { 
-				// Video
-				blnVideo = false;
-				objVideo = overRide.getVideo();
-				try {
-					if (objVideo != null) {
-						blnVideo = true;
-					} else {
-						if (objCurrPage.getVideoCount() > 0) {
-							for (int i2 = 0; i2 < objCurrPage.getVideoCount(); i2++) {
-								objVideo = objCurrPage.getVideo(i2);
-								if (objVideo.canShow(guide.getFlags())) {
-									blnVideo = true;
-									break;
+				if (overRide.getLeftHtml().equals("")) {
+					// Video
+					blnVideo = false;
+					objVideo = overRide.getVideo();
+					try {
+						if (objVideo != null) {
+							blnVideo = true;
+						} else {
+							if (objCurrPage.getVideoCount() > 0) {
+								for (int i2 = 0; i2 < objCurrPage.getVideoCount(); i2++) {
+									objVideo = objCurrPage.getVideo(i2);
+									if (objVideo.canShow(guide.getFlags())) {
+										blnVideo = true;
+										break;
+									}
 								}
-							}
-						} 
-					}
-					if (blnVideo) {
-						strImage = objVideo.getId();
-						logger.trace("displayPage Video " + strImage);
-						String strStartAt = objVideo.getStartAt();
-						logger.trace("displayPage Video Start At " + strStartAt);
-						int intStartAt = 0;
-						try {
-							if (strStartAt != "") {
-								intStartAt = comonFunctions.getMilisecFromTime(strStartAt) / 1000;
-							}
-						} catch (Exception e1) {
-							intStartAt = 0;
-							logger.trace("displayPage startat Exception " + e1.getLocalizedMessage());
+							} 
 						}
-
-						String strStopAt = objVideo.getStopAt();
-						logger.trace("displayPage Video Stop At " + strStopAt);
-						int intStopAt = 0;
-						try {
-							if (strStopAt != "") {
-								intStopAt = comonFunctions.getMilisecFromTime(strStopAt) / 1000;
+						if (blnVideo) {
+							strImage = objVideo.getId();
+							logger.trace("displayPage Video " + strImage);
+							String strStartAt = objVideo.getStartAt();
+							logger.trace("displayPage Video Start At " + strStartAt);
+							int intStartAt = 0;
+							try {
+								if (strStartAt != "") {
+									intStartAt = comonFunctions.getMilisecFromTime(strStartAt) / 1000;
+								}
+							} catch (Exception e1) {
+								intStartAt = 0;
+								logger.trace("displayPage startat Exception " + e1.getLocalizedMessage());
 							}
-						} catch (Exception e1) {
-							intStopAt = 0;
-							logger.trace("displayPage stopat Exception " + e1.getLocalizedMessage());
-						}
-						
-						imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
 
-						String loops = objVideo.getRepeat();
-						int repeat = 0;
-						try {
-							repeat = Integer.parseInt(loops);
-						} 
-						catch (NumberFormatException nfe) {
-						}
-						// Play video
-						mainShell.playVideo(imgPath, intStartAt, intStopAt, repeat, objVideo.getTarget(), objVideo.getJscript());
-					}
-				} catch (Exception e1) {
-					logger.trace("displayPage Video Exception " + e1.getLocalizedMessage());
-				}
+							String strStopAt = objVideo.getStopAt();
+							logger.trace("displayPage Video Stop At " + strStopAt);
+							int intStopAt = 0;
+							try {
+								if (strStopAt != "") {
+									intStopAt = comonFunctions.getMilisecFromTime(strStopAt) / 1000;
+								}
+							} catch (Exception e1) {
+								intStopAt = 0;
+								logger.trace("displayPage stopat Exception " + e1.getLocalizedMessage());
+							}
 
-				try {
-					if (!blnVideo) {
-						// image
-						// if there is an image over ride from javascript use it
-						blnImage = false;
-						strImage = overRide.getImage();
-						if (!strImage.equals("")) {
 							imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
-							File flImage = new File(imgPath);
-							if (flImage.exists()){
-								blnImage = true;
+
+							String loops = objVideo.getRepeat();
+							int repeat = 0;
+							try {
+								repeat = Integer.parseInt(loops);
+							} 
+							catch (NumberFormatException nfe) {
 							}
-						} 
-						if (!blnImage) {
-							if (objCurrPage.getImageCount() > 0) {
-								for (int i2 = 0; i2 < objCurrPage.getImageCount(); i2++) {
-									objImage = objCurrPage.getImage(i2);
-									if (objImage.canShow(guide.getFlags())) {
-										strImage = objImage.getId();
-										imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
-										File flImage = new File(imgPath);
-										if (flImage.exists()){
-											blnImage = true;
+							// Play video
+							mainShell.playVideo(imgPath, intStartAt, intStopAt, repeat, objVideo.getTarget(), objVideo.getJscript());
+						}
+					} catch (Exception e1) {
+						logger.trace("displayPage Video Exception " + e1.getLocalizedMessage());
+					}
+
+					try {
+						if (!blnVideo) {
+							// image
+							// if there is an image over ride from javascript use it
+							blnImage = false;
+							strImage = overRide.getImage();
+							if (!strImage.equals("")) {
+								imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
+								File flImage = new File(imgPath);
+								if (flImage.exists()){
+									blnImage = true;
+								}
+							} 
+							if (!blnImage) {
+								if (objCurrPage.getImageCount() > 0) {
+									for (int i2 = 0; i2 < objCurrPage.getImageCount(); i2++) {
+										objImage = objCurrPage.getImage(i2);
+										if (objImage.canShow(guide.getFlags())) {
+											strImage = objImage.getId();
+											imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
+											File flImage = new File(imgPath);
+											if (flImage.exists()){
+												blnImage = true;
+											}
 										}
 									}
 								}
 							}
-						}
-						if (blnImage) {
-							try {
-								mainShell.setImageLabel(imgPath, strImage);
-							} catch (Exception e1) {
-								logger.error("displayPage Image Exception " + e1.getLocalizedMessage(), e1);
+							if (blnImage) {
+								try {
+									mainShell.setImageLabel(imgPath, strImage);
+								} catch (Exception e1) {
+									logger.error("displayPage Image Exception " + e1.getLocalizedMessage(), e1);
+									mainShell.clearImage();
+								}
+							} else {
 								mainShell.clearImage();
+								// No image
 							}
 						} else {
 							mainShell.clearImage();
 							// No image
 						}
-					} else {
+					} catch (Exception e) {
+						logger.error("displayPage Image Exception " + e.getLocalizedMessage(), e);
 						mainShell.clearImage();
-						// No image
 					}
-				} catch (Exception e) {
-					logger.error("displayPage Image Exception " + e.getLocalizedMessage(), e);
-					mainShell.clearImage();
+				} else {
+					mainShell.setImageHtml(overRide.getLeftHtml());
 				}
 
 
@@ -377,7 +380,7 @@ public class MainLogic {
 						displayText = overRide.getHtml();
 						overRide.setHtml("");
 					}
-					
+
 					// Script Variables
 					Set<String> set = guideSettings.getScriptVariables().keySet();
 					for (String s :set) {
@@ -424,28 +427,28 @@ public class MainLogic {
 				for (int i1 = objCurrPage.getButtonCount() - 1; i1 >= 0; i1--) {
 					try {
 						objButton = objCurrPage.getButton(i1);
-							if (objButton.canShow(guide.getFlags())) {
-								String javascriptid = objButton.getjScript();
-								mainShell.addButton(objButton, javascriptid);
-							}
+						if (objButton.canShow(guide.getFlags())) {
+							String javascriptid = objButton.getjScript();
+							mainShell.addButton(objButton, javascriptid);
+						}
 					} catch (Exception e1) {
 						logger.error("displayPage Button Exception " + e1.getLocalizedMessage(), e1);
 					}
 				}
-				
+
 				//add any buttons added by javascript
 				for (int i1 = overRide.buttonCount() - 1; i1 >= 0; i1--) {
 					try {
 						objButton = overRide.getButton(i1);
-							if (objButton.canShow(guide.getFlags())) {
-								String javascriptid = objButton.getjScript();
-								mainShell.addButton(objButton, javascriptid);
-							}
+						if (objButton.canShow(guide.getFlags())) {
+							String javascriptid = objButton.getjScript();
+							mainShell.addButton(objButton, javascriptid);
+						}
 					} catch (Exception e1) {
 						logger.error("displayPage OverRide Exception " + e1.getLocalizedMessage(), e1);
 					}
 				}
-				
+
 				try {
 					if (appSettings.getDebug()) {
 						// add a button to trigger the delay target if debug is set by the user

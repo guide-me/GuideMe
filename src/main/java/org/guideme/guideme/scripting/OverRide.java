@@ -17,6 +17,7 @@ public class OverRide {
 	private String image = "";
 	private String html = "";
 	private String page = "";
+	private String leftHtml = "";
 	
 	public void addButton(String target, String text, String set, String unSet, String jScript, String image) {
 		Button button = new Button(target, text, "", "", set, unSet, jScript, image);
@@ -40,6 +41,7 @@ public class OverRide {
 		image = "";
 		html = "";
 		page = "";
+		leftHtml = "";
 	}
 
 	public Delay getDelay() {
@@ -96,6 +98,14 @@ public class OverRide {
 
 	public void setPage(String page) {
 		this.page = page;
+	}
+
+	public String getLeftHtml() {
+		return leftHtml;
+	}
+
+	public void setLeftHtml(String leftHtml) {
+		this.leftHtml = leftHtml;
 	}
 
 }
