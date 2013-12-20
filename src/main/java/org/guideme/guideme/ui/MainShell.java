@@ -22,11 +22,9 @@ import org.eclipse.swt.events.ShellAdapter;
 import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
-//import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.Rectangle;
-import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -63,7 +61,7 @@ import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 import uk.co.caprica.vlcj.player.embedded.videosurface.CanvasVideoSurface;
 
 public class MainShell {
-	private String version = "0.0.3";
+	private String version = "0.0.4";
 	/*
 	 Main screen and UI thread.
 	 exposes methods that allow other components to update the screen components
@@ -92,6 +90,7 @@ public class MainShell {
 	private SashForm sashform;
 	private SashForm sashform2;
 	private Composite btnComp;
+	private Composite leftFrame;
 	private Calendar calCountDown = null;
 	private Shell shell;
 	private Display myDisplay;
@@ -114,6 +113,7 @@ public class MainShell {
 	private Boolean videoOn = true;
 	private String style = "";
 	private Double imgOffSet = 0.96; 
+	private Boolean imgOverRide = false;
 
 	public Shell createShell(final Display display) {
 		logger.trace("Enter createShell");
@@ -199,17 +199,21 @@ public class MainShell {
 			sashform = new SashForm(shell, SWT.HORIZONTAL);
 			sashform.setBackground(colourBlack);
 			
+			leftFrame = new Composite(sashform,  SWT.SHADOW_NONE);
+			leftFrame.setBackground(colourBlack);
+			FormLayout layoutLF = new FormLayout();
+			leftFrame.setLayout(layoutLF);
 			
-			mediaPanel = new Composite(sashform, SWT.EMBEDDED);
-			FillLayout layout3 = new FillLayout();
+			
+			mediaPanel = new Composite(leftFrame, SWT.EMBEDDED);
+			FormLayout  layout3 = new FormLayout();
 			mediaPanel.setLayout(layout3);
 			mediaPanel.setBackground(colourBlack);
 			mediaPanel.addControlListener(new mediaPanelListener());
-			mediaPanel.setVisible(false);
 
 			style = "html { overflow-y: auto; } body { color: white; background-color: black; font-family: Tahoma; font-size:" + MintHtmlFontSize + "px } html, body, #wrapper { height:100%; width: 100%; margin: 0; padding: 0; border: 0; } #wrapper td { vertical-align: middle; text-align: center; }";
 			String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style + "</style></head><body></body></html>";
-			imageLabel = new Browser(sashform, 0);
+			imageLabel = new Browser(leftFrame, 0);
 			imageLabel.setText(strHtml);
 			imageLabel.setBackground(colourBlack);
 			//imageLabel.setAlignment(SWT.CENTER);
@@ -283,6 +287,20 @@ public class MainShell {
 			btnCompFormData.bottom = new FormAttachment(sashform2, 0);
 			btnComp.setLayoutData(btnCompFormData);
 
+			FormData MediaPanelFormData = new FormData();
+			MediaPanelFormData.top = new FormAttachment(0,0);
+			MediaPanelFormData.left = new FormAttachment(0, 0);
+			MediaPanelFormData.right = new FormAttachment(100,0);
+			MediaPanelFormData.bottom = new FormAttachment(100,0);
+			mediaPanel.setLayoutData(MediaPanelFormData);
+			
+			FormData imageLabelFormData = new FormData();
+			imageLabelFormData.top = new FormAttachment(0,0);
+			imageLabelFormData.left = new FormAttachment(0, 0);
+			imageLabelFormData.right = new FormAttachment(100,0);
+			imageLabelFormData.bottom = new FormAttachment(100,0);
+			imageLabel.setLayoutData(imageLabelFormData);
+			
 			//Menu Bar
 			Menu MenuBar = new Menu (shell, SWT.BAR);
 
@@ -335,9 +353,19 @@ public class MainShell {
 			// tell SWT to display the correct screen info
 			shell.pack();
 			shell.setMaximized(true);
-			sashform.setWeights(intWeights1);
-			sashform2.setWeights(intWeights2);
 			shell.setBounds(clientArea);
+			try {
+				sashform.setWeights(intWeights1);
+			}
+			catch (Exception ex2) {
+				logger.error(ex2.getLocalizedMessage(), ex2);
+			}
+			try {
+				sashform2.setWeights(intWeights2);
+			}
+			catch (Exception ex2) {
+				logger.error(ex2.getLocalizedMessage(), ex2);
+			}
 			// timer that updates the clock field and handles any timed events
 			// when loading wait 2 seconds before running it
 			myDisplay.timerExec(2000, new shellTimer());
@@ -425,8 +453,8 @@ public class MainShell {
 			super.finished(mediaPlayer);
 			try {
 				mediaPanel.setVisible(false);
-				//videoFrame.setVisible(false);
 				imageLabel.setVisible(true);
+				leftFrame.layout(true);
 			}
 			catch (Exception ex) {
 				logger.error(" MediaListener finished " + ex.getLocalizedMessage(), ex);
@@ -592,44 +620,46 @@ public class MainShell {
 	class ImageControlAdapter extends ControlAdapter {
 		public void controlResized(ControlEvent e) {
 			logger.trace("Enter addControlListener");
-			int newWidth;
-			int newHeight;
+			if (!imgOverRide) {
+				int newWidth;
+				int newHeight;
 
-			//Label me = (Label)e.widget;
-			Browser me = (Browser)e.widget;
-			//Image myImage = (Image) me.getData("image");
-			try {
-				if (me.getData("imgPath") != null) {
-					String imgPath = (String) me.getData("imgPath");
-					double imageRatio = ((Double) me.getData("imageRatio")).doubleValue();
-					Rectangle RectImage = me.getBounds();
-					double dblScreenRatio = (double) RectImage.height / (double) RectImage.width;
-					logger.trace("imgPath: " + imgPath);
-					logger.trace("dblScreenRatio: " + dblScreenRatio);
-					logger.trace("dblImageRatio: " + imageRatio);
-					logger.trace("Lable Height: " + RectImage.height);
-					logger.trace("Lable Width: " + RectImage.width);
+				//Label me = (Label)e.widget;
+				Browser me = (Browser)e.widget;
+				//Image myImage = (Image) me.getData("image");
+				try {
+					if (me.getData("imgPath") != null) {
+						String imgPath = (String) me.getData("imgPath");
+						double imageRatio = ((Double) me.getData("imageRatio")).doubleValue();
+						Rectangle RectImage = me.getBounds();
+						double dblScreenRatio = (double) RectImage.height / (double) RectImage.width;
+						logger.trace("imgPath: " + imgPath);
+						logger.trace("dblScreenRatio: " + dblScreenRatio);
+						logger.trace("dblImageRatio: " + imageRatio);
+						logger.trace("Lable Height: " + RectImage.height);
+						logger.trace("Lable Width: " + RectImage.width);
 
-					if (dblScreenRatio > imageRatio) {
-						newHeight = (int) (((double) RectImage.width * imageRatio) * imgOffSet);
-						newWidth = (int) ((double) RectImage.width * imgOffSet);
-						logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
-					} else {
-						newHeight = (int) ((double) RectImage.height * imgOffSet);
-						newWidth = (int) (((double) RectImage.height / imageRatio) * imgOffSet);
-						logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
+						if (dblScreenRatio > imageRatio) {
+							newHeight = (int) (((double) RectImage.width * imageRatio) * imgOffSet);
+							newWidth = (int) ((double) RectImage.width * imgOffSet);
+							logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
+						} else {
+							newHeight = (int) ((double) RectImage.height * imgOffSet);
+							newWidth = (int) (((double) RectImage.height / imageRatio) * imgOffSet);
+							logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
+						}
+						String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + imgPath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
+						me.setText(strHtml, true);
+						//Image tmpImage = me.getImage();
+						//me.setImage(resize(myImage, newWidth, newHeight));
+						//tmpImage.dispose();
 					}
-					String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + imgPath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
-					me.setText(strHtml, true);
-					//Image tmpImage = me.getImage();
-					//me.setImage(resize(myImage, newWidth, newHeight));
-					//tmpImage.dispose();
 				}
+				catch (Exception ex7) {
+					logger.error("Shell Resize error " + ex7.getLocalizedMessage(), ex7);
+				}
+				logger.trace("Exit addControlListener");
 			}
-			catch (Exception ex7) {
-				logger.error("Shell Resize error " + ex7.getLocalizedMessage(), ex7);
-			}
-			logger.trace("Exit addControlListener");
 		}
 	}
 
@@ -749,6 +779,7 @@ public class MainShell {
 		//display an image in the area to the left of the screen
 		int newWidth;
 		int newHeight;
+		imgOverRide = false;
 		//Image tmpImage = (Image) imageLabel.getData("image");
 		Image memImage = new Image(myDisplay, imgPath);
 		imageLabel.setData("imgPath", imgPath);
@@ -791,13 +822,14 @@ public class MainShell {
 			logger.error("Process Image error " + ex6.getLocalizedMessage(), ex6);
 		}
 		mediaPanel.setVisible(false);
-		videoFrame.setVisible(false);
     	this.imageLabel.setVisible(true);
+		leftFrame.layout(true);
 	}
 
 	public void setImageHtml(String leftHtml) {
 		try {
 			logger.trace("setImageHtml: " + leftHtml);
+			imgOverRide = true;
 			imageLabel.setText(leftHtml, true);
 		}
 		catch (Exception ex) {
@@ -813,7 +845,9 @@ public class MainShell {
 			try {
 				this.imageLabel.setVisible(false);
 				this.mediaPanel.setVisible(true);
-				this.videoFrame.setVisible(true);
+				leftFrame.layout(true);
+				Rectangle rect = mediaPanel.getClientArea();
+				videoFrame.setSize(rect.width, rect.height);
 				videoLoops = loops;
 				videoTarget = target;
 				videoStartAt = startAt;
@@ -1033,7 +1067,7 @@ public class MainShell {
 		}
 	}
 
-
+	//run the javascript function passed 
 	public void runJscript(String function) {
 		if (function == null) function = "";
 		if (! function.equals("")) {
@@ -1045,6 +1079,7 @@ public class MainShell {
 		}
 	}
 
+	//get any fields from the html form and store them in guide settings for use in the next java script call.
 	private void getFormFields() {
 		String evaluateScript = "" +
 				"var vforms = document.forms;" +
@@ -1150,6 +1185,7 @@ public class MainShell {
 					Thread videoStopThread = new Thread(videoStop);
 					mediaPanel.setVisible(false);
 					imageLabel.setVisible(true);
+					leftFrame.layout(true);
 					videoStopThread.start();
 				}
 			} catch (Exception e) {
