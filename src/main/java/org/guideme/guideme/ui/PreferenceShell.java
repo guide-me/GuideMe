@@ -1,7 +1,7 @@
 package org.guideme.guideme.ui;
 
 import java.util.HashMap;
-import java.util.Set;
+//import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,6 +25,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Button;
 import org.guideme.guideme.settings.AppSettings;
+import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.UserSettings;
 
 import com.snapps.swt.SquareButton;
@@ -32,7 +33,7 @@ import com.snapps.swt.SquareButton;
 public class PreferenceShell {
 	private Shell shell = null;
 	private Display myDisplay;
-	private UserSettings myUserSettings;
+	//private UserSettings myUserSettings;
 	private AppSettings myAppSettings;
 	private static Logger logger = LogManager.getLogger();
 	private Font controlFont;
@@ -46,13 +47,13 @@ public class PreferenceShell {
 	public Shell createShell(final Display display, UserSettings userSettings, AppSettings appSettings) {
 		logger.trace("Enter createShell");
 		try {
-			Control tmpWidget;
-			Control tmpWidget2;
+			//Control tmpWidget;
+			//Control tmpWidget2;
 			
 			
 			//Create the main UI elements
 			myDisplay = display;
-			myUserSettings = userSettings;
+			//myUserSettings = userSettings;
 			myAppSettings = appSettings;
 			shell = new Shell(myDisplay, SWT.APPLICATION_MODAL + SWT.DIALOG_TRIM + SWT.RESIZE);
 
@@ -82,11 +83,11 @@ public class PreferenceShell {
 			grpAppFormData.left = new FormAttachment(0,5);
 			grpAppFormData.right = new FormAttachment(100,-5);
 			grpApp.setLayoutData(grpAppFormData);
-			grpApp.setText("Application");
+			grpApp.setText("Application (" + ComonFunctions.getVersion() + ")");
 			FormLayout layout5 = new FormLayout();
 			grpApp.setLayout(layout5);
-			tmpWidget = grpApp;
-			tmpWidget2 = grpApp;
+			//tmpWidget = grpApp;
+			//tmpWidget2 = grpApp;
 			
 			//Font Size
 			AddTextField(grpApp, "Font Size", grpApp, grpApp, String.valueOf(myAppSettings.getFontSize()), "AppFontSize", true);
@@ -107,10 +108,11 @@ public class PreferenceShell {
 			AddBooleanField(grpApp, "Page Sound", appWidgets.get("AppFullScreenBlnCtrl"), appWidgets.get("AppFullScreenBlnCtrl"), myAppSettings.isPageSound(), "AppPageSound");			
 
 			//Data Directory
-			AddTextField(grpApp, "Data Directory", appWidgets.get("AppPageSoundBlnCtrl"), appWidgets.get("AppPageSoundBlnCtrl"), myAppSettings.getDataDirectory(), "AppDataDir", false);
+			//AddTextField(grpApp, "Data Directory", appWidgets.get("AppPageSoundBlnCtrl"), appWidgets.get("AppPageSoundBlnCtrl"), myAppSettings.getDataDirectory(), "AppDataDir", false);
 
 			//midiInstrument
-			AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppDataDirCtrl"), appWidgets.get("AppDataDirCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
+			//AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppDataDirCtrl"), appWidgets.get("AppDataDirCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
+			AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppPageSoundBlnCtrl"), appWidgets.get("AppPageSoundBlnCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
 
 			//midiVolume
 			AddTextField(grpApp, "Midi Volume (0 - 127)", appWidgets.get("AppMidiInstrumentNumCtrl"), appWidgets.get("AppMidiInstrumentNumCtrl"), String.valueOf(myAppSettings.getMidiVolume()), "AppMidiVolume", true);
@@ -121,6 +123,7 @@ public class PreferenceShell {
 			//HTML Font Size
 			AddTextField(grpApp, "Video volume (0 and 200)", appWidgets.get("AppMusicVolumeNumCtrl"), appWidgets.get("AppMusicVolumeNumCtrl"), String.valueOf(myAppSettings.getVideoVolume()), "AppVideoVolume", true);
 
+			/*
 			Group grpNames = new Group(composite, SWT.SHADOW_IN);
 			FormData grpNamesFormData = new FormData();
 			grpNamesFormData.top = new FormAttachment(grpApp,5);
@@ -177,13 +180,14 @@ public class PreferenceShell {
 				tmpWidget = appWidgets.get(s + "NumCtrl");
 				tmpWidget2 = appWidgets.get(s + "NumCtrl");
 			}
+			*/
 
 			SquareButton btnCancel = new SquareButton(composite, SWT.PUSH);
 			btnCancel.setText("Cancel");
 			btnCancel.setFont(controlFont);
 			FormData btnCancelFormData = new FormData();
-			btnCancelFormData.top = new FormAttachment(grpDoubles,5);
-			//btnCancelFormData.bottom = new FormAttachment(100,-5);
+			//btnCancelFormData.top = new FormAttachment(grpDoubles,5);
+			btnCancelFormData.top = new FormAttachment(grpApp,5);
 			btnCancelFormData.right = new FormAttachment(100,-5);
 			btnCancel.setLayoutData(btnCancelFormData);
 			btnCancel.addSelectionListener(new CancelButtonListener());
@@ -192,8 +196,8 @@ public class PreferenceShell {
 			btnSave.setText("Save");
 			btnSave.setFont(controlFont);
 			FormData btnSaveFormData = new FormData();
-			btnSaveFormData.top = new FormAttachment(grpDoubles,5);
-			//btnSaveFormData.bottom = new FormAttachment(100,-5);
+			//btnSaveFormData.top = new FormAttachment(grpDoubles,5);
+			btnSaveFormData.top = new FormAttachment(grpApp,5);
 			btnSaveFormData.right = new FormAttachment(btnCancel,-5);
 			btnSave.setLayoutData(btnSaveFormData);
 			btnSave.addSelectionListener(new SaveButtonListener());
@@ -265,8 +269,8 @@ public class PreferenceShell {
 				btnTmp = (Button) appWidgets.get("AppPageSoundBlnCtrl");
 				myAppSettings.setPageSound(btnTmp.getSelection());
 				
-				txtTmp = (Text) appWidgets.get("AppDataDirCtrl");
-				myAppSettings.setDataDirectory((txtTmp.getText()));
+				//txtTmp = (Text) appWidgets.get("AppDataDirCtrl");
+				//myAppSettings.setDataDirectory((txtTmp.getText()));
 
 				txtTmp = (Text) appWidgets.get("AppMidiInstrumentNumCtrl");
 				myAppSettings.setMidiInstrument(Integer.parseInt(txtTmp.getText()));
@@ -280,6 +284,7 @@ public class PreferenceShell {
 				txtTmp = (Text) appWidgets.get("AppVideoVolumeNumCtrl");
 				myAppSettings.setVideoVolume(Integer.parseInt(txtTmp.getText()));
 
+				/*
 				Set<String> set = myUserSettings.getStringKeys();
 				for (String s : set) {
 					txtTmp = (Text) appWidgets.get(s + "Ctrl");
@@ -297,6 +302,7 @@ public class PreferenceShell {
 					myUserSettings.setPref(s, Double.parseDouble(txtTmp.getText()));
 				}
 				myUserSettings.saveUserSettings();
+				*/
 				myAppSettings.saveSettings();
 				shell.close();
 			}

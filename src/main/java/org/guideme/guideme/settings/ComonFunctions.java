@@ -16,7 +16,7 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.guideme.guideme.MainLogic.WildCardFileFilter;
+//import org.guideme.guideme.MainLogic.WildCardFileFilter;
 import org.guideme.guideme.model.Guide;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -27,6 +27,7 @@ public class ComonFunctions {
 	private static Logger logger = LogManager.getLogger();
     private XPathFactory factory = XPathFactory.newInstance();
     private XPath xpath = factory.newXPath();
+    private static final String version = "0.0.5";
 
 	private static ComonFunctions comonFunctions;
 
@@ -398,6 +399,10 @@ public class ComonFunctions {
 		}
 		logger.debug("ComonFunctions FileExists check " + fileName + " " + fileexists);
 		return fileexists;
+	}
+
+	public static String getVersion() {
+		return version;
 	}
 	
 }

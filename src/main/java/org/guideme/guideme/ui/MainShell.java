@@ -61,7 +61,6 @@ import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
 import uk.co.caprica.vlcj.player.embedded.videosurface.CanvasVideoSurface;
 
 public class MainShell {
-	private String version = "0.0.4";
 	/*
 	 Main screen and UI thread.
 	 exposes methods that allow other components to update the screen components
@@ -112,6 +111,7 @@ public class MainShell {
 	private Thread threadAudioPlayer;
 	private Boolean videoOn = true;
 	private String style = "";
+	private String defaultStyle = "";
 	private Double imgOffSet = 0.96; 
 	private Boolean imgOverRide = false;
 
@@ -167,7 +167,7 @@ public class MainShell {
 			//get primary monitor and its size
 			Monitor primary = display.getPrimaryMonitor();
 			Rectangle clientArea = primary.getClientArea();
-			shell.setText("Guide Me (" + version + ")");
+			shell.setText("Guide Me (" + ComonFunctions.getVersion() + ")");
 			FormLayout layout = new FormLayout();
 			shell.setLayout(layout);
 
@@ -211,7 +211,8 @@ public class MainShell {
 			mediaPanel.setBackground(colourBlack);
 			mediaPanel.addControlListener(new mediaPanelListener());
 
-			style = "html { overflow-y: auto; } body { color: white; background-color: black; font-family: Tahoma; font-size:" + MintHtmlFontSize + "px } html, body, #wrapper { height:100%; width: 100%; margin: 0; padding: 0; border: 0; } #wrapper td { vertical-align: middle; text-align: center; }";
+			defaultStyle = "html { overflow-y: auto; } body { color: white; background-color: black; font-family: Tahoma; font-size:" + MintHtmlFontSize + "px } html, body, #wrapper { height:100%; width: 100%; margin: 0; padding: 0; border: 0; } #wrapper td { vertical-align: middle; text-align: center; }";
+			style = defaultStyle;
 			String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style + "</style></head><body></body></html>";
 			imageLabel = new Browser(leftFrame, 0);
 			imageLabel.setText(strHtml);
@@ -325,8 +326,13 @@ public class MainShell {
 
 			//File Preferences menu item
 			MenuItem filePreferencesItem = new MenuItem (fileSubMenu, SWT.PUSH);
-			filePreferencesItem.setText ("&Preferences");
+			filePreferencesItem.setText ("&Application Preferences");
 			filePreferencesItem.addSelectionListener(new FilePreferences());
+
+			//File Preferences Guide menu item
+			MenuItem filePreferencesGuideItem = new MenuItem (fileSubMenu, SWT.PUSH);
+			filePreferencesGuideItem.setText ("&User Preferences");
+			filePreferencesGuideItem.addSelectionListener(new FilePreferencesGuide());
 
 			//File Guide Preferences menu item
 			MenuItem fileGuidePreferencesItem = new MenuItem (fileSubMenu, SWT.PUSH);
@@ -521,6 +527,11 @@ public class MainShell {
 							//TODO Need to change this here to implement the new html format
 							String strPage = xmlGuideReader.loadXML(strFileToLoad, guide, appSettings);
 							guideSettings = guide.getSettings();
+							if (guide.getCss().equals("")) {
+								style = defaultStyle;
+							} else {
+								style = guide.getCss();
+							}
 							//display the first page
 							mainLogic.displayPage(strPage , false, guide, mainShell, appSettings, userSettings, guideSettings);
 						}
@@ -569,6 +580,39 @@ public class MainShell {
 		}
 
 	}
+	
+
+	class FilePreferencesGuide  extends SelectionAdapter {
+		//File Preferences from the menu
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			try {
+				logger.trace("Enter Preferences Guide Load");
+				//display a dialog to ask for a guide file to play
+				//load the file it will return the start page and populate the guide object
+				//TODO Need to change this here to implement the new html format
+				xmlGuideReader.loadXML("userSettingsUI.xml", guide, appSettings);
+				guide.setMediaDirectory("userSettings");
+				guideSettings = guide.getSettings();
+				if (guide.getCss().equals("")) {
+					style = defaultStyle;
+				} else {
+					style = guide.getCss();
+				}
+				//display the first page
+				guide.setInPrefGuide(true);
+				mainLogic.displayPage("start" , false, guide, mainShell, appSettings, userSettings, guideSettings);
+			}
+			catch (Exception ex3) {
+				logger.error("Load Image error " + ex3.getLocalizedMessage(), ex3);
+			}
+			logger.trace("Exit Preferences Guide Load");
+			super.widgetSelected(e);
+		}
+
+	}
+
+
 	
 	class FilePreferences  extends SelectionAdapter {
 		//File Preferences from the menu
@@ -814,7 +858,7 @@ public class MainShell {
 			//if (tmpImage2 != null) {
 			//	tmpImage2.dispose();
 			//}
-			String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + imgPath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
+			String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + imgPath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
 			imageLabel.setText(strHtml, true);
 			logger.trace("Open: " + imgPath);
 		}
@@ -938,7 +982,7 @@ public class MainShell {
 			//if (strTemp.endsWith("<br>")) {
 			//	strTemp = strTemp.substring(0, strTemp.length() - 4);
 			//}
-			
+				
 				strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style +  "</style></head><body>" + strTemp + "</body></html>";
 				this.brwsText.setText(strHTML);
 		} catch (Exception e1) {
@@ -1072,7 +1116,7 @@ public class MainShell {
 		if (function == null) function = "";
 		if (! function.equals("")) {
 			getFormFields();
-			Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
+			Jscript jscript = new Jscript(guideSettings, userSettings, appSettings, guide.getInPrefGuide());
 			Page objCurrPage = guide.getChapters().get(guideSettings.getChapter()).getPages().get(guideSettings.getPage());
 			String pageJavascript = objCurrPage.getjScript();
 			jscript.runScript(pageJavascript, function, false);
@@ -1219,6 +1263,14 @@ public class MainShell {
 		stopMetronome();
 		stopAudio();
 		stopVideo();
+	}
+
+	public void setStyle(String style) {
+		this.style = style;
+	}
+
+	public void setDefaultStyle() {
+		this.style = defaultStyle;
 	}
 
 }

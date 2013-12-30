@@ -5,7 +5,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
-import java.util.Set;
+//import java.util.Set;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -38,11 +38,6 @@ public class UserSettings implements Cloneable{
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	private static UserSettings userSettings;
 	
-	//constants
-	public static final int STRING = 1;
-	public static final int NUMBER = 2;
-	public static final int BOOLEAN = 3;
-
 	public static synchronized UserSettings getUserSettings() {
 		if (userSettings == null) {
 			userSettings = new UserSettings();
@@ -169,20 +164,48 @@ public class UserSettings implements Cloneable{
 		}
 	}
 
-	public String getScreenDesc(String key, int type) {
+	public String getScreenDesc(String key, String type) {
 		String desc = "";
-		if (type == UserSettings.STRING) {
+		if (type == "String") {
 			desc = userStringDesc.get(key);
 		}
-		if (type == UserSettings.BOOLEAN) {
+		if (type == "Boolean") {
 			desc = userBooleanDesc.get(key);
 		}
-		if (type == UserSettings.NUMBER) {
+		if (type == "Number") {
 			desc = userNumericDesc.get(key);
 		}
 		return desc;
 	}
 	
+	public void addPref(String key, String value, String screenDesc) {
+		userStringPrefs.put(key, value);
+		userStringDesc.put(key, screenDesc);
+	}
+	
+	public void addPref(String key, Boolean value, String screenDesc) {
+		userBooleanPrefs.put(key, value);
+		userBooleanDesc.put(key, screenDesc);
+	}
+	
+	public void addPref(String key, Double value, String screenDesc) {
+		userNumericPrefs.put(key, value);
+		userNumericDesc.put(key, screenDesc);
+	}
+	
+	public Boolean keyExists(String key, String type) {
+		Boolean exists = false;
+		if (type.equals("String")) {
+			exists = userStringDesc.containsKey(key);
+		}
+		if (type.equals("Boolean")) {
+			exists = userBooleanDesc.containsKey(key);
+		}
+		if (type.equals("Number")) {
+			exists = userNumericDesc.containsKey(key);
+		}
+		return exists;
+	}
 	
 	public void saveUserSettings(){
 	    try {
@@ -207,6 +230,7 @@ public class UserSettings implements Cloneable{
 				doc.appendChild(rootElement);
 			}
 
+			/*
 			String keyVal;
 			for (Map.Entry<String, String> entry : userStringPrefs.entrySet()) {
 				keyVal = entry.getKey();
@@ -223,6 +247,44 @@ public class UserSettings implements Cloneable{
 			for (Map.Entry<String, Double> entry : userNumericPrefs.entrySet()) {
 				keyVal = entry.getKey();
 			    Element elPref = comonFunctions.getOrAddElement("//pref[@key='" + keyVal + "']", "pref", rootElement, doc);
+			    elPref.setAttribute("value",  String.valueOf(entry.getValue()));
+			}
+			*/
+			String keyVal;
+			String desc;
+		    //Element elscriptPreferences = comonFunctions.getElement("//scriptPreferences", rootElement);
+		    if (rootElement.hasChildNodes()) {
+		    	while (rootElement.getFirstChild() != null) {
+		    		rootElement.removeChild(rootElement.getFirstChild());
+		    	}		    
+		    }
+			for (Map.Entry<String, String> entry : userStringPrefs.entrySet()) {
+				keyVal = entry.getKey();
+				desc = userStringDesc.get(keyVal);
+			    Element elPref = comonFunctions.addElement("pref", rootElement, doc);
+			    elPref.setAttribute("key",  keyVal);
+			    elPref.setAttribute("screen",  desc);
+			    elPref.setAttribute("type",  "String");
+			    elPref.setAttribute("value",  entry.getValue());
+			}
+
+			for (Map.Entry<String, Boolean> entry : userBooleanPrefs.entrySet()) {
+				keyVal = entry.getKey();
+				desc = userBooleanDesc.get(keyVal);
+			    Element elPref = comonFunctions.addElement("pref", rootElement, doc);
+			    elPref.setAttribute("key",  keyVal);
+			    elPref.setAttribute("screen",  desc);
+			    elPref.setAttribute("type",  "Boolean");
+			    elPref.setAttribute("value",  String.valueOf(entry.getValue()));
+			}
+
+			for (Map.Entry<String, Double> entry : userNumericPrefs.entrySet()) {
+				keyVal = entry.getKey();
+				desc = userNumericDesc.get(keyVal);
+			    Element elPref = comonFunctions.addElement("pref", rootElement, doc);
+			    elPref.setAttribute("key",  keyVal);
+			    elPref.setAttribute("screen",  desc);
+			    elPref.setAttribute("type",  "Number");
 			    elPref.setAttribute("value",  String.valueOf(entry.getValue()));
 			}
 

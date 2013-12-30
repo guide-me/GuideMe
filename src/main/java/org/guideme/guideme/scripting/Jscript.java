@@ -25,12 +25,14 @@ public class Jscript {
 	private static OverRide overRide;
 	private static Logger logger = LogManager.getLogger();
 	private static final Marker JSCRIPT_MARKER = MarkerManager.getMarker("JSCRIPT");
+	private static Boolean inPrefGuide;
 
-	public Jscript(GuideSettings IguideSettings, UserSettings IuserSettings, AppSettings IappSettings) {
+	public Jscript(GuideSettings IguideSettings, UserSettings IuserSettings, AppSettings IappSettings, Boolean IinPrefGuide) {
 		super();
 		guideSettings = IguideSettings;
 		userSettings = IuserSettings;
 		appSettings = IappSettings;
+		inPrefGuide = IinPrefGuide;
 	}
 
 
@@ -55,8 +57,12 @@ public class Jscript {
 			ContextFactory cntxFact = new ContextFactory();
 			Context cntx = cntxFact.enterContext();
 			Scriptable scope = cntx.initStandardObjects();
-			UserSettings cloneUS = userSettings.clone();
-			ScriptableObject.putProperty(scope, "userSettings", cloneUS);
+			if (! inPrefGuide) {
+				UserSettings cloneUS = userSettings.clone();
+				ScriptableObject.putProperty(scope, "userSettings", cloneUS);
+			} else {
+				ScriptableObject.putProperty(scope, "userSettings", userSettings);
+			}
 			@SuppressWarnings("rawtypes")
 			Class[] cArg = new Class[1];
 			cArg[0] = String.class;
@@ -98,6 +104,9 @@ public class Jscript {
 			logger.info(JSCRIPT_MARKER, "Ending Flags {" + guideSettings.getFlags() + "}");
 			Context.exit();
 			guideSettings.saveSettings();
+			if (inPrefGuide) {
+				userSettings.saveUserSettings();
+			}
 		}
 		catch (Exception ex) {
 			logger.error(" FileRunScript " + ex.getLocalizedMessage(), ex);

@@ -178,7 +178,7 @@ public class MainLogic {
 				String pageJavascript = objCurrPage.getjScript();
 				if (! pageJavascript.equals("")) {
 					if (pageJavascript.contains("pageLoad")) {
-						Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
+						Jscript jscript = new Jscript(guideSettings, userSettings, appSettings, guide.getInPrefGuide());
 						jscript.setOverRide(overRide);
 						jscript.runScript(pageJavascript, "pageLoad", true);
 					}
@@ -383,8 +383,10 @@ public class MainLogic {
 
 					// Script Variables
 					Set<String> set = guideSettings.getScriptVariables().keySet();
+					String varValue;
 					for (String s :set) {
-						displayText = displayText.replace("<span>" + s + "</span>", guideSettings.getScriptVariables().get(s));
+						varValue = guideSettings.getScriptVariables().get(s);
+						displayText = displayText.replace("<span>" + s + "</span>", varValue);
 					}
 
 					// String Guide Preferences
@@ -596,11 +598,15 @@ public class MainLogic {
 		String mediaFound = "";
 		String dataDirectory;
 		String prefix = "";
-		dataDirectory = appSettings.getDataDirectory();
-		if (dataDirectory.startsWith("/")) {
-			prefix = "/";
+		if (guide.getInPrefGuide()) {
+			dataDirectory = appSettings.getUserDir();
+		} else { 
+			dataDirectory = appSettings.getDataDirectory();
+			if (dataDirectory.startsWith("/")) {
+				prefix = "/";
+			}
+			dataDirectory = prefix + comonFunctions.fixSeparator(appSettings.getDataDirectory(), fileSeparator);
 		}
-		dataDirectory = prefix + comonFunctions.fixSeparator(appSettings.getDataDirectory(), fileSeparator);
 		String mediaDirectory = comonFunctions.fixSeparator(guide.getMediaDirectory(), fileSeparator);
 		dataDirectory = dataDirectory + fileSeparator + mediaDirectory;
 		

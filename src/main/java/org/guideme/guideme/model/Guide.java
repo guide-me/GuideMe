@@ -33,6 +33,8 @@ public class Guide {
 	private String jScript;
 	private String delayjScript;
 	private static Guide guide;
+	private String css; // css style sheet
+	private Boolean inPrefGuide;
 	
 	private Guide() {
 		
@@ -208,6 +210,8 @@ public class Guide {
 		chapters = new HashMap<String, Chapter>(); 
 		delStartAtOffSet = 0;
 		jScript = "";
+		css = "";
+		inPrefGuide = false;
 	}
 
 	public GuideSettings getSettings() {
@@ -232,6 +236,22 @@ public class Guide {
 
 	public void setDelayjScript(String delayjScript) {
 		this.delayjScript = delayjScript;
+	}
+
+	public String getCss() {
+		return css;
+	}
+
+	public void setCss(String css) {
+		this.css = css;
+	}
+
+	public Boolean getInPrefGuide() {
+		return inPrefGuide;
+	}
+
+	public void setInPrefGuide(Boolean inPrefGuide) {
+		this.inPrefGuide = inPrefGuide;
 	}
 
 	

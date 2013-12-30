@@ -47,7 +47,7 @@ public class XmlGuideReader {
 	
 	private enum TagName
 	{
-		pref, Title, Author, MediaDirectory, Settings, Page, Metronome, Image, Audio, Video, Delay, Button, Text, javascript, NOVALUE;
+		pref, Title, Author, MediaDirectory, Settings, Page, Metronome, Image, Audio, Video, Delay, Button, Text, javascript, CSS, NOVALUE;
 
 	    public static TagName toTag(String str)
 	    {
@@ -436,6 +436,21 @@ public class XmlGuideReader {
 	        				 }
 	        			 } catch (Exception e1) {
 	        				 logger.error("loadXML " + PresName + " Text Exception " + e1.getLocalizedMessage(), e1);
+	        			 }
+	        			 break;
+	        		 case CSS:
+	        			 try {
+	        				 reader.next();
+	        				 String gcss;
+	        				 if (reader.getEventType() == XMLStreamConstants.CHARACTERS) {
+	        					 gcss  = reader.getText();
+	        				 } else {
+	        					 gcss = "";
+	        				 }
+	        				 guide.setCss(gcss);
+		        			 logger.trace("loadXML " + PresName + " CSS " + gcss);
+	        			 } catch (Exception e1) {
+	        				 logger.error("loadXML " + PresName + " CSS Exception " + e1.getLocalizedMessage(), e1);
 	        			 }
 	        			 break;
 	        		 default:
