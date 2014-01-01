@@ -114,6 +114,7 @@ public class MainShell {
 	private String defaultStyle = "";
 	private Double imgOffSet = 0.96; 
 	private Boolean imgOverRide = false;
+	private HashMap<String, com.snapps.swt.SquareButton> hotKeys = new HashMap<String, com.snapps.swt.SquareButton>();
 
 	public Shell createShell(final Display display) {
 		logger.trace("Enter createShell");
@@ -163,6 +164,7 @@ public class MainShell {
 				shell = new Shell(myDisplay);
 			}
 			shell.addShellListener(new shellCloseListen());
+			display.addFilter(SWT.KeyDown, new shellKeyEventListener());
 			
 			//get primary monitor and its size
 			Monitor primary = display.getPrimaryMonitor();
@@ -416,6 +418,33 @@ public class MainShell {
 		public void handleEvent(Event event) {
 		}
 	}
+	
+	
+	//hotkey stuff here
+	class shellKeyEventListener implements Listener {
+		@Override
+		public void handleEvent(Event event) {
+			com.snapps.swt.SquareButton hotKeyButton;
+			String key = String.valueOf(event.character);
+			hotKeyButton = hotKeys.get(key);
+			if (hotKeyButton != null) {
+				String strTag;
+				strTag = (String) hotKeyButton.getData("Set");
+				if (!strTag.equals("")) {
+					comonFunctions.SetFlags(strTag, guide.getFlags());
+				}
+				strTag = (String) hotKeyButton.getData("UnSet");
+				if (!strTag.equals("")) {
+					comonFunctions.UnsetFlags(strTag, guide.getFlags());
+				}
+				strTag = (String) hotKeyButton.getData("Target");
+				String javascript = (String) hotKeyButton.getData("javascript");
+				runJscript(javascript);
+				mainLogic.displayPage(strTag, false, guide, mainShell, appSettings, userSettings, guideSettings);
+			}
+		}
+	}
+	
 	
 	class VideoRelease implements Runnable {
 		//Do the release of the Video stuff (VLC) on a different thread to prevent it blocking the main UI thread
@@ -1073,6 +1102,11 @@ public class MainShell {
 			}
 			btnDynamic.setData("javascript", javascript);
 			logger.debug("displayPage Button Text " + strBtnText + " Target " + strBtnTarget + " Set " + strButtonSet + " UnSet " + strButtonUnSet);
+			
+			String hotKey = button.getHotKey();
+			if (!hotKey.equals("")) {
+				hotKeys.put(hotKey, btnDynamic);
+			}
 
 			btnDynamic.setData("Target", strBtnTarget);
 			btnDynamic.addSelectionListener(new DynamicButtonListner());
@@ -1082,7 +1116,7 @@ public class MainShell {
 		
 	}
 
-	// Click event code for the dynamic buttons
+    // Click event code for the dynamic buttons
 	class DynamicButtonListner extends SelectionAdapter {
 		public void widgetSelected(SelectionEvent event) {
 			try {
@@ -1259,6 +1293,7 @@ public class MainShell {
 	}
 
 	public void stopAll() {
+		hotKeys.clear();
 		stopDelay();
 		stopMetronome();
 		stopAudio();

@@ -238,6 +238,9 @@ public class XmlGuideReader {
 							if (javascript == null) javascript = "";
 							String image = reader.getAttributeValue(null, "image"); 
 							if (image == null) image = "";
+							String hotKey;
+							hotKey = reader.getAttributeValue(null, "hotkey");
+							if (hotKey == null) hotKey = "";
 							reader.next();
 							String BtnText;
 							if (reader.getEventType() == XMLStreamConstants.CHARACTERS) {
@@ -245,7 +248,7 @@ public class XmlGuideReader {
 							} else {
 								BtnText = "";
 							}
-							Button button = new Button(strTarget, BtnText, ifSet, ifNotSet, Set, UnSet, javascript, image);
+							Button button = new Button(strTarget, BtnText, ifSet, ifNotSet, Set, UnSet, javascript, image, hotKey);
 							page.addButton(button);
 							logger.trace("loadXML " + PresName + " Button " + strTarget+ "|" + BtnText + "|" + ifSet+ "|" + ifNotSet+ "|" + Set+ "|" + UnSet + "|" + javascript);
 						} catch (Exception e1) {

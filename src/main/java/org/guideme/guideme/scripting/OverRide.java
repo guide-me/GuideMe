@@ -20,7 +20,11 @@ public class OverRide {
 	private String leftHtml = "";
 	
 	public void addButton(String target, String text, String set, String unSet, String jScript, String image) {
-		Button button = new Button(target, text, "", "", set, unSet, jScript, image);
+		addButton(target, text, set, unSet, jScript, image, "");
+	}
+	
+	public void addButton(String target, String text, String set, String unSet, String jScript, String image, String hotKey) {
+		Button button = new Button(target, text, "", "", set, unSet, jScript, image, hotKey);
 		this.button.add(button);
 	}
 
