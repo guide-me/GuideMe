@@ -883,6 +883,7 @@ public class MainShell {
 			}
 			//Image tmpImage2 = imageLabel.getImage();
 			//imageLabel.setImage(resize(memImage, newWidth, newHeight));
+			memImage.dispose();
 			memImage = null;
 			//if (tmpImage2 != null) {
 			//	tmpImage2.dispose();
@@ -1025,6 +1026,10 @@ public class MainShell {
 		//remove all the buttons displayed for the previous page
         try {
 			for (Control kid : btnComp.getChildren()) {
+				Image bkgrndImage = kid.getBackgroundImage();
+				if (bkgrndImage != null) {
+					bkgrndImage.dispose();
+				}
 			    kid.dispose();
 			  }
 		} catch (Exception e) {
