@@ -1,7 +1,6 @@
 package org.guideme.guideme.readers;
 
 import java.io.IOException;
-import java.net.URL;
 
 import org.apache.commons.lang.CharSetUtils;
 import org.apache.logging.log4j.LogManager;

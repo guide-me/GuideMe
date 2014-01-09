@@ -178,7 +178,7 @@ public class MainLogic {
 				String pageJavascript = objCurrPage.getjScript();
 				if (! pageJavascript.equals("")) {
 					if (pageJavascript.contains("pageLoad")) {
-						Jscript jscript = new Jscript(guideSettings, userSettings, appSettings, guide.getInPrefGuide());
+						Jscript jscript = new Jscript(guide, userSettings, appSettings, guide.getInPrefGuide());
 						jscript.setOverRide(overRide);
 						jscript.runScript(pageJavascript, "pageLoad", true);
 					}
@@ -385,34 +385,54 @@ public class MainLogic {
 					Set<String> set = guideSettings.getScriptVariables().keySet();
 					String varValue;
 					for (String s :set) {
-						varValue = guideSettings.getScriptVariables().get(s);
-						displayText = displayText.replace("<span>" + s + "</span>", varValue);
+						try {
+							varValue = guideSettings.getScriptVariables().get(s);
+							displayText = displayText.replace("<span>" + s + "</span>", varValue);
+						} catch (Exception e) {
+							logger.error("displayPage BrwsText ScriptVariables Exception " + s + " " + e.getLocalizedMessage(), e);
+						}
 					}
 
 					// String Guide Preferences
 					set = guideSettings.getStringKeys(); 
 					for (String s : set) {
-						displayText = displayText.replace("<span>" + s + "</span>", guideSettings.getPref(s));
+						try {
+							displayText = displayText.replace("<span>" + s + "</span>", guideSettings.getPref(s));
+						} catch (Exception e) {
+							logger.error("displayPage BrwsText String Guide Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
+						}
 					}
 
 					// Number Guide Preferences
 					set = guideSettings.getNumberKeys(); 
 					String numberRet = "";
 					for (String s : set) {
+						try {
 						numberRet = FormatNumPref(guideSettings.getPrefNumber(s));
-						displayText = displayText.replace("<span>" + s + "</span>", numberRet);
+							displayText = displayText.replace("<span>" + s + "</span>", numberRet);
+						} catch (Exception e) {
+							logger.error("displayPage BrwsText Number Guide Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
+						}
 					}
 
 					// String User Preferences
 					set = userSettings.getStringKeys(); 
 					for (String s : set) {
-						displayText = displayText.replace("<span>" + s + "</span>", userSettings.getPref(s));
+						try {
+							displayText = displayText.replace("<span>" + s + "</span>", userSettings.getPref(s));
+						} catch (Exception e) {
+							logger.error("displayPage BrwsText String User Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
+						}
 					}
 
 					// Number User Preferences
 					set = userSettings.getNumberKeys(); 
 					for (String s : set) {
+						try {
 						displayText = displayText.replace("<span>" + s + "</span>", FormatNumPref(userSettings.getPrefNumber(s)));
+						} catch (Exception e) {
+							logger.error("displayPage BrwsText Number User Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
+						}
 					}
 
 					mainShell.setBrwsText(displayText);

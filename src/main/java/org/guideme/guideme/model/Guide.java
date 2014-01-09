@@ -32,6 +32,7 @@ public class Guide {
 	private GuideSettings settings; //state for the currently running xml
 	private String jScript;
 	private String delayjScript;
+	private String globaljScript;
 	private static Guide guide;
 	private String css; // css style sheet
 	private Boolean inPrefGuide;
@@ -212,6 +213,7 @@ public class Guide {
 		jScript = "";
 		css = "";
 		inPrefGuide = false;
+		globaljScript = "";
 	}
 
 	public GuideSettings getSettings() {
@@ -252,6 +254,14 @@ public class Guide {
 
 	public void setInPrefGuide(Boolean inPrefGuide) {
 		this.inPrefGuide = inPrefGuide;
+	}
+
+	public String getGlobaljScript() {
+		return globaljScript;
+	}
+
+	public void setGlobaljScript(String globaljScript) {
+		this.globaljScript = globaljScript;
 	}
 
 	

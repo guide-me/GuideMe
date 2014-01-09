@@ -47,7 +47,7 @@ public class XmlGuideReader {
 
 	private enum TagName
 	{
-		pref, Title, Author, MediaDirectory, Settings, Page, Metronome, Image, Audio, Video, Delay, Button, Text, javascript, CSS, Include, NOVALUE;
+		pref, Title, Author, MediaDirectory, Settings, Page, Metronome, Image, Audio, Video, Delay, Button, Text, javascript, GlobalJavascript, CSS, Include, NOVALUE;
 
 		public static TagName toTag(String str)
 		{
@@ -466,14 +466,42 @@ public class XmlGuideReader {
 							logger.error("loadXML " + PresName + " Text Exception " + e1.getLocalizedMessage(), e1);
 						}
 						break;
+					case GlobalJavascript:
+						try {
+							if (reader.getName().getLocalPart().equals("GlobalJavascript")) {
+								String javascript = "";
+								int eventType2 = reader.next();
+								while (true) {
+									switch (eventType2) {
+									case XMLStreamConstants.START_ELEMENT:
+										break;
+									case XMLStreamConstants.END_ELEMENT:
+										break;
+									case XMLStreamConstants.CHARACTERS:
+										javascript = javascript + reader.getText();
+										break;
+									}
+									eventType2 = reader.next();
+									if (eventType2 == XMLStreamConstants.END_ELEMENT) {
+										if (reader.getName().getLocalPart().equals("GlobalJavascript")) break;
+									}
+								}
+								logger.trace("loadXML " + PresName + " GlobalJavascript " + javascript);
+								if (! javascript.equals("")) {
+									guide.setGlobaljScript(javascript);
+								}
+							}
+						} catch (Exception e1) {
+							logger.error("loadXML " + PresName + " Text Exception " + e1.getLocalizedMessage(), e1);
+						}
+						break;
 					case CSS:
 						try {
 							reader.next();
-							String gcss;
-							if (reader.getEventType() == XMLStreamConstants.CHARACTERS) {
-								gcss  = reader.getText();
-							} else {
-								gcss = "";
+							String gcss = "";
+							while (reader.getEventType() == XMLStreamConstants.CHARACTERS) {
+								gcss  = gcss + reader.getText();
+								reader.next();
 							}
 							guide.setCss(gcss);
 							logger.trace("loadXML " + PresName + " CSS " + gcss);

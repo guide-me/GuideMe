@@ -27,7 +27,7 @@ public class ComonFunctions {
 	private static Logger logger = LogManager.getLogger();
     private XPathFactory factory = XPathFactory.newInstance();
     private XPath xpath = factory.newXPath();
-    private static final String version = "0.0.6";
+    private static final String version = "0.0.7";
 
 	private static ComonFunctions comonFunctions;
 

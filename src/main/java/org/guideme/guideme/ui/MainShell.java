@@ -377,6 +377,9 @@ public class MainShell {
 			// timer that updates the clock field and handles any timed events
 			// when loading wait 2 seconds before running it
 			myDisplay.timerExec(2000, new shellTimer());
+			metronome = new MetronomePlayer();
+			threadMetronome = new Thread(metronome, "metronome");
+			threadMetronome.start();
 		}
 		catch (Exception ex) {
 			logger.error(ex.getLocalizedMessage(), ex);
@@ -401,13 +404,13 @@ public class MainShell {
 				appSettings.saveSettings();
 				controlFont.dispose();
 				stopAll();
+				metronome.metronomeKill();
 				if (videoOn) {
 					VideoRelease videoRelease = new VideoRelease();
 					videoRelease.setVideoRelease(mediaPlayer, mediaPlayerFactory);
-					Thread videoReleaseThread = new Thread(videoRelease);
+					Thread videoReleaseThread = new Thread(videoRelease, "videoRelease");
 					videoReleaseThread.start();
 				}
-				
 			}
 			catch (Exception ex) {
 				logger.error("shellCloseListen ", ex);
@@ -455,6 +458,7 @@ public class MainShell {
 		public void run() {
 			mediaPlayerThread.release();
 			mediaPlayerFactoryThread.release();
+			logger.trace("VideoRelease Exit");
 		}
 
 		public void setVideoRelease(EmbeddedMediaPlayer mediaPlayer, MediaPlayerFactory mediaPlayerFactory) {
@@ -772,6 +776,13 @@ public class MainShell {
 				//logger.trace("Enter shellTimer");
 				DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 				Calendar cal = Calendar.getInstance();
+				String javascript;
+				long diff;
+				int intSeconds;
+				int intMinutes;
+				String strSeconds;
+				String strMinutes;
+				String strTimeLeft;
 				if (calCountDown != null) {
 					if (cal.after(calCountDown)){
 						//Delay has reached zero
@@ -779,7 +790,7 @@ public class MainShell {
 						lblRight.setText("");
 						comonFunctions.SetFlags(guide.getDelaySet(), guide.getFlags());
 						comonFunctions.UnsetFlags(guide.getDelayUnSet(), guide.getFlags());
-						String javascript = guide.getDelayjScript();
+						javascript = guide.getDelayjScript();
 						mainShell.runJscript(javascript);
 						mainLogic.displayPage(guide.getDelTarget(), false, guide, mainShell, appSettings, userSettings, guideSettings);
 					} else {
@@ -792,26 +803,32 @@ public class MainShell {
 						} else {
 							//Normal delay so display seconds left 
 							//(plus any offset if you are being sneaky) 
-							long diff = calCountDown.getTimeInMillis() - cal.getTimeInMillis();
+							diff = calCountDown.getTimeInMillis() - cal.getTimeInMillis();
 							diff = diff + (guide.getDelStartAtOffSet() * 1000);
-							int intSeconds = (int) ((diff / 1000) + 1);
-							int intMinutes = intSeconds / 60;
+							intSeconds = (int) ((diff / 1000) + 1);
+							intMinutes = intSeconds / 60;
 							intSeconds = intSeconds - (intMinutes * 60);
-							String strSeconds = String.valueOf(intSeconds);
+							strSeconds = String.valueOf(intSeconds);
 							strSeconds = "0" + strSeconds;
 							strSeconds = strSeconds.substring(strSeconds.length() - 2);
-							String strMinutes = String.valueOf(intMinutes);
+							strMinutes = String.valueOf(intMinutes);
 							strMinutes = "0" + strMinutes;
 							strMinutes = strMinutes.substring(strMinutes.length() - 2);
-							String strTimeLeft = strMinutes + ":" + strSeconds;
+							strTimeLeft = strMinutes + ":" + strSeconds;
 							lblRight.setText(strTimeLeft);
 						}
 						
 					}
 				}
 				lblLeft.setText(dateFormat.format(cal.getTime()));
+				dateFormat = null;
+				cal = null;
+				javascript = null;
+				strSeconds = null;
+				strMinutes = null;
+				strTimeLeft = null;
 				//re run in 0.1 seconds
-				myDisplay.timerExec(100, this);
+				myDisplay.timerExec(100, new shellTimer());
 			}
 			catch (Exception ex) {
 				logger.error(" shellTimer " + ex.getLocalizedMessage(), ex);
@@ -932,7 +949,7 @@ public class MainShell {
 				logger.debug("MainShell playVideo: " + mrlVideo + " videoLoops: " + videoLoops + " videoTarget: " + videoTarget + " videoPlay: " + videoPlay);
 				VideoPlay videoPlay = new VideoPlay();
 				videoPlay.setVideoPlay(mediaPlayer, mrlVideo);
-				Thread videoPlayThread = new Thread(videoPlay);
+				Thread videoPlayThread = new Thread(videoPlay, "videoPlay");
 				videoPlayThread.start();
 			} catch (Exception e) {
 				logger.error("playVideo " + e.getLocalizedMessage(), e);		
@@ -988,8 +1005,12 @@ public class MainShell {
 	public void playAudio(String audio, int startAt, int stopAt, int loops, String target, String jscript) {
 		// run audio on another thread
 		try {
+			if (audioPlayer != null) {
+				audioPlayer.audioStop();
+				logger.trace("playAudio audioStop");
+			}
 			audioPlayer = new AudioPlayer(audio, startAt, stopAt, loops, target, mainShell, jscript);
-			threadAudioPlayer = new Thread(audioPlayer);
+			threadAudioPlayer = new Thread(audioPlayer, "audioPlayer");
 			threadAudioPlayer.start();
 		} catch (Exception e) {
 			logger.error("playAudio " + e.getLocalizedMessage(), e);		
@@ -1155,7 +1176,7 @@ public class MainShell {
 		if (function == null) function = "";
 		if (! function.equals("")) {
 			getFormFields();
-			Jscript jscript = new Jscript(guideSettings, userSettings, appSettings, guide.getInPrefGuide());
+			Jscript jscript = new Jscript(guide, userSettings, appSettings, guide.getInPrefGuide());
 			Page objCurrPage = guide.getChapters().get(guideSettings.getChapter()).getPages().get(guideSettings.getPage());
 			String pageJavascript = objCurrPage.getjScript();
 			jscript.runScript(pageJavascript, function, false);
@@ -1231,9 +1252,8 @@ public class MainShell {
 	public void setMetronomeBPM(int metronomeBPM, int loops, int resolution, String Rhythm) {
 		// run metronome on another thread
 		try {
-			metronome = new MetronomePlayer(metronomeBPM, appSettings.getMidiInstrument(), loops, resolution, Rhythm, appSettings.getMidiVolume());
-			threadMetronome = new Thread(metronome);
-			threadMetronome.start();
+			logger.trace("setMetronomeBPM");
+			metronome.metronomeStart(metronomeBPM, appSettings.getMidiInstrument(), loops, resolution, Rhythm, appSettings.getMidiVolume());
 		} catch (Exception e) {
 			logger.error(" setMetronomeBPM " + e.getLocalizedMessage(), e);
 		}
@@ -1244,15 +1264,15 @@ public class MainShell {
 	}
 	
 	public void stopMetronome() {
-		if (metronome != null) {
-			metronome.metronomeStop();
-		}
+		metronome.metronomeStop();
 	}
 	
 	public void stopAudio() {
 		if (audioPlayer != null) {
 			audioPlayer.audioStop();
 		}
+		audioPlayer = null;
+		threadAudioPlayer = null;
 	}
 
 	public void stopVideo() {
@@ -1265,7 +1285,7 @@ public class MainShell {
 					logger.debug("MainShell stopVideo ");
 					VideoStop videoStop = new VideoStop();
 					videoStop.setMediaPlayer(mediaPlayer);
-					Thread videoStopThread = new Thread(videoStop);
+					Thread videoStopThread = new Thread(videoStop, "videoStop");
 					mediaPanel.setVisible(false);
 					imageLabel.setVisible(true);
 					leftFrame.layout(true);
@@ -1298,7 +1318,7 @@ public class MainShell {
 	}
 
 	public void stopAll() {
-		hotKeys.clear();
+		hotKeys = new HashMap<String, com.snapps.swt.SquareButton>();
 		stopDelay();
 		stopMetronome();
 		stopAudio();

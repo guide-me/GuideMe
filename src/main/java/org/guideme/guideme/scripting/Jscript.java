@@ -6,6 +6,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
+import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
@@ -19,6 +20,7 @@ import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
 
 public class Jscript {
+	private static Guide guide;
 	private static GuideSettings guideSettings;
 	private static UserSettings userSettings;
 	private static AppSettings appSettings;
@@ -27,9 +29,10 @@ public class Jscript {
 	private static final Marker JSCRIPT_MARKER = MarkerManager.getMarker("JSCRIPT");
 	private static Boolean inPrefGuide;
 
-	public Jscript(GuideSettings IguideSettings, UserSettings IuserSettings, AppSettings IappSettings, Boolean IinPrefGuide) {
+	public Jscript(Guide Iguide, UserSettings IuserSettings, AppSettings IappSettings, Boolean IinPrefGuide) {
 		super();
-		guideSettings = IguideSettings;
+		guide = Iguide;
+		guideSettings = Iguide.getSettings();
 		userSettings = IuserSettings;
 		appSettings = IappSettings;
 		inPrefGuide = IinPrefGuide;
@@ -46,11 +49,12 @@ public class Jscript {
 
 	public void runScript(String javaScriptText, String javaFunction, boolean pageloading) {
 		try {
+			String javaScriptToRun = javaScriptText + guide.getGlobaljScript();
 			logger.info(JSCRIPT_MARKER, "Chapter: " + guideSettings.getChapter());
 			logger.info(JSCRIPT_MARKER, "Page: " + guideSettings.getPage());
 			logger.info(JSCRIPT_MARKER, "javaFunction: " + javaFunction);
 			logger.info(JSCRIPT_MARKER, "pageloading: " + pageloading);
-			logger.info(JSCRIPT_MARKER, "javaScriptText: " + javaScriptText);
+			logger.info(JSCRIPT_MARKER, "javaScriptText: " + javaScriptToRun);
 			ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 			HashMap<String, String> scriptVars;
 			scriptVars = guideSettings.getScriptVariables();
@@ -82,7 +86,7 @@ public class Jscript {
 			}
 			
 			try {
-				cntx.evaluateString(scope, javaScriptText, "script", 1, null);
+				cntx.evaluateString(scope, javaScriptToRun, "script", 1, null);
 				javaFunction = javaFunction.replace("()","");
 				Object fObj = scope.get(javaFunction, scope);
 				if ((fObj instanceof Function)) {
@@ -107,10 +111,14 @@ public class Jscript {
 			if (inPrefGuide) {
 				userSettings.saveUserSettings();
 			}
+			cntxFact = null;
+			cArg = null;
+			jlog= null;
 		}
 		catch (Exception ex) {
 			logger.error(" FileRunScript " + ex.getLocalizedMessage(), ex);
 		}
+		
 	}
 
 
