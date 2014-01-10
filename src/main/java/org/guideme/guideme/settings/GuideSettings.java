@@ -28,6 +28,8 @@ public class GuideSettings {
 	//State information for xml file, stored in a .state file in xml format
 	private String chapter = ""; //current chapter
 	private String page = "start"; //current page
+	private String currPage = "start"; //current page
+	private String prevPage = "start"; //current page
 	private String flags = ""; //current flags
 	private String filename; //name of file to store persistent state
 	private String name; //GuideId for these settings
@@ -81,6 +83,16 @@ public class GuideSettings {
 				Element elPage = comonFunctions.getElement("//Page", rootElement);
 				if (elPage != null) {
 					setPage(elPage.getTextContent());
+				}
+
+				Element elCurrPage = comonFunctions.getElement("//CurrPage", rootElement);
+				if (elCurrPage != null) {
+					setCurrPage(elCurrPage.getTextContent());
+				}
+
+				Element elPrevPage = comonFunctions.getElement("//PrevPage", rootElement);
+				if (elPrevPage != null) {
+					setPrevPage(elPrevPage.getTextContent());
 				}
 
 				Element elFlags = comonFunctions.getElement("//Flags", rootElement);
@@ -318,6 +330,12 @@ public class GuideSettings {
 		    Element elPage = comonFunctions.getOrAddElement("//Page", "Page", rootElement, doc);
 		    elPage.setTextContent(getPage());
 
+		    Element elCurrPage = comonFunctions.getOrAddElement("//CurrPage", "CurrPage", rootElement, doc);
+		    elCurrPage.setTextContent(getCurrPage());
+
+		    Element elPrevPage = comonFunctions.getOrAddElement("//PrevPage", "PrevPage", rootElement, doc);
+		    elPrevPage.setTextContent(getPrevPage());
+
 		    Element elFlags = comonFunctions.getOrAddElement("//Flags", "Flags", rootElement, doc);
 		    elFlags.setTextContent(getFlags());
 
@@ -413,6 +431,22 @@ public class GuideSettings {
 
 	public void setPageSound(boolean pageSound) {
 		this.pageSound = pageSound;
+	}
+
+	public String getCurrPage() {
+		return currPage;
+	}
+
+	public void setCurrPage(String currPage) {
+		this.currPage = currPage;
+	}
+
+	public String getPrevPage() {
+		return prevPage;
+	}
+
+	public void setPrevPage(String prevPage) {
+		this.prevPage = prevPage;
 	}
 
 }

@@ -73,13 +73,14 @@ public class Jscript {
 			java.lang.reflect.Method tjlog = Jscript.class.getMethod("jscriptLog", cArg);
 			FunctionObject jlog = new FunctionObject("jscriptLog", tjlog, scope);
 			ScriptableObject.putProperty(scope, "guideSettings", guideSettings);
+			ScriptableObject.putProperty(scope, "guide", guide);
 			ScriptableObject.putProperty(scope, "comonFunctions", comonFunctions);
 			ScriptableObject.putProperty(scope, "scriptVars", scriptVars);
 			ScriptableObject.putProperty(scope, "mediaDir", appSettings.getDataDirectory());
 			ScriptableObject.putProperty(scope, "fileSeparator", java.lang.System.getProperty("file.separator"));
 			ScriptableObject.putProperty(scope, "jscriptLog", jlog);
 			logger.info(JSCRIPT_MARKER, "Starting ScriptVariables: " + scriptVars);
-			logger.info(JSCRIPT_MARKER, "Starting Flags {" + guideSettings.getFlags() + "}");
+			logger.info(JSCRIPT_MARKER, "Starting Flags {" + guide.getFlags() + "}");
 			
 			if (pageloading) {
 				ScriptableObject.putProperty(scope, "overRide", overRide);
@@ -105,8 +106,9 @@ public class Jscript {
 				logger.error(" FileRunScript " + ex.getLocalizedMessage(), ex);
 			}
 			logger.info(JSCRIPT_MARKER, "Ending ScriptVariables: " + scriptVars);
-			logger.info(JSCRIPT_MARKER, "Ending Flags {" + guideSettings.getFlags() + "}");
+			logger.info(JSCRIPT_MARKER, "Ending Flags {" + guide.getFlags() + "}");
 			Context.exit();
+			guideSettings.setFlags(comonFunctions.GetFlags(guide.getFlags()));
 			guideSettings.saveSettings();
 			if (inPrefGuide) {
 				userSettings.saveUserSettings();

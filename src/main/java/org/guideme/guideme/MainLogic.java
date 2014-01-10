@@ -172,6 +172,8 @@ public class MainLogic {
 
 			// get the page to display
 			objCurrPage = guide.getChapters().get(chapterName).getPages().get(strPageId);
+			guideSettings.setPrevPage(guideSettings.getCurrPage());
+			guideSettings.setCurrPage(strPageId);
 
 			//run the pageLoad script
 			try {
@@ -582,7 +584,8 @@ public class MainLogic {
 			// Save current page and flags
 			// set page
 			if (guide.getAutoSetPage()) {
-				guide.getFlags().add(strPageId);
+				comonFunctions.SetFlags(strPageId, guide.getFlags());
+				//guide.getFlags().add(strPageId);//TODO
 			}
 
 			// do page set / unset
