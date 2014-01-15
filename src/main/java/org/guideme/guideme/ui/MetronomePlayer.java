@@ -68,7 +68,7 @@ public class MetronomePlayer  implements Runnable {
 		} catch (Exception e) {
 			logger.error("MetronomePlayer create " + e.getLocalizedMessage(), e);
 		}
-		Track track;
+		Track track = null;
 		Sequence sequence = null;
 		int channel = 9; //Percussion track
 		try {
@@ -77,6 +77,10 @@ public class MetronomePlayer  implements Runnable {
 					logger.trace("MetronomePlayer restart ");
 					restart = false;
 					sequencer.stop();
+					if (sequence != null) {
+						sequencer.setTickPosition(0);
+						sequence.deleteTrack(track);
+					}
 					sequence = new Sequence(Sequence.PPQ, resolution);
 					track = sequence.createTrack();
 					ShortMessage sm = new ShortMessage( );
@@ -129,9 +133,9 @@ public class MetronomePlayer  implements Runnable {
 						track.add(new MidiEvent(off, totalTicks + padTicks));
 					}
 
-					sequencer.setTempoInBPM(metronomeBPM);
-
 					sequencer.setSequence(sequence);
+
+					sequencer.setTempoInBPM(metronomeBPM);
 
 
 					// if we have a number of loops do some additional processing

@@ -41,7 +41,7 @@ public class MainLogicTest {
 			String guideFileName = "\\A tribute to Jurgita Valts.xml";
 			String pageId = "page21";
 			appSettings.setDataDirectory(dataDirectory);
-			xmlGuideReader.loadXML(dataDirectory + guideFileName, guide);
+			xmlGuideReader.loadXML(dataDirectory + guideFileName, guide, appSettings);
 			guideSettings = guide.getSettings();
 			mainLogic.displayPage(pageId, false, guide, mainShell, appSettings, userSettings, guideSettings);
 		}
@@ -55,7 +55,7 @@ public class MainLogicTest {
 			String guideId = "SWTPortTest";
 			String guideFileName = "\\" + guideId + ".xml";
 			guide.reset(guideId);
-			xmlGuideReader.loadXML(dataDirectory + guideFileName, guide);
+			xmlGuideReader.loadXML(dataDirectory + guideFileName, guide, appSettings);
 			guideSettings = guide.getSettings();
 			Set<String> chapters = guide.getChapters().keySet();
 			for (String chapterId : chapters) {
@@ -83,7 +83,7 @@ public class MainLogicTest {
 				File[] children = f.listFiles(WildCardfilter);
 				for (File file : children) {
 					guide.reset(file.getName().substring(0, file.getName().length() - 4));
-					xmlGuideReader.loadXML(file.getAbsolutePath(), guide);
+					xmlGuideReader.loadXML(file.getAbsolutePath(), guide, appSettings);
 					guideSettings = guide.getSettings();
 					Set<String> chapters = guide.getChapters().keySet();
 					for (String chapterId : chapters) {
@@ -110,7 +110,7 @@ public class MainLogicTest {
 				String guideFile = instructions.readLine();
 				if (!guideFile.equals(null)) {
 					guide.reset(guideFile);
-					xmlGuideReader.loadXML(dataDirectory + "\\" + guideFile + ".xml", guide);
+					xmlGuideReader.loadXML(dataDirectory + "\\" + guideFile + ".xml", guide, appSettings);
 					guideSettings = guide.getSettings();
 				}
 				String instruction = instructions.readLine();

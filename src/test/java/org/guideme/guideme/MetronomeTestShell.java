@@ -102,6 +102,9 @@ public class MetronomeTestShell {
 			sc.setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));			
 
 			shell.layout();;
+			metronome = new MetronomePlayer();
+			threadMetronome = new Thread(metronome);
+			threadMetronome.start();
 			
 		}
 		catch (Exception ex) {
@@ -141,10 +144,8 @@ public class MetronomeTestShell {
 				if (metronome != null) {
 					metronome.metronomeStop();
 				}
-				metronome = new MetronomePlayer(metronomeBPM, instrument, loops, resolution, rhythm, 127);
+				metronome.metronomeStart(metronomeBPM, instrument, loops, resolution, rhythm, 127);
 				//metronome = new MetronomePlayer(120, 49, -1, 4, "");
-				threadMetronome = new Thread(metronome);
-				threadMetronome.start();
 			}
 			catch (Exception ex) {
 				logger.error(" StartButtonListener " + ex.getLocalizedMessage(),ex);
@@ -160,7 +161,6 @@ public class MetronomeTestShell {
 				logger.trace("Enter StopButtonListener");
 				if (metronome != null) {
 					metronome.metronomeStop();
-					metronome = null;
 				}
 			}
 			catch (Exception ex) {

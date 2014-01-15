@@ -6,7 +6,7 @@ import org.junit.runners.Suite.SuiteClasses;
 
 @RunWith(Suite.class)
 @SuiteClasses({ AppSettingsTest.class, ComonFunctionsTest.class,
-		GuideSettingsTest.class, UserSettingsTest.class })
+		GuideSettingsTest.class })
 public class SettingsTests {
 
 }
