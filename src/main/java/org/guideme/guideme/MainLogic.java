@@ -383,6 +383,15 @@ public class MainLogic {
 						overRide.setHtml("");
 					}
 
+					// Media Directory
+					try {
+						String mediaPath;
+						mediaPath = getMediaFullPath("", fileSeparator, appSettings, guide);
+						displayText = displayText.replace("\\MediaDir\\", mediaPath);
+					} catch (Exception e) {
+						logger.error("displayPage BrwsText Media Directory Exception " + e.getLocalizedMessage(), e);
+					}
+					
 					// Script Variables
 					Set<String> set = guideSettings.getScriptVariables().keySet();
 					String varValue;
