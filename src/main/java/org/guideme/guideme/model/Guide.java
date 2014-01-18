@@ -6,6 +6,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import org.guideme.guideme.MainLogic;
+import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.GuideSettings;
 
 import uk.co.caprica.vlcj.logger.Logger;
@@ -245,6 +247,13 @@ public class Guide {
 	}
 
 	public void setCss(String css) {
+		String mediaPath;
+		AppSettings appSettings = AppSettings.getAppSettings();
+		MainLogic mainLogic = MainLogic.getMainLogic();
+		mediaPath = mainLogic.getMediaFullPath("", appSettings.getFileSeparator(), appSettings, guide);
+		mediaPath = mediaPath.replace("\\", "/");
+		//mediaPath = "file:///" + mediaPath;
+		css = css.replace("\\MediaDir\\", mediaPath);
 		this.css = css;
 	}
 

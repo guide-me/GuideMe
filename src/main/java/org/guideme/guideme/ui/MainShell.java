@@ -621,9 +621,9 @@ public class MainShell {
 		public void widgetSelected(SelectionEvent e) {
 			try {
 				logger.trace("Enter Preferences Guide Load");
-				//display a dialog to ask for a guide file to play
-				//load the file it will return the start page and populate the guide object
-				//TODO Need to change this here to implement the new html format
+				//special guide for user preferences
+				//this loads automatically from the application directory with a hard coded name.
+				//
 				xmlGuideReader.loadXML("userSettingsUI.xml", guide, appSettings);
 				guide.setMediaDirectory("userSettings");
 				guideSettings = guide.getSettings();
@@ -632,8 +632,9 @@ public class MainShell {
 				} else {
 					style = guide.getCss();
 				}
-				//display the first page
+				//flag to allow updating of user preferences which is normally disabled in guides 
 				guide.setInPrefGuide(true);
+				//display the first page
 				mainLogic.displayPage("start" , false, guide, mainShell, appSettings, userSettings, guideSettings);
 			}
 			catch (Exception ex3) {
@@ -725,7 +726,7 @@ public class MainShell {
 							newWidth = (int) (((double) RectImage.height / imageRatio) * imgOffSet);
 							logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
 						}
-						String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + imgPath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
+						String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + imgPath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
 						me.setText(strHtml, true);
 						//Image tmpImage = me.getImage();
 						//me.setImage(resize(myImage, newWidth, newHeight));
@@ -1017,28 +1018,18 @@ public class MainShell {
 		}
 	}
 	
-	public void setBrwsText(String brwsText) {
+	public void setBrwsText(String brwsText, String overRideStyle) {
 		//set HTML to be displayed in the browser control to the right of the screen
+		if (overRideStyle.equals("")) {
+			overRideStyle = style;
+		}
 		String strHTML;
 		try {
-			String strTemp = brwsText;
-			//strTemp = strTemp.replace("<P>", "");
-			//strTemp = strTemp.replace("<p>", "");
-			//strTemp = strTemp.replace("</P>", "<br>");
-			//strTemp = strTemp.replace("</p>", "<br>");
-			//strTemp = strTemp.replace("<DIV>", "");
-			//strTemp = strTemp.replace("<div>", "");
-			//strTemp = strTemp.replace("</DIV>", "<br>");
-			//strTemp = strTemp.replace("</div>", "<br>");
-			//if (strTemp.endsWith("<br>")) {
-			//	strTemp = strTemp.substring(0, strTemp.length() - 4);
-			//}
-				
-				strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style +  "</style></head><body>" + strTemp + "</body></html>";
-				this.brwsText.setText(strHTML);
+			strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + overRideStyle +  "</style></head><body>" + brwsText + "</body></html>";
+			this.brwsText.setText(strHTML);
 		} catch (Exception e1) {
 			logger.error("displayPage Text Exception " + e1.getLocalizedMessage(), e1);
-			strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style +  "</style></head><body></body></html>";
+			strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + overRideStyle +  "</style></head><body></body></html>";
 			this.brwsText.setText(strHTML);
 		}
 	}

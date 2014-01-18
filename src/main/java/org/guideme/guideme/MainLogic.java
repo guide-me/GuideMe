@@ -367,7 +367,25 @@ public class MainLogic {
 						mainShell.clearImage();
 					}
 				} else {
-					mainShell.setImageHtml(overRide.getLeftHtml());
+					String leftHtml = overRide.getLeftHtml();
+					// Media Directory
+					try {
+						String mediaPath;
+						mediaPath = getMediaFullPath("", fileSeparator, appSettings, guide);
+						mediaPath = mediaPath.replace("\\", "/");
+						leftHtml = leftHtml.replace("\\MediaDir\\", mediaPath);
+					} catch (Exception e) {
+						logger.error("displayPage Over ride lefthtml Media Directory Exception " + e.getLocalizedMessage(), e);
+					}
+					
+					// Guide CSS Directory
+					try {
+						leftHtml = leftHtml.replace("\\GuideCSS\\", guide.getCss());
+					} catch (Exception e) {
+						logger.error("displayPage Over ride lefthtml Guide CSS Exception " + e.getLocalizedMessage(), e);
+					}
+					
+					mainShell.setImageHtml(leftHtml);
 				}
 
 
@@ -446,10 +464,10 @@ public class MainLogic {
 						}
 					}
 
-					mainShell.setBrwsText(displayText);
+					mainShell.setBrwsText(displayText, overRide.getRightCss());
 				} catch (Exception e) {
 					logger.error("displayPage BrwsText Exception " + e.getLocalizedMessage(), e);
-					mainShell.setBrwsText("");
+					mainShell.setBrwsText("", "");
 				}
 
 				// overRide
