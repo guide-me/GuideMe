@@ -1,6 +1,7 @@
 package org.guideme.guideme.ui;
 
 import java.awt.Frame;
+import java.awt.Toolkit;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,6 +31,8 @@ import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.RowLayout;
 import java.awt.Canvas;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.StringSelection;
 import java.io.File;
 
 import org.eclipse.swt.widgets.Composite;
@@ -1027,6 +1030,17 @@ public class MainShell {
 		try {
 			strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + overRideStyle +  "</style></head><body>" + brwsText + "</body></html>";
 			this.brwsText.setText(strHTML);
+			if (appSettings.isToclipboard()) {
+				try {
+					//copy text to clip board for use in TTS
+					String htmlString = brwsText.replaceAll("\\<.*?\\>", " ");
+				    StringSelection stringSelection = new StringSelection(htmlString);
+				    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+				    clipboard.setContents(stringSelection, stringSelection);
+				} catch (Exception e2) {
+					logger.error("copy to clip board " + e2.getLocalizedMessage(), e2);		
+				}
+			}
 		} catch (Exception e1) {
 			logger.error("displayPage Text Exception " + e1.getLocalizedMessage(), e1);
 			strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + overRideStyle +  "</style></head><body></body></html>";

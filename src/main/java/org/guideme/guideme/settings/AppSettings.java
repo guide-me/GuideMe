@@ -32,6 +32,7 @@ public class AppSettings {
 	private static AppSettings appSettings;
 	private boolean fullScreen = false;
 	private boolean pageSound = true;
+	private boolean toclipboard = false;
 
 	public static synchronized AppSettings getAppSettings() {
 		if (appSettings == null) {
@@ -76,6 +77,7 @@ public class AppSettings {
 				video = Boolean.parseBoolean(appSettingsProperties.getProperty("Video", "true"));
 				fullScreen = Boolean.parseBoolean(appSettingsProperties.getProperty("fullScreen", "false"));
 				pageSound = Boolean.parseBoolean(appSettingsProperties.getProperty("pageSound", "true"));
+				toclipboard = Boolean.parseBoolean(appSettingsProperties.getProperty("toclipboard", "false"));
 				DataDirectory = appSettingsProperties.getProperty("DataDirectory", userDir);
 				sash1Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights0", "350"));
 				sash1Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights1", "350"));
@@ -141,6 +143,7 @@ public class AppSettings {
 			appSettingsProperties.setProperty("Video", String.valueOf(video));
 			appSettingsProperties.setProperty("fullScreen", String.valueOf(fullScreen));
 			appSettingsProperties.setProperty("pageSound", String.valueOf(pageSound));
+			appSettingsProperties.setProperty("toclipboard", String.valueOf(toclipboard));
 			appSettingsProperties.setProperty("DataDirectory", DataDirectory);
 			appSettingsProperties.setProperty("sash1Weights0", String.valueOf(sash1Weights[0]));
 			appSettingsProperties.setProperty("sash1Weights1", String.valueOf(sash1Weights[1]));
@@ -231,6 +234,14 @@ public class AppSettings {
 
 	public void setPageSound(boolean pageSound) {
 		this.pageSound = pageSound;
+	}
+
+	public boolean isToclipboard() {
+		return toclipboard;
+	}
+
+	public void setToclipboard(boolean toclipboard) {
+		this.toclipboard = toclipboard;
 	}
 
 }

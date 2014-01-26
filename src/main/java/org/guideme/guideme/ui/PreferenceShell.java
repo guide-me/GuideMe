@@ -107,12 +107,15 @@ public class PreferenceShell {
 			//Page Sound
 			AddBooleanField(grpApp, "Page Sound", appWidgets.get("AppFullScreenBlnCtrl"), appWidgets.get("AppFullScreenBlnCtrl"), myAppSettings.isPageSound(), "AppPageSound");			
 
+			//To Clipboard (used for TTS)
+			AddBooleanField(grpApp, "Copy text to clipboard (used with a TTS Reader)", appWidgets.get("AppPageSoundBlnCtrl"), appWidgets.get("AppPageSoundBlnCtrl"), myAppSettings.isToclipboard(), "AppToClipboard");			
+
 			//Data Directory
 			//AddTextField(grpApp, "Data Directory", appWidgets.get("AppPageSoundBlnCtrl"), appWidgets.get("AppPageSoundBlnCtrl"), myAppSettings.getDataDirectory(), "AppDataDir", false);
 
 			//midiInstrument
 			//AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppDataDirCtrl"), appWidgets.get("AppDataDirCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
-			AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppPageSoundBlnCtrl"), appWidgets.get("AppPageSoundBlnCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
+			AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppToClipboardBlnCtrl"), appWidgets.get("AppToClipboardBlnCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
 
 			//midiVolume
 			AddTextField(grpApp, "Midi Volume (0 - 127)", appWidgets.get("AppMidiInstrumentNumCtrl"), appWidgets.get("AppMidiInstrumentNumCtrl"), String.valueOf(myAppSettings.getMidiVolume()), "AppMidiVolume", true);
@@ -269,6 +272,9 @@ public class PreferenceShell {
 				btnTmp = (Button) appWidgets.get("AppPageSoundBlnCtrl");
 				myAppSettings.setPageSound(btnTmp.getSelection());
 				
+				btnTmp = (Button) appWidgets.get("AppToClipboardBlnCtrl");
+				myAppSettings.setToclipboard(btnTmp.getSelection());
+				
 				//txtTmp = (Text) appWidgets.get("AppDataDirCtrl");
 				//myAppSettings.setDataDirectory((txtTmp.getText()));
 
@@ -349,7 +355,7 @@ public class PreferenceShell {
 		txtTmpFormData = new FormData();
 		txtTmpFormData.top = new FormAttachment(prevControl2,5);
 		//txtTmpFormData.left = new FormAttachment(lblTmp,20);
-		txtTmpFormData.left = new FormAttachment(40,20);
+		txtTmpFormData.left = new FormAttachment(80,20);
 		txtTmpFormData.right = new FormAttachment(100,-5);
 		txtTmp.setLayoutData(txtTmpFormData);
 		if (addNewmeric) {
@@ -387,7 +393,7 @@ public class PreferenceShell {
 		txtTmpFormData = new FormData();
 		txtTmpFormData.top = new FormAttachment(prevControl2,5);
 		//txtTmpFormData.left = new FormAttachment(lblTmp,20);
-		txtTmpFormData.left = new FormAttachment(40,20);
+		txtTmpFormData.left = new FormAttachment(80,20);
 		txtTmpFormData.right = new FormAttachment(100,-5);
 		btnTmp.setLayoutData(txtTmpFormData);
 		appFormdata.put(key + "BlnLbl", lblTmpFormData);
