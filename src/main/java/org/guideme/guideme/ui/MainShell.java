@@ -74,7 +74,9 @@ public class MainShell {
 	private static org.eclipse.swt.graphics.Color colourWhite;
 	private AppSettings appSettings;
 	private int MintFontSize;
+	private int MintButtonFontSize;
 	private int MintHtmlFontSize;
+	private int MintTimerFontSize;
 	private String strGuidePath;
 	private int videoLoops = 0;
 	private int videoStartAt = 0;
@@ -97,6 +99,8 @@ public class MainShell {
 	private Shell shell;
 	private Display myDisplay;
 	private Font controlFont;
+	private Font buttonFont;
+	private Font timerFont;
 	private Composite mediaPanel;
 	private MediaPlayerFactory mediaPlayerFactory;
 	private EmbeddedMediaPlayer mediaPlayer;
@@ -139,6 +143,12 @@ public class MainShell {
 			// font size
 			MintHtmlFontSize = appSettings.getHtmlFontSize();
 
+			// font size
+			MintTimerFontSize = appSettings.getTimerFontSize();
+
+			// font size
+			MintButtonFontSize = appSettings.getButtonFontSize();
+
 			// path to the xml files
 			strGuidePath = appSettings.getDataDirectory();
 
@@ -180,6 +190,10 @@ public class MainShell {
 			FontData[] fD = sysFont.getFontData();
 			fD[0].setHeight(MintFontSize);
 			controlFont = new Font(display, fD);
+			fD[0].setHeight(MintTimerFontSize);
+			timerFont = new Font(display, fD);
+			fD[0].setHeight(MintButtonFontSize);
+			buttonFont = new Font(display, fD);
 
 			DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
 			Calendar cal = Calendar.getInstance();
@@ -189,17 +203,11 @@ public class MainShell {
 			lblLeft.setFont(controlFont);
 			lblLeft.setText(dateFormat.format(cal.getTime()));
 
-			lblCentre = new Label(shell, SWT.CENTER);
+			lblCentre = new Label(shell, SWT.RIGHT);
 			lblCentre.setBackground(colourBlack);
 			lblCentre.setForeground(colourWhite);
 			lblCentre.setFont(controlFont);
 			lblCentre.setText("Title, Author");
-
-			lblRight = new Label(shell, SWT.RIGHT);
-			lblRight.setBackground(colourBlack);
-			lblRight.setForeground(colourWhite);
-			lblRight.setFont(controlFont);
-			lblRight.setAlignment(SWT.CENTER);
 
 			sashform = new SashForm(shell, SWT.HORIZONTAL);
 			sashform.setBackground(colourBlack);
@@ -227,6 +235,12 @@ public class MainShell {
 			sashform2 = new SashForm(sashform, SWT.VERTICAL);
 			sashform2.setBackground(colourBlack);
 
+			lblRight = new Label(sashform2, SWT.RIGHT);
+			lblRight.setBackground(colourBlack);
+			lblRight.setForeground(colourWhite);
+			lblRight.setFont(timerFont);
+			lblRight.setAlignment(SWT.CENTER);
+
 			brwsText = new Browser(sashform2, 0);
 			brwsText.setText(strHtml);
 			brwsText.setBackground(colourBlack);
@@ -237,6 +251,7 @@ public class MainShell {
 			btnComp.setLayout(layout2);
 
 			if (videoOn) {
+				try {
 				videoFrame = SWT_AWT.new_Frame(mediaPanel);         
 				videoSurfaceCanvas = new Canvas();
 	
@@ -251,6 +266,10 @@ public class MainShell {
 				mediaPlayer.setVideoSurface(videoSurface);
 
 				mediaPlayer.addMediaPlayerEventListener(new MediaListener());
+				}
+				catch (Exception vlcex) {
+					logger.error("VLC intialisation error " + vlcex.getLocalizedMessage(), vlcex);
+				}
 			}
 
 			//Set the layout and how it responds to screen resize
@@ -263,14 +282,14 @@ public class MainShell {
 			FormData lblCentreFormData = new FormData();
 			lblCentreFormData.top = new FormAttachment(0,0);
 			lblCentreFormData.left = new FormAttachment(lblLeft,0);
-			lblCentreFormData.right = new FormAttachment(lblRight,0);
+			lblCentreFormData.right = new FormAttachment(100,0);
 			lblCentre.setLayoutData(lblCentreFormData);
 
-			FormData lblRightFormData = new FormData();
-			lblRightFormData.top = new FormAttachment(0,0);
-			lblRightFormData.left = new FormAttachment(66, 0);
-			lblRightFormData.right = new FormAttachment(100,0);
-			lblRight.setLayoutData(lblRightFormData);
+			//FormData lblRightFormData = new FormData();
+			//lblRightFormData.top = new FormAttachment(0,0);
+			//lblRightFormData.left = new FormAttachment(66, 0);
+			//lblRightFormData.right = new FormAttachment(100,0);
+			//lblRight.setLayoutData(lblRightFormData);
 
 			FormData SashFormData = new FormData();
 			SashFormData.top = new FormAttachment(lblLeft,0);
@@ -406,6 +425,8 @@ public class MainShell {
 				appSettings.setDataDirectory(strGuidePath);
 				appSettings.saveSettings();
 				controlFont.dispose();
+				timerFont.dispose();
+				buttonFont.dispose();
 				stopAll();
 				metronome.metronomeKill();
 				if (videoOn) {
@@ -1068,7 +1089,7 @@ public class MainShell {
 		//used when debug is on to simulate the delay without actually waiting for it
 		try {
 			com.snapps.swt.SquareButton btnDynamic = new com.snapps.swt.SquareButton(btnComp, SWT.PUSH );
-			btnDynamic.setFont(controlFont);
+			btnDynamic.setFont(buttonFont);
 			btnDynamic.setText("Delay");
 
 			// record any button set / unset
@@ -1109,7 +1130,7 @@ public class MainShell {
 				}
 			}
 			com.snapps.swt.SquareButton btnDynamic = new com.snapps.swt.SquareButton(btnComp, SWT.PUSH );
-			btnDynamic.setFont(controlFont);
+			btnDynamic.setFont(buttonFont);
 			btnDynamic.setText(strBtnText);
 			if (!strBtnImage.equals("")){
 				btnDynamic.setBackgroundImage(new Image(myDisplay, strBtnImage));

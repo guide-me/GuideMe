@@ -95,8 +95,14 @@ public class PreferenceShell {
 			//HTML Font Size
 			AddTextField(grpApp, "HTML Font Size", appWidgets.get("AppFontSizeNumCtrl"), appWidgets.get("AppFontSizeNumCtrl"), String.valueOf(myAppSettings.getHtmlFontSize()), "AppHtmlFontSize", true);
 
+			//Timer Font Size
+			AddTextField(grpApp, "Timer Font Size", appWidgets.get("AppHtmlFontSizeNumCtrl"), appWidgets.get("AppHtmlFontSizeNumCtrl"), String.valueOf(myAppSettings.getTimerFontSize()), "AppTimerFontSize", true);
+
+			//Button Font Size
+			AddTextField(grpApp, "Button Font Size", appWidgets.get("AppTimerFontSizeNumCtrl"), appWidgets.get("AppTimerFontSizeNumCtrl"), String.valueOf(myAppSettings.getButtonFontSize()), "AppButtonFontSize", true);
+
 			//Debug
-			AddBooleanField(grpApp, "Debug", appWidgets.get("AppHtmlFontSizeNumCtrl"), appWidgets.get("AppHtmlFontSizeNumCtrl"), myAppSettings.getDebug(), "AppDebug");			
+			AddBooleanField(grpApp, "Debug", appWidgets.get("AppButtonFontSizeNumCtrl"), appWidgets.get("AppButtonFontSizeNumCtrl"), myAppSettings.getDebug(), "AppDebug");			
 
 			//Video
 			AddBooleanField(grpApp, "Video", appWidgets.get("AppDebugBlnCtrl"), appWidgets.get("AppDebugBlnCtrl"), myAppSettings.getVideoOn(), "AppVideo");			
@@ -259,6 +265,12 @@ public class PreferenceShell {
 
 				txtTmp = (Text) appWidgets.get("AppHtmlFontSizeNumCtrl");
 				myAppSettings.setHtmlFontSize(Integer.parseInt(txtTmp.getText()));
+
+				txtTmp = (Text) appWidgets.get("AppTimerFontSizeNumCtrl");
+				myAppSettings.setTimerFontSize(Integer.parseInt(txtTmp.getText()));
+
+				txtTmp = (Text) appWidgets.get("AppButtonFontSizeNumCtrl");
+				myAppSettings.setButtonFontSize(Integer.parseInt(txtTmp.getText()));
 
 				btnTmp = (Button) appWidgets.get("AppDebugBlnCtrl");
 				myAppSettings.setDebug(btnTmp.getSelection());

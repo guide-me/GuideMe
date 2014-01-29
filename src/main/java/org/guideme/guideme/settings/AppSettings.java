@@ -12,6 +12,8 @@ public class AppSettings {
 	private Logger logger = LogManager.getLogger();
 	private int FontSize = 20;
 	private int HtmlFontSize = 20;
+	private int timerFontSize = 20;
+	private int buttonFontSize = 20;
 	private int midiVolume = 0;
 	private int midiInstrument = 76;
 	private int musicVolume = 400;
@@ -22,7 +24,7 @@ public class AppSettings {
 	private boolean video = false;
 	private String DataDirectory;
 	private int[] sash1Weights = new int[2];
-	private int[] sash2Weights = new int[2];
+	private int[] sash2Weights = new int[3];
 	private Properties appSettingsProperties = new Properties();
 	private String settingsLocation;
 	private String userDir;
@@ -69,6 +71,8 @@ public class AppSettings {
 				}
 				FontSize = Integer.parseInt(appSettingsProperties.getProperty("FontSize", "20"));
 				HtmlFontSize = Integer.parseInt(appSettingsProperties.getProperty("HtmlFontSize", "20"));
+				timerFontSize = Integer.parseInt(appSettingsProperties.getProperty("timerFontSize", "20"));
+				buttonFontSize = Integer.parseInt(appSettingsProperties.getProperty("buttonFontSize", "20"));
 				midiInstrument = Integer.parseInt(appSettingsProperties.getProperty("midiInstrument", "76"));
 				midiVolume = Integer.parseInt(appSettingsProperties.getProperty("midiVolume", "100"));
 				musicVolume = Integer.parseInt(appSettingsProperties.getProperty("musicVolume", "400"));
@@ -81,8 +85,9 @@ public class AppSettings {
 				DataDirectory = appSettingsProperties.getProperty("DataDirectory", userDir);
 				sash1Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights0", "350"));
 				sash1Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights1", "350"));
-				sash2Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights0", "800"));
-				sash2Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights1", "200"));
+				sash2Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights0", "150"));
+				sash2Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights1", "700"));
+				sash2Weights[2] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights2", "150"));
 			}
 			catch (Exception ex) {
 				logger.error(ex.getLocalizedMessage(), ex);
@@ -135,6 +140,8 @@ public class AppSettings {
 		try {
 			appSettingsProperties.setProperty("FontSize", String.valueOf(FontSize));
 			appSettingsProperties.setProperty("HtmlFontSize", String.valueOf(HtmlFontSize));
+			appSettingsProperties.setProperty("timerFontSize", String.valueOf(timerFontSize));
+			appSettingsProperties.setProperty("buttonFontSize", String.valueOf(buttonFontSize));
 			appSettingsProperties.setProperty("midiInstrument", String.valueOf(midiInstrument));
 			appSettingsProperties.setProperty("midiVolume", String.valueOf(midiVolume));
 			appSettingsProperties.setProperty("musicVolume", String.valueOf(musicVolume));
@@ -149,6 +156,7 @@ public class AppSettings {
 			appSettingsProperties.setProperty("sash1Weights1", String.valueOf(sash1Weights[1]));
 			appSettingsProperties.setProperty("sash2Weights0", String.valueOf(sash2Weights[0]));
 			appSettingsProperties.setProperty("sash2Weights1", String.valueOf(sash2Weights[1]));
+			appSettingsProperties.setProperty("sash2Weights2", String.valueOf(sash2Weights[2]));
 			appSettingsProperties.storeToXML(new FileOutputStream(settingsLocation), null);
 		}
 		catch (Exception e) {
@@ -242,6 +250,22 @@ public class AppSettings {
 
 	public void setToclipboard(boolean toclipboard) {
 		this.toclipboard = toclipboard;
+	}
+
+	public int getTimerFontSize() {
+		return timerFontSize;
+	}
+
+	public void setTimerFontSize(int timerFontSize) {
+		this.timerFontSize = timerFontSize;
+	}
+
+	public int getButtonFontSize() {
+		return buttonFontSize;
+	}
+
+	public void setButtonFontSize(int buttonFontSize) {
+		this.buttonFontSize = buttonFontSize;
 	}
 
 }

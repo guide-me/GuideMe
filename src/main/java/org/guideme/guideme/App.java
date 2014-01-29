@@ -12,6 +12,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.ui.MainShell;
 
+import uk.co.caprica.vlcj.discovery.NativeDiscovery;
+
 public class App 
 {
 	/*
@@ -58,6 +60,10 @@ public class App
       		} else {
       			display = new Display();
       		}
+      		
+      		NativeDiscovery nativeDiscovery = new NativeDiscovery();
+      		boolean vlcFound = nativeDiscovery.discover();
+      		logger.trace("test for vlc: " + vlcFound);
 
       		logger.trace("create main shell");
             MainShell mainShell = new MainShell();
