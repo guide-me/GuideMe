@@ -69,4 +69,12 @@ public class Button
 		return hotKey;
 	}
 
+	public String getIfSet() {
+		return ifSet;
+	}
+
+	public String getIfNotSet() {
+		return ifNotSet;
+	}
+
 }

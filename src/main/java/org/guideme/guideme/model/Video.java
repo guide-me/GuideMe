@@ -65,5 +65,13 @@ public class Video
 		return jscript;
 	}
 
+	public String getIfSet() {
+		return ifSet;
+	}
+
+	public String getIfNotSet() {
+		return ifNotSet;
+	}
+
 
 }

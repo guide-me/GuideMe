@@ -148,4 +148,20 @@ public class Page {
 		this.jScript = jScript;
 	}
 
+	public String getIfSet() {
+		return ifSet;
+	}
+
+	public String getIfNotSet() {
+		return ifNotSet;
+	}
+
+	public String getSet() {
+		return set;
+	}
+
+	public String getUnSet() {
+		return unSet;
+	}
+
 }

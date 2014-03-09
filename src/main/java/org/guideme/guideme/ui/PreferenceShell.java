@@ -39,6 +39,9 @@ public class PreferenceShell {
 	private Font controlFont;
 	private HashMap<String, FormData> appFormdata = new HashMap<String, FormData>();
 	private HashMap<String, Control> appWidgets = new HashMap<String, Control>();
+	private boolean isFullScreen;
+	private boolean isMultiMonitor;
+	private int mainMonitor;
 
 	public PreferenceShell() {
 		super();
@@ -107,11 +110,20 @@ public class PreferenceShell {
 			//Video
 			AddBooleanField(grpApp, "Video", appWidgets.get("AppDebugBlnCtrl"), appWidgets.get("AppDebugBlnCtrl"), myAppSettings.getVideoOn(), "AppVideo");			
 
-			//Full Screen
-			AddBooleanField(grpApp, "Full Screen", appWidgets.get("AppVideoBlnCtrl"), appWidgets.get("AppVideoBlnCtrl"), myAppSettings.isFullScreen(), "AppFullScreen");			
+			//Main Monitor
+			AddTextField(grpApp, "Main Monitor", appWidgets.get("AppVideoBlnCtrl"), appWidgets.get("AppVideoBlnCtrl"), String.valueOf(myAppSettings.getMainMonitor()), "AppMainMonitor", true);
+			mainMonitor = myAppSettings.getMainMonitor();
 
+			//Full Screen
+			AddBooleanField(grpApp, "Full Screen", appWidgets.get("AppMainMonitorNumCtrl"), appWidgets.get("AppMainMonitorNumCtrl"), myAppSettings.isFullScreen(), "AppFullScreen");
+			isFullScreen = myAppSettings.isFullScreen();
+
+			//Multi Monitor
+			AddBooleanField(grpApp, "Dual Monitor", appWidgets.get("AppFullScreenBlnCtrl"), appWidgets.get("AppFullScreenBlnCtrl"), myAppSettings.isMultiMonitor(), "AppMultiMonitor");			
+			isMultiMonitor = myAppSettings.isMultiMonitor();
+			
 			//Page Sound
-			AddBooleanField(grpApp, "Page Sound", appWidgets.get("AppFullScreenBlnCtrl"), appWidgets.get("AppFullScreenBlnCtrl"), myAppSettings.isPageSound(), "AppPageSound");			
+			AddBooleanField(grpApp, "Page Sound", appWidgets.get("AppMultiMonitorBlnCtrl"), appWidgets.get("AppMultiMonitorBlnCtrl"), myAppSettings.isPageSound(), "AppPageSound");			
 
 			//To Clipboard (used for TTS)
 			AddBooleanField(grpApp, "Copy text to clipboard (used with a TTS Reader)", appWidgets.get("AppPageSoundBlnCtrl"), appWidgets.get("AppPageSoundBlnCtrl"), myAppSettings.isToclipboard(), "AppToClipboard");			
@@ -278,8 +290,23 @@ public class PreferenceShell {
 				btnTmp = (Button) appWidgets.get("AppVideoBlnCtrl");
 				myAppSettings.setVideoOn(btnTmp.getSelection());
 				
+				txtTmp = (Text) appWidgets.get("AppMainMonitorNumCtrl");
+				myAppSettings.setMainMonitor(Integer.parseInt(txtTmp.getText()));
+				if (mainMonitor != myAppSettings.getMainMonitor()) {
+					myAppSettings.setMonitorChanging(true);
+				}
+				
 				btnTmp = (Button) appWidgets.get("AppFullScreenBlnCtrl");
 				myAppSettings.setFullScreen(btnTmp.getSelection());
+				if (isFullScreen != myAppSettings.isFullScreen()) {
+					myAppSettings.setMonitorChanging(true);
+				}
+				
+				btnTmp = (Button) appWidgets.get("AppMultiMonitorBlnCtrl");
+				myAppSettings.setMultiMonitor(btnTmp.getSelection());
+				if (isMultiMonitor != myAppSettings.isMultiMonitor()) {
+					myAppSettings.setMonitorChanging(true);
+				}
 				
 				btnTmp = (Button) appWidgets.get("AppPageSoundBlnCtrl");
 				myAppSettings.setPageSound(btnTmp.getSelection());
@@ -367,7 +394,7 @@ public class PreferenceShell {
 		txtTmpFormData = new FormData();
 		txtTmpFormData.top = new FormAttachment(prevControl2,5);
 		//txtTmpFormData.left = new FormAttachment(lblTmp,20);
-		txtTmpFormData.left = new FormAttachment(80,20);
+		txtTmpFormData.left = new FormAttachment(50,5);
 		txtTmpFormData.right = new FormAttachment(100,-5);
 		txtTmp.setLayoutData(txtTmpFormData);
 		if (addNewmeric) {
@@ -405,7 +432,7 @@ public class PreferenceShell {
 		txtTmpFormData = new FormData();
 		txtTmpFormData.top = new FormAttachment(prevControl2,5);
 		//txtTmpFormData.left = new FormAttachment(lblTmp,20);
-		txtTmpFormData.left = new FormAttachment(80,20);
+		txtTmpFormData.left = new FormAttachment(50,5);
 		txtTmpFormData.right = new FormAttachment(100,-5);
 		btnTmp.setLayoutData(txtTmpFormData);
 		appFormdata.put(key + "BlnLbl", lblTmpFormData);

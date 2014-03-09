@@ -31,7 +31,7 @@ public class Guide {
 	private String delayUnSet; //flags to clear for currently running delay
 	private int delStartAtOffSet; //offset for currently running delay
 	private String id; //name for current xml that is running
-	private GuideSettings settings; //state for the currently running xml
+	private GuideSettings settings = new GuideSettings("startup"); //state for the currently running xml
 	private String jScript;
 	private String delayjScript;
 	private String globaljScript;

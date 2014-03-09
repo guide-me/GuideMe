@@ -29,6 +29,7 @@ import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
 import org.guideme.guideme.settings.UserSettings;
+import org.guideme.guideme.ui.DebugShell;
 import org.guideme.guideme.ui.MainShell;
 
 public class MainLogic {
@@ -71,13 +72,13 @@ public class MainLogic {
 	}
 
 	//display page without a chapter
-	public void displayPage(String pageId, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings, UserSettings userSettings, GuideSettings guideSettings) {
-		displayPage("default", pageId, reDisplay, guide, mainShell, appSettings, userSettings, guideSettings);
+	public void displayPage(String pageId, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings, UserSettings userSettings, GuideSettings guideSettings, DebugShell debugShell) {
+		displayPage("default", pageId, reDisplay, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
 	}
 	
 	//main display page
 	//TODO currently chapters are ignored, need to implement
-	public void displayPage(String chapterName, String pageId, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings, UserSettings userSettings, GuideSettings guideSettings) {
+	public void displayPage(String chapterName, String pageId, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings, UserSettings userSettings, GuideSettings guideSettings, DebugShell debugShell) {
 		// Main code that displays a page
 		String strImage;
 		int intDelSeconds = 0;
@@ -172,8 +173,10 @@ public class MainLogic {
 
 			// get the page to display
 			objCurrPage = guide.getChapters().get(chapterName).getPages().get(strPageId);
+			debugShell.setPage(strPageId, true);
 			guideSettings.setPrevPage(guideSettings.getCurrPage());
 			guideSettings.setCurrPage(strPageId);
+			
 
 			//run the pageLoad script
 			try {

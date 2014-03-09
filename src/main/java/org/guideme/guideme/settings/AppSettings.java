@@ -18,6 +18,7 @@ public class AppSettings {
 	private int midiInstrument = 76;
 	private int musicVolume = 400;
 	private int videoVolume = 400;
+	private int mainMonitor = 1;
 	
 	
 	private boolean Debug = false;
@@ -33,8 +34,10 @@ public class AppSettings {
 	private String fileSeparator;
 	private static AppSettings appSettings;
 	private boolean fullScreen = false;
+	private boolean multiMonitor = false;
 	private boolean pageSound = true;
 	private boolean toclipboard = false;
+	private boolean monitorChanging = false;
 
 	public static synchronized AppSettings getAppSettings() {
 		if (appSettings == null) {
@@ -79,7 +82,9 @@ public class AppSettings {
 				videoVolume = Integer.parseInt(appSettingsProperties.getProperty("videoVolume", "400"));
 				Debug = Boolean.parseBoolean(appSettingsProperties.getProperty("Debug", "false"));
 				video = Boolean.parseBoolean(appSettingsProperties.getProperty("Video", "true"));
+				mainMonitor = Integer.parseInt(appSettingsProperties.getProperty("MainMonitor", "1"));
 				fullScreen = Boolean.parseBoolean(appSettingsProperties.getProperty("fullScreen", "false"));
+				multiMonitor = Boolean.parseBoolean(appSettingsProperties.getProperty("multiMonitor", "false"));
 				pageSound = Boolean.parseBoolean(appSettingsProperties.getProperty("pageSound", "true"));
 				toclipboard = Boolean.parseBoolean(appSettingsProperties.getProperty("toclipboard", "false"));
 				DataDirectory = appSettingsProperties.getProperty("DataDirectory", userDir);
@@ -148,7 +153,9 @@ public class AppSettings {
 			appSettingsProperties.setProperty("videoVolume", String.valueOf(videoVolume));
 			appSettingsProperties.setProperty("Debug", String.valueOf(Debug));
 			appSettingsProperties.setProperty("Video", String.valueOf(video));
+			appSettingsProperties.setProperty("mainMonitor", String.valueOf(mainMonitor));
 			appSettingsProperties.setProperty("fullScreen", String.valueOf(fullScreen));
+			appSettingsProperties.setProperty("multiMonitor", String.valueOf(multiMonitor));
 			appSettingsProperties.setProperty("pageSound", String.valueOf(pageSound));
 			appSettingsProperties.setProperty("toclipboard", String.valueOf(toclipboard));
 			appSettingsProperties.setProperty("DataDirectory", DataDirectory);
@@ -266,6 +273,30 @@ public class AppSettings {
 
 	public void setButtonFontSize(int buttonFontSize) {
 		this.buttonFontSize = buttonFontSize;
+	}
+
+	public boolean isMultiMonitor() {
+		return multiMonitor;
+	}
+
+	public void setMultiMonitor(boolean multiMonitor) {
+		this.multiMonitor = multiMonitor;
+	}
+
+	public boolean isMonitorChanging() {
+		return monitorChanging;
+	}
+
+	public void setMonitorChanging(boolean monitorChanging) {
+		this.monitorChanging = monitorChanging;
+	}
+
+	public int getMainMonitor() {
+		return mainMonitor;
+	}
+
+	public void setMainMonitor(int mainMonitor) {
+		this.mainMonitor = mainMonitor;
 	}
 
 }

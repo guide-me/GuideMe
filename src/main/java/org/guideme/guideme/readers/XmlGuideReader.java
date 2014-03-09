@@ -23,10 +23,12 @@ import org.guideme.guideme.model.Video;
 import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
+import org.guideme.guideme.ui.DebugShell;
 
 public class XmlGuideReader {
 	private static Logger logger = LogManager.getLogger();
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
+	private DebugShell debugShell;
 
 	private static XmlGuideReader xmlGuideReader;
 
@@ -60,7 +62,7 @@ public class XmlGuideReader {
 		}   
 	}	
 
-	public String loadXML(String xmlFileName, Guide guide, AppSettings appSettings) {
+	public String loadXML(String xmlFileName, Guide guide, AppSettings appSettings, DebugShell debugShell) {
 		String strPage = "start";
 		String strFlags;
 		GuideSettings guideSettings;
@@ -76,7 +78,7 @@ public class XmlGuideReader {
 			guideSettings = guide.getSettings();
 			guideSettings.setPageSound(true);
 
-
+			this.debugShell = debugShell;
 			parseFile(xmlFileName, guide, PresName, chapter, appSettings);
 
 			// Return to where we left off
@@ -362,7 +364,8 @@ public class XmlGuideReader {
 							if (Set == null) Set = "";
 							UnSet = reader.getAttributeValue(null, "unset");
 							if (UnSet == null) UnSet = "";
-							page = new Page(pageId, ifSet, ifNotSet, Set, UnSet, guide.getAutoSetPage()); 
+							page = new Page(pageId, ifSet, ifNotSet, Set, UnSet, guide.getAutoSetPage());
+							debugShell.addPagesCombo(pageId);
 							logger.trace("loadXML " + PresName + " Page " + pageId + "|" + ifSet + "|" + ifNotSet + "|" + Set + "|" + UnSet);
 						} catch (Exception e1) {
 							logger.error("loadXML " + PresName + " Page Exception " + e1.getLocalizedMessage(), e1);
