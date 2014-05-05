@@ -122,8 +122,14 @@ public class PreferenceShell {
 			AddBooleanField(grpApp, "Dual Monitor", appWidgets.get("AppFullScreenBlnCtrl"), appWidgets.get("AppFullScreenBlnCtrl"), myAppSettings.isMultiMonitor(), "AppMultiMonitor");			
 			isMultiMonitor = myAppSettings.isMultiMonitor();
 			
+			//Clock
+			AddBooleanField(grpApp, "Display Clock", appWidgets.get("AppMultiMonitorBlnCtrl"), appWidgets.get("AppMultiMonitorBlnCtrl"), myAppSettings.isClock(), "AppClock");			
+			
+			//Metronome
+			AddBooleanField(grpApp, "Play Metronome", appWidgets.get("AppClockBlnCtrl"), appWidgets.get("AppClockBlnCtrl"), myAppSettings.isMetronome(), "AppMetronome");			
+			
 			//Page Sound
-			AddBooleanField(grpApp, "Page Sound", appWidgets.get("AppMultiMonitorBlnCtrl"), appWidgets.get("AppMultiMonitorBlnCtrl"), myAppSettings.isPageSound(), "AppPageSound");			
+			AddBooleanField(grpApp, "Page Sound", appWidgets.get("AppMetronomeBlnCtrl"), appWidgets.get("AppMetronomeBlnCtrl"), myAppSettings.isPageSound(), "AppPageSound");			
 
 			//To Clipboard (used for TTS)
 			AddBooleanField(grpApp, "Copy text to clipboard (used with a TTS Reader)", appWidgets.get("AppPageSoundBlnCtrl"), appWidgets.get("AppPageSoundBlnCtrl"), myAppSettings.isToclipboard(), "AppToClipboard");			
@@ -307,6 +313,12 @@ public class PreferenceShell {
 				if (isMultiMonitor != myAppSettings.isMultiMonitor()) {
 					myAppSettings.setMonitorChanging(true);
 				}
+				
+				btnTmp = (Button) appWidgets.get("AppClockBlnCtrl");
+				myAppSettings.setClock(btnTmp.getSelection());
+				
+				btnTmp = (Button) appWidgets.get("AppMetronomeBlnCtrl");
+				myAppSettings.setMetronome(btnTmp.getSelection());
 				
 				btnTmp = (Button) appWidgets.get("AppPageSoundBlnCtrl");
 				myAppSettings.setPageSound(btnTmp.getSelection());

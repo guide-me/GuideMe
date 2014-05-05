@@ -56,11 +56,11 @@ public class Jscript {
 			logger.info(JSCRIPT_MARKER, "pageloading: " + pageloading);
 			logger.info(JSCRIPT_MARKER, "javaScriptText: " + javaScriptToRun);
 			ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
-			HashMap<String, String> scriptVars;
+			HashMap<String, Object> scriptVars;
 			scriptVars = guideSettings.getScriptVariables();
 			ContextFactory cntxFact = new ContextFactory();
 			Context cntx = cntxFact.enterContext();
-			Scriptable scope = cntx.initStandardObjects();
+			Scriptable scope = guide.getScope();
 			if (! inPrefGuide) {
 				UserSettings cloneUS = userSettings.clone();
 				ScriptableObject.putProperty(scope, "userSettings", cloneUS);
@@ -73,14 +73,14 @@ public class Jscript {
 			java.lang.reflect.Method tjlog = Jscript.class.getMethod("jscriptLog", cArg);
 			FunctionObject jlog = new FunctionObject("jscriptLog", tjlog, scope);
 			ScriptableObject.putProperty(scope, "guideSettings", guideSettings);
-			ScriptableObject.putProperty(scope, "guide", guide);
 			ScriptableObject.putProperty(scope, "comonFunctions", comonFunctions);
 			ScriptableObject.putProperty(scope, "scriptVars", scriptVars);
+			ScriptableObject.putProperty(scope, "guide", guide);
 			ScriptableObject.putProperty(scope, "mediaDir", appSettings.getDataDirectory());
 			ScriptableObject.putProperty(scope, "fileSeparator", java.lang.System.getProperty("file.separator"));
 			ScriptableObject.putProperty(scope, "jscriptLog", jlog);
 			logger.info(JSCRIPT_MARKER, "Starting ScriptVariables: " + scriptVars);
-			logger.info(JSCRIPT_MARKER, "Starting Flags {" + guide.getFlags() + "}");
+			logger.info(JSCRIPT_MARKER, "Starting Flags {" + guideSettings.getFlags() + "}");
 			
 			if (pageloading) {
 				ScriptableObject.putProperty(scope, "overRide", overRide);
@@ -106,14 +106,13 @@ public class Jscript {
 				logger.error(" FileRunScript " + ex.getLocalizedMessage(), ex);
 			}
 			logger.info(JSCRIPT_MARKER, "Ending ScriptVariables: " + scriptVars);
-			logger.info(JSCRIPT_MARKER, "Ending Flags {" + guide.getFlags() + "}");
+			logger.info(JSCRIPT_MARKER, "Ending Flags {" + guideSettings.getFlags() + "}");
 			Context.exit();
 			guideSettings.setFlags(comonFunctions.GetFlags(guide.getFlags()));
 			guideSettings.saveSettings();
 			if (inPrefGuide) {
 				userSettings.saveUserSettings();
 			}
-			cntxFact = null;
 			cArg = null;
 			jlog= null;
 		}

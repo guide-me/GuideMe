@@ -1,7 +1,10 @@
 package org.guideme.guideme.settings;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -18,13 +21,23 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.guideme.guideme.model.Guide;
+import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.serialize.ScriptableInputStream;
+import org.mozilla.javascript.serialize.ScriptableOutputStream;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.w3c.dom.CharacterData;
 import org.xml.sax.SAXException;
+import org.apache.commons.codec.binary.Base64;
 
-public class GuideSettings {
+public class GuideSettings{
+	/**
+	 * 
+	 */
 	//State information for xml file, stored in a .state file in xml format
 	private String chapter = ""; //current chapter
 	private String page = "start"; //current page
@@ -34,7 +47,7 @@ public class GuideSettings {
 	private String filename; //name of file to store persistent state
 	private String name; //GuideId for these settings
 	private HashMap<String, String> formFields = new HashMap<String, String>(); 
-	private HashMap<String, String> scriptVariables = new HashMap<String, String>(); //variables used by javascript
+	private HashMap<String, Object> scriptVariables = new HashMap<String, Object>(); //variables used by javascript
 	private HashMap<String, String> userStringPrefs = new HashMap<String, String>(); 
 	private HashMap<String, String> userStringDesc = new HashMap<String, String>(); 
 	private LinkedHashSet<String> userStringKeys = new LinkedHashSet<String>(); 
@@ -44,9 +57,9 @@ public class GuideSettings {
 	private HashMap<String, Double> userNumericPrefs = new HashMap<String, Double>(); 
 	private HashMap<String, String> userNumericDesc = new HashMap<String, String>();
 	private LinkedHashSet<String> userNumericKeys = new LinkedHashSet<String>(); 
-	private Logger logger = LogManager.getLogger();
-	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	private boolean pageSound = true;
+	private static Logger logger = LogManager.getLogger();
+	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 
 	public GuideSettings(String GuideId) {
 		super();
@@ -62,13 +75,16 @@ public class GuideSettings {
 		if (dataDirectory.startsWith("/")) {
 			prefix = "/";
 		}
+		ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 		dataDirectory = prefix + comonFunctions.fixSeparator(dataDirectory, appSettings.getFileSeparator());
 		filename = dataDirectory + appSettings.getFileSeparator() + GuideId + ".state";
+		Logger logger = LogManager.getLogger();
 		logger.debug("GuideSettings appSettings.getDataDirectory(): " + appSettings.getDataDirectory());
 		logger.debug("GuideSettings dataDirectory: " + dataDirectory);
 		logger.debug("GuideSettings appSettings.getFileSeparator(): " + appSettings.getFileSeparator());
 		logger.debug("GuideSettings GuideId: " + GuideId);
 		logger.debug("GuideSettings filename: " + filename);
+
 		try {
 			//if a state file already exists use it 
 			File xmlFile = new File(filename);
@@ -104,14 +120,28 @@ public class GuideSettings {
 				if (elScriptVariables != null) {
 					NodeList nodeList = elScriptVariables.getElementsByTagName("Var");
 					String strName;
+					String strType;
 					String strValue;
+					Object objValue;
 					for (int i = 0; i < nodeList.getLength(); i++) {
 						Node currentNode = nodeList.item(i);
 						if (currentNode.getNodeType() == Node.ELEMENT_NODE) {
-							Element elVar = (Element) currentNode;
-							strName = elVar.getAttribute("id");
-							strValue = elVar.getAttribute("value");
-							scriptVariables.put(strName, strValue);
+							try {
+								Element elVar = (Element) currentNode;
+								strName = elVar.getAttribute("id");
+								strType = elVar.getAttribute("type");
+								CharacterData elChar;
+								elChar = (CharacterData) elVar.getFirstChild();
+								if (elChar != null) {
+									strValue = elChar.getData();
+									objValue = getSavedObject(strValue, strType);
+								} else {
+									objValue = null;
+								}
+								scriptVariables.put(strName, objValue);
+							} catch (Exception e) {
+								logger.error("GuideSettings scriptVariables " + e.getLocalizedMessage(), e);
+							}
 						}
 					}
 				}
@@ -158,6 +188,91 @@ public class GuideSettings {
 		saveSettings();
 	}
 
+	private Object getSavedObject(String attribute, String strType) {
+		Object returned;
+		
+		returned = attribute;
+		
+		if (strType.equals("org.mozilla.javascript.NativeArray")) {
+			try {
+				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
+				ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes);
+				ObjectInputStream oInputStream = new ScriptableInputStream(bis, Guide.getGuide().getScope());
+				NativeArray restored_array = (NativeArray) oInputStream.readObject();			
+				oInputStream.close();
+				returned = restored_array;
+			} catch (Exception ex ) {
+				logger.error(ex.getLocalizedMessage(),ex);
+			}
+		    
+		}
+		
+
+		if (strType.equals("org.mozilla.javascript.NativeObject")) {
+			try {
+				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
+				ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes);
+				ObjectInputStream oInputStream = new ScriptableInputStream(bis, Guide.getGuide().getScope());
+				NativeObject restored_array = (NativeObject) oInputStream.readObject();			
+				oInputStream.close();
+				returned = restored_array;
+			} catch (Exception ex ) {
+				logger.error(ex.getLocalizedMessage(),ex);
+			}
+		    
+		}
+		
+		if (strType.equals("org.mozilla.javascript.NativeDate")) {
+			try {
+				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
+				ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes);
+				ObjectInputStream oInputStream = new ScriptableInputStream(bis, Guide.getGuide().getScope());
+				Object restored_array = oInputStream.readObject();			
+				oInputStream.close();
+				returned = restored_array;
+			} catch (Exception ex ) {
+				logger.error(ex.getLocalizedMessage(),ex);
+			}
+		    
+		}
+		
+		if (strType.equals("java.lang.Double")) {
+			Double restored_double = Double.parseDouble(attribute);
+			returned = restored_double;
+		}
+
+		if (strType.equals("java.lang.Boolean")) {
+			Boolean restored_boolean = Boolean.parseBoolean(attribute);
+			returned = restored_boolean;
+		}
+
+		// TODO Auto-generated method stub
+		return returned;
+	}
+
+	private String createSaveObject(Object value, String strType) {
+		String returnVal;
+		returnVal = value.toString();
+		if (strType.equals("org.mozilla.javascript.NativeArray") || strType.equals("org.mozilla.javascript.NativeObject") || strType.equals("org.mozilla.javascript.NativeDate") ) {
+			try {
+			    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+			    ScriptableOutputStream  os = new ScriptableOutputStream (bos, Guide.getGuide().getScope());
+			    os.writeObject(value);
+			    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
+			    String fromApacheBytes = new String(encodedBytes);
+			    returnVal = fromApacheBytes;
+			    os.close();
+			} catch (Exception ex ) {
+				logger.error(ex.getLocalizedMessage(),ex);
+			}
+		    
+		}
+
+		
+		return returnVal;
+	}
+
+
 	public String getChapter() {
 		return chapter;
 	}
@@ -182,11 +297,11 @@ public class GuideSettings {
 		this.flags = flags;
 	}
 
-	public HashMap<String, String> getScriptVariables() {
+	public HashMap<String, Object> getScriptVariables() {
 		return scriptVariables;
 	}
 
-	public void setScriptVariables(HashMap<String, String> scriptVariables) {
+	public void setScriptVariables(HashMap<String, Object> scriptVariables) {
 		this.scriptVariables = scriptVariables;
 	}
 	public LinkedHashSet<String> getStringKeys() {
@@ -352,8 +467,17 @@ public class GuideSettings {
 		    	elVar = comonFunctions.addElement("Var", elScriptVariables, doc);
 		    	elVar.setAttribute("id", key);
 		    	Object value = scriptVariables.get(key);
-		    	String strValue = String.valueOf(value);
-		    	elVar.setAttribute("value", strValue);
+		    	String strType;
+		    	String strValue;
+		    	if (value == null) {
+			    	strType = "Null";
+			    	strValue = "";
+		    	} else {
+			    	strType = value.getClass().getName();
+			    	strValue = createSaveObject(value, strType);
+		    	}
+		    	comonFunctions.addCdata(strValue, elVar, doc);
+		    	elVar.setAttribute("type", strType);
 		    }		    
 
 		    
@@ -449,5 +573,10 @@ public class GuideSettings {
 		this.prevPage = prevPage;
 	}
 
+	public String getFilename() {
+		return filename;
+	}
+
+	
 }
 

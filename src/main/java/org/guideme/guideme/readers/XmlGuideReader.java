@@ -92,7 +92,7 @@ public class XmlGuideReader {
 				logger.error("loadXML " + PresName + " Continue Exception " + e1.getLocalizedMessage(), e1);
 			}
 			guide.setSettings(guideSettings);
-			guideSettings.saveSettings();
+			guide.getSettings().saveSettings();
 		} catch (Exception e) {
 			logger.error("loadXML " + xmlFileName + " Exception ", e);
 		}

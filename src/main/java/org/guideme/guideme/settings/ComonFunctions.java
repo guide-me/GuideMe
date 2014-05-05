@@ -8,6 +8,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.util.ArrayList;
+import java.util.Date;
 
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -16,18 +17,26 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-//import org.guideme.guideme.MainLogic.WildCardFileFilter;
 import org.guideme.guideme.model.Guide;
+import org.mozilla.javascript.Context;
+//import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.Scriptable;
+import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
-public class ComonFunctions {
+public class ComonFunctions{
+	/**
+	 * 
+	 */
 	private SecureRandom mRandom = new SecureRandom();
 	private static Logger logger = LogManager.getLogger();
     private XPathFactory factory = XPathFactory.newInstance();
     private XPath xpath = factory.newXPath();
-    private static final String version = "0.0.12";
+    private static final String version = "0.1.0";
 
 	private static ComonFunctions comonFunctions;
 
@@ -338,6 +347,13 @@ public class ComonFunctions {
 		}
 	}
 
+	public CDATASection addCdata(String cdataContent, Element parentNode, Document doc) {
+		CDATASection newNode;
+		newNode = doc.createCDATASection(cdataContent);
+		parentNode.appendChild(newNode);
+		return newNode;
+	}
+	
 	public String readFile(String path, Charset encoding) throws IOException {
 		//returns the contents of a file as a String
 		byte[] encoded = Files.readAllBytes(Paths.get(path));
@@ -403,6 +419,64 @@ public class ComonFunctions {
 
 	public static String getVersion() {
 		return version;
+	}
+	
+	public String getVarAsString(Object objPassed) {
+		String returnVal = "";
+		try {
+			if (objPassed == null){
+				returnVal = "null";
+			} else {
+				if (objPassed instanceof String) {
+					returnVal = (String) objPassed;
+				}
+				if (objPassed instanceof Integer) {
+					returnVal = String.valueOf(objPassed);
+				}
+				if (objPassed instanceof Double) {
+					returnVal = String.valueOf(objPassed);
+				}
+				if (objPassed instanceof Float) {
+					returnVal = String.valueOf(objPassed);
+				}
+				if (objPassed instanceof Long) {
+					returnVal = String.valueOf(objPassed);
+				}
+				if (objPassed instanceof Boolean) {
+					returnVal = String.valueOf(objPassed);
+				}
+				if (objPassed instanceof NativeArray) {
+					NativeArray objArray = (NativeArray) objPassed;
+					if (objArray.getLength() > 0) {
+						returnVal = "[";
+						for (int i=0; i < objArray.getLength(); i++) {
+							returnVal = returnVal + "[" + objArray.get(i, objArray) + "]";
+						}
+						returnVal = returnVal + "]";
+					}
+				}
+				if (objPassed instanceof NativeObject) {
+				    if(objPassed != null) {
+						returnVal = "{";
+				        Object[] propIds = NativeObject.getPropertyIds((Scriptable) objPassed);
+				        for(Object propId: propIds) {
+				            String key = propId.toString();
+				            String value = NativeObject.getProperty((Scriptable) objPassed, key).toString();
+				            returnVal = returnVal + key + ": " + value  + ",";
+				        }
+						returnVal = returnVal + "}";
+				    }			
+				}
+				if (objPassed.getClass().getName().equals("org.mozilla.javascript.NativeDate")) {
+					Date dateRet = (Date) Context.jsToJava(objPassed, Date.class);
+					returnVal = dateRet.toString();
+				}
+			}
+		}
+		catch (Exception ex) {
+			logger.error(ex.getLocalizedMessage(),ex);
+		}
+		return returnVal;
 	}
 	
 }

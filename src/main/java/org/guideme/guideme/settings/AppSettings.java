@@ -38,6 +38,8 @@ public class AppSettings {
 	private boolean pageSound = true;
 	private boolean toclipboard = false;
 	private boolean monitorChanging = false;
+	private boolean clock = true;
+	private boolean metronome = true;
 
 	public static synchronized AppSettings getAppSettings() {
 		if (appSettings == null) {
@@ -85,6 +87,8 @@ public class AppSettings {
 				mainMonitor = Integer.parseInt(appSettingsProperties.getProperty("MainMonitor", "1"));
 				fullScreen = Boolean.parseBoolean(appSettingsProperties.getProperty("fullScreen", "false"));
 				multiMonitor = Boolean.parseBoolean(appSettingsProperties.getProperty("multiMonitor", "false"));
+				clock = Boolean.parseBoolean(appSettingsProperties.getProperty("clock", "true"));
+				metronome = Boolean.parseBoolean(appSettingsProperties.getProperty("metronome", "true"));
 				pageSound = Boolean.parseBoolean(appSettingsProperties.getProperty("pageSound", "true"));
 				toclipboard = Boolean.parseBoolean(appSettingsProperties.getProperty("toclipboard", "false"));
 				DataDirectory = appSettingsProperties.getProperty("DataDirectory", userDir);
@@ -156,6 +160,8 @@ public class AppSettings {
 			appSettingsProperties.setProperty("mainMonitor", String.valueOf(mainMonitor));
 			appSettingsProperties.setProperty("fullScreen", String.valueOf(fullScreen));
 			appSettingsProperties.setProperty("multiMonitor", String.valueOf(multiMonitor));
+			appSettingsProperties.setProperty("clock", String.valueOf(clock));
+			appSettingsProperties.setProperty("metronome", String.valueOf(metronome));
 			appSettingsProperties.setProperty("pageSound", String.valueOf(pageSound));
 			appSettingsProperties.setProperty("toclipboard", String.valueOf(toclipboard));
 			appSettingsProperties.setProperty("DataDirectory", DataDirectory);
@@ -297,6 +303,22 @@ public class AppSettings {
 
 	public void setMainMonitor(int mainMonitor) {
 		this.mainMonitor = mainMonitor;
+	}
+
+	public boolean isClock() {
+		return clock;
+	}
+
+	public void setClock(boolean clock) {
+		this.clock = clock;
+	}
+
+	public boolean isMetronome() {
+		return metronome;
+	}
+
+	public void setMetronome(boolean metronome) {
+		this.metronome = metronome;
 	}
 
 }

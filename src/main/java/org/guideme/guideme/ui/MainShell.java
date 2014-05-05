@@ -760,7 +760,7 @@ public class MainShell {
 		        guide.getFlags().clear();
 		        guide.getSettings().setPage("start");
 		        guide.getSettings().setFlags(comonFunctions.GetFlags(guide.getFlags()));
-				HashMap<String, String> scriptVariables = new HashMap<String, String>();
+				HashMap<String, Object> scriptVariables = new HashMap<String, Object>();
 				guide.getSettings().setScriptVariables(scriptVariables);
 				guide.getSettings().saveSettings();
 				guideSettings = guide.getSettings();
@@ -995,7 +995,11 @@ public class MainShell {
 						
 					}
 				}
-				lblLeft.setText(dateFormat.format(cal.getTime()));
+				if (appSettings.isClock()) {
+					lblLeft.setText(dateFormat.format(cal.getTime()));
+				} else {
+					lblLeft.setText("");
+				}
 				dateFormat = null;
 				cal = null;
 				javascript = null;
@@ -1441,7 +1445,9 @@ public class MainShell {
 		// run metronome on another thread
 		try {
 			logger.trace("setMetronomeBPM");
-			metronome.metronomeStart(metronomeBPM, appSettings.getMidiInstrument(), loops, resolution, Rhythm, appSettings.getMidiVolume());
+			if (appSettings.isMetronome()) {
+				metronome.metronomeStart(metronomeBPM, appSettings.getMidiInstrument(), loops, resolution, Rhythm, appSettings.getMidiVolume());
+			}
 		} catch (Exception e) {
 			logger.error(" setMetronomeBPM " + e.getLocalizedMessage(), e);
 		}

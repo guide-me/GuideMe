@@ -28,8 +28,14 @@
 		</repository>
 	</repositories>
 
-	<dependencies>
+  	<dependencies>
 		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.2.0</version>
+		</dependency>
+            
+  	    <dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
@@ -73,7 +79,7 @@
 		<dependency>
 			<groupId>uk.co.caprica</groupId>
 			<artifactId>vlcj</artifactId>
-			<version>3.0.0</version>
+			<version>3.0.1</version>
 		</dependency>
 		<dependency>
 			<groupId>org.imgscalr</groupId>
@@ -82,8 +88,13 @@
 			<type>jar</type>
 			<scope>compile</scope>
 		</dependency>								
-	</dependencies>
-	
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>20041127.091804</version>
+		</dependency>
+  	</dependencies>
+
 	<profiles>
 		<profile>
 			<id>mac.x86_64</id>

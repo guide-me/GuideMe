@@ -54,6 +54,7 @@ public class DebugShell {
 	private Composite varComp;
 	private TabFolder  tabFolder;
 	private Table varTable;
+	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 
 	public DebugShell() {
 		super();
@@ -264,7 +265,7 @@ public class DebugShell {
 		public void widgetSelected(SelectionEvent e) {
 			try {
 				String flags = comonFuctions.GetFlags(guide.getFlags());
-				HashMap<String, String> scriptVars;
+				HashMap<String, Object> scriptVars;
 				scriptVars = guide.getSettings().getScriptVariables();
 
 				Color color = myDisplay.getSystemColor(SWT.COLOR_YELLOW);
@@ -286,9 +287,9 @@ public class DebugShell {
 				item.setText (0, "Flags");
 				item.setText (1, flags);
 
-				for (Entry<String, String> entry : scriptVars.entrySet()) {
+				for (Entry<String, Object> entry : scriptVars.entrySet()) {
 					String key = entry.getKey();
-					String value = entry.getValue();
+					String value = entry.getValue().toString();
 					item = new TableItem (varTable, SWT.NONE);
 					item.setBackground(color);
 					item.setText (0, key);
@@ -655,7 +656,7 @@ public class DebugShell {
 			//variables
 			if (refreshVars) {
 				try {
-					HashMap<String, String> scriptVars;
+					HashMap<String, Object> scriptVars;
 					scriptVars = guide.getSettings().getScriptVariables();
 					String flags = comonFuctions.GetFlags(guide.getFlags());
 
@@ -666,13 +667,24 @@ public class DebugShell {
 					item.setText (0, "Flags");
 					item.setText (1, flags);
 
-					for (Entry<String, String> entry : scriptVars.entrySet()) {
-						String key = entry.getKey();
-						String value = entry.getValue();
-						item = new TableItem (varTable, SWT.NONE);
-						item.setBackground(color);
-						item.setText (0, key);
-						item.setText (1, value);
+					for (Entry<String, Object> entry : scriptVars.entrySet()) {
+						try {
+							String key = entry.getKey();
+							String value;
+							Object objVal = entry.getValue();
+							if (objVal != null) {
+								value = comonFunctions.getVarAsString(objVal);
+							} else {
+								value = "null";
+							}
+							item = new TableItem (varTable, SWT.NONE);
+							item.setBackground(color);
+							item.setText (0, key);
+							item.setText (1, value);
+						}
+						catch (Exception ex) {
+							logger.error(ex.getLocalizedMessage(), ex);
+						}
 					}
 
 					for (int i=0; i<2; i++) {

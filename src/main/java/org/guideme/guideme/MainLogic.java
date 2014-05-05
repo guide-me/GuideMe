@@ -139,7 +139,7 @@ public class MainLogic {
 						strPost = strPageId.substring(intPos3 + 1);
 						logger.debug("displayPage Random Page Min " + strMin + " Max " + strMax + " Pre " + strPre + " strPost " + strPost);
 						String[] strPageArray;
-						strPageArray = new String[intMax];
+						strPageArray = new String[(intMax - intMin) + 1];
 						int intPageArrayCount = -1;
 						Page tmpPage;
 						// Check if we are allowed to display the pages
@@ -418,8 +418,11 @@ public class MainLogic {
 					String varValue;
 					for (String s :set) {
 						try {
-							varValue = guideSettings.getScriptVariables().get(s);
-							displayText = displayText.replace("<span>" + s + "</span>", varValue);
+							Object objVar =guideSettings.getScriptVariables().get(s);
+							varValue = comonFunctions.getVarAsString(objVar);
+							if (!varValue.equals("")) {
+								displayText = displayText.replace("<span>" + s + "</span>", varValue);
+							}
 						} catch (Exception e) {
 							logger.error("displayPage BrwsText ScriptVariables Exception " + s + " " + e.getLocalizedMessage(), e);
 						}

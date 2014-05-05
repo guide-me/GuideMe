@@ -6,11 +6,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.guideme.guideme.MainLogic;
 import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.GuideSettings;
-
-import uk.co.caprica.vlcj.logger.Logger;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.Scriptable;
 
 public class Guide {
 	private String title;
@@ -38,9 +41,14 @@ public class Guide {
 	private static Guide guide;
 	private String css; // css style sheet
 	private Boolean inPrefGuide;
-	
+	private Scriptable scope;
+	private static Logger logger = LogManager.getLogger();
+
 	private Guide() {
-		
+		ContextFactory cntxFact = new ContextFactory();
+		Context cntx = cntxFact.enterContext();
+		scope = cntx.initStandardObjects();
+
 	}
 
 	public static synchronized Guide getGuide() {
@@ -199,23 +207,27 @@ public class Guide {
 
 	//we are loading a new xml so clear old settings
 	public void reset(String id) {
-		Logger.trace("Guide reset id: " + id);
-		this.id = id;
-		settings = new GuideSettings(id);
-		mediaDirectory = "";
-		delStyle = "";
-		delTarget = "";
-		flags = new ArrayList<String>();
-		autoSetPage = true;
-		delaySet = "";
-		delayUnSet = "";
-		title = "";
-		chapters = new HashMap<String, Chapter>(); 
-		delStartAtOffSet = 0;
-		jScript = "";
-		css = "";
-		inPrefGuide = false;
-		globaljScript = "";
+		logger.trace("Guide reset id: " + id);
+		try {
+			this.id = id;
+			settings = new GuideSettings(id);
+			mediaDirectory = "";
+			delStyle = "";
+			delTarget = "";
+			flags = new ArrayList<String>();
+			autoSetPage = true;
+			delaySet = "";
+			delayUnSet = "";
+			title = "";
+			chapters = new HashMap<String, Chapter>(); 
+			delStartAtOffSet = 0;
+			jScript = "";
+			css = "";
+			inPrefGuide = false;
+			globaljScript = "";
+		} catch (Exception e) {
+			logger.error("Guide reset " + e.getLocalizedMessage(), e);
+		}
 	}
 
 	public GuideSettings getSettings() {
@@ -273,5 +285,8 @@ public class Guide {
 		this.globaljScript = globaljScript;
 	}
 
-	
+	public Scriptable getScope() {
+		return scope;
+	}
+
 }
