@@ -15,7 +15,7 @@ public class AppSettingsTest {
 	private static boolean Debug;
 	private static String DataDirectory = new String();
 	private static int[] sash1Weights = new int[2];
-	private static int[] sash2Weights = new int[2];
+	private static int[] sash2Weights = new int[3];
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -30,7 +30,8 @@ public class AppSettingsTest {
 		sash1Weights[1] = tmpWeights[1];
 		tmpWeights = myAppSettings.getSash2Weights();
 		sash2Weights[0] = tmpWeights[0];
-		sash2Weights[1] = tmpWeights[1];
+		sash2Weights[1] = tmpWeights[1];		
+                sash2Weights[2] = tmpWeights[2];
 		myAppSettings.setFontSize(10);
 		myAppSettings.setHtmlFontSize(18);
 		myAppSettings.setDebug(false);

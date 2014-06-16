@@ -18,7 +18,7 @@
 </head>
 <body>
 #foreach ($chapter in $guide.chapters)
-  <article class="chapter">
+  <article class="chapter" id="$chapter.id">
     #foreach ($page in $chapter.pages)
     <section id="$page.id" class="page">
       #if ($page.text)
