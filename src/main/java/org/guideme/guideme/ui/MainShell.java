@@ -869,6 +869,8 @@ public class MainShell {
 				//Image myImage = (Image) me.getData("image");
 				try {
 					if (me.getData("imgPath") != null) {
+						String strHtml;
+						String tmpImagePath;
 						String imgPath = (String) me.getData("imgPath");
 						double imageRatio = ((Double) me.getData("imageRatio")).doubleValue();
 						Rectangle RectImage = me.getBounds();
@@ -888,19 +890,24 @@ public class MainShell {
 							newWidth = (int) (((double) RectImage.height / imageRatio) * imgOffSet);
 							logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
 						}
-						BufferedImage img = null;
-						try {
-						    img = ImageIO.read(new File(imgPath));
-						} catch (IOException e1) {
-						}
-						BufferedImage imagenew =
-								  Scalr.resize(img, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC,
-										  newWidth, newHeight, Scalr.OP_ANTIALIAS);
-						String imgType = imgPath.substring(imgPath.length() - 3);
-						String tmpImagePath = System.getProperty("user.dir") + "\\tmpImage." + imgType;
-						ImageIO.write(imagenew, imgType, new File(tmpImagePath));			
 						//String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
-						String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" /></td></tr></table></body></html>";
+						if (imgPath.endsWith(".gif")) {
+							tmpImagePath = imgPath;
+							strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
+						} else {
+							BufferedImage img = null;
+							try {
+							    img = ImageIO.read(new File(imgPath));
+							} catch (IOException e1) {
+							}
+							BufferedImage imagenew =
+									  Scalr.resize(img, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC,
+											  newWidth, newHeight, Scalr.OP_ANTIALIAS);
+							String imgType = imgPath.substring(imgPath.length() - 3);
+							tmpImagePath = System.getProperty("user.dir") + "\\tmpImage." + imgType;
+							ImageIO.write(imagenew, imgType, new File(tmpImagePath));			
+							strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" /></td></tr></table></body></html>";
+						}
 						me.setText(strHtml, true);
 						//Image tmpImage = me.getImage();
 						//me.setImage(resize(myImage, newWidth, newHeight));
@@ -949,65 +956,67 @@ public class MainShell {
 		public void run() {
 			try {
 				//logger.trace("Enter shellTimer");
-				DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
-				Calendar cal = Calendar.getInstance();
-				String javascript;
-				long diff;
-				int intSeconds;
-				int intMinutes;
-				String strSeconds;
-				String strMinutes;
-				String strTimeLeft;
-				if (calCountDown != null) {
-					if (cal.after(calCountDown)){
-						//Delay has reached zero
-						calCountDown = null;
-						lblRight.setText("");
-						comonFunctions.SetFlags(guide.getDelaySet(), guide.getFlags());
-						comonFunctions.UnsetFlags(guide.getDelayUnSet(), guide.getFlags());
-						javascript = guide.getDelayjScript();
-						mainShell.runJscript(javascript);
-						mainLogic.displayPage(guide.getDelTarget(), false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
-					} else {
-						if (guide.getDelStyle().equals("hidden")) {
-							//a hidden one
+				if (!lblRight.isDisposed()) {
+					DateFormat dateFormat = new SimpleDateFormat("HH:mm:ss");
+					Calendar cal = Calendar.getInstance();
+					String javascript;
+					long diff;
+					int intSeconds;
+					int intMinutes;
+					String strSeconds;
+					String strMinutes;
+					String strTimeLeft;
+					if (calCountDown != null) {
+						if (cal.after(calCountDown)){
+							//Delay has reached zero
+							calCountDown = null;
 							lblRight.setText("");
-						} else if (guide.getDelStyle().equals("secret")) {
-							//secret timer so display ?? to show there is one but not how long
-							lblRight.setText("??:??");
+							comonFunctions.SetFlags(guide.getDelaySet(), guide.getFlags());
+							comonFunctions.UnsetFlags(guide.getDelayUnSet(), guide.getFlags());
+							javascript = guide.getDelayjScript();
+							mainShell.runJscript(javascript);
+							mainLogic.displayPage(guide.getDelTarget(), false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
 						} else {
-							//Normal delay so display seconds left 
-							//(plus any offset if you are being sneaky) 
-							diff = calCountDown.getTimeInMillis() - cal.getTimeInMillis();
-							diff = diff + (guide.getDelStartAtOffSet() * 1000);
-							intSeconds = (int) ((diff / 1000) + 1);
-							intMinutes = intSeconds / 60;
-							intSeconds = intSeconds - (intMinutes * 60);
-							strSeconds = String.valueOf(intSeconds);
-							strSeconds = "0" + strSeconds;
-							strSeconds = strSeconds.substring(strSeconds.length() - 2);
-							strMinutes = String.valueOf(intMinutes);
-							strMinutes = "0" + strMinutes;
-							strMinutes = strMinutes.substring(strMinutes.length() - 2);
-							strTimeLeft = strMinutes + ":" + strSeconds;
-							lblRight.setText(strTimeLeft);
+							if (guide.getDelStyle().equals("hidden")) {
+								//a hidden one
+								lblRight.setText("");
+							} else if (guide.getDelStyle().equals("secret")) {
+								//secret timer so display ?? to show there is one but not how long
+								lblRight.setText("??:??");
+							} else {
+								//Normal delay so display seconds left 
+								//(plus any offset if you are being sneaky) 
+								diff = calCountDown.getTimeInMillis() - cal.getTimeInMillis();
+								diff = diff + (guide.getDelStartAtOffSet() * 1000);
+								intSeconds = (int) ((diff / 1000) + 1);
+								intMinutes = intSeconds / 60;
+								intSeconds = intSeconds - (intMinutes * 60);
+								strSeconds = String.valueOf(intSeconds);
+								strSeconds = "0" + strSeconds;
+								strSeconds = strSeconds.substring(strSeconds.length() - 2);
+								strMinutes = String.valueOf(intMinutes);
+								strMinutes = "0" + strMinutes;
+								strMinutes = strMinutes.substring(strMinutes.length() - 2);
+								strTimeLeft = strMinutes + ":" + strSeconds;
+								lblRight.setText(strTimeLeft);
+							}
+							
 						}
-						
 					}
+					if (appSettings.isClock()) {
+						lblLeft.setText(dateFormat.format(cal.getTime()));
+					} else {
+						lblLeft.setText("");
+					}
+					dateFormat = null;
+					cal = null;
+					javascript = null;
+					strSeconds = null;
+					strMinutes = null;
+					strTimeLeft = null;
+					//re run in 0.1 seconds
+					myDisplay.timerExec(100, new shellTimer());
 				}
-				if (appSettings.isClock()) {
-					lblLeft.setText(dateFormat.format(cal.getTime()));
-				} else {
-					lblLeft.setText("");
-				}
-				dateFormat = null;
-				cal = null;
-				javascript = null;
-				strSeconds = null;
-				strMinutes = null;
-				strTimeLeft = null;
-				//re run in 0.1 seconds
-				myDisplay.timerExec(100, new shellTimer());
 			}
 			catch (Exception ex) {
 				logger.error(" shellTimer " + ex.getLocalizedMessage(), ex);
@@ -1057,6 +1066,8 @@ public class MainShell {
 		//	tmpImage.dispose();
 		//}
 		try {
+			String tmpImagePath;
+			String strHtml;
 			ImageData imgData = memImage.getImageData();
 			Rectangle RectImage = imageLabel.getBounds();
 			double dblScreenRatio = (double) RectImage.height / (double) RectImage.width;
@@ -1077,26 +1088,32 @@ public class MainShell {
 				newWidth = (int) (((double) RectImage.height / dblImageRatio) * imgOffSet);
 				logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
 			}
-			BufferedImage img = null;
-			try {
-			    img = ImageIO.read(new File(imgPath));
-			} catch (IOException e) {
+			if (imgPath.endsWith(".gif")) {
+				memImage.dispose();
+				memImage = null;
+				tmpImagePath = imgPath;
+				strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
+			} else {
+				BufferedImage img = null;
+				try {
+					img = ImageIO.read(new File(imgPath));
+				} catch (IOException e) {
+				}
+				BufferedImage imagenew =
+						Scalr.resize(img, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC,
+								newWidth, newHeight, Scalr.OP_ANTIALIAS);
+				String imgType = imgPath.substring(imgPath.length() - 3);
+				tmpImagePath = System.getProperty("user.dir") + "\\tmpImage." + imgType;
+				ImageIO.write(imagenew, imgType, new File(tmpImagePath));			
+				//Image tmpImage2 = imageLabel.getImage();
+				//imageLabel.setImage(resize(memImage, newWidth, newHeight));
+				memImage.dispose();
+				memImage = null;
+				//if (tmpImage2 != null) {
+				//	tmpImage2.dispose();
+				//}
+				strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" /></td></tr></table></body></html>";
 			}
-			BufferedImage imagenew =
-					  Scalr.resize(img, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC,
-							  newWidth, newHeight, Scalr.OP_ANTIALIAS);
-			String imgType = imgPath.substring(imgPath.length() - 3);
-			String tmpImagePath = System.getProperty("user.dir") + "\\tmpImage." + imgType;
-			ImageIO.write(imagenew, imgType, new File(tmpImagePath));			
-			//Image tmpImage2 = imageLabel.getImage();
-			//imageLabel.setImage(resize(memImage, newWidth, newHeight));
-			memImage.dispose();
-			memImage = null;
-			//if (tmpImage2 != null) {
-			//	tmpImage2.dispose();
-			//}
-			//String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
-			String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" /></td></tr></table></body></html>";
 			imageLabel.setText(strHtml, true);
 			logger.trace("Open: " + imgPath);
 		}
@@ -1104,7 +1121,7 @@ public class MainShell {
 			logger.error("Process Image error " + ex6.getLocalizedMessage(), ex6);
 		}
 		mediaPanel.setVisible(false);
-    	this.imageLabel.setVisible(true);
+		this.imageLabel.setVisible(true);
 		leftFrame.layout(true);
 	}
 

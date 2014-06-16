@@ -1,15 +1,21 @@
 package org.guideme.guideme.settings;
 
 import java.io.File;
+//import java.io.FileInputStream;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Date;
 
+//import javax.xml.stream.XMLInputFactory;
+//import javax.xml.stream.XMLStreamConstants;
+//import javax.xml.stream.XMLStreamReader;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -18,6 +24,16 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.guideme.guideme.model.Guide;
+//import org.guideme.guideme.model.Audio;
+//import org.guideme.guideme.model.Button;
+//import org.guideme.guideme.model.Delay;
+//import org.guideme.guideme.model.Guide;
+//import org.guideme.guideme.model.Image;
+//import org.guideme.guideme.model.Metronome;
+//import org.guideme.guideme.model.Page;
+//import org.guideme.guideme.model.Video;
+//import org.guideme.guideme.readers.UnicodeBOMInputStream;
+//import org.guideme.guideme.readers.XmlGuideReader.TagName;
 import org.mozilla.javascript.Context;
 //import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.NativeArray;
@@ -36,7 +52,7 @@ public class ComonFunctions{
 	private static Logger logger = LogManager.getLogger();
     private XPathFactory factory = XPathFactory.newInstance();
     private XPath xpath = factory.newXPath();
-    private static final String version = "0.1.0";
+    private static final String version = "0.1.2";
 
 	private static ComonFunctions comonFunctions;
 
@@ -354,12 +370,90 @@ public class ComonFunctions{
 		return newNode;
 	}
 	
-	public String readFile(String path, Charset encoding) throws IOException {
+	public String readFile(String path, Charset encoding) {
 		//returns the contents of a file as a String
-		byte[] encoded = Files.readAllBytes(Paths.get(path));
-		return encoding.decode(ByteBuffer.wrap(encoded)).toString();
+		String returnVal = "";
+		try {
+			byte[] encoded = Files.readAllBytes(Paths.get(path));
+			returnVal =  encoding.decode(ByteBuffer.wrap(encoded)).toString();
+		} catch (Exception ex) {
+			logger.error(ex.getLocalizedMessage(),ex);
+		}
+		return returnVal;
 	}
 
+	public String jsReadFile(String path) {
+		return jsReadFile(path, "UTF-8");
+	}
+
+	public String jsReadFile(String fileName, String encoding) {
+		AppSettings appSettings = AppSettings.getAppSettings();
+		Guide guide = Guide.getGuide(); 
+		String fileSeparator = appSettings.getFileSeparator();
+		
+		String dataDirectory;
+		String prefix = "";
+		dataDirectory = appSettings.getDataDirectory();
+		if (dataDirectory.startsWith("/")) {
+			prefix = "/";
+		}
+		dataDirectory = prefix + fixSeparator(appSettings.getDataDirectory(), fileSeparator);
+		String mediaDirectory = fixSeparator(guide.getMediaDirectory(), fileSeparator);
+		dataDirectory = dataDirectory + fileSeparator + mediaDirectory;
+		
+		
+		String media = fixSeparator(fileName, fileSeparator);
+		logger.debug("CommonFunctions fileExists getMediaFullPath " + media);
+		int intSubDir = media.lastIndexOf(fileSeparator);
+		String strSubDir;
+		if (intSubDir > -1) {
+			strSubDir = fixSeparator(media.substring(0, intSubDir + 1), fileSeparator);
+			media = media.substring(intSubDir + 1);
+		} else {
+			strSubDir = "";
+		}
+		// String strSubDir
+		// no wildcard so just use the file name
+		if (strSubDir.equals("")) {
+			fileName = dataDirectory + fileSeparator + media;
+		} else {
+			fileName = dataDirectory + fileSeparator + strSubDir + fileSeparator + media;
+		}
+
+		Charset encodeSet;
+		switch (encoding) {
+		case "ISO_8859_1":
+			encodeSet = StandardCharsets.ISO_8859_1;
+			break;
+		case "US_ASCII":
+			encodeSet = StandardCharsets.US_ASCII;
+			break;
+		case "UTF_16":
+			encodeSet = StandardCharsets.UTF_16;
+			break;
+		case "UTF_16BE":
+			encodeSet = StandardCharsets.UTF_16BE;
+			break;
+		case "UTF_16LE":
+			encodeSet = StandardCharsets.UTF_16LE;
+			break;
+		default:
+			encodeSet = StandardCharsets.UTF_8;
+			break;
+
+		}
+		String fileToReturn = "";
+		
+		try {
+			fileToReturn = readFile(fileName, encodeSet);
+		} catch (Exception ex) {
+			logger.error(ex.getLocalizedMessage(),ex);
+		}
+		
+		return fileToReturn;
+	}
+	
+	
 	public String fixSeparator(String path, String fileSeparator) {
 		String retrn = path;
 		retrn = retrn.replace("\\", fileSeparator);
@@ -374,6 +468,14 @@ public class ComonFunctions{
 	}
 	
 	public Boolean fileExists(String fileName) {
+		return fileExists(fileName, false);
+	}
+
+	public Boolean directoryExists(String fileName) {
+		return fileExists(fileName, true);
+	}
+
+	public Boolean fileExists(String fileName, boolean directory) {
 		AppSettings appSettings = AppSettings.getAppSettings();
 		Guide guide = Guide.getGuide(); 
 		String fileSeparator = appSettings.getFileSeparator();
@@ -409,7 +511,10 @@ public class ComonFunctions{
 		File f = new File(fileName);
 		Boolean fileexists = false;
 		if (f.exists()) {
-			if (f.isFile()) {
+			if (f.isFile()  && !directory ) {
+				fileexists = true;
+			}
+			if (f.isDirectory()  && directory ) {
 				fileexists = true;
 			}
 		}
@@ -478,5 +583,207 @@ public class ComonFunctions{
 		}
 		return returnVal;
 	}
+	
+	public String ListSubFolders(String FolderName) {
+		String folders = "";
+		AppSettings appSettings = AppSettings.getAppSettings();
+		Guide guide = Guide.getGuide(); 
+		String fileSeparator = appSettings.getFileSeparator();
+		
+		String dataDirectory;
+		String prefix = "";
+		dataDirectory = appSettings.getDataDirectory();
+		if (dataDirectory.startsWith("/")) {
+			prefix = "/";
+		}
+		dataDirectory = prefix + fixSeparator(appSettings.getDataDirectory(), fileSeparator);
+		String mediaDirectory = fixSeparator(guide.getMediaDirectory(), fileSeparator);
+		dataDirectory = dataDirectory + fileSeparator + mediaDirectory;
+		
+		
+		String media = fixSeparator(FolderName, fileSeparator);
+		FolderName = dataDirectory + fileSeparator + media;
+		logger.debug("CommonFunctions ListSubFolders full Path " + FolderName);
+		File file = new File(FolderName);
+		String[] directories = file.list(new FilenameFilter() {
+		  @Override
+		  public boolean accept(File current, String name) {
+		    return new File(current, name).isDirectory();
+		  }
+		});
+		StringBuffer builder = new StringBuffer();
+		builder.append("[\"");
+		for(String s : directories) {
+		    builder.append(s);
+		    builder.append("\", \"");
+		}
+		int length = builder.length();
+		if (length > 2) {
+			builder.delete(length - 3, length);
+		}
+	    builder.append("]");
+		
+		folders = builder.toString();
+		logger.debug("CommonFunctions ListSubFolders returned " + folders);
+		return folders;
+		
+	}
+	
+	public String GetRandomFile(String wildcard, String strSubDir) {
+		return GetRandomFile(wildcard, strSubDir, false);
+	}
+	
+	
+	public String GetRandomFile(String wildcard, String strSubDir, boolean fullPath) {
+		String mediaFound = "";
+		AppSettings appSettings = AppSettings.getAppSettings();
+		Guide guide = Guide.getGuide(); 
+		String fileSeparator = appSettings.getFileSeparator();
+		
+		String dataDirectory;
+		String prefix = "";
+		dataDirectory = appSettings.getDataDirectory();
+		if (dataDirectory.startsWith("/")) {
+			prefix = "/";
+		}
+		dataDirectory = prefix + fixSeparator(appSettings.getDataDirectory(), fileSeparator);
+		String mediaDirectory = fixSeparator(guide.getMediaDirectory(), fileSeparator);
+		dataDirectory = dataDirectory + fileSeparator + mediaDirectory;
+
+		// get the directory
+		File f = new File(dataDirectory + fileSeparator + strSubDir);
+		// wildcard filter class handles the filtering
+		WildCardFileFilter WildCardfilter = new WildCardFileFilter();
+		WildCardfilter.setFilePatern(wildcard);
+		if (f.isDirectory()) {
+			// return a list of matching files
+			File[] children = f.listFiles(WildCardfilter);
+			// return a random image
+			int intFile = comonFunctions.getRandom("(0.." + (children.length - 1) + ")");
+			logger.debug("displayPage Random Media Index " + intFile);
+			if (strSubDir.equals("")) {
+				if (fullPath) {
+					mediaFound = dataDirectory + fileSeparator + children[intFile].getName();
+				} else {
+					mediaFound = children[intFile].getName();
+				}
+			} else {
+				if (fullPath) {
+					mediaFound = dataDirectory + fileSeparator + strSubDir + fileSeparator + children[intFile].getName();
+				} else {
+					mediaFound = strSubDir + fileSeparator + children[intFile].getName();
+				}
+			}
+			logger.debug("GetRandomFile Random Media Chosen " + mediaFound);
+		}
+		return mediaFound;
+	
+	}
+	
+	// Wildecard filter
+	public class WildCardFileFilter implements java.io.FileFilter {
+		//Apply the wildcard filter to the file list
+		private String strFilePatern;
+		
+		public void setFilePatern(String strFilePatern) {
+			//regular patern to search for
+			this.strFilePatern = strFilePatern;
+		}
+
+		public boolean accept(File f) {
+			try {
+				//convert the regular patern to regex
+				String strPattern = strFilePatern.toLowerCase();
+				String text = f.getName().toLowerCase();
+				String strFile = text;
+				strPattern = strPattern.replace("*", ".*");
+				//test for a match
+				if (!text.matches(strPattern)) {
+					logger.debug("WildCardFileFilter accept No Match " + strFile);
+					return false;
+				}
+				
+				logger.debug("WildCardFileFilter accept Match " + strFile);
+				return true;
+			} catch (Exception e) {
+				logger.error("WildCardFileFilter.accept Exception ", e);
+				return false;
+			}
+		}
+	}
+	
+	/*
+	public Object xmlFileToObject(String xmlFileName) { 
+
+		String strTag;
+		String strTop = "";
+		String strValue;
+		String fullFileName;
+
+		try {
+			AppSettings appSettings = AppSettings.getAppSettings();
+			Guide guide = Guide.getGuide(); 
+			String fileSeparator = appSettings.getFileSeparator();
+			
+			String dataDirectory;
+			String prefix = "";
+			dataDirectory = appSettings.getDataDirectory();
+			if (dataDirectory.startsWith("/")) {
+				prefix = "/";
+			}
+			dataDirectory = prefix + fixSeparator(appSettings.getDataDirectory(), fileSeparator);
+			String mediaDirectory = fixSeparator(guide.getMediaDirectory(), fileSeparator);
+			dataDirectory = dataDirectory + fileSeparator + mediaDirectory;
+			
+			
+			fullFileName = fixSeparator(xmlFileName, fileSeparator);
+			fullFileName = dataDirectory + fileSeparator + fullFileName;
+			logger.trace("loadXML: " + fullFileName);
+
+			FileInputStream fis = new FileInputStream(fullFileName);
+			UnicodeBOMInputStream ubis = new UnicodeBOMInputStream(fis);
+			ubis.skipBOM();
+
+			XMLInputFactory factory = XMLInputFactory.newInstance();
+			XMLStreamReader reader = factory.createXMLStreamReader(ubis);
+
+			while (reader.hasNext()) {
+				int eventType = reader.next(); 
+				switch (eventType) {
+				case XMLStreamConstants.START_DOCUMENT:
+					logger.trace("loadXML " + xmlFileName + " Start document ");
+					break;
+				case XMLStreamConstants.END_DOCUMENT:
+					logger.trace("loadXML " + xmlFileName + " End document");
+					break;
+				case XMLStreamConstants.START_ELEMENT:
+					strTag = reader.getName().getLocalPart();
+					if (strTop.equals("")) {
+						strTop = strTag;
+					}
+					try {
+						reader.next();
+						if (reader.getEventType() == XMLStreamConstants.CHARACTERS) {
+							strValue = reader.getText();
+						} else {
+							strValue = "";
+						}
+					} catch (Exception e1) {
+						logger.error("loadXML " + xmlFileName + " Tag Exception " + e1.getLocalizedMessage(), e1);
+					}
+					logger.trace("loadXML " + xmlFileName + " Tag: "  + strTag + " Value: " + strValue);
+					break;
+				case XMLStreamConstants.END_ELEMENT:
+					break;
+				case XMLStreamConstants.CHARACTERS:
+					break;
+				}
+			}
+		} catch (Exception e) {
+			logger.error("loadXML " + xmlFileName + " Exception ", e);
+		}
+	}
+	*/
+	
 	
 }

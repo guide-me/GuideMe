@@ -14,6 +14,7 @@ import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Page;
 import org.guideme.guideme.readers.XmlGuideReader;
 import org.guideme.guideme.settings.AppSettings;
+import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
 import org.guideme.guideme.settings.UserSettings;
 import org.guideme.guideme.ui.DebugShell;
@@ -29,6 +30,7 @@ public class MainLogicTest {
 	private DebugShell debugShell = new DebugShell();
 	private AppSettings appSettings = AppSettingsMock.getAppSettings();
 	private UserSettings userSettings = UserSettings.getUserSettings();
+	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	private GuideSettings guideSettings;
 	private XmlGuideReader xmlGuideReader = XmlGuideReader.getXmlGuideReader();
 	private String dataDirectory = "Y:\\TM\\Teases";
@@ -78,7 +80,7 @@ public class MainLogicTest {
 			appSettings.setDataDirectory(dataDirectory);
 			File f = new File(dataDirectory);
 			// wildcard filter class handles the filtering
-			MainLogic.WildCardFileFilter WildCardfilter = mainLogic.new WildCardFileFilter();
+			ComonFunctions.WildCardFileFilter WildCardfilter = comonFunctions.new WildCardFileFilter();
 			WildCardfilter.setFilePatern("*.xml");
 			if (f.isDirectory()) {
 				// return a list of matching files

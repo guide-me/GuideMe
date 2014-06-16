@@ -84,7 +84,7 @@ public class AppSettings {
 				videoVolume = Integer.parseInt(appSettingsProperties.getProperty("videoVolume", "400"));
 				Debug = Boolean.parseBoolean(appSettingsProperties.getProperty("Debug", "false"));
 				video = Boolean.parseBoolean(appSettingsProperties.getProperty("Video", "true"));
-				mainMonitor = Integer.parseInt(appSettingsProperties.getProperty("MainMonitor", "1"));
+				mainMonitor = Integer.parseInt(appSettingsProperties.getProperty("mainMonitor", "1"));
 				fullScreen = Boolean.parseBoolean(appSettingsProperties.getProperty("fullScreen", "false"));
 				multiMonitor = Boolean.parseBoolean(appSettingsProperties.getProperty("multiMonitor", "false"));
 				clock = Boolean.parseBoolean(appSettingsProperties.getProperty("clock", "true"));

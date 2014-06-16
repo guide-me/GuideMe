@@ -680,24 +680,7 @@ public class MainLogic {
 		// String strSubDir
 		// Handle wildcard *
 		if (media.indexOf("*") > -1) {
-			// get the directory
-			File f = new File(dataDirectory + fileSeparator + strSubDir);
-			// wildcard filter class handles the filtering
-			WildCardFileFilter WildCardfilter = new WildCardFileFilter();
-			WildCardfilter.setFilePatern(media);
-			if (f.isDirectory()) {
-				// return a list of matching files
-				File[] children = f.listFiles(WildCardfilter);
-				// return a random image
-				int intFile = comonFunctions.getRandom("(0.." + (children.length - 1) + ")");
-				logger.debug("displayPage Random Media Index " + intFile);
-				if (strSubDir.equals("")) {
-					mediaFound = dataDirectory + fileSeparator + children[intFile].getName();
-				} else {
-					mediaFound = dataDirectory + fileSeparator + strSubDir + fileSeparator + children[intFile].getName();
-				}
-				logger.debug("displayPage Random Media Chosen " + mediaFound);
-			}
+			mediaFound = comonFunctions.GetRandomFile(media, strSubDir, true);
 		} else {
 			// no wildcard so just use the file name
 			if (strSubDir.equals("")) {
@@ -711,35 +694,4 @@ public class MainLogic {
 		return mediaFound;
 	}
 	
-	// Wildecard filter
-	public class WildCardFileFilter implements java.io.FileFilter {
-		//Apply the wildcard filter to the file list
-		private String strFilePatern;
-		
-		public void setFilePatern(String strFilePatern) {
-			//regular patern to search for
-			this.strFilePatern = strFilePatern;
-		}
-
-		public boolean accept(File f) {
-			try {
-				//convert the regular patern to regex
-				String strPattern = strFilePatern.toLowerCase();
-				String text = f.getName().toLowerCase();
-				String strFile = text;
-				strPattern = strPattern.replace("*", ".*");
-				//test for a match
-				if (!text.matches(strPattern)) {
-					logger.debug("WildCardFileFilter accept No Match " + strFile);
-					return false;
-				}
-				
-				logger.debug("WildCardFileFilter accept Match " + strFile);
-				return true;
-			} catch (Exception e) {
-				logger.error("WildCardFileFilter.accept Exception ", e);
-				return false;
-			}
-		}
-	}
 }

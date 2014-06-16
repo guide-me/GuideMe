@@ -88,12 +88,25 @@ public class Jscript {
 			
 			try {
 				cntx.evaluateString(scope, javaScriptToRun, "script", 1, null);
-				javaFunction = javaFunction.replace("()","");
+				int argStart;
+				int argEnd;
+				String argstring = "";
+				String[] argArray;
+				argStart = javaFunction.indexOf("(");
+				argEnd = javaFunction.indexOf(")");
+				if (argStart > -1) {
+					argstring = javaFunction.substring(argStart + 1, argEnd);
+					javaFunction = javaFunction.substring(0, argStart);
+				}
 				Object fObj = scope.get(javaFunction, scope);
 				if ((fObj instanceof Function)) {
-					Object empty[] = { "" };
+					Object args[] = { "" };
+					if (argstring.length() > 0) {
+						argArray = argstring.split(",");
+						args = argArray;
+					}
 					Function fct = (Function)fObj;
-					fct.call(cntx, scope, scope, empty);
+					fct.call(cntx, scope, scope, args);
 				} else {
 					logger.error(JSCRIPT_MARKER, " Couldn't find function " + javaFunction);
 				}

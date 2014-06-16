@@ -1,6 +1,5 @@
 package org.guideme.guideme.scripting;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 
@@ -58,7 +57,7 @@ public class JscriptTest {
 			Jscript jscript = new Jscript(guide, userSettings, appSettings, false);
 			jscript.setOverRide(overRide);
 			jscript.runScript(source, "test", true);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			logger.error(" Run Script " + e.getLocalizedMessage(), e);
 		}				
 		
