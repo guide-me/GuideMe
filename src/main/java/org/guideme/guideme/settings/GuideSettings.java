@@ -370,16 +370,19 @@ public class GuideSettings{
 	public void addPref(String key, String value, String screenDesc) {
 		userStringPrefs.put(key, value);
 		userStringDesc.put(key, screenDesc);
+		userStringKeys.add(key);
 	}
 	
 	public void addPref(String key, Boolean value, String screenDesc) {
 		userBooleanPrefs.put(key, value);
 		userBooleanDesc.put(key, screenDesc);
+		userBooleanKeys.add(key);
 	}
 	
 	public void addPref(String key, Double value, String screenDesc) {
 		userNumericPrefs.put(key, value);
 		userNumericDesc.put(key, screenDesc);
+		userNumericKeys.add(key);
 	}
 	
 	public String getScreenDesc(String key, String type) {
@@ -400,13 +403,13 @@ public class GuideSettings{
 	public Boolean keyExists(String key, String type) {
 		Boolean exists = false;
 		if (type.equals("String")) {
-			exists = userStringDesc.containsKey(key);
+			exists = userStringKeys.contains(key);
 		}
 		if (type.equals("Boolean")) {
-			exists = userBooleanDesc.containsKey(key);
+			exists = userBooleanKeys.contains(key);
 		}
 		if (type.equals("Number")) {
-			exists = userNumericDesc.containsKey(key);
+			exists = userNumericKeys.contains(key);
 		}
 		return exists;
 	}
