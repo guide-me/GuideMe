@@ -401,6 +401,7 @@ public class GuideSettings{
 	
 	
 	public Boolean keyExists(String key, String type) {
+		//comment
 		Boolean exists = false;
 		if (type.equals("String")) {
 			exists = userStringKeys.contains(key);
