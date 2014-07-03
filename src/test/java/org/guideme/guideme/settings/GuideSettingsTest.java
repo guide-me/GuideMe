@@ -60,7 +60,7 @@ public class GuideSettingsTest {
 	@Test
 	public void testGetFlags() {
 		String returned = guideSettings.getFlags();
-		assertEquals("page1,page2", returned);
+		assertEquals("", returned);
 	}
 
 	@Test
