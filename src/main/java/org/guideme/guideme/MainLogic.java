@@ -413,62 +413,64 @@ public class MainLogic {
 						logger.error("displayPage BrwsText Media Directory Exception " + e.getLocalizedMessage(), e);
 					}
 					
-					// Script Variables
-					Set<String> set = guideSettings.getScriptVariables().keySet();
-					String varValue;
-					for (String s :set) {
-						try {
-							Object objVar =guideSettings.getScriptVariables().get(s);
-							varValue = comonFunctions.getVarAsString(objVar);
-							if (!varValue.equals("")) {
-								displayText = displayText.replace("<span>" + s + "</span>", varValue);
-							}
-						} catch (Exception e) {
-							logger.error("displayPage BrwsText ScriptVariables Exception " + s + " " + e.getLocalizedMessage(), e);
-						}
-					}
-
-					// String Guide Preferences
-					set = guideSettings.getStringKeys(); 
-					for (String s : set) {
-						try {
-							displayText = displayText.replace("<span>" + s + "</span>", guideSettings.getPref(s));
-						} catch (Exception e) {
-							logger.error("displayPage BrwsText String Guide Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
-						}
-					}
-
-					// Number Guide Preferences
-					set = guideSettings.getNumberKeys(); 
-					String numberRet = "";
-					for (String s : set) {
-						try {
-						numberRet = FormatNumPref(guideSettings.getPrefNumber(s));
-							displayText = displayText.replace("<span>" + s + "</span>", numberRet);
-						} catch (Exception e) {
-							logger.error("displayPage BrwsText Number Guide Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
-						}
-					}
-
-					// String User Preferences
-					set = userSettings.getStringKeys(); 
-					for (String s : set) {
-						try {
-							displayText = displayText.replace("<span>" + s + "</span>", userSettings.getPref(s));
-						} catch (Exception e) {
-							logger.error("displayPage BrwsText String User Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
-						}
-					}
-
-					// Number User Preferences
-					set = userSettings.getNumberKeys(); 
-					for (String s : set) {
-						try {
-						displayText = displayText.replace("<span>" + s + "</span>", FormatNumPref(userSettings.getPrefNumber(s)));
-						} catch (Exception e) {
-							logger.error("displayPage BrwsText Number User Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
-						}
-					}
+					displayText = substituteTextVars(displayText, guideSettings, userSettings);
+					
+//					// Script Variables
+//					Set<String> set = guideSettings.getScriptVariables().keySet();
+//					String varValue;
+//					for (String s :set) {
+//						try {
+//							Object objVar =guideSettings.getScriptVariables().get(s);
+//							varValue = comonFunctions.getVarAsString(objVar);
+//							if (!varValue.equals("")) {
+//								displayText = displayText.replace("<span>" + s + "</span>", varValue);
+//							}
+//						} catch (Exception e) {
+//							logger.error("displayPage BrwsText ScriptVariables Exception " + s + " " + e.getLocalizedMessage(), e);
+//						}
+//					}
+//
+//					// String Guide Preferences
+//					set = guideSettings.getStringKeys(); 
+//					for (String s : set) {
+//						try {
+//							displayText = displayText.replace("<span>" + s + "</span>", guideSettings.getPref(s));
+//						} catch (Exception e) {
+//							logger.error("displayPage BrwsText String Guide Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
+//						}
+//					}
+//
+//					// Number Guide Preferences
+//					set = guideSettings.getNumberKeys(); 
+//					String numberRet = "";
+//					for (String s : set) {
+//						try {
+//						numberRet = FormatNumPref(guideSettings.getPrefNumber(s));
+//							displayText = displayText.replace("<span>" + s + "</span>", numberRet);
+//						} catch (Exception e) {
+//							logger.error("displayPage BrwsText Number Guide Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
+//						}
+//					}
+//
+//					// String User Preferences
+//					set = userSettings.getStringKeys(); 
+//					for (String s : set) {
+//						try {
+//							displayText = displayText.replace("<span>" + s + "</span>", userSettings.getPref(s));
+//						} catch (Exception e) {
+//							logger.error("displayPage BrwsText String User Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
+//						}
+//					}
+//
+//					// Number User Preferences
+//					set = userSettings.getNumberKeys(); 
+//					for (String s : set) {
+//						try {
+//						displayText = displayText.replace("<span>" + s + "</span>", FormatNumPref(userSettings.getPrefNumber(s)));
+//						} catch (Exception e) {
+//							logger.error("displayPage BrwsText Number User Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
+//						}
+//					}
 
 					mainShell.setBrwsText(displayText, overRide.getRightCss());
 				} catch (Exception e) {
@@ -486,6 +488,9 @@ public class MainLogic {
 						objButton = objCurrPage.getButton(i1);
 						if (objButton.canShow(guide.getFlags())) {
 							String javascriptid = objButton.getjScript();
+							String btnText = objButton.getText();
+							btnText = substituteTextVars(btnText, guideSettings, userSettings);
+							objButton.setText(btnText);
 							mainShell.addButton(objButton, javascriptid);
 						}
 					} catch (Exception e1) {
@@ -499,6 +504,9 @@ public class MainLogic {
 						objButton = overRide.getButton(i1);
 						if (objButton.canShow(guide.getFlags())) {
 							String javascriptid = objButton.getjScript();
+							String btnText = objButton.getText();
+							btnText = substituteTextVars(btnText, guideSettings, userSettings);
+							objButton.setText(btnText);
 							mainShell.addButton(objButton, javascriptid);
 						}
 					} catch (Exception e1) {
@@ -641,6 +649,67 @@ public class MainLogic {
 		}
 	}
 
+	
+	private String substituteTextVars(String inString, GuideSettings guideSettings, UserSettings userSettings) {
+		String retString = inString;
+		// Script Variables
+		Set<String> set = guideSettings.getScriptVariables().keySet();
+		String varValue;
+		for (String s :set) {
+			try {
+				Object objVar =guideSettings.getScriptVariables().get(s);
+				varValue = comonFunctions.getVarAsString(objVar);
+				if (!varValue.equals("")) {
+					retString = retString.replace("<span>" + s + "</span>", varValue);
+				}
+			} catch (Exception e) {
+				logger.error("displayPage BrwsText ScriptVariables Exception " + s + " " + e.getLocalizedMessage(), e);
+			}
+		}
+
+		// String Guide Preferences
+		set = guideSettings.getStringKeys(); 
+		for (String s : set) {
+			try {
+				retString = retString.replace("<span>" + s + "</span>", guideSettings.getPref(s));
+			} catch (Exception e) {
+				logger.error("displayPage BrwsText String Guide Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
+			}
+		}
+
+		// Number Guide Preferences
+		set = guideSettings.getNumberKeys(); 
+		String numberRet = "";
+		for (String s : set) {
+			try {
+			numberRet = FormatNumPref(guideSettings.getPrefNumber(s));
+			retString = retString.replace("<span>" + s + "</span>", numberRet);
+			} catch (Exception e) {
+				logger.error("displayPage BrwsText Number Guide Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
+			}
+		}
+
+		// String User Preferences
+		set = userSettings.getStringKeys(); 
+		for (String s : set) {
+			try {
+				retString = retString.replace("<span>" + s + "</span>", userSettings.getPref(s));
+			} catch (Exception e) {
+				logger.error("displayPage BrwsText String User Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
+			}
+		}
+
+		// Number User Preferences
+		set = userSettings.getNumberKeys(); 
+		for (String s : set) {
+			try {
+				retString = retString.replace("<span>" + s + "</span>", FormatNumPref(userSettings.getPrefNumber(s)));
+			} catch (Exception e) {
+				logger.error("displayPage BrwsText Number User Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
+			}
+		}
+		return retString;
+	}
 	
 	private String FormatNumPref(double prefNumber)
 	{

@@ -53,6 +53,10 @@ public class Button
 		return this.text;
 	}
 
+	public void setText(String text) {
+		this.text = text;
+	}
+
 	public String getTarget() {
 		return this.target;
 	}
