@@ -6,7 +6,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.guideme.guideme.MainLogic;
+import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.GuideSettings;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.Scriptable;
 
 public class Guide {
 	private String title;
@@ -27,13 +34,21 @@ public class Guide {
 	private String delayUnSet; //flags to clear for currently running delay
 	private int delStartAtOffSet; //offset for currently running delay
 	private String id; //name for current xml that is running
-	private GuideSettings settings; //state for the currently running xml
+	private GuideSettings settings = new GuideSettings("startup"); //state for the currently running xml
 	private String jScript;
 	private String delayjScript;
+	private String globaljScript;
 	private static Guide guide;
-	
+	private String css; // css style sheet
+	private Boolean inPrefGuide;
+	private Scriptable scope;
+	private static Logger logger = LogManager.getLogger();
+
 	private Guide() {
-		
+		ContextFactory cntxFact = new ContextFactory();
+		Context cntx = cntxFact.enterContext();
+		scope = cntx.initStandardObjects();
+
 	}
 
 	public static synchronized Guide getGuide() {
@@ -192,19 +207,27 @@ public class Guide {
 
 	//we are loading a new xml so clear old settings
 	public void reset(String id) {
-		this.id = id;
-		settings = new GuideSettings(id);
-		mediaDirectory = "";
-		delStyle = "";
-		delTarget = "";
-		flags = new ArrayList<String>();
-		autoSetPage = true;
-		delaySet = "";
-		delayUnSet = "";
-		title = "";
-		chapters = new HashMap<String, Chapter>(); 
-		delStartAtOffSet = 0;
-		jScript = "";
+		logger.trace("Guide reset id: " + id);
+		try {
+			this.id = id;
+			settings = new GuideSettings(id);
+			mediaDirectory = "";
+			delStyle = "";
+			delTarget = "";
+			flags = new ArrayList<String>();
+			autoSetPage = true;
+			delaySet = "";
+			delayUnSet = "";
+			title = "";
+			chapters = new HashMap<String, Chapter>(); 
+			delStartAtOffSet = 0;
+			jScript = "";
+			css = "";
+			inPrefGuide = false;
+			globaljScript = "";
+		} catch (Exception e) {
+			logger.error("Guide reset " + e.getLocalizedMessage(), e);
+		}
 	}
 
 	public GuideSettings getSettings() {
@@ -231,5 +254,39 @@ public class Guide {
 		this.delayjScript = delayjScript;
 	}
 
-	
+	public String getCss() {
+		return css;
+	}
+
+	public void setCss(String css) {
+		String mediaPath;
+		AppSettings appSettings = AppSettings.getAppSettings();
+		MainLogic mainLogic = MainLogic.getMainLogic();
+		mediaPath = mainLogic.getMediaFullPath("", appSettings.getFileSeparator(), appSettings, guide);
+		mediaPath = mediaPath.replace("\\", "/");
+		//mediaPath = "file:///" + mediaPath;
+		css = css.replace("\\MediaDir\\", mediaPath);
+		this.css = css;
+	}
+
+	public Boolean getInPrefGuide() {
+		return inPrefGuide;
+	}
+
+	public void setInPrefGuide(Boolean inPrefGuide) {
+		this.inPrefGuide = inPrefGuide;
+	}
+
+	public String getGlobaljScript() {
+		return globaljScript;
+	}
+
+	public void setGlobaljScript(String globaljScript) {
+		this.globaljScript = globaljScript;
+	}
+
+	public Scriptable getScope() {
+		return scope;
+	}
+
 }

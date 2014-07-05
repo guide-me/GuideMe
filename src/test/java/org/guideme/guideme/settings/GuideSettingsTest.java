@@ -4,6 +4,7 @@ import static org.junit.Assert.*;
 
 import java.util.HashMap;
 
+import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.GuideSettings;
 import org.junit.AfterClass;
@@ -14,6 +15,7 @@ public class GuideSettingsTest {
 	private static GuideSettings guideSettings;
 	private static AppSettings appSettings;
 	private static String dataDirectory;
+	private static Guide guide;
 
 	@BeforeClass
 	public static void setUpBeforeClass() throws Exception {
@@ -22,18 +24,19 @@ public class GuideSettingsTest {
 		appSettings.setDataDirectory(appSettings.getUserDir());
 		appSettings.saveSettings();
 		guideSettings = new GuideSettings("GuideTest");
-		HashMap<String, String> scriptVar = new HashMap<String, String>();
+		guide = Guide.getGuide();
+		HashMap<String, Object> scriptVar = new HashMap<String, Object>();
 		scriptVar = guideSettings.getScriptVariables();
 		scriptVar.put("pl1Count","3");
 		scriptVar.put("pl2Count","4");
 		scriptVar.put("failCount","5");
 		guideSettings.setScriptVariables(scriptVar);
-		guideSettings.saveSettings();
+		guide.getSettings().saveSettings();
 	}
 
 	@AfterClass
 	public static void tearDownAfterClass() throws Exception {
-		guideSettings.saveSettings();
+		guide.getSettings().saveSettings();
 		appSettings.setDataDirectory(dataDirectory);
 		appSettings.saveSettings();
 	}
@@ -57,7 +60,7 @@ public class GuideSettingsTest {
 	@Test
 	public void testGetFlags() {
 		String returned = guideSettings.getFlags();
-		assertEquals("page1,page2", returned);
+		assertEquals("", returned);
 	}
 
 	@Test
@@ -72,42 +75,42 @@ public class GuideSettingsTest {
 
 	@Test
 	public void testGetScriptVariables() {
-		HashMap<String, String> scriptVar = new HashMap<String, String>();
+		HashMap<String, Object> scriptVar = new HashMap<String, Object>();
 		scriptVar = guideSettings.getScriptVariables();
 		int count = scriptVar.size();
 		assertEquals("Variable count", 3, count);
-		String pl1Count = scriptVar.get("pl1Count");
+		String pl1Count = scriptVar.get("pl1Count").toString();
 		assertEquals("pl1Count","3",pl1Count);
-		String pl2Count = scriptVar.get("pl2Count");
+		String pl2Count = scriptVar.get("pl2Count").toString();
 		assertEquals("pl2Count","4",pl2Count);
-		String failCount = scriptVar.get("failCount");
+		String failCount = scriptVar.get("failCount").toString();
 		assertEquals("failCount","5",failCount);
 	}
 
 	@Test
 	public void testSetScriptVariables() {
-		HashMap<String, String> scriptVar = new HashMap<String, String>();
+		HashMap<String, Object> scriptVar = new HashMap<String, Object>();
 		scriptVar = guideSettings.getScriptVariables();
 		scriptVar.put("testKey", "TestValue");
 		scriptVar.put("pl1Count","4");
 		scriptVar.put("failCount","7");
 		guideSettings.setScriptVariables(scriptVar);
-		HashMap<String, String> scriptVar2 = new HashMap<String, String>();
+		HashMap<String, Object> scriptVar2 = new HashMap<String, Object>();
 		scriptVar2 = guideSettings.getScriptVariables();
 		int count = scriptVar2.size();
 		assertEquals("Variable count", 4, count);
-		String pl1Count = scriptVar.get("pl1Count");
+		String pl1Count = scriptVar.get("pl1Count").toString();
 		assertEquals("pl1Count","4",pl1Count);
-		String pl2Count = scriptVar.get("pl2Count");
+		String pl2Count = scriptVar.get("pl2Count").toString();
 		assertEquals("pl2Count","4",pl2Count);
-		String failCount = scriptVar.get("failCount");
+		String failCount = scriptVar.get("failCount").toString();
 		assertEquals("failCount","7",failCount);
 		scriptVar2.remove("testKey");
 		scriptVar2.put("pl1Count","3");
 		scriptVar2.put("pl2Count","4");
 		scriptVar2.put("failCount","5");
 		guideSettings.setScriptVariables(scriptVar2);
-		guideSettings.saveSettings();
+		guide.getSettings().saveSettings();
 	}
 
 	@Test 

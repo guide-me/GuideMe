@@ -14,9 +14,10 @@ public class Button
 	private String target;
 	private String jScript;
 	private String image;
+	private String hotKey;
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 
-	public Button(String target, String text, String ifSet, String ifNotSet, String set, String unSet, String jScript, String image)
+	public Button(String target, String text, String ifSet, String ifNotSet, String set, String unSet, String jScript, String image, String hotKey)
 	{
 		this.target = target;
 		this.text = text;
@@ -26,6 +27,7 @@ public class Button
 		this.unSet = unSet;
 		this.jScript = jScript;
 		this.image = image;
+		this.hotKey = hotKey;
 	}
 
 	public void setUnSet(ArrayList<String> setList)
@@ -51,6 +53,10 @@ public class Button
 		return this.text;
 	}
 
+	public void setText(String text) {
+		this.text = text;
+	}
+
 	public String getTarget() {
 		return this.target;
 	}
@@ -63,5 +69,16 @@ public class Button
 		return image;
 	}
 
-	
+	public String getHotKey() {
+		return hotKey;
+	}
+
+	public String getIfSet() {
+		return ifSet;
+	}
+
+	public String getIfNotSet() {
+		return ifNotSet;
+	}
+
 }

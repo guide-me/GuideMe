@@ -16,6 +16,7 @@ public class AudioPlayer  implements Runnable {
 	//Class to play audio on a separate thread
 	private static Logger logger = LogManager.getLogger();
 	private AudioMediaPlayerComponent audioPlayerComponent = new AudioMediaPlayerComponent();
+	private MediaListener mediaListener = new MediaListener();
 	private MediaPlayer mediaPlayer;
 	private Boolean isPlaying = true;
 	private String audioFile = "";
@@ -43,8 +44,9 @@ public class AudioPlayer  implements Runnable {
 			if (mediaPlayer.isPlaying()) {
 				mediaPlayer.stop();
 			}
-			isPlaying = false;
 		}
+		isPlaying = false;
+		Thread.currentThread().interrupt();
 	}
 
 	public void run() {
@@ -52,22 +54,22 @@ public class AudioPlayer  implements Runnable {
 			//Play the audio set up by AudioPlayer
 			//use a media list to play loops
 			mediaPlayer = audioPlayerComponent.getMediaPlayer();
-			mediaPlayer.addMediaPlayerEventListener(new MediaListener());
+			mediaPlayer.addMediaPlayerEventListener(mediaListener);
 			mediaPlayer.setVolume(AppSettings.getAppSettings().getMusicVolume());
 			if (startAt == 0 && stopAt == 0 && loops == 0) {
 				mediaPlayer.playMedia(audioFile);
 			} else {
-				 List<String> vlcArgs = new ArrayList<String>();
-				 if (startAt > 0) {
-					 vlcArgs.add("start-time=" + startAt);
-				 }
-				 if (stopAt > 0) {
-					 vlcArgs.add("stop-time=" + stopAt);
-				 }
-				 if (loops > 0) {
-					 vlcArgs.add("input-repeat=" + loops);
-				 }
-				 mediaPlayer.playMedia(audioFile, vlcArgs.toArray(new String[vlcArgs.size()]));
+				List<String> vlcArgs = new ArrayList<String>();
+				if (startAt > 0) {
+					vlcArgs.add("start-time=" + startAt);
+				}
+				if (stopAt > 0) {
+					vlcArgs.add("stop-time=" + stopAt);
+				}
+				if (loops > 0) {
+					vlcArgs.add("input-repeat=" + loops);
+				}
+				mediaPlayer.playMedia(audioFile, vlcArgs.toArray(new String[vlcArgs.size()]));
 			}
 			while (isPlaying) {
 				// while the audio is still running carry on looping
@@ -80,15 +82,17 @@ public class AudioPlayer  implements Runnable {
 			if (mediaPlayer.isPlaying()) {
 				mediaPlayer.stop();
 			}
+			mediaPlayer.removeMediaPlayerEventListener(mediaListener);
+			mediaPlayer.release();
 			mediaPlayer = null;
 		}
 		if (audioPlayerComponent != null) {
 			audioPlayerComponent.release(true);
 			audioPlayerComponent = null;
 		}
-}
-	
-	
+	}
+
+
 	class MediaListener extends MediaPlayerEventAdapter {
 
 		@Override
@@ -108,9 +112,11 @@ public class AudioPlayer  implements Runnable {
 								}
 							});											
 				}
-		}
+				isPlaying = false;
+			}
+			display = null;
 		}
 
 	}
-	
+
 }

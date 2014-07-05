@@ -66,4 +66,12 @@ public class Delay {
 		return jScript;
 	}
 
+	public String getIfSet() {
+		return ifSet;
+	}
+
+	public String getIfNotSet() {
+		return ifNotSet;
+	}
+
 }

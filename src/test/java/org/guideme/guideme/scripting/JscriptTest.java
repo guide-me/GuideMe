@@ -1,6 +1,5 @@
 package org.guideme.guideme.scripting;
 
-import java.io.IOException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 
@@ -21,6 +20,7 @@ import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
+import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.scripting.Jscript;
 import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
@@ -49,13 +49,15 @@ public class JscriptTest {
 		String dataDirectory = appSettings.getDataDirectory();
 		appSettings.setDataDirectory(appSettings.getUserDir());
 		appSettings.saveSettings();
+		Guide guide = Guide.getGuide();
 		GuideSettings guideSettings = new GuideSettings("GuideTest");
+		guide.setSettings(guideSettings);
 		try {
 			String source = comonFunctions.readFile("test.js", Charset.defaultCharset());
-			Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
+			Jscript jscript = new Jscript(guide, userSettings, appSettings, false);
 			jscript.setOverRide(overRide);
 			jscript.runScript(source, "test", true);
-		} catch (IOException e) {
+		} catch (Exception e) {
 			logger.error(" Run Script " + e.getLocalizedMessage(), e);
 		}				
 		

@@ -24,4 +24,12 @@ public class Image {
 		return comonFunctions.canShow(setList, ifSet, ifNotSet);
 	}
 
+	public String getIfSet() {
+		return ifSet;
+	}
+
+	public String getIfNotSet() {
+		return ifNotSet;
+	}
+
 }

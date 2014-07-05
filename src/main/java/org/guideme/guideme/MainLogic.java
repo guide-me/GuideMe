@@ -1,6 +1,15 @@
 package org.guideme.guideme;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.UnsupportedAudioFileException;
+
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
 import java.util.Calendar;
 import java.util.Set;
 
@@ -20,6 +29,7 @@ import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
 import org.guideme.guideme.settings.UserSettings;
+import org.guideme.guideme.ui.DebugShell;
 import org.guideme.guideme.ui.MainShell;
 
 public class MainLogic {
@@ -27,6 +37,8 @@ public class MainLogic {
 	private static MainLogic mainLogic;
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	private OverRide overRide = new OverRide();
+    private static Clip song; // Sound player
+    private static URL songPath;
 
 	//singleton class stuff (force there to be only one instance without making it static)
 	private MainLogic() {
@@ -35,6 +47,22 @@ public class MainLogic {
 	public static synchronized MainLogic getMainLogic() {
 		if (mainLogic == null) {
 			mainLogic = new MainLogic();
+			songPath =  MainLogic.class.getClassLoader().getResource("tick.wav");
+			logger.info("MainLogic getMainLogic songPath " + songPath);
+			AudioInputStream audioIn;
+			try {
+				audioIn = AudioSystem.getAudioInputStream(songPath);
+				song = AudioSystem.getClip();
+				song.open(audioIn);
+				FloatControl gainControl = (FloatControl) song.getControl(FloatControl.Type.MASTER_GAIN);
+				gainControl.setValue(-35.0f);			
+	        } catch (UnsupportedAudioFileException e) {
+				logger.error("audio clip Exception ", e);
+			} catch (IOException e) {
+				logger.error("audio clip Exception ", e);
+			} catch (LineUnavailableException e) {
+				logger.error("audio clip Exception ", e);
+			}
 		}
 		return mainLogic;
 	}
@@ -44,13 +72,13 @@ public class MainLogic {
 	}
 
 	//display page without a chapter
-	public void displayPage(String pageId, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings, UserSettings userSettings, GuideSettings guideSettings) {
-		displayPage("default", pageId, reDisplay, guide, mainShell, appSettings, userSettings, guideSettings);
+	public void displayPage(String pageId, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings, UserSettings userSettings, GuideSettings guideSettings, DebugShell debugShell) {
+		displayPage("default", pageId, reDisplay, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
 	}
 	
 	//main display page
 	//TODO currently chapters are ignored, need to implement
-	public void displayPage(String chapterName, String pageId, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings, UserSettings userSettings, GuideSettings guideSettings) {
+	public void displayPage(String chapterName, String pageId, Boolean reDisplay, Guide guide, MainShell mainShell, AppSettings appSettings, UserSettings userSettings, GuideSettings guideSettings, DebugShell debugShell) {
 		// Main code that displays a page
 		String strImage;
 		int intDelSeconds = 0;
@@ -80,7 +108,7 @@ public class MainLogic {
 		Metronome objMetronome;
 		Audio objAudio;
 		String fileSeparator = appSettings.getFileSeparator();
-		
+
 		logger.debug("displayPage PagePassed " + pageId);
 		logger.debug("displayPage Flags " + comonFunctions.GetFlags(guide.getFlags()));
 
@@ -111,7 +139,7 @@ public class MainLogic {
 						strPost = strPageId.substring(intPos3 + 1);
 						logger.debug("displayPage Random Page Min " + strMin + " Max " + strMax + " Pre " + strPre + " strPost " + strPost);
 						String[] strPageArray;
-						strPageArray = new String[intMax];
+						strPageArray = new String[(intMax - intMin) + 1];
 						int intPageArrayCount = -1;
 						Page tmpPage;
 						// Check if we are allowed to display the pages
@@ -145,13 +173,17 @@ public class MainLogic {
 
 			// get the page to display
 			objCurrPage = guide.getChapters().get(chapterName).getPages().get(strPageId);
+			debugShell.setPage(strPageId, true);
+			guideSettings.setPrevPage(guideSettings.getCurrPage());
+			guideSettings.setCurrPage(strPageId);
 			
+
 			//run the pageLoad script
 			try {
 				String pageJavascript = objCurrPage.getjScript();
 				if (! pageJavascript.equals("")) {
 					if (pageJavascript.contains("pageLoad")) {
-						Jscript jscript = new Jscript(guideSettings, userSettings, appSettings);
+						Jscript jscript = new Jscript(guide, userSettings, appSettings, guide.getInPrefGuide());
 						jscript.setOverRide(overRide);
 						jscript.runScript(pageJavascript, "pageLoad", true);
 					}
@@ -159,163 +191,204 @@ public class MainLogic {
 			} catch (Exception e) {
 				logger.error("displayPage javascript Exception " + e.getLocalizedMessage(), e);
 			}
-			
+
+			//PageChangeClick
+			if (appSettings.isPageSound()  && guideSettings.isPageSound()) {
+				song.setFramePosition(0);
+				song.start();
+			}
+
 			// delay
-			mainShell.setLblLeft("");
+			mainShell.setLblRight("");
 			blnDelay = false;
 			intDelSeconds = 1;
+			// override page
 			try {
-				objDelay = overRide.getDelay();
-				if (objDelay != null) {
-					blnDelay = true;
-				} else {
-					if (objCurrPage.getDelayCount() > 0) {
-						for (int i2 = 0; i2 < objCurrPage.getDelayCount(); i2++) {
-							objDelay = objCurrPage.getDelay(i2);
-							if (objDelay.canShow(guide.getFlags())) {
-								blnDelay = true;
-								break;
-							}
-						}
-					}
-				}
-				if (blnDelay) {
-					logger.debug("displayPage Delay");
-					guide.setDelStyle(objDelay.getstyle());
-					guide.setDelTarget(objDelay.getTarget());
-					guide.setDelayjScript(objDelay.getjScript());
-					strDelStartAt = objDelay.getStartWith();
-					intDelSeconds = objDelay.getDelaySec();
-					try {
-						guide.setDelStartAtOffSet(Integer.parseInt(strDelStartAt));
-						guide.setDelStartAtOffSet(guide.getDelStartAtOffSet() - intDelSeconds);
-					} catch (Exception etemp) {
-						guide.setDelStartAtOffSet(0);
-					}
-
-					// record any delay set / unset
-					guide.setDelaySet(objDelay.getSet());
-					guide.setDelayUnSet(objDelay.getUnSet());
-					logger.debug("displayPage Delay Seconds " + intDelSeconds + " Style " + guide.getDelStyle() + " Target " + guide.getDelTarget() + " Set " + guide.getDelaySet() + " UnSet " + guide.getDelayUnSet());
+				if (!overRide.getPage().equals("")) {
+					intDelSeconds = 0;
+					guide.setDelStyle("hidden");
+					guide.setDelTarget(overRide.getPage());
+					guide.setDelayjScript("");
+					guide.setDelStartAtOffSet(0);
+					guide.setDelaySet("");
+					guide.setDelayUnSet("");
 					Calendar calCountDown = Calendar.getInstance();
 					calCountDown.add(Calendar.SECOND, intDelSeconds);
 					mainShell.setCalCountDown(calCountDown);
 				} else {
-					mainShell.setLblLeft("");
+					objDelay = overRide.getDelay();
+					if (objDelay != null) {
+						blnDelay = true;
+					} else {
+						if (objCurrPage.getDelayCount() > 0) {
+							for (int i2 = 0; i2 < objCurrPage.getDelayCount(); i2++) {
+								objDelay = objCurrPage.getDelay(i2);
+								if (objDelay.canShow(guide.getFlags())) {
+									blnDelay = true;
+									break;
+								}
+							}
+						}
+					}
+					if (blnDelay) {
+						logger.debug("displayPage Delay");
+						guide.setDelStyle(objDelay.getstyle());
+						guide.setDelTarget(objDelay.getTarget());
+						guide.setDelayjScript(objDelay.getjScript());
+						strDelStartAt = objDelay.getStartWith();
+						intDelSeconds = objDelay.getDelaySec();
+						try {
+							guide.setDelStartAtOffSet(Integer.parseInt(strDelStartAt));
+							guide.setDelStartAtOffSet(guide.getDelStartAtOffSet() - intDelSeconds);
+						} catch (Exception etemp) {
+							guide.setDelStartAtOffSet(0);
+						}
+
+						// record any delay set / unset
+						guide.setDelaySet(objDelay.getSet());
+						guide.setDelayUnSet(objDelay.getUnSet());
+						logger.debug("displayPage Delay Seconds " + intDelSeconds + " Style " + guide.getDelStyle() + " Target " + guide.getDelTarget() + " Set " + guide.getDelaySet() + " UnSet " + guide.getDelayUnSet());
+						Calendar calCountDown = Calendar.getInstance();
+						calCountDown.add(Calendar.SECOND, intDelSeconds);
+						mainShell.setCalCountDown(calCountDown);
+					} else {
+						mainShell.setLblLeft("");
+					}
 				}
 			} catch (Exception e1) {
 				logger.error("displayPage Delay Exception " + e1.getLocalizedMessage(), e1);
 				mainShell.setLblLeft("");
 			}
 
-
 			if (!(intDelSeconds == 0)) { 
-				// Video
-				blnVideo = false;
-				objVideo = overRide.getVideo();
-				try {
-					if (objVideo != null) {
-						blnVideo = true;
-					} else {
-						if (objCurrPage.getVideoCount() > 0) {
-							for (int i2 = 0; i2 < objCurrPage.getVideoCount(); i2++) {
-								objVideo = objCurrPage.getVideo(i2);
-								if (objVideo.canShow(guide.getFlags())) {
-									blnVideo = true;
-									break;
+				if (overRide.getLeftHtml().equals("")) {
+					// Video
+					blnVideo = false;
+					objVideo = overRide.getVideo();
+					try {
+						if (objVideo != null) {
+							blnVideo = true;
+						} else {
+							if (objCurrPage.getVideoCount() > 0) {
+								for (int i2 = 0; i2 < objCurrPage.getVideoCount(); i2++) {
+									objVideo = objCurrPage.getVideo(i2);
+									if (objVideo.canShow(guide.getFlags())) {
+										blnVideo = true;
+										break;
+									}
 								}
-							}
-						} 
-					}
-					if (blnVideo) {
-						strImage = objVideo.getId();
-						logger.trace("displayPage Video " + strImage);
-						String strStartAt = objVideo.getStartAt();
-						logger.trace("displayPage Video Start At " + strStartAt);
-						int intStartAt = 0;
-						try {
-							if (strStartAt != "") {
-								intStartAt = comonFunctions.getMilisecFromTime(strStartAt) / 1000;
-							}
-						} catch (Exception e1) {
-							intStartAt = 0;
-							logger.trace("displayPage startat Exception " + e1.getLocalizedMessage());
+							} 
 						}
-
-						String strStopAt = objVideo.getStopAt();
-						logger.trace("displayPage Video Stop At " + strStopAt);
-						int intStopAt = 0;
-						try {
-							if (strStopAt != "") {
-								intStopAt = comonFunctions.getMilisecFromTime(strStopAt) / 1000;
+						if (blnVideo) {
+							strImage = objVideo.getId();
+							logger.trace("displayPage Video " + strImage);
+							String strStartAt = objVideo.getStartAt();
+							logger.trace("displayPage Video Start At " + strStartAt);
+							int intStartAt = 0;
+							try {
+								if (strStartAt != "") {
+									intStartAt = comonFunctions.getMilisecFromTime(strStartAt) / 1000;
+								}
+							} catch (Exception e1) {
+								intStartAt = 0;
+								logger.trace("displayPage startat Exception " + e1.getLocalizedMessage());
 							}
-						} catch (Exception e1) {
-							intStopAt = 0;
-							logger.trace("displayPage stopat Exception " + e1.getLocalizedMessage());
-						}
 
-						imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
+							String strStopAt = objVideo.getStopAt();
+							logger.trace("displayPage Video Stop At " + strStopAt);
+							int intStopAt = 0;
+							try {
+								if (strStopAt != "") {
+									intStopAt = comonFunctions.getMilisecFromTime(strStopAt) / 1000;
+								}
+							} catch (Exception e1) {
+								intStopAt = 0;
+								logger.trace("displayPage stopat Exception " + e1.getLocalizedMessage());
+							}
 
-						String loops = objVideo.getRepeat();
-						int repeat = 0;
-						try {
-							repeat = Integer.parseInt(loops);
-						} 
-						catch (NumberFormatException nfe) {
-						}
-						// Play video
-						mainShell.playVideo(imgPath, intStartAt, intStopAt, repeat, objVideo.getTarget(), objVideo.getJscript());
-					}
-				} catch (Exception e1) {
-					logger.trace("displayPage Video Exception " + e1.getLocalizedMessage());
-				}
-
-				try {
-					if (!blnVideo) {
-						// image
-						// if there is an image over ride from javascript use it
-						blnImage = false;
-						strImage = overRide.getImage();
-						if (!strImage.equals("")) {
 							imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
-							File flImage = new File(imgPath);
-							if (flImage.exists()){
-								blnImage = true;
+
+							String loops = objVideo.getRepeat();
+							int repeat = 0;
+							try {
+								repeat = Integer.parseInt(loops);
+							} 
+							catch (NumberFormatException nfe) {
 							}
-						} 
-						if (!blnImage) {
-							if (objCurrPage.getImageCount() > 0) {
-								for (int i2 = 0; i2 < objCurrPage.getImageCount(); i2++) {
-									objImage = objCurrPage.getImage(i2);
-									if (objImage.canShow(guide.getFlags())) {
-										strImage = objImage.getId();
-										imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
-										File flImage = new File(imgPath);
-										if (flImage.exists()){
-											blnImage = true;
+							// Play video
+							mainShell.playVideo(imgPath, intStartAt, intStopAt, repeat, objVideo.getTarget(), objVideo.getJscript());
+						}
+					} catch (Exception e1) {
+						logger.trace("displayPage Video Exception " + e1.getLocalizedMessage());
+					}
+
+					try {
+						if (!blnVideo) {
+							// image
+							// if there is an image over ride from javascript use it
+							blnImage = false;
+							strImage = overRide.getImage();
+							if (!strImage.equals("")) {
+								imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
+								File flImage = new File(imgPath);
+								if (flImage.exists()){
+									blnImage = true;
+								}
+							} 
+							if (!blnImage) {
+								if (objCurrPage.getImageCount() > 0) {
+									for (int i2 = 0; i2 < objCurrPage.getImageCount(); i2++) {
+										objImage = objCurrPage.getImage(i2);
+										if (objImage.canShow(guide.getFlags())) {
+											strImage = objImage.getId();
+											imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
+											File flImage = new File(imgPath);
+											if (flImage.exists()){
+												blnImage = true;
+											}
 										}
 									}
 								}
 							}
-						}
-						if (blnImage) {
-							try {
-								mainShell.setImageLabel(imgPath, strImage);
-							} catch (Exception e1) {
-								logger.error("displayPage Image Exception " + e1.getLocalizedMessage(), e1);
+							if (blnImage) {
+								try {
+									mainShell.setImageLabel(imgPath, strImage);
+								} catch (Exception e1) {
+									logger.error("displayPage Image Exception " + e1.getLocalizedMessage(), e1);
+									mainShell.clearImage();
+								}
+							} else {
 								mainShell.clearImage();
+								// No image
 							}
 						} else {
 							mainShell.clearImage();
 							// No image
 						}
-					} else {
+					} catch (Exception e) {
+						logger.error("displayPage Image Exception " + e.getLocalizedMessage(), e);
 						mainShell.clearImage();
-						// No image
 					}
-				} catch (Exception e) {
-					logger.error("displayPage Image Exception " + e.getLocalizedMessage(), e);
-					mainShell.clearImage();
+				} else {
+					String leftHtml = overRide.getLeftHtml();
+					// Media Directory
+					try {
+						String mediaPath;
+						mediaPath = getMediaFullPath("", fileSeparator, appSettings, guide);
+						mediaPath = mediaPath.replace("\\", "/");
+						leftHtml = leftHtml.replace("\\MediaDir\\", mediaPath);
+					} catch (Exception e) {
+						logger.error("displayPage Over ride lefthtml Media Directory Exception " + e.getLocalizedMessage(), e);
+					}
+					
+					// Guide CSS Directory
+					try {
+						leftHtml = leftHtml.replace("\\GuideCSS\\", guide.getCss());
+					} catch (Exception e) {
+						logger.error("displayPage Over ride lefthtml Guide CSS Exception " + e.getLocalizedMessage(), e);
+					}
+					
+					mainShell.setImageHtml(leftHtml);
 				}
 
 
@@ -330,43 +403,79 @@ public class MainLogic {
 						displayText = overRide.getHtml();
 						overRide.setHtml("");
 					}
+
+					// Media Directory
+					try {
+						String mediaPath;
+						mediaPath = getMediaFullPath("", fileSeparator, appSettings, guide);
+						displayText = displayText.replace("\\MediaDir\\", mediaPath);
+					} catch (Exception e) {
+						logger.error("displayPage BrwsText Media Directory Exception " + e.getLocalizedMessage(), e);
+					}
 					
-					// Script Variables
-					Set<String> set = guideSettings.getScriptVariables().keySet();
-					for (String s :set) {
-						displayText = displayText.replace("<span>" + s + "</span>", guideSettings.getScriptVariables().get(s));
-					}
+					displayText = substituteTextVars(displayText, guideSettings, userSettings);
+					
+//					// Script Variables
+//					Set<String> set = guideSettings.getScriptVariables().keySet();
+//					String varValue;
+//					for (String s :set) {
+//						try {
+//							Object objVar =guideSettings.getScriptVariables().get(s);
+//							varValue = comonFunctions.getVarAsString(objVar);
+//							if (!varValue.equals("")) {
+//								displayText = displayText.replace("<span>" + s + "</span>", varValue);
+//							}
+//						} catch (Exception e) {
+//							logger.error("displayPage BrwsText ScriptVariables Exception " + s + " " + e.getLocalizedMessage(), e);
+//						}
+//					}
+//
+//					// String Guide Preferences
+//					set = guideSettings.getStringKeys(); 
+//					for (String s : set) {
+//						try {
+//							displayText = displayText.replace("<span>" + s + "</span>", guideSettings.getPref(s));
+//						} catch (Exception e) {
+//							logger.error("displayPage BrwsText String Guide Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
+//						}
+//					}
+//
+//					// Number Guide Preferences
+//					set = guideSettings.getNumberKeys(); 
+//					String numberRet = "";
+//					for (String s : set) {
+//						try {
+//						numberRet = FormatNumPref(guideSettings.getPrefNumber(s));
+//							displayText = displayText.replace("<span>" + s + "</span>", numberRet);
+//						} catch (Exception e) {
+//							logger.error("displayPage BrwsText Number Guide Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
+//						}
+//					}
+//
+//					// String User Preferences
+//					set = userSettings.getStringKeys(); 
+//					for (String s : set) {
+//						try {
+//							displayText = displayText.replace("<span>" + s + "</span>", userSettings.getPref(s));
+//						} catch (Exception e) {
+//							logger.error("displayPage BrwsText String User Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
+//						}
+//					}
+//
+//					// Number User Preferences
+//					set = userSettings.getNumberKeys(); 
+//					for (String s : set) {
+//						try {
+//						displayText = displayText.replace("<span>" + s + "</span>", FormatNumPref(userSettings.getPrefNumber(s)));
+//						} catch (Exception e) {
+//							logger.error("displayPage BrwsText Number User Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
+//						}
+//					}
 
-					// String Guide Preferences
-					set = guideSettings.getStringKeys(); 
-					for (String s : set) {
-						displayText = displayText.replace("<span>" + s + "</span>", guideSettings.getPref(s));
-					}
-
-					// Number Guide Preferences
-					set = guideSettings.getNumberKeys(); 
-					String numberRet = "";
-					for (String s : set) {
-						numberRet = FormatNumPref(guideSettings.getPrefNumber(s));
-						displayText = displayText.replace("<span>" + s + "</span>", numberRet);
-					}
-
-					// String User Preferences
-					set = userSettings.getStringKeys(); 
-					for (String s : set) {
-						displayText = displayText.replace("<span>" + s + "</span>", userSettings.getPref(s));
-					}
-
-					// Number User Preferences
-					set = userSettings.getNumberKeys(); 
-					for (String s : set) {
-						displayText = displayText.replace("<span>" + s + "</span>", FormatNumPref(userSettings.getPrefNumber(s)));
-					}
-
-					mainShell.setBrwsText(displayText);
+					mainShell.setBrwsText(displayText, overRide.getRightCss());
 				} catch (Exception e) {
 					logger.error("displayPage BrwsText Exception " + e.getLocalizedMessage(), e);
-					mainShell.setBrwsText("");
+					mainShell.setBrwsText("", "");
 				}
 
 				// overRide
@@ -377,28 +486,34 @@ public class MainLogic {
 				for (int i1 = objCurrPage.getButtonCount() - 1; i1 >= 0; i1--) {
 					try {
 						objButton = objCurrPage.getButton(i1);
-							if (objButton.canShow(guide.getFlags())) {
-								String javascriptid = objButton.getjScript();
-								mainShell.addButton(objButton, javascriptid);
-							}
+						if (objButton.canShow(guide.getFlags())) {
+							String javascriptid = objButton.getjScript();
+							String btnText = objButton.getText();
+							btnText = substituteTextVars(btnText, guideSettings, userSettings);
+							objButton.setText(btnText);
+							mainShell.addButton(objButton, javascriptid);
+						}
 					} catch (Exception e1) {
 						logger.error("displayPage Button Exception " + e1.getLocalizedMessage(), e1);
 					}
 				}
-				
+
 				//add any buttons added by javascript
 				for (int i1 = overRide.buttonCount() - 1; i1 >= 0; i1--) {
 					try {
 						objButton = overRide.getButton(i1);
-							if (objButton.canShow(guide.getFlags())) {
-								String javascriptid = objButton.getjScript();
-								mainShell.addButton(objButton, javascriptid);
-							}
+						if (objButton.canShow(guide.getFlags())) {
+							String javascriptid = objButton.getjScript();
+							String btnText = objButton.getText();
+							btnText = substituteTextVars(btnText, guideSettings, userSettings);
+							objButton.setText(btnText);
+							mainShell.addButton(objButton, javascriptid);
+						}
 					} catch (Exception e1) {
 						logger.error("displayPage OverRide Exception " + e1.getLocalizedMessage(), e1);
 					}
 				}
-				
+
 				try {
 					if (appSettings.getDebug()) {
 						// add a button to trigger the delay target if debug is set by the user
@@ -510,7 +625,8 @@ public class MainLogic {
 			// Save current page and flags
 			// set page
 			if (guide.getAutoSetPage()) {
-				guide.getFlags().add(strPageId);
+				comonFunctions.SetFlags(strPageId, guide.getFlags());
+				//guide.getFlags().add(strPageId);//TODO
 			}
 
 			// do page set / unset
@@ -534,6 +650,67 @@ public class MainLogic {
 	}
 
 	
+	private String substituteTextVars(String inString, GuideSettings guideSettings, UserSettings userSettings) {
+		String retString = inString;
+		// Script Variables
+		Set<String> set = guideSettings.getScriptVariables().keySet();
+		String varValue;
+		for (String s :set) {
+			try {
+				Object objVar =guideSettings.getScriptVariables().get(s);
+				varValue = comonFunctions.getVarAsString(objVar);
+				if (!varValue.equals("")) {
+					retString = retString.replace("<span>" + s + "</span>", varValue);
+				}
+			} catch (Exception e) {
+				logger.error("displayPage BrwsText ScriptVariables Exception " + s + " " + e.getLocalizedMessage(), e);
+			}
+		}
+
+		// String Guide Preferences
+		set = guideSettings.getStringKeys(); 
+		for (String s : set) {
+			try {
+				retString = retString.replace("<span>" + s + "</span>", guideSettings.getPref(s));
+			} catch (Exception e) {
+				logger.error("displayPage BrwsText String Guide Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
+			}
+		}
+
+		// Number Guide Preferences
+		set = guideSettings.getNumberKeys(); 
+		String numberRet = "";
+		for (String s : set) {
+			try {
+			numberRet = FormatNumPref(guideSettings.getPrefNumber(s));
+			retString = retString.replace("<span>" + s + "</span>", numberRet);
+			} catch (Exception e) {
+				logger.error("displayPage BrwsText Number Guide Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
+			}
+		}
+
+		// String User Preferences
+		set = userSettings.getStringKeys(); 
+		for (String s : set) {
+			try {
+				retString = retString.replace("<span>" + s + "</span>", userSettings.getPref(s));
+			} catch (Exception e) {
+				logger.error("displayPage BrwsText String User Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
+			}
+		}
+
+		// Number User Preferences
+		set = userSettings.getNumberKeys(); 
+		for (String s : set) {
+			try {
+				retString = retString.replace("<span>" + s + "</span>", FormatNumPref(userSettings.getPrefNumber(s)));
+			} catch (Exception e) {
+				logger.error("displayPage BrwsText Number User Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
+			}
+		}
+		return retString;
+	}
+	
 	private String FormatNumPref(double prefNumber)
 	{
 	    if(prefNumber == (int) prefNumber)
@@ -544,17 +721,27 @@ public class MainLogic {
 	
 	public String getMediaFullPath(String mediaFile, String fileSeparator, AppSettings appSettings, Guide guide) {
 		String mediaFound = "";
-		String dataDirectory = fixSeparator(appSettings.getDataDirectory(), fileSeparator);
-		String mediaDirectory = fixSeparator(guide.getMediaDirectory(), fileSeparator);
+		String dataDirectory;
+		String prefix = "";
+		if (guide.getInPrefGuide()) {
+			dataDirectory = appSettings.getUserDir();
+		} else { 
+			dataDirectory = appSettings.getDataDirectory();
+			if (dataDirectory.startsWith("/")) {
+				prefix = "/";
+			}
+			dataDirectory = prefix + comonFunctions.fixSeparator(appSettings.getDataDirectory(), fileSeparator);
+		}
+		String mediaDirectory = comonFunctions.fixSeparator(guide.getMediaDirectory(), fileSeparator);
 		dataDirectory = dataDirectory + fileSeparator + mediaDirectory;
 		
 		
-		String media = fixSeparator(mediaFile, fileSeparator);
+		String media = comonFunctions.fixSeparator(mediaFile, fileSeparator);
 		logger.debug("displayPage getMediaFullPath " + media);
 		int intSubDir = media.lastIndexOf(fileSeparator);
 		String strSubDir;
 		if (intSubDir > -1) {
-			strSubDir = fixSeparator(media.substring(0, intSubDir + 1), fileSeparator);
+			strSubDir = comonFunctions.fixSeparator(media.substring(0, intSubDir + 1), fileSeparator);
 			media = media.substring(intSubDir + 1);
 		} else {
 			strSubDir = "";
@@ -562,24 +749,7 @@ public class MainLogic {
 		// String strSubDir
 		// Handle wildcard *
 		if (media.indexOf("*") > -1) {
-			// get the directory
-			File f = new File(dataDirectory + fileSeparator + strSubDir);
-			// wildcard filter class handles the filtering
-			WildCardFileFilter WildCardfilter = new WildCardFileFilter();
-			WildCardfilter.setFilePatern(media);
-			if (f.isDirectory()) {
-				// return a list of matching files
-				File[] children = f.listFiles(WildCardfilter);
-				// return a random image
-				int intFile = comonFunctions.getRandom("(0.." + (children.length - 1) + ")");
-				logger.debug("displayPage Random Media Index " + intFile);
-				if (strSubDir.equals("")) {
-					mediaFound = dataDirectory + fileSeparator + children[intFile].getName();
-				} else {
-					mediaFound = dataDirectory + fileSeparator + strSubDir + fileSeparator + children[intFile].getName();
-				}
-				logger.debug("displayPage Random Media Chosen " + mediaFound);
-			}
+			mediaFound = comonFunctions.GetRandomFile(media, strSubDir, true);
 		} else {
 			// no wildcard so just use the file name
 			if (strSubDir.equals("")) {
@@ -593,48 +763,4 @@ public class MainLogic {
 		return mediaFound;
 	}
 	
-	private String fixSeparator(String path, String fileSeparator) {
-		String retrn = path;
-		retrn = retrn.replace("\\", fileSeparator);
-		retrn = retrn.replace("/", fileSeparator);
-		if (retrn.startsWith(fileSeparator)) {
-			retrn = retrn.substring(1, retrn.length());
-		}
-		if (retrn.endsWith(fileSeparator)) {
-			retrn = retrn.substring(0, retrn.length() - 1);
-		}
-		return retrn;
-	}
-	
-	// Wildecard filter
-	public class WildCardFileFilter implements java.io.FileFilter {
-		//Apply the wildcard filter to the file list
-		private String strFilePatern;
-		
-		public void setFilePatern(String strFilePatern) {
-			//regular patern to search for
-			this.strFilePatern = strFilePatern;
-		}
-
-		public boolean accept(File f) {
-			try {
-				//convert the regular patern to regex
-				String strPattern = strFilePatern.toLowerCase();
-				String text = f.getName().toLowerCase();
-				String strFile = text;
-				strPattern = strPattern.replace("*", ".*");
-				//test for a match
-				if (!text.matches(strPattern)) {
-					logger.debug("WildCardFileFilter accept No Match " + strFile);
-					return false;
-				}
-				
-				logger.debug("WildCardFileFilter accept Match " + strFile);
-				return true;
-			} catch (Exception e) {
-				logger.error("WildCardFileFilter.accept Exception ", e);
-				return false;
-			}
-		}
-	}
 }

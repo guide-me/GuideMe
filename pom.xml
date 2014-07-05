@@ -28,8 +28,14 @@
 		</repository>
 	</repositories>
 
-	<dependencies>
+  	<dependencies>
 		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>2.2.0</version>
+		</dependency>
+            
+  	    <dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
@@ -60,7 +66,7 @@
 			<artifactId>velocity</artifactId>
 			<version>1.7</version>
 		</dependency>
-				<dependency>
+		<dependency>
 			<groupId>swt</groupId>
 			<artifactId>jface</artifactId>
 			<version>3.0.1</version>
@@ -73,11 +79,27 @@
 		<dependency>
 			<groupId>uk.co.caprica</groupId>
 			<artifactId>vlcj</artifactId>
+			<version>3.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.imgscalr</groupId>
+			<artifactId>imgscalr-lib</artifactId>
+			<version>4.2</version>
+			<type>jar</type>
+			<scope>compile</scope>
+		</dependency>								
+		<dependency>
+			<groupId>commons-codec</groupId>
+			<artifactId>commons-codec</artifactId>
+			<version>20041127.091804</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.xmlbeans</groupId>
+			<artifactId>xmlbeans</artifactId>
 			<version>2.4.0</version>
 		</dependency>
-								
 	</dependencies>
-	
+
 	<profiles>
 		<profile>
 			<id>mac.x86_64</id>
@@ -92,7 +114,7 @@
 			</properties>
 		</profile>
 		<profile>
-			<id>windows</id>
+			<id>windows.X86</id>
 			<activation>
 				<os>
 					<family>windows</family>

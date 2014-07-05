@@ -16,9 +16,16 @@ public class OverRide {
 	private Metronome metronome = null;
 	private String image = "";
 	private String html = "";
+	private String page = "";
+	private String leftHtml = "";
+	private String rightCss = "";
 	
 	public void addButton(String target, String text, String set, String unSet, String jScript, String image) {
-		Button button = new Button(target, text, "", "", set, unSet, jScript, image);
+		addButton(target, text, set, unSet, jScript, image, "");
+	}
+	
+	public void addButton(String target, String text, String set, String unSet, String jScript, String image, String hotKey) {
+		Button button = new Button(target, text, "", "", set, unSet, jScript, image, hotKey);
 		this.button.add(button);
 	}
 
@@ -38,6 +45,9 @@ public class OverRide {
 		metronome = null;
 		image = "";
 		html = "";
+		page = "";
+		leftHtml = "";
+		rightCss = "";
 	}
 
 	public Delay getDelay() {
@@ -87,5 +97,29 @@ public class OverRide {
 	public void setImage(String id) {
 		this.image = id;
 	}
-	
+
+	public String getPage() {
+		return page;
+	}
+
+	public void setPage(String page) {
+		this.page = page;
+	}
+
+	public String getLeftHtml() {
+		return leftHtml;
+	}
+
+	public void setLeftHtml(String leftHtml) {
+		this.leftHtml = leftHtml;
+	}
+
+	public String getRightCss() {
+		return rightCss;
+	}
+
+	public void setRightCss(String rightCss) {
+		this.rightCss = rightCss;
+	}
+
 }

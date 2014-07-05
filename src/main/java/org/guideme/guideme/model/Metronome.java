@@ -54,4 +54,12 @@ public class Metronome {
 		return rhythm;
 	}
 
+	public String getIfSet() {
+		return ifSet;
+	}
+
+	public String getIfNotSet() {
+		return ifNotSet;
+	}
+
 }

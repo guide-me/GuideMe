@@ -92,8 +92,8 @@ public class MainShellMock extends MainShell {
 	}
 
 	@Override
-	public void setBrwsText(String brwsText) {
-		logger.debug("MainShellMock brwsText:" + brwsText);
+	public void setBrwsText(String brwsText, String overrideCss) {
+		logger.debug("MainShellMock brwsText:" + brwsText +" CSS:" + overrideCss);
 	}
 
 	@Override

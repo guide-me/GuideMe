@@ -1,0 +1,157 @@
+<?xml version="1.0"?>
+<settings>
+  <Title>Generic User Settings</Title>
+  <Pages>
+    <Page id="start">
+      <Text><div></div></Text>
+      <Image id="intro1.jpg" />
+      <Button target="page1" onclick="savePref()">Next</Button>
+      <javascript><![CDATA[
+		function pageLoad() {
+			if (userSettings.keyExists("hisName1", "String") == false ) {
+				userSettings.addPref("hisName1", "Edward", "Male 1")
+			}
+			if (userSettings.keyExists("hisName2", "String") == false ) {
+				userSettings.addPref("hisName2", "Tom", "Male 2")
+			}
+			if (userSettings.keyExists("myName", "String") == false ) {
+				userSettings.addPref("myName", "James", "My Name")
+			}
+			if (userSettings.keyExists("petName", "String") == false ) {
+				userSettings.addPref("petName", "Fifi", "Pet Name")
+			}
+			if (userSettings.keyExists("herName1", "String") == false ) {
+				userSettings.addPref("herName1", "Kara", "Female 1")
+			}
+			if (userSettings.keyExists("herName2", "String") == false ) {
+				userSettings.addPref("herName2", "Emily", "Female 2")
+			}
+
+			var html = '<form><table>';
+			html = html + '<tr><td>Male 1?: </td><td><input type="text" value="' + userSettings.getPref("hisName1") + '" name="hisName1" /></td></tr>';
+			html = html + '<tr><td>Male 2?: </td><td><input type="text" value="' + userSettings.getPref("hisName2") + '" name="hisName2" /></td></tr>';
+			html = html + '<tr><td>My Name?: </td><td><input type="text" value="' + userSettings.getPref("myName") + '" name="myName" /></td></tr>';
+			html = html + '<tr><td>Pet Name?: </td><td><input type="text" value="' + userSettings.getPref("petName") + '" name="petName" /></td></tr>';
+			html = html + '<tr><td>Female Name 1?: </td><td><input type="text" value="' + userSettings.getPref("herName1") + '" name="herName1" /></td></tr>';
+			html = html + '<tr><td>Female Name 2?: </td><td><input type="text" value="' + userSettings.getPref("herName2") + '" name="herName2" /></td></tr>';
+			html = html + '</table></form>';
+			jscriptLog("html " + html);
+			overRide.html = html;
+		}
+		function savePref() {
+			var hisName1 = guideSettings.getFormField("hisName1");
+			userSettings.setPref("hisName1", hisName1);
+			var hisName2 = guideSettings.getFormField("hisName2");
+			userSettings.setPref("hisName2", hisName2);
+			var myName = guideSettings.getFormField("myName");
+			userSettings.setPref("myName", myName);
+			var petName = guideSettings.getFormField("petName");
+			userSettings.setPref("petName", petName);
+			var herName1 = guideSettings.getFormField("herName1");
+			userSettings.setPref("herName1", herName1);
+			var herName2 = guideSettings.getFormField("herName2");
+			userSettings.setPref("herName2", herName2);
+		}
+		
+		]]></javascript>
+    </Page>
+    <Page id="page1">
+      <Text><div></div></Text>
+      <Image id="intro1.jpg" />
+      <Button target="page2" onclick="savePref()">Next</Button>
+      <javascript><![CDATA[
+		function pageLoad() {
+			if (userSettings.keyExists("myage", "Number") == false ) {
+				userSettings.addPref("myage", 45.0, "My Age")
+			}
+			if (userSettings.keyExists("size", "Number") == false ) {
+				userSettings.addPref("size", 2.5, "How long in inches is your hand")
+			}
+
+			var html = '<form><table>';
+			html = html + '<tr><td>My Age?: </td><td><input type="number" value="' + userSettings.getPrefNumber("myage") + '" name="myage" /></td></tr>';
+			html = html + '<tr><td>How long in inches is your hand?: </td><td><input type="number" value="' + userSettings.getPrefNumber("size") + '" name="size" /></td></tr>';
+			html = html + '</table></form>';
+			jscriptLog("html " + html);
+			overRide.html = html;
+		}
+		function savePref() {
+			var myage = parseInt(guideSettings.getFormField("myage"));
+			userSettings.setPref("myage", myage);
+			var size = parseInt(guideSettings.getFormField("size"));
+			userSettings.setPref("size", size);
+		}
+		
+		]]></javascript>
+    </Page>
+    <Page id="page2">
+      <Text><div></div></Text>
+      <Image id="intro1.jpg" />
+      <Button target="page3" onclick="savePref()">Next</Button>
+      <javascript><![CDATA[
+		function pageLoad() {
+			if (userSettings.keyExists("chocolate", "Boolean") == false ) {
+				userSettings.addPref("chocolate", true, "Do you like chocolate?")
+			}
+			if (userSettings.keyExists("cbt", "Boolean") == false ) {
+				userSettings.addPref("cbt", true, "Do you enjoy Computer Based Training?")
+			}
+			if (userSettings.keyExists("spicyfood", "Boolean") == false ) {
+				userSettings.addPref("spicyfood", false, "Do you like spicy food?")
+			}
+			var html = '<form><table>';
+			html = html + '<tr><td>Do you like chocolate?: </td><td><input type="checkbox"';
+			var chocolate = String(userSettings.isPref("chocolate")).toLowerCase();
+			if (chocolate === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="chocolate" /></td></tr>';
+
+			html = html + '<tr><td>Do you enjoy Computer Based Training?: </td><td><input type="checkbox"';
+			var cbt = String(userSettings.isPref("cbt")).toLowerCase();
+			if (cbt === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="cbt" /></td></tr>';
+
+			html = html + '<tr><td>Do you like spicy food?: </td><td><input type="checkbox"';
+			var spicyfood = String(userSettings.isPref("spicyfood")).toLowerCase();
+			if (spicyfood === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="spicyfood" /></td></tr>';
+			html = html + '</table></form>';
+			jscriptLog("html " + html);
+			overRide.html = html;
+		}
+		function savePref() {
+			var chocolate = guideSettings.getFormField("chocolate");
+			if (chocolate=='true') {
+				userSettings.setPref("chocolate", true);
+			} else {
+				userSettings.setPref("chocolate", false);
+			}
+			var cbt = guideSettings.getFormField("cbt");
+			if (cbt=='true') {
+				userSettings.setPref("cbt", true);
+			} else {
+				userSettings.setPref("cbt", false);
+			}
+			var spicyfood = guideSettings.getFormField("spicyfood");
+			if (spicyfood=='true') {
+				userSettings.setPref("spicyfood", true);
+			} else {
+				userSettings.setPref("spicyfood", false);
+			}
+		}
+		
+		]]></javascript>
+    </Page>
+    <Page id="page3">
+      <Image id="intro2.jpg" />
+      <Text>
+        <div>You have finished entering settings</div>
+      </Text>
+    </Page>
+  </Pages>
+</settings>

@@ -66,4 +66,12 @@ public class Audio {
 		return jscript;
 	}
 
+	public String getIfSet() {
+		return ifSet;
+	}
+
+	public String getIfNotSet() {
+		return ifNotSet;
+	}
+
 }

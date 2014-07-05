@@ -12,17 +12,20 @@ public class AppSettings {
 	private Logger logger = LogManager.getLogger();
 	private int FontSize = 20;
 	private int HtmlFontSize = 20;
+	private int timerFontSize = 20;
+	private int buttonFontSize = 20;
 	private int midiVolume = 0;
 	private int midiInstrument = 76;
 	private int musicVolume = 400;
 	private int videoVolume = 400;
+	private int mainMonitor = 1;
 	
 	
 	private boolean Debug = false;
 	private boolean video = false;
 	private String DataDirectory;
 	private int[] sash1Weights = new int[2];
-	private int[] sash2Weights = new int[2];
+	private int[] sash2Weights = new int[3];
 	private Properties appSettingsProperties = new Properties();
 	private String settingsLocation;
 	private String userDir;
@@ -30,6 +33,13 @@ public class AppSettings {
 	private String userName;
 	private String fileSeparator;
 	private static AppSettings appSettings;
+	private boolean fullScreen = false;
+	private boolean multiMonitor = false;
+	private boolean pageSound = true;
+	private boolean toclipboard = false;
+	private boolean monitorChanging = false;
+	private boolean clock = true;
+	private boolean metronome = true;
 
 	public static synchronized AppSettings getAppSettings() {
 		if (appSettings == null) {
@@ -51,6 +61,11 @@ public class AppSettings {
 			userName = String.valueOf(properties.get("user.name"));
 			fileSeparator = String.valueOf(properties.get("file.separator"));
 			settingsLocation = "data" + fileSeparator + "settings.properties";
+			logger.debug("AppSettings userDir: " + userDir);
+			logger.debug("AppSettings userHome: " + userHome);
+			logger.debug("AppSettings userName: " + userName);
+			logger.debug("AppSettings fileSeparator: " + fileSeparator);
+			logger.debug("AppSettings settingsLocation: " + settingsLocation);
 			try {
 				try {
 					appSettingsProperties.loadFromXML(new FileInputStream(settingsLocation));
@@ -61,17 +76,27 @@ public class AppSettings {
 				}
 				FontSize = Integer.parseInt(appSettingsProperties.getProperty("FontSize", "20"));
 				HtmlFontSize = Integer.parseInt(appSettingsProperties.getProperty("HtmlFontSize", "20"));
+				timerFontSize = Integer.parseInt(appSettingsProperties.getProperty("timerFontSize", "20"));
+				buttonFontSize = Integer.parseInt(appSettingsProperties.getProperty("buttonFontSize", "20"));
 				midiInstrument = Integer.parseInt(appSettingsProperties.getProperty("midiInstrument", "76"));
 				midiVolume = Integer.parseInt(appSettingsProperties.getProperty("midiVolume", "100"));
 				musicVolume = Integer.parseInt(appSettingsProperties.getProperty("musicVolume", "400"));
 				videoVolume = Integer.parseInt(appSettingsProperties.getProperty("videoVolume", "400"));
 				Debug = Boolean.parseBoolean(appSettingsProperties.getProperty("Debug", "false"));
 				video = Boolean.parseBoolean(appSettingsProperties.getProperty("Video", "true"));
+				mainMonitor = Integer.parseInt(appSettingsProperties.getProperty("mainMonitor", "1"));
+				fullScreen = Boolean.parseBoolean(appSettingsProperties.getProperty("fullScreen", "false"));
+				multiMonitor = Boolean.parseBoolean(appSettingsProperties.getProperty("multiMonitor", "false"));
+				clock = Boolean.parseBoolean(appSettingsProperties.getProperty("clock", "true"));
+				metronome = Boolean.parseBoolean(appSettingsProperties.getProperty("metronome", "true"));
+				pageSound = Boolean.parseBoolean(appSettingsProperties.getProperty("pageSound", "true"));
+				toclipboard = Boolean.parseBoolean(appSettingsProperties.getProperty("toclipboard", "false"));
 				DataDirectory = appSettingsProperties.getProperty("DataDirectory", userDir);
 				sash1Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights0", "350"));
 				sash1Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights1", "350"));
-				sash2Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights0", "800"));
-				sash2Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights1", "200"));
+				sash2Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights0", "150"));
+				sash2Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights1", "700"));
+				sash2Weights[2] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights2", "150"));
 			}
 			catch (Exception ex) {
 				logger.error(ex.getLocalizedMessage(), ex);
@@ -124,17 +149,27 @@ public class AppSettings {
 		try {
 			appSettingsProperties.setProperty("FontSize", String.valueOf(FontSize));
 			appSettingsProperties.setProperty("HtmlFontSize", String.valueOf(HtmlFontSize));
+			appSettingsProperties.setProperty("timerFontSize", String.valueOf(timerFontSize));
+			appSettingsProperties.setProperty("buttonFontSize", String.valueOf(buttonFontSize));
 			appSettingsProperties.setProperty("midiInstrument", String.valueOf(midiInstrument));
 			appSettingsProperties.setProperty("midiVolume", String.valueOf(midiVolume));
 			appSettingsProperties.setProperty("musicVolume", String.valueOf(musicVolume));
 			appSettingsProperties.setProperty("videoVolume", String.valueOf(videoVolume));
 			appSettingsProperties.setProperty("Debug", String.valueOf(Debug));
 			appSettingsProperties.setProperty("Video", String.valueOf(video));
+			appSettingsProperties.setProperty("mainMonitor", String.valueOf(mainMonitor));
+			appSettingsProperties.setProperty("fullScreen", String.valueOf(fullScreen));
+			appSettingsProperties.setProperty("multiMonitor", String.valueOf(multiMonitor));
+			appSettingsProperties.setProperty("clock", String.valueOf(clock));
+			appSettingsProperties.setProperty("metronome", String.valueOf(metronome));
+			appSettingsProperties.setProperty("pageSound", String.valueOf(pageSound));
+			appSettingsProperties.setProperty("toclipboard", String.valueOf(toclipboard));
 			appSettingsProperties.setProperty("DataDirectory", DataDirectory);
 			appSettingsProperties.setProperty("sash1Weights0", String.valueOf(sash1Weights[0]));
 			appSettingsProperties.setProperty("sash1Weights1", String.valueOf(sash1Weights[1]));
 			appSettingsProperties.setProperty("sash2Weights0", String.valueOf(sash2Weights[0]));
 			appSettingsProperties.setProperty("sash2Weights1", String.valueOf(sash2Weights[1]));
+			appSettingsProperties.setProperty("sash2Weights2", String.valueOf(sash2Weights[2]));
 			appSettingsProperties.storeToXML(new FileOutputStream(settingsLocation), null);
 		}
 		catch (Exception e) {
@@ -204,6 +239,86 @@ public class AppSettings {
 
 	public void setVideoVolume(int videoVolume) {
 		this.videoVolume = videoVolume;
+	}
+
+	public boolean isFullScreen() {
+		return fullScreen;
+	}
+
+	public void setFullScreen(boolean fullScreen) {
+		this.fullScreen = fullScreen;
+	}
+
+	public boolean isPageSound() {
+		return pageSound;
+	}
+
+	public void setPageSound(boolean pageSound) {
+		this.pageSound = pageSound;
+	}
+
+	public boolean isToclipboard() {
+		return toclipboard;
+	}
+
+	public void setToclipboard(boolean toclipboard) {
+		this.toclipboard = toclipboard;
+	}
+
+	public int getTimerFontSize() {
+		return timerFontSize;
+	}
+
+	public void setTimerFontSize(int timerFontSize) {
+		this.timerFontSize = timerFontSize;
+	}
+
+	public int getButtonFontSize() {
+		return buttonFontSize;
+	}
+
+	public void setButtonFontSize(int buttonFontSize) {
+		this.buttonFontSize = buttonFontSize;
+	}
+
+	public boolean isMultiMonitor() {
+		return multiMonitor;
+	}
+
+	public void setMultiMonitor(boolean multiMonitor) {
+		this.multiMonitor = multiMonitor;
+	}
+
+	public boolean isMonitorChanging() {
+		return monitorChanging;
+	}
+
+	public void setMonitorChanging(boolean monitorChanging) {
+		this.monitorChanging = monitorChanging;
+	}
+
+	public int getMainMonitor() {
+		return mainMonitor;
+	}
+
+	public void setMainMonitor(int mainMonitor) {
+		this.mainMonitor = mainMonitor;
+	}
+
+	public boolean isClock() {
+		return clock;
+	}
+
+	public void setClock(boolean clock) {
+		this.clock = clock;
+	}
+
+	public boolean isMetronome() {
+		return metronome;
+	}
+
+	public void setMetronome(boolean metronome) {
+		this.metronome = metronome;
 	}
 
 }

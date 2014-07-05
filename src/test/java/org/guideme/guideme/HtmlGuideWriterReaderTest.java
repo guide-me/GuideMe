@@ -96,7 +96,8 @@ public class HtmlGuideWriterReaderTest {
 		
 		Guide guide = reader.loadFromString(writer.Write(originalGuide));
 
-		assertEquals(guide.getChapters().size(), 2);
+		assertNotNull(guide.getChapters().get("c-1"));
+		assertNotNull(guide.getChapters().get("c-2"));
 	}
 
 	@Test
@@ -108,7 +109,7 @@ public class HtmlGuideWriterReaderTest {
 		
 		Guide guide = reader.loadFromString(writer.Write(originalGuide));
 
-		assertEquals(guide.getChapters().get(0).getPages().size(), 2);
+                assertEquals(2, guide.getChapters().get("c-1").getPages().size());
 	}
 
 }

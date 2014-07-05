@@ -262,7 +262,8 @@ public class GuidePreferenceShell {
 		txtTmp.setText(value);
 		txtTmpFormData = new FormData();
 		txtTmpFormData.top = new FormAttachment(prevControl2,5);
-		txtTmpFormData.left = new FormAttachment(lblTmp,10);
+		//txtTmpFormData.left = new FormAttachment(lblTmp,10);
+		txtTmpFormData.left = new FormAttachment(60,10);
 		txtTmpFormData.right = new FormAttachment(100,-5);
 		txtTmp.setLayoutData(txtTmpFormData);
 		if (addNewmeric) {
@@ -299,7 +300,8 @@ public class GuidePreferenceShell {
 		btnTmp.setSelection(value);
 		txtTmpFormData = new FormData();
 		txtTmpFormData.top = new FormAttachment(prevControl2,5);
-		txtTmpFormData.left = new FormAttachment(lblTmp,10);
+		//txtTmpFormData.left = new FormAttachment(lblTmp,10);
+		txtTmpFormData.left = new FormAttachment(60,10);
 		txtTmpFormData.right = new FormAttachment(100,-5);
 		btnTmp.setLayoutData(txtTmpFormData);
 		appFormdata.put(key + "BlnLbl", lblTmpFormData);
