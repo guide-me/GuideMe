@@ -577,9 +577,13 @@ public class MainShell {
 		public void handleEvent(Event event) {
 			try {
 				if (((event.stateMask & SWT.ALT) == SWT.ALT) && (event.keyCode == 'd')) {
-					shell3.setVisible(!shell3.getVisible());
-					if (shell3.isVisible()) {
-						shell3.setActive();
+					if (System.getProperty("os.name").startsWith("Windows") && event.character != "d".charAt(0)) {
+						//ignore
+					} else {
+						shell3.setVisible(!shell3.getVisible());
+						if (shell3.isVisible()) {
+							shell3.setActive();
+						}
 					}
 				} else {
 					com.snapps.swt.SquareButton hotKeyButton;
