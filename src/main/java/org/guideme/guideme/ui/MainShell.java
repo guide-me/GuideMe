@@ -577,7 +577,7 @@ public class MainShell {
 		public void handleEvent(Event event) {
 			try {
 				if (((event.stateMask & SWT.ALT) == SWT.ALT) && (event.keyCode == 'd')) {
-					if (System.getProperty("os.name").startsWith("Windows") && event.character != "d".charAt(0)) {
+					if (comonFunctions.onWindows() && event.character != "d".charAt(0)) {
 						//ignore
 					} else {
 						shell3.setVisible(!shell3.getVisible());
