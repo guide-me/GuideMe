@@ -576,7 +576,7 @@ public class MainShell {
 		@Override
 		public void handleEvent(Event event) {
 			try {
-				if ((event.stateMask & SWT.ALT) != 0 && event.character == "d".charAt(0)) {
+				if (((event.stateMask & SWT.ALT) == SWT.ALT) && (event.keyCode == 'd')) {
 					shell3.setVisible(!shell3.getVisible());
 					if (shell3.isVisible()) {
 						shell3.setActive();
