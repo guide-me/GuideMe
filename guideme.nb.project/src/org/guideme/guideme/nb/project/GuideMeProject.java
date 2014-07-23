@@ -1,13 +1,17 @@
 package org.guideme.guideme.nb.project;
 
 import java.beans.PropertyChangeListener;
+import java.io.FileNotFoundException;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import org.guideme.guideme.model.Guide;
 import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
-import org.netbeans.spi.project.ProjectState;
 import org.openide.filesystems.FileObject;
+import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
@@ -17,13 +21,30 @@ public class GuideMeProject implements Project {
     @StaticResource()
     public static final String PROJECT_ICON = "org/guideme/guideme/nb/project/project_icon.gif";
 
+    private final FileObject projectFile;
     private final FileObject projectDirectory;
-    private final ProjectState projectState;
+
     private Lookup lookup;
     
-    public GuideMeProject(FileObject projectDirectory, ProjectState projectState) {
+    private Guide guide;
+    
+    public GuideMeProject(FileObject projectDirectory) {
         this.projectDirectory = projectDirectory;
-        this.projectState = projectState;
+        this.projectFile = projectDirectory.getFileObject(GuideMeProjectFactory.PROJECT_FILE);
+        this.guide = parseProjectFile();
+    }
+
+    
+    private Guide parseProjectFile() {
+        try
+        {
+            // TODO refactor to separate class.
+            JAXBContext ctx = JAXBContext.newInstance(Guide.class);
+            return (Guide)ctx.createUnmarshaller().unmarshal(projectFile.getInputStream());
+        } catch (FileNotFoundException | JAXBException ex) {
+            Exceptions.printStackTrace(ex);
+            return null;
+        }
     }
     
     @Override
@@ -55,7 +76,7 @@ public class GuideMeProject implements Project {
 
         @Override
         public String getDisplayName() {
-            return getName();
+            return (guide != null && guide.Title != null) ? guide.Title : getName();
         }
 
         @Override

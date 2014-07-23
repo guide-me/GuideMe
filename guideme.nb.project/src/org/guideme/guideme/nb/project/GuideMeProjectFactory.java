@@ -21,7 +21,7 @@ public class GuideMeProjectFactory implements ProjectFactory2
 
     @Override
     public Project loadProject(FileObject projectDirectory, ProjectState state) throws IOException {
-        return isProject(projectDirectory) ? new GuideMeProject(projectDirectory, state) : null;
+        return isProject(projectDirectory) ? new GuideMeProject(projectDirectory) : null;
     }
 
     @Override
