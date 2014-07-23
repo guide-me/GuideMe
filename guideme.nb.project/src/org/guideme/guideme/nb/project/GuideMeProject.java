@@ -1,12 +1,14 @@
 package org.guideme.guideme.nb.project;
 
 import java.beans.PropertyChangeListener;
+import java.io.File;
 import java.io.FileNotFoundException;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
 import org.guideme.guideme.model.Guide;
+import org.guideme.guideme.model.Page;
 import org.netbeans.api.annotations.common.StaticResource;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
@@ -47,6 +49,14 @@ public class GuideMeProject implements Project {
         }
     }
     
+    public Guide getGuide() {
+        return guide;
+    }
+    
+    public FileObject getProjectFile() {
+        return projectFile;
+    }
+    
     @Override
     public FileObject getProjectDirectory() {
         return projectDirectory;
@@ -57,7 +67,8 @@ public class GuideMeProject implements Project {
         if (lookup == null) {
             lookup = Lookups.fixed(new Object[] {
                 // Register features here.
-                new Info()
+                new Info(),
+                new GuideMeProjectLogicalView(this)
             });
         }
         return lookup;
