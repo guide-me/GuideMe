@@ -1,6 +1,7 @@
 package org.guideme.guideme.nb.project;
 
 import java.io.IOException;
+import org.guideme.guideme.nb.project.resources.Icons;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.spi.project.ProjectFactory;
@@ -10,9 +11,9 @@ import org.openide.filesystems.FileObject;
 import org.openide.util.lookup.ServiceProvider;
 
 @ServiceProvider(service=ProjectFactory.class)
-public class GuideMeProjectFactory implements ProjectFactory2
+public class LibraryProjectFactory implements ProjectFactory2
 {
-    public static final String PROJECT_FILE = "guide.xml";
+    public static final String PROJECT_DIR = "_guideme";
     
     @Override
     public boolean isProject(FileObject projectDirectory) {
@@ -21,7 +22,7 @@ public class GuideMeProjectFactory implements ProjectFactory2
 
     @Override
     public Project loadProject(FileObject projectDirectory, ProjectState state) throws IOException {
-        return isProject(projectDirectory) ? new GuideMeProject(projectDirectory) : null;
+        return isProject(projectDirectory) ? new LibraryProject(projectDirectory) : null;
     }
 
     @Override
@@ -31,11 +32,11 @@ public class GuideMeProjectFactory implements ProjectFactory2
 
     @Override
     public ProjectManager.Result isProject2(FileObject projectDirectory) {
-        FileObject projectFile = projectDirectory.getFileObject(PROJECT_FILE);
-        if (projectFile == null) {
+        FileObject projectDir = projectDirectory.getFileObject(PROJECT_DIR);
+        if (projectDir == null) {
             return null;
         }
-        return new ProjectManager.Result(GuideMeProject.getProjectIcon());
+        return new ProjectManager.Result(Icons.getLibraryIcon());
     }
 
 }
