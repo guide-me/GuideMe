@@ -5,4 +5,14 @@
 <project name="org.guideme.guideme.nb.project" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project org.guideme.guideme.nb.project.</description>
     <import file="nbproject/build-impl.xml"/>
+    
+    <target name="netbeans-extra" depends="package-templates" />
+        
+    <target name="package-templates">
+        <delete file="${basedir}/src/org/guideme/guideme/nb/project/templates/GuideMeLibraryProject.zip" />
+        
+        <zip compress="9" 
+            basedir="${basedir}/src/org/guideme/guideme/nb/project/templates/EmptyLibrary"
+            zipfile="${basedir}/src/org/guideme/guideme/nb/project/templates/GuideMeLibraryProject.zip" />
+    </target>
 </project>

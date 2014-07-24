@@ -2,4 +2,6 @@ build
 dist
 private
 
+**/project/templates/*.zip
+
 .DS_Store
