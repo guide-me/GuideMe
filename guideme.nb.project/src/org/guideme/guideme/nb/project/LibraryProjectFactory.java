@@ -13,8 +13,6 @@ import org.openide.util.lookup.ServiceProvider;
 @ServiceProvider(service=ProjectFactory.class)
 public class LibraryProjectFactory implements ProjectFactory2
 {
-    public static final String PROJECT_DIR = "_guideme";
-    
     @Override
     public boolean isProject(FileObject projectDirectory) {
         return isProject2(projectDirectory) != null;
@@ -32,11 +30,11 @@ public class LibraryProjectFactory implements ProjectFactory2
 
     @Override
     public ProjectManager.Result isProject2(FileObject projectDirectory) {
-        FileObject projectDir = projectDirectory.getFileObject(PROJECT_DIR);
-        if (projectDir == null) {
-            return null;
+        FileObject projectDir = projectDirectory.getFileObject(Constants.GM_DIR);
+        if (projectDir != null && projectDir.getFileObject(Constants.LIBRARY_FILE) != null) {
+            return new ProjectManager.Result(Icons.getLibraryIcon());
         }
-        return new ProjectManager.Result(Icons.getLibraryIcon());
+        return null;
     }
 
 }

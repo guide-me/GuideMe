@@ -20,8 +20,6 @@ import org.openide.util.lookup.ProxyLookup;
 @NodeFactory.Registration(projectType = "org-guideme-guideme-nb-project", position = 10)
 public class GuidesNodeFactory implements NodeFactory {
 
-    public static final String GUIDE_FILE = "guide.xml";
-
     @Override
     public NodeList<?> createNodes(Project project) {
         LibraryProject libraryProject = project.getLookup().lookup(LibraryProject.class);
@@ -42,15 +40,20 @@ public class GuidesNodeFactory implements NodeFactory {
             List<Node> result = new ArrayList<>();
             for (FileObject child : libraryProject.getProjectDirectory().getChildren()) {
                 try {
-                    if (child.isFolder() && child.getFileObject(GUIDE_FILE) != null) {
-                        //result.add(DataObject.find(child).getNodeDelegate());
-                        result.add(new GuideNode(DataObject.find(child)));
+                    if (isGuide(child)) {
+                        Node node = DataObject.find(child).getNodeDelegate();
+                        result.add(new GuideNode(node, child));
                     }
                 } catch (DataObjectNotFoundException donfe) {
                     Exceptions.printStackTrace(donfe);
                 }
             }
             return result;
+        }
+        
+                
+        private boolean isGuide(FileObject fileObject) {
+            return fileObject.isFolder() && fileObject.getFileObject(Constants.GUIDE_FILE) != null;
         }
 
         @Override
@@ -77,19 +80,20 @@ public class GuidesNodeFactory implements NodeFactory {
         public void removeNotify() {
             // Not implemented yet.
         }
+        
 
         private class GuideNode extends FilterNode {
 
-            private DataObject guideFolder;
+            private FileObject guideFolder;
 
-            public GuideNode(DataObject guideFolder)
+            public GuideNode(Node node, FileObject guideFolder)
                     throws DataObjectNotFoundException {
 
-                super(guideFolder.getNodeDelegate(),
+                super(node, 
                         Children.LEAF,
                         new ProxyLookup(
                                 new Lookup[]{
-                                    guideFolder.getNodeDelegate().getLookup()
+                                    node.getLookup()
                                 }));
 
                 this.guideFolder = guideFolder;
