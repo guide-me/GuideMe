@@ -9,10 +9,15 @@
     <target name="netbeans-extra" depends="package-templates" />
         
     <target name="package-templates">
-        <delete file="${basedir}/src/org/guideme/guideme/nb/project/templates/GuideMeLibraryProject.zip" />
+        <delete file="${basedir}/src/org/guideme/guideme/nb/project/templates/GuideMeLibraryProject.zip" failonerror="false" />
+        <delete file="${basedir}/src/org/guideme/guideme/nb/project/templates/GuideMeGuideProject.zip" failonerror="false" />
         
         <zip compress="9" 
             basedir="${basedir}/src/org/guideme/guideme/nb/project/templates/EmptyLibrary"
             zipfile="${basedir}/src/org/guideme/guideme/nb/project/templates/GuideMeLibraryProject.zip" />
+        
+        <zip compress="9" 
+            basedir="${basedir}/src/org/guideme/guideme/nb/project/templates/EmptyGuide"
+            zipfile="${basedir}/src/org/guideme/guideme/nb/project/templates/GuideMeGuideProject.zip" />
     </target>
 </project>
