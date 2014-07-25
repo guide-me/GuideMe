@@ -53,7 +53,6 @@ public class LibraryProjectLogicalView implements LogicalViewProvider {
                 throws DataObjectNotFoundException {
             
             super(node,
-                    //new FilterNode.Children(node),
                     NodeFactorySupport.createCompositeChildren(libraryProject,
                         "Projects/org-guideme-guideme-nb-project/Nodes"),
                     new ProxyLookup(

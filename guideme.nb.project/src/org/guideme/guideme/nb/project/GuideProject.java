@@ -9,13 +9,13 @@ import org.openide.filesystems.FileObject;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.Lookups;
 
-public class LibraryProject implements Project {
+public class GuideProject implements Project {
 
     private final FileObject projectDirectory;
 
     private Lookup lookup;
     
-    public LibraryProject(FileObject projectDirectory) {
+    public GuideProject(FileObject projectDirectory) {
         this.projectDirectory = projectDirectory;
     }
 
@@ -30,8 +30,7 @@ public class LibraryProject implements Project {
             lookup = Lookups.fixed(new Object[] {
                 this,
                 new Info(),
-                new LibraryProjectLogicalView(this),
-                new GuidesSubprojectProvider(this)
+                new GuideProjectLogicalView(this)
             });
         }
         return lookup;
@@ -52,12 +51,12 @@ public class LibraryProject implements Project {
 
         @Override
         public Icon getIcon() {
-            return Icons.getLibraryIcon();
+            return Icons.getGuideIcon();
         }
 
         @Override
         public Project getProject() {
-            return LibraryProject.this;
+            return GuideProject.this;
         }
 
         @Override
