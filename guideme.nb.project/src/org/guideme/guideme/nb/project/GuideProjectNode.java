@@ -22,7 +22,7 @@ class GuideProjectNode extends AbstractNode {
 
     @Override
     public Image getOpenedIcon(int type) {
-        return Icons.getGuideOpenImage();
+        return Icons.getGuideImage();
     }
     
     @Override
