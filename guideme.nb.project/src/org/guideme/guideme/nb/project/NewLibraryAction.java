@@ -10,7 +10,7 @@ import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle.Messages;
 
 @ActionID(
-        category = "File",
+        category = "Library",
         id = "org.guideme.guideme.nb.project.NewLibraryAction"
 )
 @ActionRegistration(

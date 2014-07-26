@@ -1,6 +1,8 @@
 package org.guideme.guideme.nb.project;
 
 import java.awt.Image;
+import java.util.List;
+import javax.swing.Action;
 import org.guideme.guideme.nb.project.resources.Icons;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.spi.project.ui.support.NodeFactorySupport;
@@ -13,6 +15,7 @@ import org.openide.nodes.FilterNode.Children;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
+import org.openide.util.Utilities;
 import org.openide.util.lookup.Lookups;
 import org.openide.util.lookup.ProxyLookup;
 
@@ -77,6 +80,13 @@ public class LibraryProjectLogicalView implements LogicalViewProvider {
         @Override
         public String getDisplayName() {
             return libraryProject.getProjectDirectory().getName();
+        }
+        
+        @Override
+        public Action[] getActions(boolean context) {
+            return new Action[] {};
+//            List<? extends Action> actions = Utilities.actionsForPath("Actions/Library");
+//            return actions.toArray(new Action[actions.size()]);
         }
     }
 }
