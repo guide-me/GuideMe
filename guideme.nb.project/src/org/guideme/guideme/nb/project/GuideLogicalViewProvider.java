@@ -4,6 +4,7 @@ import java.awt.Image;
 import org.guideme.guideme.nb.project.resources.Icons;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.openide.loaders.DataFolder;
+import org.openide.nodes.AbstractNode;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.lookup.Lookups;
@@ -35,7 +36,7 @@ public class GuideLogicalViewProvider implements LogicalViewProvider {
 
         public GuideNode(Node node, GuideProject project) {
             super(node,
-                    new FilterNode.Children(node),
+                    Children.LEAF, // To show all files in folder: new FilterNode.Children(node),
                     new ProxyLookup(
                             Lookups.singleton(project),
                             node.getLookup()

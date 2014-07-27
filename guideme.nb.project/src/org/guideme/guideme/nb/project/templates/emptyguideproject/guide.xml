@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Guide>
+  <Title>New Guide</Title>
+  <Pages>
+    <Page id="start">
+      <Text>Hello world.</Text>
+    </Page>
+  </Pages>
+</Guide> 
