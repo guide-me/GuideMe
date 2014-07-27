@@ -1,6 +1,0 @@
-Manifest-Version: 1.0
-OpenIDE-Module: org.guideme.guideme.nb.project
-OpenIDE-Module-Layer: org/guideme/guideme/nb/project/layer.xml
-OpenIDE-Module-Localizing-Bundle: org/guideme/guideme/nb/project/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
-
