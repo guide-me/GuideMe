@@ -59,8 +59,7 @@ public class GuideLogicalViewProvider implements LogicalViewProvider {
         
         @Override
         public String getDisplayName() {
-            // TODO extract from guide.xml.
-            return project.getProjectDirectory().getName();
+            return project.getGuideName();
         }
         
         @Override

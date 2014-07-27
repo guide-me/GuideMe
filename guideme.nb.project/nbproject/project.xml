@@ -98,7 +98,9 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
-            <public-packages/>
+            <public-packages>
+                <package>org.guideme.guideme.nb.project</package>
+            </public-packages>
         </data>
     </configuration>
 </project>
