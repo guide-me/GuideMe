@@ -30,7 +30,7 @@ public class GuideProject implements Project {
             lookup = Lookups.fixed(new Object[] {
                 this,
                 new Info(),
-                //new GuideProjectLogicalView(this)
+                new GuideLogicalViewProvider(this)
             });
         }
         return lookup;
