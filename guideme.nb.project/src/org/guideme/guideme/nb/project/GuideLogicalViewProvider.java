@@ -1,8 +1,10 @@
 package org.guideme.guideme.nb.project;
 
 import java.awt.Image;
+import javax.swing.Action;
 import org.guideme.guideme.nb.project.resources.Icons;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
+import org.netbeans.spi.project.ui.support.CommonProjectActions;
 import org.openide.loaders.DataFolder;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.FilterNode;
@@ -59,6 +61,18 @@ public class GuideLogicalViewProvider implements LogicalViewProvider {
         public String getDisplayName() {
             // TODO extract from guide.xml.
             return project.getProjectDirectory().getName();
+        }
+        
+        @Override
+        public Action[] getActions(boolean context) {
+            return new Action[] {
+                CommonProjectActions.closeProjectAction()
+            };
+        }
+        
+        @Override
+        public boolean canRename() {
+            return false;
         }
     }
 }
