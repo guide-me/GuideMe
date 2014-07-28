@@ -42,7 +42,7 @@ public class GuideProject implements Project {
     }
     
     public String getGuideName() {
-        return guide.Title != null ? guide.Title : projectDirectory.getName();
+        return guide.getTitle() != null ? guide.getTitle() : projectDirectory.getName();
     }
     
     @Override

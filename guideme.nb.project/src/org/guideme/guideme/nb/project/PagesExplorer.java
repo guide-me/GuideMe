@@ -5,16 +5,14 @@ import java.awt.Image;
 import java.beans.IntrospectionException;
 import java.util.Collection;
 import java.util.List;
-import javax.swing.JOptionPane;
+import org.guideme.guideme.model.Chapter;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Page;
 import org.guideme.guideme.nb.project.resources.Icons;
-import org.netbeans.api.project.ui.OpenProjects;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.explorer.ExplorerManager;
 import org.openide.explorer.view.BeanTreeView;
-import org.openide.loaders.DataFolder;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.BeanNode;
 import org.openide.nodes.ChildFactory;
@@ -88,13 +86,54 @@ public final class PagesExplorer extends TopComponent implements ExplorerManager
     
     private void loadTree(Guide guide) {
         
-        Children pageNodes = Children.create(new PageBeanNodeChildFactory(guide.Pages), true);
-        Node guideNode = new AbstractNode(pageNodes);
+        Children chapterNodes = Children.create(new ChapterBeanNodeChildFactory(guide.getChapters()), true);
+        Node guideNode = new AbstractNode(chapterNodes);
 
         explorerManager.setRootContext(guideNode);
     }
     
     
+    
+    private class ChapterBeanNodeChildFactory extends ChildFactory<Chapter> {
+
+        private final List<Chapter> chapters;
+
+        public ChapterBeanNodeChildFactory(List<Chapter> chapters) {
+            this.chapters = chapters;
+        }
+        
+        
+        @Override
+        protected boolean createKeys(List<Chapter> toPopulate) {
+            toPopulate.addAll(chapters);
+            return true;
+        }
+        
+        @Override
+        protected Node createNodeForKey(Chapter chapter) {
+            ChapterBeanNode result = null;
+            try {
+                Children pageNodes = Children.create(new PageBeanNodeChildFactory(chapter.getPages()), true);
+
+                result = new ChapterBeanNode(chapter, pageNodes);
+            } catch (IntrospectionException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+            return result;
+        }
+        
+    }
+    
+    private class ChapterBeanNode extends BeanNode {
+
+        public ChapterBeanNode(Chapter chapter, Children children) throws IntrospectionException {
+            super(chapter, children);
+            setName(chapter.getId());
+            setDisplayName(chapter.getId());
+            setIconBaseWithExtension(Icons.CHAPTER_ICON);
+        }
+
+    }
     
     private class PageBeanNodeChildFactory extends ChildFactory<Page> {
 
@@ -126,10 +165,11 @@ public final class PagesExplorer extends TopComponent implements ExplorerManager
     
     private class PageBeanNode extends BeanNode {
 
-        public PageBeanNode(Page bean) throws IntrospectionException {
-            super(bean);
-            setName(bean.Id);
-            setDisplayName(bean.Id);
+        public PageBeanNode(Page page) throws IntrospectionException {
+            super(page);
+            setName(page.getId());
+            setDisplayName(page.getId());
+            setIconBaseWithExtension(Icons.PAGE_ICON);
         }
         
     }
