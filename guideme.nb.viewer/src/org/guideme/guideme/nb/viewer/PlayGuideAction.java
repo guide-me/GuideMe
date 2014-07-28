@@ -1,40 +1,41 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.guideme.guideme.nb.viewer;
 
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
+import org.guideme.guideme.nb.project.GuideProject;
+import org.guideme.guideme.nb.viewer.resources.Icons;
 import org.netbeans.api.project.Project;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
+import org.openide.loaders.DataFolder;
+import org.openide.loaders.DataObject;
 import org.openide.util.NbBundle.Messages;
 
 @ActionID(
-        category = "Project",
+        category = "Guide",
         id = "org.guideme.guideme.nb.viewer.PlayGuideAction"
 )
 @ActionRegistration(
-        displayName = "#CTL_PlayGuideAction"
+        displayName = "#CTL_PlayGuideAction",
+        iconBase = "org/guideme/guideme/nb/viewer/resources/bullet_go.png"
 )
-@ActionReference(path = "Menu/BuildProject", position = 1, separatorAfter = 2)
+@ActionReference(path = "Menu/Guide", position = 5)
 @Messages("CTL_PlayGuideAction=Play Guide")
 public final class PlayGuideAction extends AbstractAction {
 
-    private final Project context;
+    private final GuideProject guideProject;
 
     public PlayGuideAction(Project context) {
-        super(Bundle.CTL_PlayGuideAction());
-        this.context = context;
+        super(Bundle.CTL_PlayGuideAction(), Icons.getPlayGuideIcon());
+        this.guideProject = (GuideProject)context;
     }
-
+    
     @Override
     public void actionPerformed(ActionEvent ev) {
         GuidePlayerTopComponent window = GuidePlayerTopComponent.findInstance();
-        window.setDisplayName(context.getProjectDirectory().getName());
+        window.loadGuide(guideProject);
         window.open();
         window.requestActive();
     }

@@ -1,13 +1,14 @@
 package org.guideme.guideme.nb.project;
 
 import java.awt.Image;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import javax.swing.Action;
 import org.guideme.guideme.nb.project.resources.Icons;
-import org.guideme.guideme.nb.viewer.PlayGuideAction;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.spi.project.ui.support.CommonProjectActions;
 import org.openide.loaders.DataFolder;
-import org.openide.nodes.AbstractNode;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;
 import org.openide.util.lookup.Lookups;
@@ -65,15 +66,14 @@ public class GuideLogicalViewProvider implements LogicalViewProvider {
         
         @Override
         public Action[] getActions(boolean context) {
-            return new Action[] {
-                new PlayGuideAction(project),
-                CommonProjectActions.closeProjectAction()
-            };
+            Collection<? extends Action> lookupActions = Lookups.forPath("Actions/Guide").lookupAll(Action.class);
+            return lookupActions.toArray(new Action[lookupActions.size()]);
         }
-        
+
         @Override
         public Action getPreferredAction() {
-            return new PlayGuideAction(project);
+            Collection<? extends Action> lookupActions = Lookups.forPath("Actions/Guide-Preferred").lookupAll(Action.class);
+            return !lookupActions.isEmpty() ? lookupActions.iterator().next() : null;
         }
         
         @Override

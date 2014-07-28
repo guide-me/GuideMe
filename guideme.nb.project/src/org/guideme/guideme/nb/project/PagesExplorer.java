@@ -33,16 +33,16 @@ import org.openide.windows.TopComponent;
         iconBase="org/guideme/guideme/nb/project/resources/book_open.png", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "navigator", openAtStartup = false)
+@TopComponent.Registration(mode = "explorer", openAtStartup = false)
 @ActionID(category = "Window", id = "org.guideme.guideme.nb.project.PagesExplorer")
-@ActionReference(path = "Menu/Window", position = 5 , separatorAfter = 9)
+@ActionReference(path = "Menu/Window", position = 15)
 @TopComponent.OpenActionRegistration(
         displayName = "#CTL_PagesExplorerAction",
         preferredID = "PagesExplorer"
 )
 @Messages({
-    "CTL_PagesExplorerAction=Pages",
-    "CTL_PagesExplorer=Pages"
+    "CTL_PagesExplorerAction=Pages Explorer",
+    "CTL_PagesExplorer=Pages Explorer"
  })
 public final class PagesExplorer extends TopComponent implements ExplorerManager.Provider, LookupListener {
 

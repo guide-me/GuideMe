@@ -1,10 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package org.guideme.guideme.nb.viewer;
 
+import org.guideme.guideme.nb.project.GuideProject;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -13,32 +9,31 @@ import org.openide.windows.Mode;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
-/**
- * Top component which displays something.
- */
 @ConvertAsProperties(
         dtd = "-//org.guideme.guideme.nb.viewer//GuidePlayer//EN",
         autostore = false
 )
 @TopComponent.Description(
         preferredID = "GuidePlayerTopComponent",
-        //iconBase="SET/PATH/TO/ICON/HERE", 
+        iconBase="org/guideme/guideme/nb/viewer/resources/book_go.png", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "editor", openAtStartup = false)
 @ActionID(category = "Window", id = "org.guideme.guideme.nb.viewer.GuidePlayerTopComponent")
-@ActionReference(path = "Menu/Window" /*, position = 333 */)
+@ActionReference(path = "Menu/Window", position = 10, separatorAfter = 11)
 @TopComponent.OpenActionRegistration(
         displayName = "#CTL_GuidePlayerAction",
         preferredID = "GuidePlayerTopComponent"
 )
 @Messages({
-    "CTL_GuidePlayerAction=GuidePlayer",
-    "CTL_GuidePlayerTopComponent=GuidePlayer Window",
-    "HINT_GuidePlayerTopComponent=This is a GuidePlayer window"
+    "CTL_GuidePlayerAction=Guide Player",
+    "CTL_GuidePlayerTopComponent=Guide Player",
+    "HINT_GuidePlayerTopComponent=This is the GuidePlayer window"
 })
 public final class GuidePlayerTopComponent extends TopComponent {
 
+    private GuideProject guideProject;
+    
     static GuidePlayerTopComponent findInstance() {
         return (GuidePlayerTopComponent)WindowManager.getDefault().findTopComponent("GuidePlayerTopComponent");
     }
@@ -47,9 +42,16 @@ public final class GuidePlayerTopComponent extends TopComponent {
         initComponents();
         setName(Bundle.CTL_GuidePlayerTopComponent());
         setToolTipText(Bundle.HINT_GuidePlayerTopComponent());
-
     }
 
+    public void loadGuide(GuideProject guideProject) {
+        this.guideProject = guideProject;
+        setDisplayName(guideProject.getGuideName());
+        
+        // TODO: Implement play functionality....
+        guideTitle.setText(this.guideProject.getGuide().Title);
+    }
+    
     @Override
     public void open() {
         Mode mode = WindowManager.getDefault().findMode("editor");
@@ -66,19 +68,33 @@ public final class GuidePlayerTopComponent extends TopComponent {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        guideTitle = new javax.swing.JLabel();
+
+        org.openide.awt.Mnemonics.setLocalizedText(guideTitle, org.openide.util.NbBundle.getMessage(GuidePlayerTopComponent.class, "GuidePlayerTopComponent.guideTitle.text")); // NOI18N
+        guideTitle.setToolTipText(org.openide.util.NbBundle.getMessage(GuidePlayerTopComponent.class, "GuidePlayerTopComponent.guideTitle.toolTipText")); // NOI18N
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 400, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(guideTitle)
+                .addContainerGap(322, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 300, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(guideTitle)
+                .addContainerGap(278, Short.MAX_VALUE))
         );
+
+        guideTitle.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(GuidePlayerTopComponent.class, "GuidePlayerTopComponent.guideTitle.AccessibleContext.accessibleName")); // NOI18N
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel guideTitle;
     // End of variables declaration//GEN-END:variables
     @Override
     public void componentOpened() {
