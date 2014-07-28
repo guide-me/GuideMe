@@ -3,6 +3,7 @@ package org.guideme.guideme.nb.project;
 import java.awt.Image;
 import javax.swing.Action;
 import org.guideme.guideme.nb.project.resources.Icons;
+import org.guideme.guideme.nb.viewer.PlayGuideAction;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
 import org.netbeans.spi.project.ui.support.CommonProjectActions;
 import org.openide.loaders.DataFolder;
@@ -65,8 +66,14 @@ public class GuideLogicalViewProvider implements LogicalViewProvider {
         @Override
         public Action[] getActions(boolean context) {
             return new Action[] {
+                new PlayGuideAction(project),
                 CommonProjectActions.closeProjectAction()
             };
+        }
+        
+        @Override
+        public Action getPreferredAction() {
+            return new PlayGuideAction(project);
         }
         
         @Override
