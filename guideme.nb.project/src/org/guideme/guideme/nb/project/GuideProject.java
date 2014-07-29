@@ -1,11 +1,10 @@
 package org.guideme.guideme.nb.project;
 
 import java.beans.PropertyChangeListener;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import javax.swing.Icon;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
 import org.guideme.guideme.model.Guide;
+import org.guideme.guideme.model.serialization.GuideSerializer;
 import org.guideme.guideme.nb.project.resources.Icons;
 import org.netbeans.api.project.Project;
 import org.netbeans.api.project.ProjectInformation;
@@ -29,9 +28,8 @@ public class GuideProject implements Project {
 
     private Guide parseGuide(FileObject guideFile) {
         try {
-            JAXBContext ctx = JAXBContext.newInstance(Guide.class);
-            return (Guide)ctx.createUnmarshaller().unmarshal(guideFile.getInputStream());
-        } catch (FileNotFoundException | JAXBException ex) {
+            return GuideSerializer.getDefault().ReadGuide(guideFile.getInputStream());
+        } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
             return null;
         }
@@ -42,7 +40,7 @@ public class GuideProject implements Project {
     }
     
     public String getGuideName() {
-        return guide.Title != null ? guide.Title : projectDirectory.getName();
+        return guide.getTitle() != null ? guide.getTitle() : projectDirectory.getName();
     }
     
     @Override

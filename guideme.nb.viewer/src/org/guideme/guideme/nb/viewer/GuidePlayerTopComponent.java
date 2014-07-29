@@ -49,7 +49,7 @@ public final class GuidePlayerTopComponent extends TopComponent {
         setDisplayName(guideProject.getGuideName());
         
         // TODO: Implement play functionality....
-        guideTitle.setText(this.guideProject.getGuide().Title);
+        guideTitle.setText(this.guideProject.getGuide().getTitle());
     }
     
     @Override

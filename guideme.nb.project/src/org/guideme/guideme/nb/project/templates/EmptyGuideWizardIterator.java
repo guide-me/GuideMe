@@ -1,21 +1,19 @@
 package org.guideme.guideme.nb.project.templates;
 
 import java.awt.Component;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.text.MessageFormat;
 import java.util.Enumeration;
 import java.util.LinkedHashSet;
 import java.util.NoSuchElementException;
 import java.util.Set;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
+import org.guideme.guideme.model.Guide;
+import org.guideme.guideme.model.serialization.GuideSerializer;
+import org.guideme.guideme.nb.project.Constants;
 import org.netbeans.api.project.ProjectManager;
 import org.netbeans.api.templates.TemplateRegistration;
 import org.netbeans.spi.project.ui.support.ProjectChooser;
@@ -23,17 +21,11 @@ import org.netbeans.spi.project.ui.templates.support.Templates;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.NbBundle.Messages;
-import org.openide.xml.XMLUtil;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 
 // TODO define position attribute
-@TemplateRegistration(folder = "Project/GuideMe", displayName = "#EmptyGuide_displayName", description = "EmptyGuideDescription.html", iconBase = "org/guideme/guideme/nb/project/templates/EmptyGuide.png", content = "EmptyGuideProject.zip")
+@TemplateRegistration(folder = "Project/GuideMe", displayName = "#EmptyGuide_displayName", description = "EmptyGuideDescription.html", iconBase = "org/guideme/guideme/nb/project/templates/EmptyGuide.png")
 @Messages("EmptyGuide_displayName=Empty Guide")
 public class EmptyGuideWizardIterator implements WizardDescriptor./*Progress*/InstantiatingIterator {
 
@@ -66,7 +58,9 @@ public class EmptyGuideWizardIterator implements WizardDescriptor./*Progress*/In
 
         FileObject template = Templates.getTemplate(wiz);
         FileObject dir = FileUtil.toFileObject(dirF);
-        unZipFile(template.getInputStream(), dir);
+
+        String guideTitle = (String)wiz.getProperty("name");
+        EmptyGuide.create(dir, guideTitle);
 
         // Always open top dir as a project:
         resultSet.add(dir);
@@ -86,6 +80,7 @@ public class EmptyGuideWizardIterator implements WizardDescriptor./*Progress*/In
 
         return resultSet;
     }
+    
 
     public void initialize(WizardDescriptor wiz) {
         this.wiz = wiz;
@@ -155,68 +150,6 @@ public class EmptyGuideWizardIterator implements WizardDescriptor./*Progress*/In
     }
 
     public final void removeChangeListener(ChangeListener l) {
-    }
-
-    private static void unZipFile(InputStream source, FileObject projectRoot) throws IOException {
-        try {
-            ZipInputStream str = new ZipInputStream(source);
-            ZipEntry entry;
-            while ((entry = str.getNextEntry()) != null) {
-                if (entry.isDirectory()) {
-                    FileUtil.createFolder(projectRoot, entry.getName());
-                } else {
-                    FileObject fo = FileUtil.createData(projectRoot, entry.getName());
-                    if ("nbproject/project.xml".equals(entry.getName())) {
-                        // Special handling for setting name of Ant-based projects; customize as needed:
-                        filterProjectXML(fo, str, projectRoot.getName());
-                    } else {
-                        writeFile(str, fo);
-                    }
-                }
-            }
-        } finally {
-            source.close();
-        }
-    }
-
-    private static void writeFile(ZipInputStream str, FileObject fo) throws IOException {
-        OutputStream out = fo.getOutputStream();
-        try {
-            FileUtil.copy(str, out);
-        } finally {
-            out.close();
-        }
-    }
-
-    private static void filterProjectXML(FileObject fo, ZipInputStream str, String name) throws IOException {
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            FileUtil.copy(str, baos);
-            Document doc = XMLUtil.parse(new InputSource(new ByteArrayInputStream(baos.toByteArray())), false, false, null, null);
-            NodeList nl = doc.getDocumentElement().getElementsByTagName("name");
-            if (nl != null) {
-                for (int i = 0; i < nl.getLength(); i++) {
-                    Element el = (Element) nl.item(i);
-                    if (el.getParentNode() != null && "data".equals(el.getParentNode().getNodeName())) {
-                        NodeList nl2 = el.getChildNodes();
-                        if (nl2.getLength() > 0) {
-                            nl2.item(0).setNodeValue(name);
-                        }
-                        break;
-                    }
-                }
-            }
-            OutputStream out = fo.getOutputStream();
-            try {
-                XMLUtil.write(doc, out, "UTF-8");
-            } finally {
-                out.close();
-            }
-        } catch (Exception ex) {
-            Exceptions.printStackTrace(ex);
-            writeFile(str, fo);
-        }
-
     }
 
 }
