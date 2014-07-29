@@ -15,11 +15,6 @@ public class Guide {
     @XmlElement(name = "Title")
     private String title;
 
-    @XmlElementWrapper(name = "Chapters")
-    @XmlElement(name = "Chapter")
-    private List<Chapter> chapters = new ArrayList<>();
-
-    
     public String getTitle() {
         return title;
     }
@@ -28,11 +23,27 @@ public class Guide {
         this.title = title;
     }
     
+    @XmlElementWrapper(name = "Pages")
+    @XmlElement(name = "Page")
+    private List<Page> pages = new ArrayList<>();
+
+    public List<Page> getPages() {
+        return pages;
+    }
+
+    public void setPages(List<Page> pages) {
+        this.pages = pages;
+    }
+    
+    @XmlElementWrapper(name = "Chapters")
+    @XmlElement(name = "Chapter")
+    private List<Chapter> chapters = new ArrayList<>();
+
     public List<Chapter> getChapters() {
         return chapters;
     }
     
-    public void setPages(List<Chapter> chapters) {
+    public void setChapters(List<Chapter> chapters) {
         this.chapters = chapters;
     }
 

@@ -3,6 +3,7 @@ package org.guideme.guideme.nb.project;
 import java.awt.BorderLayout;
 import java.awt.Image;
 import java.beans.IntrospectionException;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import org.guideme.guideme.model.Chapter;
@@ -12,11 +13,13 @@ import org.guideme.guideme.nb.project.resources.Icons;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.explorer.ExplorerManager;
+import org.openide.explorer.ExplorerUtils;
 import org.openide.explorer.view.BeanTreeView;
 import org.openide.nodes.AbstractNode;
 import org.openide.nodes.BeanNode;
 import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Children;
+import org.openide.nodes.Index;
 import org.openide.nodes.Node;
 import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
@@ -85,43 +88,40 @@ public final class PagesExplorer extends TopComponent implements ExplorerManager
     }
     
     private void loadTree(Guide guide) {
+        Node guideNode = new AbstractNode(new GuideChildren(guide));
         
-        Children chapterNodes = Children.create(new ChapterBeanNodeChildFactory(guide.getChapters()), true);
-        Node guideNode = new AbstractNode(chapterNodes);
-
+        //associateLookup(ExplorerUtils.createLookup(explorerManager, getActionMap()));
         explorerManager.setRootContext(guideNode);
     }
+ 
     
-    
-    
-    private class ChapterBeanNodeChildFactory extends ChildFactory<Chapter> {
-
-        private final List<Chapter> chapters;
-
-        public ChapterBeanNodeChildFactory(List<Chapter> chapters) {
-            this.chapters = chapters;
-        }
+    private class GuideChildren extends Index.ArrayChildren {
         
-        
-        @Override
-        protected boolean createKeys(List<Chapter> toPopulate) {
-            toPopulate.addAll(chapters);
-            return true;
+        private final Guide guide;
+
+        public GuideChildren(Guide guide) {
+            this.guide = guide;
         }
         
         @Override
-        protected Node createNodeForKey(Chapter chapter) {
-            ChapterBeanNode result = null;
+        protected java.util.List<Node> initCollection() {
+            ArrayList result = new ArrayList(); 
+            
             try {
-                Children pageNodes = Children.create(new PageBeanNodeChildFactory(chapter.getPages()), true);
-
-                result = new ChapterBeanNode(chapter, pageNodes);
+                for (Page page : guide.getPages()) {
+                    result.add(new PageBeanNode(page));
+                }
+                for (Chapter chapter : guide.getChapters()) {
+                    Children pageNodes = Children.create(new PageBeanNodeChildFactory(chapter.getPages()), true);
+                    result.add(new ChapterBeanNode(chapter, pageNodes));
+                }
+                
             } catch (IntrospectionException ex) {
                 Exceptions.printStackTrace(ex);
             }
+            
             return result;
         }
-        
     }
     
     private class ChapterBeanNode extends BeanNode {
