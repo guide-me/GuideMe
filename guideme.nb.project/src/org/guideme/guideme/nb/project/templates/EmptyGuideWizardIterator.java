@@ -11,9 +11,6 @@ import java.util.NoSuchElementException;
 import java.util.Set;
 import javax.swing.JComponent;
 import javax.swing.event.ChangeListener;
-import javax.xml.bind.JAXBContext;
-import javax.xml.bind.JAXBException;
-import javax.xml.bind.Marshaller;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.serialization.GuideSerializer;
 import org.guideme.guideme.nb.project.Constants;
@@ -24,7 +21,6 @@ import org.netbeans.spi.project.ui.templates.support.Templates;
 import org.openide.WizardDescriptor;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
 import org.openide.util.NbBundle.Messages;
 
@@ -63,10 +59,8 @@ public class EmptyGuideWizardIterator implements WizardDescriptor./*Progress*/In
         FileObject template = Templates.getTemplate(wiz);
         FileObject dir = FileUtil.toFileObject(dirF);
 
-        Guide guide = EmptyGuideFactory.create((String)wiz.getProperty("name"));
-        try (OutputStream stream = dir.createAndOpen(Constants.GUIDE_FILE)) {
-            GuideSerializer.getDefault().WriteGuide(guide, stream);
-        }
+        String guideTitle = (String)wiz.getProperty("name");
+        EmptyGuide.create(dir, guideTitle);
 
         // Always open top dir as a project:
         resultSet.add(dir);
