@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import org.guideme.guideme.model.Page;
 
 /**
@@ -17,6 +18,14 @@ class XmlPageAdapter {
     @XmlElement(name = "Text")
     public String Text;
     
+    @XmlElementWrapper(name = "Images")
+    @XmlElement(name = "Image")
+    public XmlImageAdapter[] Images;
+        
+    @XmlElementWrapper(name = "Buttons")
+    @XmlElement(name = "Button")
+    public XmlButtonAdapter[] Buttons;
+    
 
     public XmlPageAdapter() {
     }
@@ -24,12 +33,25 @@ class XmlPageAdapter {
     public XmlPageAdapter(Page page) {
         this.Id = page.getId();
         this.Text = page.getText();
+        this.Images = XmlImageAdapter.fromList(page.getImages());
+        this.Buttons = XmlButtonAdapter.fromList(page.getButtons());
     }
 
     public Page toPage() {
         Page page = new Page();
         page.setId(this.Id);
         page.setText(this.Text);
+        
+        if (this.Images != null && this.Images.length > 0) {
+            for (int i = 0; i < this.Images.length; i++) {
+                page.addImage(this.Images[i].toImage());
+            }
+        }
+        if (this.Buttons != null && this.Buttons.length > 0) {
+            for (int i = 0; i < this.Buttons.length; i++) {
+                page.addButton(this.Buttons[i].toButton());
+            }
+        }
         return page;
     }
 

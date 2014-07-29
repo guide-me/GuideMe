@@ -6,7 +6,17 @@ import java.util.List;
 public class Chapter {
 
     private String id;
+    private final ArrayList<Page> pages = new ArrayList<>();
 
+    
+    public Chapter() {
+    }
+
+    public Chapter(String id) {
+        this.id = id;
+    }
+
+    
     public String getId() {
         return id;
     }
@@ -15,21 +25,13 @@ public class Chapter {
         this.id = id;
     }
 
-    private List<Page> pages = new ArrayList<>();
-
     public List<Page> getPages() {
         return pages;
     }
 
     public void setPages(List<Page> pages) {
-        this.pages = pages;
-    }
-
-    public Chapter() {
-    }
-
-    public Chapter(String id) {
-        this.id = id;
+        this.pages.clear();
+        this.pages.addAll(pages);
     }
 
     public Page addPage(String id) {

@@ -6,7 +6,18 @@ import java.util.List;
 public class Guide {
 
     private String title;
+    private final ArrayList<Page> pages = new ArrayList<>();
+    private final ArrayList<Chapter> chapters = new ArrayList<>();
 
+    
+    public Guide() {
+    }
+    
+    public Guide(String title) {
+        this.title = title;
+    }
+    
+    
     public String getTitle() {
         return title;
     }
@@ -15,24 +26,22 @@ public class Guide {
         this.title = title;
     }
     
-    private List<Page> pages = new ArrayList<>();
-
     public List<Page> getPages() {
         return pages;
     }
 
     public void setPages(List<Page> pages) {
-        this.pages = pages;
+        this.pages.clear();
+        this.pages.addAll(pages);
     }
-
-    private List<Chapter> chapters = new ArrayList<>();
 
     public List<Chapter> getChapters() {
         return chapters;
     }
 
     public void setChapters(List<Chapter> chapters) {
-        this.chapters = chapters;
+        this.chapters.clear();
+        this.chapters.addAll(chapters);
     }
 
     public Page addPage(String id) {

@@ -5,8 +5,7 @@ import org.guideme.guideme.model.Guide;
 public class EmptyGuideFactory {
 
     public static Guide create(String title) {
-        Guide guide = new Guide();
-        guide.setTitle(title);
+        Guide guide = new Guide(title);
         guide.addPage("start").setText("Welcome");
         return guide;
     }
