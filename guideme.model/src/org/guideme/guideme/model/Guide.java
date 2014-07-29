@@ -2,29 +2,19 @@ package org.guideme.guideme.model;
 
 import java.util.ArrayList;
 import java.util.List;
-import javax.xml.bind.annotation.XmlAccessType;
-import javax.xml.bind.annotation.XmlAccessorType;
-import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlRootElement;
 
-@XmlRootElement(name = "Guide")
-@XmlAccessorType(XmlAccessType.FIELD)
 public class Guide {
-    
-    @XmlElement(name = "Title")
+
     private String title;
 
     public String getTitle() {
         return title;
     }
-    
+
     public void setTitle(String title) {
         this.title = title;
     }
     
-    @XmlElementWrapper(name = "Pages")
-    @XmlElement(name = "Page")
     private List<Page> pages = new ArrayList<>();
 
     public List<Page> getPages() {
@@ -34,17 +24,33 @@ public class Guide {
     public void setPages(List<Page> pages) {
         this.pages = pages;
     }
-    
-    @XmlElementWrapper(name = "Chapters")
-    @XmlElement(name = "Chapter")
+
     private List<Chapter> chapters = new ArrayList<>();
 
     public List<Chapter> getChapters() {
         return chapters;
     }
-    
+
     public void setChapters(List<Chapter> chapters) {
         this.chapters = chapters;
+    }
+
+    public Page addPage(String id) {
+        return addPage(new Page(id));
+    }
+
+    public Page addPage(Page page) {
+        pages.add(page);
+        return page;
+    }
+
+    public Chapter addChapter(String id) {
+        return addChapter(new Chapter(id));
+    }
+
+    public Chapter addChapter(Chapter chapter) {
+        chapters.add(chapter);
+        return chapter;
     }
 
 }

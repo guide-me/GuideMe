@@ -1,13 +1,10 @@
 package org.guideme.guideme.nb.project;
 
 import java.awt.Image;
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import javax.swing.Action;
 import org.guideme.guideme.nb.project.resources.Icons;
 import org.netbeans.spi.project.ui.LogicalViewProvider;
-import org.netbeans.spi.project.ui.support.CommonProjectActions;
 import org.openide.loaders.DataFolder;
 import org.openide.nodes.FilterNode;
 import org.openide.nodes.Node;

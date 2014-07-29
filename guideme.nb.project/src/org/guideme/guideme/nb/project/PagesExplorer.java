@@ -89,8 +89,6 @@ public final class PagesExplorer extends TopComponent implements ExplorerManager
     
     private void loadTree(Guide guide) {
         Node guideNode = new AbstractNode(new GuideChildren(guide));
-        
-        //associateLookup(ExplorerUtils.createLookup(explorerManager, getActionMap()));
         explorerManager.setRootContext(guideNode);
     }
  
