@@ -10,7 +10,9 @@ import org.netbeans.spi.project.ui.support.ProjectChooser;
 import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
 import org.openide.filesystems.FileUtil;
+import org.openide.util.NbBundle.Messages;
 
+@Messages("LBL_SelectGuideLocation=Select Guide Location")
 public class EmptyGuidePanelVisual extends JPanel implements DocumentListener {
 
     public static final String PROP_PROJECT_NAME = "projectName";
@@ -76,9 +78,9 @@ public class EmptyGuidePanelVisual extends JPanel implements DocumentListener {
                     .addComponent(createdFolderLabel))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(projectNameTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
-                    .addComponent(projectLocationTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
-                    .addComponent(createdFolderTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE))
+                    .addComponent(projectNameTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+                    .addComponent(projectLocationTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE)
+                    .addComponent(createdFolderTextField, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(browseButton)
                 .addContainerGap())
@@ -108,7 +110,7 @@ public class EmptyGuidePanelVisual extends JPanel implements DocumentListener {
         if ("BROWSE".equals(command)) {
             JFileChooser chooser = new JFileChooser();
             FileUtil.preventFileChooserSymlinkTraversal(chooser, null);
-            chooser.setDialogTitle("Select Project Location");
+            chooser.setDialogTitle(Bundle.LBL_SelectGuideLocation());
             chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             String path = this.projectLocationTextField.getText();
             if (path.length() > 0) {
@@ -148,12 +150,12 @@ public class EmptyGuidePanelVisual extends JPanel implements DocumentListener {
         if (projectNameTextField.getText().length() == 0) {
             // TODO if using org.openide.dialogs >= 7.8, can use WizardDescriptor.PROP_ERROR_MESSAGE:
             wizardDescriptor.putProperty("WizardPanel_errorMessage",
-                    "Project Name is not a valid folder name.");
+                    "Guide Name is not a valid folder name.");
             return false; // Display name not specified
         }
         File f = FileUtil.normalizeFile(new File(projectLocationTextField.getText()).getAbsoluteFile());
         if (!f.isDirectory()) {
-            String message = "Project Folder is not a valid path.";
+            String message = "Guide Folder is not a valid path.";
             wizardDescriptor.putProperty("WizardPanel_errorMessage", message);
             return false;
         }
@@ -165,12 +167,12 @@ public class EmptyGuidePanelVisual extends JPanel implements DocumentListener {
         }
         if (projLoc == null || !projLoc.canWrite()) {
             wizardDescriptor.putProperty("WizardPanel_errorMessage",
-                    "Project Folder cannot be created.");
+                    "Guide Folder cannot be created.");
             return false;
         }
 
         if (FileUtil.toFileObject(projLoc) == null) {
-            String message = "Project Folder is not a valid path.";
+            String message = "Guide Folder is not a valid path.";
             wizardDescriptor.putProperty("WizardPanel_errorMessage", message);
             return false;
         }
@@ -179,7 +181,7 @@ public class EmptyGuidePanelVisual extends JPanel implements DocumentListener {
         if (destFolder.exists() && kids != null && kids.length > 0) {
             // Folder exists and is not empty
             wizardDescriptor.putProperty("WizardPanel_errorMessage",
-                    "Project Folder already exists and is not empty.");
+                    "Guide Folder already exists and is not empty.");
             return false;
         }
         wizardDescriptor.putProperty("WizardPanel_errorMessage", "");
