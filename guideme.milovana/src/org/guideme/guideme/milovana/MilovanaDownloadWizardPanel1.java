@@ -37,11 +37,11 @@ public class MilovanaDownloadWizardPanel1 implements WizardDescriptor.Panel<Wiza
 
     @Override
     public boolean isValid() {
-        return getComponent().getGuide() != null;
         // If it depends on some condition (form filled out...) and
         // this condition changes (last form field filled in...) then
         // use ChangeSupport to implement add/removeChangeListener below.
         // WizardDescriptor.ERROR/WARNING/INFORMATION_MESSAGE will also be useful.
+        return getComponent().getGuide() != null;
     }
 
     private final Set<ChangeListener> listeners = new HashSet<>();
