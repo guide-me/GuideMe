@@ -56,6 +56,9 @@ public class MilovanaDownloadWizardPanel3 implements WizardDescriptor.Panel<Wiza
         // use wiz.getProperty to retrieve previous panel state
         teaseId = (String) wiz.getProperty("teaseId");
         destinationFolder = (File) wiz.getProperty("destinationFolder");
+                
+        component.addProgress("Download started...");
+        startDownload();
     }
 
     @Override
@@ -93,7 +96,6 @@ public class MilovanaDownloadWizardPanel3 implements WizardDescriptor.Panel<Wiza
     void startDownload() {
         // TODO add async progress reporting.
 
-        component.startDownloadButtonEnabled(false);
         downloadCompleted = false;
         addChangeListener(this);
 

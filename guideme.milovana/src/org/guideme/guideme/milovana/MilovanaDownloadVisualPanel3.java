@@ -28,11 +28,7 @@ public final class MilovanaDownloadVisualPanel3 extends JPanel {
     void addProgress(String text) {
         this.progressTextField.append(text + "\n");
     }
-    
-    void startDownloadButtonEnabled(boolean enabled) {
-        this.startDownloadButton.setEnabled(enabled);
-    }
-    
+        
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -41,21 +37,16 @@ public final class MilovanaDownloadVisualPanel3 extends JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        startDownloadButton = new javax.swing.JButton();
         jScrollPane1 = new javax.swing.JScrollPane();
         progressTextField = new javax.swing.JTextArea();
-
-        org.openide.awt.Mnemonics.setLocalizedText(startDownloadButton, org.openide.util.NbBundle.getMessage(MilovanaDownloadVisualPanel3.class, "MilovanaDownloadVisualPanel3.startDownloadButton.text")); // NOI18N
-        startDownloadButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                startDownloadButtonActionPerformed(evt);
-            }
-        });
+        jLabel1 = new javax.swing.JLabel();
 
         progressTextField.setEditable(false);
         progressTextField.setColumns(20);
         progressTextField.setRows(5);
         jScrollPane1.setViewportView(progressTextField);
+
+        org.openide.awt.Mnemonics.setLocalizedText(jLabel1, org.openide.util.NbBundle.getMessage(MilovanaDownloadVisualPanel3.class, "MilovanaDownloadVisualPanel3.jLabel1.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -64,34 +55,27 @@ public final class MilovanaDownloadVisualPanel3 extends JPanel {
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 539, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addGap(6, 6, 6)
-                        .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 533, Short.MAX_VALUE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(startDownloadButton)
+                        .addComponent(jLabel1)
                         .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(startDownloadButton)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 247, Short.MAX_VALUE)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 266, Short.MAX_VALUE)
                 .addContainerGap())
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void startDownloadButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_startDownloadButtonActionPerformed
-        // TODO add your handling code here:
-        panel.startDownload();
-    }//GEN-LAST:event_startDownloadButtonActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextArea progressTextField;
-    private javax.swing.JButton startDownloadButton;
     // End of variables declaration//GEN-END:variables
 
 }

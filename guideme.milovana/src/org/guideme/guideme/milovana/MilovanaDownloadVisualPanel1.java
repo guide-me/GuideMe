@@ -8,6 +8,7 @@ import org.guideme.guideme.model.Guide;
 public final class MilovanaDownloadVisualPanel1 extends JPanel implements DocumentListener {
 
     private final MilovanaDownloadWizardPanel1 panel;
+
     /**
      * Creates new form MilovanaHtmlDownloadVisualPanel1
      */
@@ -21,13 +22,13 @@ public final class MilovanaDownloadVisualPanel1 extends JPanel implements Docume
     public String getName() {
         return "Select Tease";
     }
-    
+
     public String getTeaseId() {
         return teaseIdTextField.getText();
     }
-    
+
     private Guide guide;
-    
+
     public Guide getGuide() {
         return guide;
     }
@@ -145,13 +146,19 @@ public final class MilovanaDownloadVisualPanel1 extends JPanel implements Docume
         // TODO add your handling code here:
         if (getTeaseId() != null && getTeaseId().length() > 0) {
             guide = new HtmlTeaseConverter().createGuide(getTeaseId(), false);
-            titleTextField.setText(guide.getTitle());
-            authorTextField.setText(guide.getAuthorName());
+            if (guide.getTitle() != null && guide.getTitle().length() > 0) {
+                titleTextField.setText(guide.getTitle());
+                authorTextField.setText(guide.getAuthorName());
+            } else {
+                guide = null;
+                titleTextField.setText("");
+                authorTextField.setText("");
+            }
         } else {
             guide = null;
             titleTextField.setText("");
             authorTextField.setText("");
-        } 
+        }
     }//GEN-LAST:event_goButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -184,7 +191,7 @@ public final class MilovanaDownloadVisualPanel1 extends JPanel implements Docume
         panel.fireChangeEvent();
         updateUI(e);
     }
-    
+
     public void updateUI(DocumentEvent e) {
         if (this.titleTextField.getDocument() == e.getDocument()) {
             firePropertyChange("Tease Title", null, this.titleTextField.getText());

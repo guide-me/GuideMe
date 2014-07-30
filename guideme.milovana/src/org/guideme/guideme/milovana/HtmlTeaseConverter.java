@@ -92,7 +92,7 @@ public class HtmlTeaseConverter {
 
         int pageNr = 1;
         Document document = loadPage(id, pageNr);
-        if (document != null) {
+        if (document != null && document.select("#tease_title").size() > 0) {
             readGeneralInformation(guide, document, id, loadAll);
             Page page = guide.addPage(readPage(document, pageNr));
             if (loadAll) {
