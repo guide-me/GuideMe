@@ -1,5 +1,6 @@
 package org.guideme.guideme.model.serialization;
 
+import java.util.Arrays;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
 import javax.xml.bind.annotation.XmlElement;
@@ -26,6 +27,16 @@ class XmlGuideAdapter {
     @XmlElement(name = "AuthorUrl")
     public String AuthorUrl;
     
+    @XmlElement(name = "Description")
+    public String Description;
+    
+    @XmlElement(name = "Thumbnail")
+    public String Thumbnail;
+    
+    @XmlElementWrapper(name = "Keywords")
+    @XmlElement(name = "Keyword")
+    public String[] Keywords;
+    
     @XmlElementWrapper(name = "Pages")
     @XmlElement(name = "Page")
     public XmlPageAdapter[] Pages;
@@ -43,7 +54,10 @@ class XmlGuideAdapter {
         this.OriginalUrl = guide.getOriginalUrl();
         this.AuthorName = guide.getAuthorName();
         this.AuthorUrl = guide.getAuthorUrl();
-        
+        this.Description = guide.getDescription();
+        this.Thumbnail = guide.getThumbnail();
+        this.Keywords = guide.getKeywords().isEmpty() ? null : guide.getKeywords().toArray(new String[guide.getKeywords().size()]);
+
         this.Pages = XmlPageAdapter.fromList(guide.getPages());
         this.Chapters = XmlChapterAdapter.fromList(guide.getChapters());
     }
@@ -55,6 +69,11 @@ class XmlGuideAdapter {
         guide.setOriginalUrl(this.OriginalUrl);
         guide.setAuthorName(AuthorName);
         guide.setAuthorUrl(AuthorUrl);
+        guide.setDescription(Description);
+        guide.setThumbnail(Thumbnail);
+        if (this.Keywords != null && this.Keywords.length > 0) {
+            guide.setKeywords(Arrays.asList(this.Keywords));
+        }
 
         if (this.Pages != null && this.Pages.length > 0) {
             for (XmlPageAdapter Page : this.Pages) {

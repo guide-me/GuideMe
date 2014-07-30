@@ -24,6 +24,7 @@ public final class MilovanaDownloadWizardAction implements ActionListener {
         List<WizardDescriptor.Panel<WizardDescriptor>> panels = new ArrayList<>();
         panels.add(new MilovanaDownloadWizardPanel1());
         panels.add(new MilovanaDownloadWizardPanel2());
+        panels.add(new MilovanaDownloadWizardPanel3());
         String[] steps = new String[panels.size()];
         for (int i = 0; i < panels.size(); i++) {
             Component c = panels.get(i).getComponent();
