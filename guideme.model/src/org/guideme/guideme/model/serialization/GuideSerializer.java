@@ -3,6 +3,7 @@ package org.guideme.guideme.model.serialization;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import javax.tools.FileObject;
 import org.guideme.guideme.model.Guide;
 
 public class GuideSerializer {
