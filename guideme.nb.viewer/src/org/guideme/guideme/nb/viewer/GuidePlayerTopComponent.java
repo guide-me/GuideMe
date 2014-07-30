@@ -1,6 +1,7 @@
 package org.guideme.guideme.nb.viewer;
 
 import org.guideme.guideme.nb.project.GuideProject;
+import org.guideme.guideme.nb.viewer.decorators.PageDecorator;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -32,7 +33,7 @@ import org.openide.windows.WindowManager;
 })
 public final class GuidePlayerTopComponent extends TopComponent {
 
-    private GuideProject guideProject;
+    private GuidePlayer guidePlayer;
     
     static GuidePlayerTopComponent findInstance() {
         return (GuidePlayerTopComponent)WindowManager.getDefault().findTopComponent("GuidePlayerTopComponent");
@@ -45,11 +46,23 @@ public final class GuidePlayerTopComponent extends TopComponent {
     }
 
     public void loadGuide(GuideProject guideProject) {
-        this.guideProject = guideProject;
-        setDisplayName(guideProject.getGuideName());
+        guidePlayer = new GuidePlayer(guideProject);
+        
+        setDisplayName(guidePlayer.getTitle());
         
         // TODO: Implement play functionality....
-        guideTitle.setText(this.guideProject.getGuide().getTitle());
+        guidePlayer.start();
+        
+        // TODO subscribe to guidePlayer.currentPageChanged event
+        showPage(guidePlayer.getCurrentPage());
+    }
+    
+    void showPage(PageDecorator page) {
+        pageId.setText(page.getPage().getId());
+        textTextArea.setText(page.getPage().getText());
+        imageUrl.setText(page.getPage().getImages().get(0).getId());
+        
+        continueButton.setVisible(page.hasAvailableButton());
     }
     
     @Override
@@ -68,10 +81,28 @@ public final class GuidePlayerTopComponent extends TopComponent {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        guideTitle = new javax.swing.JLabel();
+        pageId = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        textTextArea = new javax.swing.JTextArea();
+        continueButton = new javax.swing.JButton();
+        imageUrl = new javax.swing.JLabel();
 
-        org.openide.awt.Mnemonics.setLocalizedText(guideTitle, org.openide.util.NbBundle.getMessage(GuidePlayerTopComponent.class, "GuidePlayerTopComponent.guideTitle.text")); // NOI18N
-        guideTitle.setToolTipText(org.openide.util.NbBundle.getMessage(GuidePlayerTopComponent.class, "GuidePlayerTopComponent.guideTitle.toolTipText")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(pageId, org.openide.util.NbBundle.getMessage(GuidePlayerTopComponent.class, "GuidePlayerTopComponent.pageId.text")); // NOI18N
+        pageId.setToolTipText(org.openide.util.NbBundle.getMessage(GuidePlayerTopComponent.class, "GuidePlayerTopComponent.pageId.toolTipText")); // NOI18N
+
+        textTextArea.setEditable(false);
+        textTextArea.setColumns(20);
+        textTextArea.setRows(5);
+        jScrollPane1.setViewportView(textTextArea);
+
+        org.openide.awt.Mnemonics.setLocalizedText(continueButton, org.openide.util.NbBundle.getMessage(GuidePlayerTopComponent.class, "GuidePlayerTopComponent.continueButton.text")); // NOI18N
+        continueButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                continueButtonActionPerformed(evt);
+            }
+        });
+
+        org.openide.awt.Mnemonics.setLocalizedText(imageUrl, org.openide.util.NbBundle.getMessage(GuidePlayerTopComponent.class, "GuidePlayerTopComponent.imageUrl.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -79,22 +110,50 @@ public final class GuidePlayerTopComponent extends TopComponent {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(guideTitle)
-                .addContainerGap(322, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 467, Short.MAX_VALUE)
+                    .addGroup(layout.createSequentialGroup()
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(pageId)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGap(6, 6, 6)
+                                .addComponent(imageUrl)))
+                        .addGap(0, 0, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addGap(0, 0, Short.MAX_VALUE)
+                        .addComponent(continueButton)))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(guideTitle)
-                .addContainerGap(278, Short.MAX_VALUE))
+                .addComponent(pageId)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 123, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(imageUrl)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(continueButton)
+                .addContainerGap(92, Short.MAX_VALUE))
         );
 
-        guideTitle.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(GuidePlayerTopComponent.class, "GuidePlayerTopComponent.guideTitle.AccessibleContext.accessibleName")); // NOI18N
+        pageId.getAccessibleContext().setAccessibleName(org.openide.util.NbBundle.getMessage(GuidePlayerTopComponent.class, "GuidePlayerTopComponent.pageId.AccessibleContext.accessibleName")); // NOI18N
     }// </editor-fold>//GEN-END:initComponents
 
+    private void continueButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_continueButtonActionPerformed
+        // TODO add your handling code here:
+        guidePlayer.buttonPressed(guidePlayer.getCurrentPage().getAvailableButton());
+        // TODO this should automatically happened as we are subcribed to the page changed event.
+        showPage(guidePlayer.getCurrentPage());
+    }//GEN-LAST:event_continueButtonActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JLabel guideTitle;
+    private javax.swing.JButton continueButton;
+    private javax.swing.JLabel imageUrl;
+    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JLabel pageId;
+    private javax.swing.JTextArea textTextArea;
     // End of variables declaration//GEN-END:variables
     @Override
     public void componentOpened() {

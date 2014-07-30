@@ -1,6 +1,5 @@
 package org.guideme.guideme.nb.viewer;
 
-import java.awt.Image;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import org.guideme.guideme.nb.project.GuideProject;
@@ -9,8 +8,6 @@ import org.netbeans.api.project.Project;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
-import org.openide.loaders.DataFolder;
-import org.openide.loaders.DataObject;
 import org.openide.util.NbBundle.Messages;
 
 @ActionID(
