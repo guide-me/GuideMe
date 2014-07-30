@@ -209,9 +209,9 @@ public class HtmlTeaseConverter {
 
         Elements elm = doc.select("#tease_content").select(".text");
         if (elm.size() > 0) {
-            String text = elm.first().text().replace('\r', ' ').replace('\n', ' ');
+            String text = elm.first().html().replace('\r', ' ').replace('\n', ' ');
             text = CharSetUtils.squeeze(text, " ");
-            page.setText(text);
+            page.setText("<p>" + text + "</p>");
         }
 
         Elements elmImg = doc.select(".tease_pic");
