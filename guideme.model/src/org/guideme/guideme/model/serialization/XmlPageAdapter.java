@@ -43,13 +43,13 @@ class XmlPageAdapter {
         page.setText(this.Text);
         
         if (this.Images != null && this.Images.length > 0) {
-            for (int i = 0; i < this.Images.length; i++) {
-                page.addImage(this.Images[i].toImage());
+            for (XmlImageAdapter Image : this.Images) {
+                page.addImage(Image.toImage());
             }
         }
         if (this.Buttons != null && this.Buttons.length > 0) {
-            for (int i = 0; i < this.Buttons.length; i++) {
-                page.addButton(this.Buttons[i].toButton());
+            for (XmlButtonAdapter Button : this.Buttons) {
+                page.addButton(Button.toButton());
             }
         }
         return page;

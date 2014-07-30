@@ -17,6 +17,15 @@ class XmlGuideAdapter {
     @XmlElement(name = "Title")
     public String Title;
     
+    @XmlElement(name = "OriginalUrl")
+    public String OriginalUrl;
+    
+    @XmlElement(name = "AuthorName")
+    public String AuthorName;
+    
+    @XmlElement(name = "AuthorUrl")
+    public String AuthorUrl;
+    
     @XmlElementWrapper(name = "Pages")
     @XmlElement(name = "Page")
     public XmlPageAdapter[] Pages;
@@ -31,6 +40,10 @@ class XmlGuideAdapter {
 
     public XmlGuideAdapter(Guide guide) {
         this.Title = guide.getTitle();
+        this.OriginalUrl = guide.getOriginalUrl();
+        this.AuthorName = guide.getAuthorName();
+        this.AuthorUrl = guide.getAuthorUrl();
+        
         this.Pages = XmlPageAdapter.fromList(guide.getPages());
         this.Chapters = XmlChapterAdapter.fromList(guide.getChapters());
     }
@@ -39,16 +52,19 @@ class XmlGuideAdapter {
         Guide guide = new Guide();
         
         guide.setTitle(this.Title);
+        guide.setOriginalUrl(this.OriginalUrl);
+        guide.setAuthorName(AuthorName);
+        guide.setAuthorUrl(AuthorUrl);
 
         if (this.Pages != null && this.Pages.length > 0) {
-            for (int i = 0; i < this.Pages.length; i++) {
-                guide.addPage(this.Pages[i].toPage());
+            for (XmlPageAdapter Page : this.Pages) {
+                guide.addPage(Page.toPage());
             }
         }
 
         if (this.Chapters != null && this.Chapters.length > 0) {
-            for (int i = 0; i < this.Chapters.length; i++) {
-                guide.addChapter(this.Chapters[i].toChapter());
+            for (XmlChapterAdapter Chapter : this.Chapters) {
+                guide.addChapter(Chapter.toChapter());
             }
         }
         

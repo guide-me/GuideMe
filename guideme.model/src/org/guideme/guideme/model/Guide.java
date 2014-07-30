@@ -6,6 +6,9 @@ import java.util.List;
 public class Guide {
 
     private String title;
+    private String originalUrl;
+    private String authorName;
+    private String authorUrl;
     private final ArrayList<Page> pages = new ArrayList<>();
     private final ArrayList<Chapter> chapters = new ArrayList<>();
 
@@ -24,6 +27,30 @@ public class Guide {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+    
+    public String getOriginalUrl() {
+        return originalUrl;
+    }
+    
+    public void setOriginalUrl(String originalUrl) {
+        this.originalUrl = originalUrl;
+    }
+    
+    public String getAuthorName() {
+        return authorName;
+    }
+    
+    public void setAuthorName(String authorName) {
+        this.authorName = authorName;
+    }
+    
+    public String getAuthorUrl() {
+        return authorUrl;
+    }
+    
+    public void setAuthorUrl(String authorUrl) {
+        this.authorUrl = authorUrl;
     }
     
     public List<Page> getPages() {

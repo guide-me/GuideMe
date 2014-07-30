@@ -33,8 +33,8 @@ class XmlChapterAdapter {
         chapter.setId(this.Id);
         
         if (this.Pages != null && this.Pages.length > 0) {
-            for (int i = 0; i < this.Pages.length; i++) {
-                chapter.addPage(this.Pages[i].toPage());
+            for (XmlPageAdapter Page : this.Pages) {
+                chapter.addPage(Page.toPage());
             }
         }
         

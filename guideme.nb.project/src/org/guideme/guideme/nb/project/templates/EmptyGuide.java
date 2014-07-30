@@ -11,7 +11,8 @@ public class EmptyGuide {
 
     public static void create(FileObject projectDirectory, String title) throws IOException {
         
-        Guide guide = new Guide(title);
+        Guide guide = new Guide();
+        guide.setTitle(title);
         try (OutputStream stream = projectDirectory.createAndOpen(Constants.GUIDE_FILE)) {
             GuideSerializer.getDefault().WriteGuide(guide, stream);
         }

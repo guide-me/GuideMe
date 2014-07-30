@@ -11,7 +11,7 @@ import org.guideme.guideme.model.Button;
  */
 class XmlButtonAdapter {
     
-    @XmlAttribute(name = "targett")
+    @XmlAttribute(name = "target")
     public String Target;
     
     @XmlElement(name = "Text")
