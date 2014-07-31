@@ -1,8 +1,12 @@
 package org.guideme.guideme.player.ui;
 
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import org.guideme.guideme.player.CurrentPageChangeEvent;
+import org.guideme.guideme.player.CurrentPageChangeListener;
 import org.guideme.guideme.player.GuidePlayer;
-import org.guideme.guideme.project.GuideProject;
 import org.guideme.guideme.player.PageDecorator;
+import org.guideme.guideme.project.GuideProject;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
@@ -32,7 +36,7 @@ import org.openide.windows.WindowManager;
     "CTL_GuidePlayerTopComponent=Guide Player",
     "HINT_GuidePlayerTopComponent=This is the GuidePlayer window"
 })
-public final class GuidePlayerTopComponent extends TopComponent {
+public final class GuidePlayerTopComponent extends TopComponent implements CurrentPageChangeListener {
 
     private GuidePlayer guidePlayer;
     
@@ -48,14 +52,17 @@ public final class GuidePlayerTopComponent extends TopComponent {
 
     public void loadGuide(GuideProject guideProject) {
         guidePlayer = new GuidePlayer(guideProject);
+        guidePlayer.addCurrentPageChangeListener(this);
         
         setDisplayName(guidePlayer.getTitle());
         
-        // TODO: Implement play functionality....
         guidePlayer.start();
-        
-        // TODO subscribe to guidePlayer.currentPageChanged event
-        showPage(guidePlayer.getCurrentPage());
+    }
+    
+    
+    @Override
+    public void currentPageChanged(CurrentPageChangeEvent ev) {
+        showPage(ev.getCurrentPage());
     }
     
     void showPage(PageDecorator page) {
@@ -74,6 +81,7 @@ public final class GuidePlayerTopComponent extends TopComponent {
             super.open();
         }
     }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -143,10 +151,9 @@ public final class GuidePlayerTopComponent extends TopComponent {
     }// </editor-fold>//GEN-END:initComponents
 
     private void continueButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_continueButtonActionPerformed
-        // TODO add your handling code here:
+        // Quick-n-Dirty to make it work. Buttons should be generated
+        // and guidePlayer.getCurrentPage() should not be called here.
         guidePlayer.buttonPressed(guidePlayer.getCurrentPage().getAvailableButton());
-        // TODO this should automatically happened as we are subcribed to the page changed event.
-        showPage(guidePlayer.getCurrentPage());
     }//GEN-LAST:event_continueButtonActionPerformed
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -177,4 +184,5 @@ public final class GuidePlayerTopComponent extends TopComponent {
         String version = p.getProperty("version");
         // TODO read your settings according to their version
     }
+
 }

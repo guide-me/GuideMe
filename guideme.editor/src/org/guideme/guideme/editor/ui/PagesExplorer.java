@@ -5,7 +5,6 @@ import java.beans.IntrospectionException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import org.guideme.guideme.editor.ui.Bundle;
 import org.guideme.guideme.model.Chapter;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Page;
@@ -21,13 +20,17 @@ import org.openide.nodes.ChildFactory;
 import org.openide.nodes.Children;
 import org.openide.nodes.Index;
 import org.openide.nodes.Node;
-import org.openide.util.*;
+import org.openide.util.Exceptions;
+import org.openide.util.Lookup;
+import org.openide.util.LookupEvent;
+import org.openide.util.LookupListener;
 import org.openide.util.NbBundle.Messages;
+import org.openide.util.Utilities;
 import org.openide.windows.TopComponent;
 
 @TopComponent.Description(
         preferredID = "PagesExplorer",
-        iconBase="org/guideme/guideme/nb/project/resources/book_open.png", 
+        iconBase="org/guideme/guideme/resources/guideOpen.png", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
 @TopComponent.Registration(mode = "explorer", openAtStartup = false)

@@ -7,18 +7,22 @@ import org.guideme.guideme.resources.Icons;
 import org.netbeans.api.project.Project;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.awt.ActionReferences;
 import org.openide.awt.ActionRegistration;
 import org.openide.util.NbBundle.Messages;
 
 @ActionID(
         category = "Guide",
-        id = "org.guideme.guideme.nb.viewer.PlayGuideAction"
+        id = "org.guideme.guideme.player.ui.PlayGuideAction"
 )
 @ActionRegistration(
         displayName = "#CTL_PlayGuideAction",
         iconBase = "org/guideme/guideme/resources/play.png"
 )
-@ActionReference(path = "Menu/Guide", position = 5)
+@ActionReferences({
+    @ActionReference(path = "Menu/Guide", position = 5),
+    @ActionReference(path = "Actions/Guide-Preferred", position = 1)
+})
 @Messages("CTL_PlayGuideAction=Play Guide")
 public final class PlayGuideAction extends AbstractAction {
 

@@ -23,6 +23,7 @@ public class PageDecorator {
     }
 
     public Button getAvailableButton() {
+        // Quick-n-Dirty to make it work.
         return hasAvailableButton() ? page.getButtons().get(0) : null;
     }
 }
