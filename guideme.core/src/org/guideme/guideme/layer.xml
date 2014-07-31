@@ -61,7 +61,6 @@
     <folder name="OptionsDialog">
         <file name="Advanced.instance_hidden"/>
         <file name="Appearance.instance_hidden"/>
-        <file name="Editor.instance_hidden"/>
         <file name="FontsAndColors.instance_hidden"/>
         <file name="Keymaps.instance_hidden"/>
         <file name="Team.instance_hidden"/>

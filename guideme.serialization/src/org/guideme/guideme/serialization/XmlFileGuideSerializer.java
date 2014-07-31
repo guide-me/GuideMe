@@ -44,13 +44,15 @@ public class XmlFileGuideSerializer extends GuideSerializer {
             Document document = docBuilderFactory.newDocumentBuilder().newDocument();
 
             marshaller.marshal(guideAdapter, document);
-            
+
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer nullTransformer = transformerFactory.newTransformer();
             nullTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            nullTransformer.setOutputProperty(OutputKeys.STANDALONE, "yes");
+            nullTransformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
             nullTransformer.setOutputProperty(OutputKeys.CDATA_SECTION_ELEMENTS, "Text");
             nullTransformer.transform(new DOMSource(document), new StreamResult(outputStream));
-            
+
         } catch (ParserConfigurationException | JAXBException | TransformerException ex) {
             Exceptions.printStackTrace(ex);
             throw new IOException(ex);
