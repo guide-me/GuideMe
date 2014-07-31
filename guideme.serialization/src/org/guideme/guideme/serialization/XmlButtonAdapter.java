@@ -3,7 +3,7 @@ package org.guideme.guideme.serialization;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlValue;
 import org.guideme.guideme.model.Button;
 
 /**
@@ -14,7 +14,7 @@ class XmlButtonAdapter {
     @XmlAttribute(name = "target")
     public String Target;
     
-    @XmlElement(name = "Text")
+    @XmlValue
     public String Text;
     
 

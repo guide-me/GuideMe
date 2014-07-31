@@ -8,6 +8,8 @@ public class Page {
     private String id;
     private String text;
     private final ArrayList<Image> images = new ArrayList<>();
+    private final ArrayList<Audio> audios = new ArrayList<>();
+    private final ArrayList<Video> videos = new ArrayList<>();
     private final ArrayList<Button> buttons = new ArrayList<>();
 
     public Page() {
@@ -43,6 +45,24 @@ public class Page {
         this.images.addAll(images);
     }
     
+    public List<Audio> getAudios() {
+        return audios;
+    }
+    
+    public void setAudios(List<Audio> audios) {
+        this.audios.clear();
+        this.audios.addAll(audios);
+    }
+    
+    public List<Video> getVideos() {
+        return videos;
+    }
+    
+    public void setVideos(List<Video> videos) {
+        this.videos.clear();
+        this.videos.addAll(videos);
+    }
+    
     public List<Button> getButtons() {
         return buttons;
     }
@@ -51,16 +71,20 @@ public class Page {
         this.buttons.clear();
         this.buttons.addAll(buttons);
     }
-    
-    public Image addImage(String imageId) {
-        Image image = new Image(imageId);
-        images.add(image);
-        return image;
-    }
-    
+        
     public Image addImage(Image image) {
         images.add(image);
         return image;
+    }
+
+    public Audio addAudio(Audio audio) {
+        audios.add(audio);
+        return audio;
+    }
+
+    public Video addVideo(Video video) {
+        videos.add(video);
+        return video;
     }
 
     public Button addButton(Button button) {

@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlElementWrapper;
 import org.guideme.guideme.model.Chapter;
 
 /**
@@ -15,7 +14,6 @@ class XmlChapterAdapter {
     @XmlAttribute(name = "id")
     public String Id;
 
-    @XmlElementWrapper(name = "Pages")
     @XmlElement(name = "Page")
     public XmlPageAdapter[] Pages;
     

@@ -219,7 +219,7 @@ public class HtmlTeaseConverter {
         Elements elmImg = doc.select(".tease_pic");
         if (elmImg.size() > 0) {
             String imgSrc = elmImg.first().attr("src");
-            page.addImage(imgSrc);
+            page.addImage(new Image(imgSrc));
         }
 
         if (doc.select("#continue").size() > 0) {
