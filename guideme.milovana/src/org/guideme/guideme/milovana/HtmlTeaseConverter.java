@@ -11,11 +11,13 @@ import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.CharSetUtils;
+import org.guideme.guideme.Constants;
+import org.guideme.guideme.editor.GuideEditor;
 import org.guideme.guideme.model.Button;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Image;
 import org.guideme.guideme.model.Page;
-import org.guideme.guideme.model.serialization.GuideSerializer;
+import org.guideme.guideme.serialization.GuideSerializer;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -34,7 +36,7 @@ public class HtmlTeaseConverter {
             Guide guide = new HtmlTeaseConverter().createGuide(teaseId, true);
 
             // TODO download images and change Image ids.
-            FileObject imagesFolder = projectDir.createFolder(org.guideme.guideme.nb.project.Constants.IMAGES_DIR);
+            FileObject imagesFolder = projectDir.createFolder(Constants.IMAGES_DIR);
             for (Page page : guide.getPages()) {
                 for (Image image : page.getImages()) {
                     if (image.getId() != null && image.getId().startsWith("http")) {
@@ -76,7 +78,7 @@ public class HtmlTeaseConverter {
                 guide.setThumbnail(imagesFolder.getName() + "/" + imageName);
             }
             
-            try (OutputStream stream = projectDir.createAndOpen(org.guideme.guideme.nb.project.Constants.GUIDE_FILE)) {
+            try (OutputStream stream = projectDir.createAndOpen(Constants.GUIDE_FILE)) {
                 GuideSerializer.getDefault().WriteGuide(guide, stream);
             }
         }
@@ -204,7 +206,7 @@ public class HtmlTeaseConverter {
     
 
     private Page readPage(Document doc, int pageNr) {
-        String pageId = (pageNr > 1) ? String.valueOf(pageNr) : org.guideme.guideme.model.Constants.START_PAGE_ID;
+        String pageId = (pageNr > 1) ? String.valueOf(pageNr) : Constants.START_PAGE_ID;
         Page page = new Page(pageId);
 
         Elements elm = doc.select("#tease_content").select(".text");
@@ -221,7 +223,7 @@ public class HtmlTeaseConverter {
         }
 
         if (doc.select("#continue").size() > 0) {
-            page.addButton(Button.Continue(String.valueOf(pageNr + 1)));
+            page.addButton(GuideEditor.createContinueButton(String.valueOf(pageNr + 1)));
         }
 
         return page;

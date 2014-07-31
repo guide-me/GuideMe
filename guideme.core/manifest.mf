@@ -1,0 +1,6 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.guideme.guideme
+OpenIDE-Module-Layer: org/guideme/guideme/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/guideme/guideme/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
