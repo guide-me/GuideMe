@@ -6,6 +6,8 @@ import java.util.List;
 public class Chapter {
 
     private String id;
+    private String title;
+    
     private final ArrayList<Page> pages = new ArrayList<>();
 
     
@@ -23,6 +25,14 @@ public class Chapter {
 
     public void setId(String id) {
         this.id = id;
+    }
+    
+    public String getTitle() {
+        return title;
+    }
+    
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public List<Page> getPages() {

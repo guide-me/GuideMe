@@ -14,6 +14,9 @@ class XmlChapterAdapter {
     @XmlAttribute(name = "id")
     public String Id;
 
+    @XmlAttribute(name = "title")
+    public String Title;
+
     @XmlElement(name = "Page")
     public XmlPageAdapter[] Pages;
     
@@ -22,6 +25,7 @@ class XmlChapterAdapter {
     
     public XmlChapterAdapter(Chapter chapter) {
         this.Id = chapter.getId();
+        this.Title = chapter.getTitle();
         this.Pages = XmlPageAdapter.fromList(chapter.getPages());
     }
 
@@ -29,6 +33,7 @@ class XmlChapterAdapter {
         Chapter chapter = new Chapter();
         
         chapter.setId(this.Id);
+        chapter.setTitle(this.Title);
         
         if (this.Pages != null && this.Pages.length > 0) {
             for (XmlPageAdapter Page : this.Pages) {

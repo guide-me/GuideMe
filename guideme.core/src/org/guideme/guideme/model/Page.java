@@ -6,6 +6,7 @@ import java.util.List;
 public class Page {
 
     private String id;
+    private String title;
     private String text;
     private final ArrayList<Image> images = new ArrayList<>();
     private final ArrayList<Audio> audios = new ArrayList<>();
@@ -26,6 +27,14 @@ public class Page {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+    
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getText() {

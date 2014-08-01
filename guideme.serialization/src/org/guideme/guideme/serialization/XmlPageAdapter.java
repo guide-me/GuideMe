@@ -13,6 +13,9 @@ class XmlPageAdapter {
     
     @XmlAttribute(name = "id")
     public String Id;
+
+    @XmlAttribute(name = "title")
+    public String Title;
     
     @XmlElement(name = "Text")
     public String Text;
@@ -35,6 +38,7 @@ class XmlPageAdapter {
     
     public XmlPageAdapter(Page page) {
         this.Id = page.getId();
+        this.Title = page.getTitle();
         this.Text = page.getText();
         this.Images = XmlImageAdapter.fromList(page.getImages());
         this.Audios = XmlAudioAdapter.fromList(page.getAudios());
@@ -45,6 +49,7 @@ class XmlPageAdapter {
     public Page toPage() {
         Page page = new Page();
         page.setId(this.Id);
+        page.setTitle(this.Title);
         page.setText(this.Text);
         
         if (this.Images != null && this.Images.length > 0) {
