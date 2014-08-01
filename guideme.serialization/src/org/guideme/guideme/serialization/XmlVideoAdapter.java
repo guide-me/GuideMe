@@ -10,8 +10,8 @@ import org.guideme.guideme.model.Video;
  */
 class XmlVideoAdapter {
     
-    @XmlAttribute(name = "id")
-    public String Id;
+    @XmlAttribute(name = "src")
+    public String Src;
 
     @XmlAttribute(name = "if-set")
     public String IfSet;
@@ -28,8 +28,8 @@ class XmlVideoAdapter {
     @XmlAttribute(name = "target")
     public String Target;
     
-    @XmlAttribute(name = "onCompleted")
-    public String ScriptOnCompleted;
+    @XmlAttribute(name = "onComplete")
+    public String ScriptOnComplete;
     
     @XmlAttribute(name = "start-at")
     public String StartAt;
@@ -44,31 +44,33 @@ class XmlVideoAdapter {
     }
     
     public XmlVideoAdapter(Video video) {
-        this.Id = video.getId();
+        this.Src = video.getSrc();
         this.IfSet = video.getIfSet();
         this.IfNotSet = video.getIfNotSet();
         this.Set = video.getSet();
         this.UnSet = video.getUnSet();
         this.Target = video.getTarget();
-        this.ScriptOnCompleted = video.getScriptOnCompleted();
+        this.ScriptOnComplete = video.getScriptOnComplete();
         this.StartAt = video.getStartAt();
         this.StopAt = video.getStopAt();
-        this.Loops = video.getLoops();
+        this.Loops = video.getLoops() > 1 ? String.valueOf(video.getLoops()) : null;
     }
 
     
     public Video toVideo() {
         Video video = new Video();
-        video.setId(this.Id);
+        video.setSrc(this.Src);
         video.setIfSet(this.IfSet);
         video.setIfNotSet(this.IfNotSet);
         video.setSet(this.Set);
         video.setUnSet(this.UnSet);
         video.setTarget(this.Target);
-        video.setScriptOnCompleted(this.ScriptOnCompleted);
+        video.setScriptOnComplete(this.ScriptOnComplete);
         video.setStartAt(this.StartAt);
         video.setStopAt(this.StopAt);
-        video.setLoops(this.Loops);
+        if (this.Loops != null && this.Loops.length() > 0) {
+            video.setLoops(Integer.parseInt(this.Loops));
+        }
         return video;
     }
 

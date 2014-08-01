@@ -1,7 +1,5 @@
 package org.guideme.guideme.player.ui;
 
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import org.guideme.guideme.player.CurrentPageChangeEvent;
 import org.guideme.guideme.player.CurrentPageChangeListener;
 import org.guideme.guideme.player.GuidePlayer;
@@ -68,7 +66,7 @@ public final class GuidePlayerTopComponent extends TopComponent implements Curre
     void showPage(PageDecorator page) {
         pageId.setText(page.getPage().getId());
         textTextArea.setText(page.getPage().getText());
-        imageUrl.setText(page.getPage().getImages().get(0).getId());
+        imageUrl.setText(page.getPage().getImages().get(0).getSrc());
         
         continueButton.setVisible(page.hasAvailableButton());
     }

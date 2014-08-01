@@ -50,7 +50,7 @@ public class XmlFileGuideSerializer extends GuideSerializer {
             nullTransformer.setOutputProperty(OutputKeys.INDENT, "yes");
             nullTransformer.setOutputProperty(OutputKeys.STANDALONE, "yes");
             nullTransformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "4");
-            nullTransformer.setOutputProperty(OutputKeys.CDATA_SECTION_ELEMENTS, "Text");
+            nullTransformer.setOutputProperty(OutputKeys.CDATA_SECTION_ELEMENTS, "Text Script");
             nullTransformer.transform(new DOMSource(document), new StreamResult(outputStream));
 
         } catch (ParserConfigurationException | JAXBException | TransformerException ex) {

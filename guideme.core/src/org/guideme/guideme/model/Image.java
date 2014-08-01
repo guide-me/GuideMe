@@ -5,7 +5,7 @@ package org.guideme.guideme.model;
  */
 public class Image {
     
-    private String id;
+    private String src;
     private String ifSet;
     private String ifNotSet;
     private String set;
@@ -17,33 +17,26 @@ public class Image {
     public Image() {
     }
 
+
     /**
-     * Constructor setting the ID of the image file.
-     * 
-     * @param id 
+     * URL (relative to Guide folder) of the image file to be shown on the page.
+     *
+     * @return 
      */
-    public Image(String id) {
-        this.id = id;
+    public String getSrc() {
+        return src;
     }
 
     /**
      * URL (relative to Guide folder) of the image file to be shown on the page.
      *
-     * @return
+     * @param src
      */
-    public String getId() {
-        return id;
+    public void setSrc(String src) {
+        this.src = src;
     }
 
-    /**
-     * URL (relative to Guide folder) of the image file to be shown on the page.
-     *
-     * @param id
-     */
-    public void setId(String id) {
-        this.id = id;
-    }
-
+    
     /**
      * Show image file only when the following flags are set.
      *

@@ -20,6 +20,9 @@ class XmlPageAdapter {
     @XmlElement(name = "Text")
     public String Text;
     
+    @XmlElement(name = "Script")
+    public String Script;
+    
     @XmlElement(name = "Image")
     public XmlImageAdapter[] Images;
         
@@ -40,6 +43,7 @@ class XmlPageAdapter {
         this.Id = page.getId();
         this.Title = page.getTitle();
         this.Text = page.getText();
+        this.Script = page.getScript();
         this.Images = XmlImageAdapter.fromList(page.getImages());
         this.Audios = XmlAudioAdapter.fromList(page.getAudios());
         this.Videos = XmlVideoAdapter.fromList(page.getVideos());
@@ -51,6 +55,7 @@ class XmlPageAdapter {
         page.setId(this.Id);
         page.setTitle(this.Title);
         page.setText(this.Text);
+        page.setScript(this.Script);
         
         if (this.Images != null && this.Images.length > 0) {
             for (XmlImageAdapter image : this.Images) {

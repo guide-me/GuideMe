@@ -13,7 +13,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.CharSetUtils;
 import org.guideme.guideme.Constants;
 import org.guideme.guideme.editor.GuideEditor;
-import org.guideme.guideme.model.Button;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Image;
 import org.guideme.guideme.model.Page;
@@ -39,8 +38,8 @@ public class HtmlTeaseConverter {
             FileObject imagesFolder = projectDir.createFolder(Constants.IMAGES_DIR);
             for (Page page : guide.getPages()) {
                 for (Image image : page.getImages()) {
-                    if (image.getId() != null && image.getId().startsWith("http")) {
-                        URL url = new URL(image.getId());
+                    if (image.getSrc() != null && image.getSrc().startsWith("http")) {
+                        URL url = new URL(image.getSrc());
                         String imageName = extractFileNameFromURL(url);
 
                         if (imagesFolder.getFileObject(imageName) == null) {
@@ -56,7 +55,7 @@ public class HtmlTeaseConverter {
                         }
                         
                         // image ID is url relative to guide.xml.
-                        image.setId(imagesFolder.getName() + "/" + imageName);
+                        image.setSrc(imagesFolder.getName() + "/" + imageName);
                     }
                 }
             }
@@ -90,12 +89,12 @@ public class HtmlTeaseConverter {
 
 
     public Guide createGuide(String id, boolean loadAll) {
-        Guide guide = new Guide();
+        Guide guide = new Guide(id);
 
         int pageNr = 1;
         Document document = loadPage(id, pageNr);
         if (document != null && document.select("#tease_title").size() > 0) {
-            readGeneralInformation(guide, document, id, loadAll);
+            readGeneralInformation(guide, document, loadAll);
             Page page = guide.addPage(readPage(document, pageNr));
             if (loadAll) {
                 while (page.getButtons().size() > 0) {
@@ -121,11 +120,11 @@ public class HtmlTeaseConverter {
         }
     }
 
-    private void readGeneralInformation(Guide guide, Document doc, String teaseId, boolean loadAll) {
+    private void readGeneralInformation(Guide guide, Document doc, boolean loadAll) {
         String titleHtml = doc.select("#tease_title").html();
 
         guide.setTitle(titleHtml.substring(0, titleHtml.indexOf(" <span")));
-        guide.setOriginalUrl("http://www.milovana.com/webteases/showtease.php?id=" + teaseId);
+        guide.setOriginalUrl("http://www.milovana.com/webteases/showtease.php?id=" + guide.getId());
         guide.setAuthorName(doc.select(".tease_author a").text().trim());
         
         String authorRef = doc.select(".tease_author a").attr("href"); // webteases/#author=1234
@@ -133,7 +132,7 @@ public class HtmlTeaseConverter {
         guide.setAuthorUrl("http://www.milovana.com/forum/memberlist.php?mode=viewprofile&u=" + authorId);
         
         if (loadAll) {
-            Element teaseSummary = findTeaseSummary(teaseId, authorId, 0);
+            Element teaseSummary = findTeaseSummary(guide.getId(), authorId, 0);
             if (teaseSummary != null) {
                 Elements desc = teaseSummary.select(".desc");
                 if (desc.size() > 0) {
@@ -219,7 +218,9 @@ public class HtmlTeaseConverter {
         Elements elmImg = doc.select(".tease_pic");
         if (elmImg.size() > 0) {
             String imgSrc = elmImg.first().attr("src");
-            page.addImage(new Image(imgSrc));
+            Image img = new Image();
+            img.setSrc(imgSrc);
+            page.addImage(img);
         }
 
         if (doc.select("#continue").size() > 0) {

@@ -3,6 +3,7 @@ package org.guideme.guideme.serialization;
 import java.util.Arrays;
 import javax.xml.bind.annotation.XmlAccessType;
 import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -15,6 +16,9 @@ import org.guideme.guideme.model.Guide;
 @XmlAccessorType(XmlAccessType.NONE)
 class XmlGuideAdapter {
 
+    @XmlAttribute(name = "id")
+    public String Id;
+    
     @XmlElement(name = "Title")
     public String Title;
     
@@ -50,6 +54,7 @@ class XmlGuideAdapter {
     }
 
     public XmlGuideAdapter(Guide guide) {
+        this.Id = guide.getId();
         this.Title = guide.getTitle();
         this.OriginalUrl = guide.getOriginalUrl();
         this.AuthorName = guide.getAuthorName();
@@ -65,6 +70,7 @@ class XmlGuideAdapter {
     public Guide toGuide() {
         Guide guide = new Guide();
         
+        guide.setId(this.Id);
         guide.setTitle(this.Title);
         guide.setOriginalUrl(this.OriginalUrl);
         guide.setAuthorName(AuthorName);

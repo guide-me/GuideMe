@@ -10,8 +10,8 @@ import org.guideme.guideme.model.Image;
  */
 class XmlImageAdapter {
     
-    @XmlAttribute(name = "id")
-    public String Id;
+    @XmlAttribute(name = "src")
+    public String Src;
 
     @XmlAttribute(name = "if-set")
     public String IfSet;
@@ -29,7 +29,7 @@ class XmlImageAdapter {
     }
     
     public XmlImageAdapter(Image image) {
-        this.Id = image.getId();
+        this.Src = image.getSrc();
         this.IfSet = image.getIfSet();
         this.IfNotSet = image.getIfNotSet();
         this.Set = image.getSet();
@@ -39,7 +39,7 @@ class XmlImageAdapter {
     
     public Image toImage() {
         Image image = new Image();
-        image.setId(this.Id);
+        image.setSrc(this.Src);
         image.setIfSet(this.IfSet);
         image.setIfNotSet(this.IfNotSet);
         image.setSet(this.Set);

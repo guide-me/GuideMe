@@ -5,6 +5,7 @@ import java.util.List;
 
 public class Guide {
 
+    private String id;
     private String title;
     private String originalUrl;
     private String authorName;
@@ -19,10 +20,18 @@ public class Guide {
     public Guide() {
     }
     
-    public Guide(String title) {
-        this.title = title;
-    }
     
+    public Guide(String id) {
+        this.id = id;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
     
     public String getTitle() {
         return title;

@@ -11,8 +11,23 @@ import org.guideme.guideme.model.Button;
  */
 class XmlButtonAdapter {
     
+    @XmlAttribute(name = "if-set")
+    public String IfSet;
+
+    @XmlAttribute(name = "if-not-set")
+    public String IfNotSet;
+
+    @XmlAttribute(name = "set")
+    public String Set;
+
+    @XmlAttribute(name = "unset")
+    public String UnSet;
+    
     @XmlAttribute(name = "target")
     public String Target;
+    
+    @XmlAttribute(name = "onClick")
+    public String ScriptOnClick;
     
     @XmlValue
     public String Text;
@@ -22,12 +37,22 @@ class XmlButtonAdapter {
     }
     
     public XmlButtonAdapter(Button button) {
+        this.IfSet = button.getIfSet();
+        this.IfNotSet = button.getIfNotSet();
+        this.Set = button.getSet();
+        this.UnSet = button.getUnSet();
         this.Target = button.getTarget();
+        this.ScriptOnClick = button.getScriptOnClick();
         this.Text = button.getText();
     }
 
     public Button toButton() {
         Button button = new Button();
+        button.setIfSet(this.IfSet);
+        button.setIfNotSet(this.IfNotSet);
+        button.setSet(this.Set);
+        button.setUnSet(this.UnSet);
+        button.setScriptOnClick(this.ScriptOnClick);
         button.setTarget(this.Target);
         button.setText(this.Text);
         return button;
