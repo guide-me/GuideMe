@@ -8,6 +8,7 @@ public class Page {
     private String id;
     private String title;
     private String text;
+    private String script;
     private final ArrayList<Image> images = new ArrayList<>();
     private final ArrayList<Audio> audios = new ArrayList<>();
     private final ArrayList<Video> videos = new ArrayList<>();
@@ -44,7 +45,15 @@ public class Page {
     public void setText(String text) {
         this.text = text;
     }
-    
+
+    public String getScript() {
+        return script;
+    }
+
+    public void setScript(String script) {
+        this.script = script;
+    }
+
     public List<Image> getImages() {
         return images;
     }
