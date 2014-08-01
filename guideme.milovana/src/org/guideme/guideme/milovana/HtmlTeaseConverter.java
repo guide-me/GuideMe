@@ -38,8 +38,8 @@ public class HtmlTeaseConverter {
             FileObject imagesFolder = projectDir.createFolder(Constants.IMAGES_DIR);
             for (Page page : guide.getPages()) {
                 for (Image image : page.getImages()) {
-                    if (image.getId() != null && image.getId().startsWith("http")) {
-                        URL url = new URL(image.getId());
+                    if (image.getSrc() != null && image.getSrc().startsWith("http")) {
+                        URL url = new URL(image.getSrc());
                         String imageName = extractFileNameFromURL(url);
 
                         if (imagesFolder.getFileObject(imageName) == null) {
@@ -55,7 +55,7 @@ public class HtmlTeaseConverter {
                         }
                         
                         // image ID is url relative to guide.xml.
-                        image.setId(imagesFolder.getName() + "/" + imageName);
+                        image.setSrc(imagesFolder.getName() + "/" + imageName);
                     }
                 }
             }
@@ -218,7 +218,9 @@ public class HtmlTeaseConverter {
         Elements elmImg = doc.select(".tease_pic");
         if (elmImg.size() > 0) {
             String imgSrc = elmImg.first().attr("src");
-            page.addImage(new Image(imgSrc));
+            Image img = new Image();
+            img.setSrc(imgSrc);
+            page.addImage(img);
         }
 
         if (doc.select("#continue").size() > 0) {

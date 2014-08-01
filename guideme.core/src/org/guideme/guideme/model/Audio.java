@@ -5,32 +5,25 @@ package org.guideme.guideme.model;
  */
 public class Audio {
 
-    private String id;
+    private String src;
+    private String startAt;
+    private String stopAt;
+    private int loops = 1;
+
     private String ifSet;
     private String ifNotSet;
     private String set;
     private String unSet;
-    private String target;
     private String scriptOnComplete;
-    private String startAt;
-    private String stopAt;
-    private String loops;
+    private String target;
 
-
+    
     /**
      * Default constructor.
      */
     public Audio() {
     }
 
-    /**
-     * Constructor setting the ID of the audio file.
-     *
-     * @param id
-     */
-    public Audio(String id) {
-        this.id = id;
-    }
 
     /**
      * Start the playable media at a specific position (format HH:mm:ss).
@@ -73,7 +66,7 @@ public class Audio {
      *
      * @return
      */
-    public String getLoops() {
+    public int getLoops() {
         return loops;
     }
 
@@ -82,7 +75,7 @@ public class Audio {
      *
      * @param loops
      */
-    public void setLoops(String loops) {
+    public void setLoops(int loops) {
         this.loops = loops;
     }
 
@@ -130,18 +123,18 @@ public class Audio {
      *
      * @return
      */
-    public String getId() {
-        return id;
+    public String getSrc() {
+        return src;
     }
 
     /**
      * URL (relative to Guide folder) of the media file to be shown/played on
      * the page.
      *
-     * @param id
+     * @param src
      */
-    public void setId(String id) {
-        this.id = id;
+    public void setSrc(String src) {
+        this.src = src;
     }
 
     /**

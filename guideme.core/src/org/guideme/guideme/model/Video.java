@@ -5,16 +5,17 @@ package org.guideme.guideme.model;
  */
 public class Video {
 
-    private String id;
+    private String src;
+    private String startAt;
+    private String stopAt;
+    private int loops = 1;
+
     private String ifSet;
     private String ifNotSet;
     private String set;
     private String unSet;
-    private String target;
     private String scriptOnComplete;
-    private String startAt;
-    private String stopAt;
-    private String loops;
+    private String target;
 
     /**
      * Default constructor.
@@ -22,13 +23,25 @@ public class Video {
     public Video() {
     }
 
+
     /**
-     * Constructor setting the ID of the video file.
+     * URL (relative to Guide folder) of the media file to be shown/played on
+     * the page.
      *
-     * @param id
+     * @return
      */
-    public Video(String id) {
-        this.id = id;
+    public String getSrc() {
+        return src;
+    }
+
+    /**
+     * URL (relative to Guide folder) of the media file to be shown/played on
+     * the page.
+     *
+     * @param src
+     */
+    public void setSrc(String src) {
+        this.src = src;
     }
 
     /**
@@ -72,7 +85,7 @@ public class Video {
      *
      * @return
      */
-    public String getLoops() {
+    public int getLoops() {
         return loops;
     }
 
@@ -81,7 +94,7 @@ public class Video {
      *
      * @param loops
      */
-    public void setLoops(String loops) {
+    public void setLoops(int loops) {
         this.loops = loops;
     }
 
@@ -119,26 +132,6 @@ public class Video {
      */
     public void setScriptOnComplete(String scriptOnComplete) {
         this.scriptOnComplete = scriptOnComplete;
-    }
-
-    /**
-     * URL (relative to Guide folder) of the video file to be shown/played on
-     * the page.
-     *
-     * @return
-     */
-    public String getId() {
-        return id;
-    }
-
-    /**
-     * URL (relative to Guide folder) of the video file to be shown/played on
-     * the page.
-     *
-     * @param id
-     */
-    public void setId(String id) {
-        this.id = id;
     }
 
     /**

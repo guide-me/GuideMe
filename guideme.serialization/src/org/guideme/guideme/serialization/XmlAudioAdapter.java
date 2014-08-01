@@ -10,8 +10,8 @@ import org.guideme.guideme.model.Audio;
  */
 class XmlAudioAdapter {
     
-    @XmlAttribute(name = "id")
-    public String Id;
+    @XmlAttribute(name = "src")
+    public String Src;
 
     @XmlAttribute(name = "if-set")
     public String IfSet;
@@ -44,7 +44,7 @@ class XmlAudioAdapter {
     }
     
     public XmlAudioAdapter(Audio audio) {
-        this.Id = audio.getId();
+        this.Src = audio.getSrc();
         this.IfSet = audio.getIfSet();
         this.IfNotSet = audio.getIfNotSet();
         this.Set = audio.getSet();
@@ -53,13 +53,13 @@ class XmlAudioAdapter {
         this.ScriptOnComplete = audio.getScriptOnComplete();
         this.StartAt = audio.getStartAt();
         this.StopAt = audio.getStopAt();
-        this.Loops = audio.getLoops();
+        this.Loops = audio.getLoops() > 1 ? String.valueOf(audio.getLoops()) : null;
     }
 
     
     public Audio toAudio() {
         Audio audio = new Audio();
-        audio.setId(this.Id);
+        audio.setSrc(this.Src);
         audio.setIfSet(this.IfSet);
         audio.setIfNotSet(this.IfNotSet);
         audio.setSet(this.Set);
@@ -68,7 +68,9 @@ class XmlAudioAdapter {
         audio.setScriptOnComplete(this.ScriptOnComplete);
         audio.setStartAt(this.StartAt);
         audio.setStopAt(this.StopAt);
-        audio.setLoops(this.Loops);
+        if (this.Loops != null && this.Loops.length() > 0) {
+            audio.setLoops(Integer.parseInt(this.Loops));
+        }
         return audio;
     }
 

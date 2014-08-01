@@ -11,9 +11,6 @@ import org.guideme.guideme.model.Button;
  */
 class XmlButtonAdapter {
     
-    @XmlAttribute(name = "id")
-    public String Id;
-
     @XmlAttribute(name = "if-set")
     public String IfSet;
 
@@ -40,7 +37,6 @@ class XmlButtonAdapter {
     }
     
     public XmlButtonAdapter(Button button) {
-        this.Id = button.getId();
         this.IfSet = button.getIfSet();
         this.IfNotSet = button.getIfNotSet();
         this.Set = button.getSet();
@@ -52,7 +48,6 @@ class XmlButtonAdapter {
 
     public Button toButton() {
         Button button = new Button();
-        button.setId(this.Id);
         button.setIfSet(this.IfSet);
         button.setIfNotSet(this.IfNotSet);
         button.setSet(this.Set);
