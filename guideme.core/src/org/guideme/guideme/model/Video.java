@@ -11,7 +11,7 @@ public class Video {
     private String set;
     private String unSet;
     private String target;
-    private String scriptOnCompleted;
+    private String scriptOnComplete;
     private String startAt;
     private String stopAt;
     private String loops;
@@ -108,17 +108,17 @@ public class Video {
      *
      * @return
      */
-    public String getScriptOnCompleted() {
-        return scriptOnCompleted;
+    public String getScriptOnComplete() {
+        return scriptOnComplete;
     }
 
     /**
-     * The flags to be executed when the video is completed.
+     * The script to be executed when the video is completed.
      *
-     * @param scriptOnCompleted
+     * @param scriptOnComplete
      */
-    public void setScriptOnCompleted(String scriptOnCompleted) {
-        this.scriptOnCompleted = scriptOnCompleted;
+    public void setScriptOnComplete(String scriptOnComplete) {
+        this.scriptOnComplete = scriptOnComplete;
     }
 
     /**

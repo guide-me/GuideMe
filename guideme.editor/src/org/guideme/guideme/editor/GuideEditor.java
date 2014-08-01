@@ -7,6 +7,9 @@ import org.openide.util.NbBundle;
 public class GuideEditor {
 
     public static Button createContinueButton(String target) {
-        return new Button(target, Bundle.CTL_ContinueButton());
+        Button button = new Button();
+        button.setTarget(target);
+        button.setText(Bundle.CTL_ContinueButton());
+        return button;
     }
 }

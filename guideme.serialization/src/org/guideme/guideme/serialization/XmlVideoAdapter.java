@@ -28,8 +28,8 @@ class XmlVideoAdapter {
     @XmlAttribute(name = "target")
     public String Target;
     
-    @XmlAttribute(name = "onCompleted")
-    public String ScriptOnCompleted;
+    @XmlAttribute(name = "onComplete")
+    public String ScriptOnComplete;
     
     @XmlAttribute(name = "start-at")
     public String StartAt;
@@ -50,7 +50,7 @@ class XmlVideoAdapter {
         this.Set = video.getSet();
         this.UnSet = video.getUnSet();
         this.Target = video.getTarget();
-        this.ScriptOnCompleted = video.getScriptOnCompleted();
+        this.ScriptOnComplete = video.getScriptOnComplete();
         this.StartAt = video.getStartAt();
         this.StopAt = video.getStopAt();
         this.Loops = video.getLoops();
@@ -65,7 +65,7 @@ class XmlVideoAdapter {
         video.setSet(this.Set);
         video.setUnSet(this.UnSet);
         video.setTarget(this.Target);
-        video.setScriptOnCompleted(this.ScriptOnCompleted);
+        video.setScriptOnComplete(this.ScriptOnComplete);
         video.setStartAt(this.StartAt);
         video.setStopAt(this.StopAt);
         video.setLoops(this.Loops);

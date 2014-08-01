@@ -28,8 +28,8 @@ class XmlAudioAdapter {
     @XmlAttribute(name = "target")
     public String Target;
     
-    @XmlAttribute(name = "onCompleted")
-    public String ScriptOnCompleted;
+    @XmlAttribute(name = "onComplete")
+    public String ScriptOnComplete;
     
     @XmlAttribute(name = "start-at")
     public String StartAt;
@@ -50,7 +50,7 @@ class XmlAudioAdapter {
         this.Set = audio.getSet();
         this.UnSet = audio.getUnSet();
         this.Target = audio.getTarget();
-        this.ScriptOnCompleted = audio.getScriptOnCompleted();
+        this.ScriptOnComplete = audio.getScriptOnComplete();
         this.StartAt = audio.getStartAt();
         this.StopAt = audio.getStopAt();
         this.Loops = audio.getLoops();
@@ -65,7 +65,7 @@ class XmlAudioAdapter {
         audio.setSet(this.Set);
         audio.setUnSet(this.UnSet);
         audio.setTarget(this.Target);
-        audio.setScriptOnCompleted(this.ScriptOnCompleted);
+        audio.setScriptOnComplete(this.ScriptOnComplete);
         audio.setStartAt(this.StartAt);
         audio.setStopAt(this.StopAt);
         audio.setLoops(this.Loops);
