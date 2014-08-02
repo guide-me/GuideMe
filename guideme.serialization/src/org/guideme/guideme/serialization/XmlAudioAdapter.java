@@ -53,7 +53,7 @@ class XmlAudioAdapter {
         this.ScriptOnComplete = audio.getScriptOnComplete();
         this.StartAt = audio.getStartAt();
         this.StopAt = audio.getStopAt();
-        this.Loops = audio.getLoops() > 1 ? String.valueOf(audio.getLoops()) : null;
+        this.Loops = audio.getLoops() != Audio.DEFAULT_LOOPS ? String.valueOf(audio.getLoops()) : null;
     }
 
     

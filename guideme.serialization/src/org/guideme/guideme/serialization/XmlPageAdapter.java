@@ -29,6 +29,9 @@ class XmlPageAdapter {
     @XmlElement(name = "Audio")
     public XmlAudioAdapter[] Audios;
         
+    @XmlElement(name = "Metronomes")
+    public XmlMetronomeAdapter[] Metronomes;
+        
     @XmlElement(name = "Video")
     public XmlVideoAdapter[] Videos;
         
@@ -46,6 +49,7 @@ class XmlPageAdapter {
         this.Script = page.getScript();
         this.Images = XmlImageAdapter.fromList(page.getImages());
         this.Audios = XmlAudioAdapter.fromList(page.getAudios());
+        this.Metronomes = XmlMetronomeAdapter.fromList(page.getMetronomes());
         this.Videos = XmlVideoAdapter.fromList(page.getVideos());
         this.Buttons = XmlButtonAdapter.fromList(page.getButtons());
     }
@@ -65,6 +69,11 @@ class XmlPageAdapter {
         if (this.Audios != null && this.Audios.length > 0) {
             for (XmlAudioAdapter audio : this.Audios) {
                 page.addAudio(audio.toAudio());
+            }
+        }
+        if (this.Metronomes != null && this.Metronomes.length > 0) {
+            for (XmlMetronomeAdapter metronome : this.Metronomes) {
+                page.addMetronome(metronome.toMetronome());
             }
         }
         if (this.Videos != null && this.Videos.length > 0) {

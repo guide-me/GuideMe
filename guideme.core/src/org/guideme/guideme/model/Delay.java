@@ -1,18 +1,38 @@
 package org.guideme.guideme.model;
 
-import java.text.SimpleDateFormat;
-
+/**
+ * Delay is a wait timer.
+ */
 public class Delay {
 
+    /**
+     * Style of the delay
+     */
     public enum Style {
 
-        Normal, Secret, Hidden
+        /**
+         * The timer with the wait time is shown to the user.
+         */
+        Normal,
+        /**
+         * The timer is shown but the wait time is kept secret.
+         */
+        Secret,
+        /**
+         * The timer is completely hidden.
+         */
+        Hidden
     }
 
+    /**
+     * Default delay style (normal: wait time is shown).
+     */
+    public static final Style DEFAULT_STYLE = Style.Normal;
+    
     private String period;
     private int periodInSeconds;
 
-    private Style style = Style.Normal;
+    private Style style = DEFAULT_STYLE;
     private String target;
 
     private String ifSet;

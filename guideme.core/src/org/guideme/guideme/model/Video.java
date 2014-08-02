@@ -5,10 +5,15 @@ package org.guideme.guideme.model;
  */
 public class Video {
 
+    /**
+     * Default value for the number of loops (once).
+     */
+    public static final int DEFAULT_LOOPS = 1;
+
     private String src;
     private String startAt;
     private String stopAt;
-    private int loops = 1;
+    private int loops = DEFAULT_LOOPS;
 
     private String ifSet;
     private String ifNotSet;

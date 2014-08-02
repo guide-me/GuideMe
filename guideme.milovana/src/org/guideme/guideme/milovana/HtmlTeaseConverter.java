@@ -89,12 +89,12 @@ public class HtmlTeaseConverter {
 
 
     public Guide createGuide(String id, boolean loadAll) {
-        Guide guide = new Guide(id);
+        Guide guide = new Guide();
 
         int pageNr = 1;
         Document document = loadPage(id, pageNr);
         if (document != null && document.select("#tease_title").size() > 0) {
-            readGeneralInformation(guide, document, loadAll);
+            readGeneralInformation(guide, id, document, loadAll);
             Page page = guide.addPage(readPage(document, pageNr));
             if (loadAll) {
                 while (page.getButtons().size() > 0) {
@@ -120,11 +120,11 @@ public class HtmlTeaseConverter {
         }
     }
 
-    private void readGeneralInformation(Guide guide, Document doc, boolean loadAll) {
+    private void readGeneralInformation(Guide guide, String teaseId, Document doc, boolean loadAll) {
         String titleHtml = doc.select("#tease_title").html();
 
         guide.setTitle(titleHtml.substring(0, titleHtml.indexOf(" <span")));
-        guide.setOriginalUrl("http://www.milovana.com/webteases/showtease.php?id=" + guide.getId());
+        guide.setOriginalUrl("http://www.milovana.com/webteases/showtease.php?id=" + teaseId);
         guide.setAuthorName(doc.select(".tease_author a").text().trim());
         
         String authorRef = doc.select(".tease_author a").attr("href"); // webteases/#author=1234
@@ -132,7 +132,7 @@ public class HtmlTeaseConverter {
         guide.setAuthorUrl("http://www.milovana.com/forum/memberlist.php?mode=viewprofile&u=" + authorId);
         
         if (loadAll) {
-            Element teaseSummary = findTeaseSummary(guide.getId(), authorId, 0);
+            Element teaseSummary = findTeaseSummary(teaseId, authorId, 0);
             if (teaseSummary != null) {
                 Elements desc = teaseSummary.select(".desc");
                 if (desc.size() > 0) {

@@ -53,7 +53,7 @@ class XmlVideoAdapter {
         this.ScriptOnComplete = video.getScriptOnComplete();
         this.StartAt = video.getStartAt();
         this.StopAt = video.getStopAt();
-        this.Loops = video.getLoops() > 1 ? String.valueOf(video.getLoops()) : null;
+        this.Loops = video.getLoops() != Video.DEFAULT_LOOPS ? String.valueOf(video.getLoops()) : null;
     }
 
     
