@@ -18,6 +18,6 @@ public class EmptyGuide {
         }
         
         projectDirectory.createFolder(Constants.GM_DIR);
-        projectDirectory.createFolder(Constants.IMAGES_DIR);
+        projectDirectory.createFolder(Constants.MEDIA_DIR);
     }
 }

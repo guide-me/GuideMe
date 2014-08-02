@@ -35,7 +35,7 @@ public class HtmlTeaseConverter {
             Guide guide = new HtmlTeaseConverter().createGuide(teaseId, true);
 
             // TODO download images and change Image ids.
-            FileObject imagesFolder = projectDir.createFolder(Constants.IMAGES_DIR);
+            FileObject imagesFolder = projectDir.createFolder(Constants.MEDIA_DIR);
             for (Page page : guide.getPages()) {
                 for (Image image : page.getImages()) {
                     if (image.getSrc() != null && image.getSrc().startsWith("http")) {
