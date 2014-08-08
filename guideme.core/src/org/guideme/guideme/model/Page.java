@@ -17,6 +17,7 @@ public class Page {
     private final ArrayList<Metronome> metronomes = new ArrayList<>();
     private final ArrayList<Video> videos = new ArrayList<>();
     private final ArrayList<Button> buttons = new ArrayList<>();
+    private final ArrayList<Delay> delays = new ArrayList<>();
 
     /**
      * Default constructor.
@@ -211,6 +212,27 @@ public class Page {
     }
 
     /**
+     * List with possible delays to be used. Which one will actually be used
+     * is determined by the ifSet/ifNotSet flags etc.
+     *
+     * @return
+     */
+    public List<Delay> getDelays() {
+        return delays;
+    }
+
+    /**
+     * List with possible delays to be used. Which one will actually be used
+     * is determined by the ifSet/ifNotSet flags etc.
+     *
+     * @param delays
+     */
+    public void setDelays(List<Delay> delays) {
+        this.delays.clear();
+        this.delays.addAll(delays);
+    }
+
+    /**
      * Adds a single image to the page at the end.
      *
      * @param image
@@ -263,5 +285,16 @@ public class Page {
     public Button addButton(Button button) {
         buttons.add(button);
         return button;
+    }
+
+    /**
+     * Adds a single delay to the page at the end.
+     *
+     * @param delay
+     * @return
+     */
+    public Delay addDelay(Delay delay) {
+        delays.add(delay);
+        return delay;
     }
 }

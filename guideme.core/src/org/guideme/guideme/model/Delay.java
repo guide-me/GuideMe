@@ -81,13 +81,13 @@ public class Delay {
         if (period != null && period.length() > 0) {
             String[] split = period.split(":");
             if (split.length == 3) {
-                this.periodInSeconds = Integer.parseInt(split[2]) + 60 * Integer.parseInt(split[1]) + 60 * 60 * Integer.parseInt(split[0]);
+                result = Integer.parseInt(split[2]) + 60 * Integer.parseInt(split[1]) + 60 * 60 * Integer.parseInt(split[0]);
             }
             if (split.length == 2) {
-                this.periodInSeconds = Integer.parseInt(split[1]) + 60 * Integer.parseInt(split[0]);
+                result = Integer.parseInt(split[1]) + 60 * Integer.parseInt(split[0]);
             }
             if (split.length == 1) {
-                this.periodInSeconds = Integer.parseInt(split[0]);
+                result = Integer.parseInt(split[0]);
             }
         }
         return result;
