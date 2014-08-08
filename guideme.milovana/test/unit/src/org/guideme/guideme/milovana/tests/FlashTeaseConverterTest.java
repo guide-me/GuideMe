@@ -62,7 +62,7 @@ public class FlashTeaseConverterTest {
     
     @Test
     public void simpleImage() {
-        Guide guide = sut.createGuide("start#page(media:pic('path/to/image.png'))");
+        Guide guide = sut.createGuide("start#page(media:pic(id:\"path/to/image.png\"))");
         assertEquals("path/to/image.png", guide.getPages().get(0).getImages().get(0).getSrc());
     }
 }

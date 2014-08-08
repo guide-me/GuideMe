@@ -54,7 +54,7 @@ text
     ;
 
 media_pic
-    : 'media:pic(' QUOTED_STRING ')'
+    : 'media:pic(' 'id:' QUOTED_STRING ')'
     ;
 
 hidden_sound
