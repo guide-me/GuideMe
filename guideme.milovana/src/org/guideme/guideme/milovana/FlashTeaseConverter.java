@@ -1,7 +1,6 @@
 package org.guideme.guideme.milovana;
 
 import java.io.IOException;
-import java.io.InputStream;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import org.apache.commons.io.IOUtils;
@@ -10,6 +9,7 @@ import org.guideme.guideme.milovana.nyxparser.NyxScriptBaseListener;
 import org.guideme.guideme.milovana.nyxparser.NyxScriptLexer;
 import org.guideme.guideme.milovana.nyxparser.NyxScriptParser;
 import org.guideme.guideme.model.Guide;
+import org.guideme.guideme.model.Image;
 import org.guideme.guideme.model.Page;
 import org.openide.util.Exceptions;
 
@@ -86,6 +86,22 @@ public class FlashTeaseConverter {
             super.enterText(ctx);
         }
 
+        @Override
+        public void enterMedia_pic(NyxScriptParser.Media_picContext ctx) {
+            if (currentPage != null) {
+                TerminalNode quotedString = ctx.QUOTED_STRING();
+                if (quotedString != null) {
+                    // Strip surrounding quotes.
+                    String srcString = StringUtils.strip(quotedString.getText().trim(), "\"'’");
+                    Image img = new Image();
+                    img.setSrc(srcString);
+                    currentPage.addImage(img);
+                }
+            }
+            super.enterMedia_pic(ctx);
+        }
+
+        
     }
 
 }
