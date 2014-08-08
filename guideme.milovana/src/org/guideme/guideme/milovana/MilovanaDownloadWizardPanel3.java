@@ -18,7 +18,7 @@ public class MilovanaDownloadWizardPanel3 implements WizardDescriptor.Panel<Wiza
      */
     private MilovanaDownloadVisualPanel3 component;
 
-    private String teaseId;
+    private TeaseSummary teaseSummary;
     private File destinationFolder;
     private boolean downloadCompleted;
 
@@ -54,10 +54,9 @@ public class MilovanaDownloadWizardPanel3 implements WizardDescriptor.Panel<Wiza
     @Override
     public void readSettings(WizardDescriptor wiz) {
         // use wiz.getProperty to retrieve previous panel state
-        teaseId = (String) wiz.getProperty("teaseId");
+        teaseSummary = (TeaseSummary) wiz.getProperty("teaseSummary");
         destinationFolder = (File) wiz.getProperty("destinationFolder");
                 
-        component.addProgress("Download started...");
         startDownload();
     }
 
@@ -100,7 +99,7 @@ public class MilovanaDownloadWizardPanel3 implements WizardDescriptor.Panel<Wiza
         addChangeListener(this);
 
         try {
-            new HtmlTeaseConverter().SaveGuide(teaseId, destinationFolder);
+            new MilovanaDownloader().saveGuide(teaseSummary, destinationFolder); 
             component.addProgress("Download complete.");
             
         } catch (IOException ex) {

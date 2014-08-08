@@ -41,7 +41,7 @@ public class MilovanaDownloadWizardPanel1 implements WizardDescriptor.Panel<Wiza
         // this condition changes (last form field filled in...) then
         // use ChangeSupport to implement add/removeChangeListener below.
         // WizardDescriptor.ERROR/WARNING/INFORMATION_MESSAGE will also be useful.
-        return getComponent().getGuide() != null;
+        return getComponent().getTeaseSummary()!= null;
     }
 
     private final Set<ChangeListener> listeners = new HashSet<>();
@@ -80,7 +80,7 @@ public class MilovanaDownloadWizardPanel1 implements WizardDescriptor.Panel<Wiza
     public void storeSettings(WizardDescriptor wiz) {
         // use wiz.putProperty to remember current panel state
         wiz.putProperty("teaseId", getComponent().getTeaseId());
-        wiz.putProperty("guide", getComponent().getGuide());
+        wiz.putProperty("teaseSummary", getComponent().getTeaseSummary());
     }
 
 }

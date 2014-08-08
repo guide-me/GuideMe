@@ -1,7 +1,7 @@
 package org.guideme.guideme.milovana;
 
 import java.io.IOException;
-import java.util.List;
+import java.net.URL;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import org.apache.commons.io.IOUtils;
@@ -18,26 +18,34 @@ import org.guideme.guideme.model.Page;
 import org.openide.util.Exceptions;
 
 public class FlashTeaseConverter {
+    
+    public void loadPages(String teaseId, Guide guide) {
+        try {
+            String nyxScript = IOUtils.toString(new URL("http://www.milovana.com/webteases/getscript.php?id=" + teaseId), "UTF-8");
+            
+            parseScript(guide, nyxScript);
+        } catch (IOException ex) {
+            Exceptions.printStackTrace(ex);
+        }
+    }
+    
 
-    public Guide createGuide(String input) {
+    public void parseScript(Guide guide, String nyxScript) {
 
         try {
-            ANTLRInputStream antlrStream = new ANTLRInputStream(IOUtils.toInputStream(input, "UTF-8"));
+            ANTLRInputStream antlrStream = new ANTLRInputStream(IOUtils.toInputStream(nyxScript, "UTF-8"));
             NyxScriptLexer lexer = new NyxScriptLexer(antlrStream);
             CommonTokenStream tokens = new CommonTokenStream(lexer);
             NyxScriptParser parser = new NyxScriptParser(tokens);
             ParseTree tree = parser.guide();
 
             ParseTreeWalker walker = new ParseTreeWalker();
-            NyxScriptGuideBuilder builder = new NyxScriptGuideBuilder();
+            NyxScriptGuideBuilder builder = new NyxScriptGuideBuilder(guide);
 
             walker.walk(builder, tree);
 
-            return builder.getGuide();
-
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
-            return null;
         }
     }
 
@@ -47,8 +55,8 @@ public class FlashTeaseConverter {
 
         private Page currentPage;
 
-        public NyxScriptGuideBuilder() {
-            guide = new Guide();
+        public NyxScriptGuideBuilder(Guide guide) {
+            this.guide = guide;
         }
 
         public Guide getGuide() {
