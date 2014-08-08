@@ -33,6 +33,14 @@ public class FlashTeaseConverterTest {
     }
 
     @Test
+    public void pageIdStartingWithTheLetterE() {
+        // PageIds starting with the letter E were a problem for the old TeaseMe downloader.
+        Guide guide = sut.createGuide("e1#page()");
+
+        assertNotNull(guide.findPage("e1"));
+    }
+    
+    @Test
     public void twoPages() {
         Guide guide = sut.createGuide("start#page()\np2#page()\n");
 
