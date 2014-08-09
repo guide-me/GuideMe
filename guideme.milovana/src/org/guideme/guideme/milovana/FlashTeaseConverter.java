@@ -156,9 +156,11 @@ public class FlashTeaseConverter {
                 if (delayStyle != null) {
                     switch (delayStyle.getText().trim()) {
                         case "hidden":
+                        case "'hidden'":
                             delay.setStyle(Delay.Style.Hidden);
                             break;
                         case "secret":
+                        case "'secret'":
                             delay.setStyle(Delay.Style.Secret);
                             break;
                         default:

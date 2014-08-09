@@ -159,6 +159,14 @@ public class FlashTeaseConverterTest {
     }
     
     @Test
+    public void delayQuotedStyle() {
+        sut.parseScript(guide, "page3#page(action:delay(time:40sec,target:page4#,style:'hidden'))");
+
+        Delay delay = guide.getPages().get(0).getDelays().get(0);
+        assertEquals(Style.Hidden, delay.getStyle());
+    }
+    
+    @Test
     public void singleButton() {
         sut.parseScript(guide, "page3#page(action:buttons(target0:past17#,cap0:\"Thank You\"))");
         
