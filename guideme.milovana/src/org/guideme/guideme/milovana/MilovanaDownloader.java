@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
@@ -156,7 +157,11 @@ public class MilovanaDownloader {
                             imageName = extractFileNameFromURL(url);
                         } else {
                             url = new URL(String.format("http://www.milovana.com/media/get.php?folder=%s/%s&name=%s", teaseSummary.getAuthorId(), teaseSummary.getTeaseId(), image.getSrc()));
-                            imageName = image.getSrc();
+                            if (image.getSrc().contains("*")) {
+                                imageName = StringUtils.replace(image.getSrc(), "*", UUID.randomUUID().toString());
+                            } else {
+                                imageName = image.getSrc();
+                            }
                         }
                         
                         
