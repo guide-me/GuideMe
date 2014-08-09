@@ -83,7 +83,15 @@ action_go
     ;
 
 action_yn
-    : action_prefix 'yn(' 'yes:' (range | PAGE_ID) ',' 'no:' (range | PAGE_ID) ')'
+    : action_prefix 'yn(' yes_button ',' no_button ')'
+    ;
+
+yes_button
+    : 'yes:' (range | PAGE_ID)
+    ;
+
+no_button
+    : 'no:' (range | PAGE_ID)
     ;
 
 action_target

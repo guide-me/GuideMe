@@ -18,17 +18,16 @@ import org.guideme.guideme.model.Page;
 import org.openide.util.Exceptions;
 
 public class FlashTeaseConverter {
-    
+
     public void loadPages(String teaseId, Guide guide) {
         try {
             String nyxScript = IOUtils.toString(new URL("http://www.milovana.com/webteases/getscript.php?id=" + teaseId), "UTF-8");
-            
+
             parseScript(guide, nyxScript);
         } catch (IOException ex) {
             Exceptions.printStackTrace(ex);
         }
     }
-    
 
     public void parseScript(Guide guide, String nyxScript) {
 
@@ -151,7 +150,7 @@ public class FlashTeaseConverter {
                         }
                     }
                 }
-                
+
                 TerminalNode delayStyle = ctx.DELAY_STYLE();
                 if (delayStyle != null) {
                     switch (delayStyle.getText().trim()) {
@@ -169,11 +168,9 @@ public class FlashTeaseConverter {
 
                 NyxScriptParser.Action_targetContext actionTarget = ctx.action_target();
                 if (actionTarget != null) {
-                    TerminalNode pageId = actionTarget.PAGE_ID();
-                    if (pageId != null) {
+                    if (actionTarget.PAGE_ID() != null) {
                         // if pageId still ends with a #, strip it.
-                        String pageIdText = StringUtils.stripEnd(pageId.getText().trim(), "#");
-                        delay.setTarget(pageIdText);
+                        delay.setTarget(StringUtils.stripEnd(actionTarget.PAGE_ID().getText().trim(), "#"));
                     }
                 }
 
@@ -182,6 +179,45 @@ public class FlashTeaseConverter {
             super.enterAction_delay(ctx);
         }
 
+        @Override
+        public void enterButton(NyxScriptParser.ButtonContext ctx) {
+            if (currentPage != null) {
+                Button button = new Button();
+
+                if (ctx.PAGE_ID() != null) {
+                    // if pageId still ends with a #, strip it.
+                    button.setTarget(StringUtils.stripEnd(ctx.PAGE_ID().getText().trim(), "#"));
+                }
+                
+                if (ctx.QUOTED_STRING() != null) {
+                    button.setText(StringUtils.strip(ctx.QUOTED_STRING().getText().trim(), "\"'’"));
+                }
+
+                currentPage.addButton(button);
+            }
+            super.enterButton(ctx);
+        }
+
+        @Override
+        public void enterAction_yn(NyxScriptParser.Action_ynContext ctx) {
+            if (currentPage != null) {
+                if (ctx.yes_button() != null) {
+                    if (ctx.yes_button().PAGE_ID() != null) {
+                        String yesTarget = StringUtils.stripEnd(ctx.yes_button().PAGE_ID().getText().trim(), "#");
+                        currentPage.addButton(GuideEditor.createYesButton(yesTarget));
+                    }
+                }
+                if (ctx.no_button() != null) {
+                    if (ctx.no_button().PAGE_ID() != null) {
+                        String noTarget = StringUtils.stripEnd(ctx.no_button().PAGE_ID().getText().trim(), "#");
+                        currentPage.addButton(GuideEditor.createNoButton(noTarget));
+                    }
+                }
+            }
+            super.enterAction_yn(ctx);
+        }
+
+        
     }
 
 }

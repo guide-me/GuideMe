@@ -19,6 +19,16 @@ public interface NyxScriptListener extends ParseTreeListener {
 	 */
 	void exitAction_go(@NotNull NyxScriptParser.Action_goContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link NyxScriptParser#yes_button}.
+	 * @param ctx the parse tree
+	 */
+	void enterYes_button(@NotNull NyxScriptParser.Yes_buttonContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link NyxScriptParser#yes_button}.
+	 * @param ctx the parse tree
+	 */
+	void exitYes_button(@NotNull NyxScriptParser.Yes_buttonContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link NyxScriptParser#range}.
 	 * @param ctx the parse tree
 	 */
@@ -58,6 +68,16 @@ public interface NyxScriptListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitAction_delay(@NotNull NyxScriptParser.Action_delayContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link NyxScriptParser#no_button}.
+	 * @param ctx the parse tree
+	 */
+	void enterNo_button(@NotNull NyxScriptParser.No_buttonContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link NyxScriptParser#no_button}.
+	 * @param ctx the parse tree
+	 */
+	void exitNo_button(@NotNull NyxScriptParser.No_buttonContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link NyxScriptParser#action_target}.
 	 * @param ctx the parse tree

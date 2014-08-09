@@ -39,12 +39,13 @@ public class NyxScriptParser extends Parser {
 		RULE_action = 5, RULE_action_group = 6, RULE_action_prefix = 7, RULE_action_unset = 8, 
 		RULE_text = 9, RULE_media_pic = 10, RULE_hidden_sound = 11, RULE_action_buttons = 12, 
 		RULE_button = 13, RULE_action_delay = 14, RULE_time = 15, RULE_action_go = 16, 
-		RULE_action_yn = 17, RULE_action_target = 18, RULE_range = 19;
+		RULE_action_yn = 17, RULE_yes_button = 18, RULE_no_button = 19, RULE_action_target = 20, 
+		RULE_range = 21;
 	public static final String[] ruleNames = {
 		"guide", "page", "must_not", "must", "page_option", "action", "action_group", 
 		"action_prefix", "action_unset", "text", "media_pic", "hidden_sound", 
 		"action_buttons", "button", "action_delay", "time", "action_go", "action_yn", 
-		"action_target", "range"
+		"yes_button", "no_button", "action_target", "range"
 	};
 
 	@Override
@@ -94,16 +95,16 @@ public class NyxScriptParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(43);
+			setState(47);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__35) | (1L << T__11) | (1L << PAGE_ID))) != 0)) {
 				{
 				{
-				setState(40); page();
+				setState(44); page();
 				}
 				}
-				setState(45);
+				setState(49);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -153,48 +154,48 @@ public class NyxScriptParser extends Parser {
 		enterRule(_localctx, 2, RULE_page);
 		int _la;
 		try {
-			setState(61);
+			setState(65);
 			switch (_input.LA(1)) {
 			case T__35:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(46); must_not();
+				setState(50); must_not();
 				}
 				break;
 			case T__11:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(47); must();
+				setState(51); must();
 				}
 				break;
 			case PAGE_ID:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(48); match(PAGE_ID);
-				setState(49); match(T__4);
-				setState(58);
+				setState(52); match(PAGE_ID);
+				setState(53); match(T__4);
+				setState(62);
 				_la = _input.LA(1);
 				if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__38) | (1L << T__37) | (1L << T__36) | (1L << T__34) | (1L << T__17) | (1L << T__6) | (1L << T__3))) != 0)) {
 					{
-					setState(50); page_option();
-					setState(55);
+					setState(54); page_option();
+					setState(59);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 					while (_la==T__18) {
 						{
 						{
-						setState(51); match(T__18);
-						setState(52); page_option();
+						setState(55); match(T__18);
+						setState(56); page_option();
 						}
 						}
-						setState(57);
+						setState(61);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
 					}
 					}
 				}
 
-				setState(60); match(T__1);
+				setState(64); match(T__1);
 				}
 				break;
 			default:
@@ -242,27 +243,27 @@ public class NyxScriptParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(63); match(T__35);
-			setState(64); match(T__29);
-			setState(65); match(PAGE_ID);
-			setState(71); 
+			setState(67); match(T__35);
+			setState(68); match(T__29);
+			setState(69); match(PAGE_ID);
+			setState(75); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
 				{
 				{
-				setState(66); match(T__18);
-				setState(67); match(T__19);
-				setState(68); match(INT);
-				setState(69); match(T__9);
-				setState(70); match(PAGE_ID);
+				setState(70); match(T__18);
+				setState(71); match(T__19);
+				setState(72); match(INT);
+				setState(73); match(T__9);
+				setState(74); match(PAGE_ID);
 				}
 				}
-				setState(73); 
+				setState(77); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( _la==T__18 );
-			setState(75); match(T__1);
+			setState(79); match(T__1);
 			}
 		}
 		catch (RecognitionException re) {
@@ -306,27 +307,27 @@ public class NyxScriptParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(77); match(T__11);
-			setState(78); match(T__29);
-			setState(79); match(PAGE_ID);
-			setState(85); 
+			setState(81); match(T__11);
+			setState(82); match(T__29);
+			setState(83); match(PAGE_ID);
+			setState(89); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
 				{
 				{
-				setState(80); match(T__18);
-				setState(81); match(T__19);
-				setState(82); match(INT);
-				setState(83); match(T__9);
-				setState(84); match(PAGE_ID);
+				setState(84); match(T__18);
+				setState(85); match(T__19);
+				setState(86); match(INT);
+				setState(87); match(T__9);
+				setState(88); match(PAGE_ID);
 				}
 				}
-				setState(87); 
+				setState(91); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( _la==T__18 );
-			setState(89); match(T__1);
+			setState(93); match(T__1);
 			}
 		}
 		catch (RecognitionException re) {
@@ -374,36 +375,36 @@ public class NyxScriptParser extends Parser {
 		Page_optionContext _localctx = new Page_optionContext(_ctx, getState());
 		enterRule(_localctx, 8, RULE_page_option);
 		try {
-			setState(96);
+			setState(100);
 			switch ( getInterpreter().adaptivePredict(_input,6,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(91); text();
+				setState(95); text();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(92); media_pic();
+				setState(96); media_pic();
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(93); hidden_sound();
+				setState(97); hidden_sound();
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(94); action_group();
+				setState(98); action_group();
 				}
 				break;
 			case 5:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(95); action();
+				setState(99); action();
 				}
 				break;
 			}
@@ -453,36 +454,36 @@ public class NyxScriptParser extends Parser {
 		ActionContext _localctx = new ActionContext(_ctx, getState());
 		enterRule(_localctx, 10, RULE_action);
 		try {
-			setState(103);
+			setState(107);
 			switch ( getInterpreter().adaptivePredict(_input,7,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(98); action_buttons();
+				setState(102); action_buttons();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(99); action_delay();
+				setState(103); action_delay();
 				}
 				break;
 			case 3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(100); action_go();
+				setState(104); action_go();
 				}
 				break;
 			case 4:
 				enterOuterAlt(_localctx, 4);
 				{
-				setState(101); action_yn();
+				setState(105); action_yn();
 				}
 				break;
 			case 5:
 				enterOuterAlt(_localctx, 5);
 				{
-				setState(102); action_unset();
+				setState(106); action_unset();
 				}
 				break;
 			}
@@ -529,36 +530,36 @@ public class NyxScriptParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(105); action_prefix();
-			setState(106);
+			setState(109); action_prefix();
+			setState(110);
 			_la = _input.LA(1);
 			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__32) | (1L << T__31) | (1L << T__8))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			consume();
-			setState(107); match(T__22);
-			setState(114);
+			setState(111); match(T__22);
+			setState(118);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__38) | (1L << T__37) | (1L << T__17) | (1L << T__3))) != 0)) {
 				{
 				{
-				setState(108); action();
-				setState(110);
+				setState(112); action();
+				setState(114);
 				_la = _input.LA(1);
 				if (_la==T__18) {
 					{
-					setState(109); match(T__18);
+					setState(113); match(T__18);
 					}
 				}
 
 				}
 				}
-				setState(116);
+				setState(120);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(117); match(T__1);
+			setState(121); match(T__1);
 			}
 		}
 		catch (RecognitionException re) {
@@ -592,26 +593,26 @@ public class NyxScriptParser extends Parser {
 		Action_prefixContext _localctx = new Action_prefixContext(_ctx, getState());
 		enterRule(_localctx, 14, RULE_action_prefix);
 		try {
-			setState(124);
+			setState(128);
 			switch (_input.LA(1)) {
 			case T__38:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(119); match(T__38);
+				setState(123); match(T__38);
 				}
 				break;
 			case T__37:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(120); match(T__37);
+				setState(124); match(T__37);
 				}
 				break;
 			case T__3:
 				enterOuterAlt(_localctx, 3);
 				{
-				setState(121); match(T__3);
-				setState(122); match(INT);
-				setState(123); match(T__9);
+				setState(125); match(T__3);
+				setState(126); match(INT);
+				setState(127); match(T__9);
 				}
 				break;
 			default:
@@ -662,37 +663,37 @@ public class NyxScriptParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(127);
+			setState(131);
 			_la = _input.LA(1);
 			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << T__38) | (1L << T__37) | (1L << T__3))) != 0)) {
 				{
-				setState(126); action_prefix();
+				setState(130); action_prefix();
 				}
 			}
 
-			setState(129); match(T__17);
-			setState(130); match(T__19);
-			setState(131); match(INT);
-			setState(132); match(T__9);
-			setState(133); match(PAGE_ID);
-			setState(141);
+			setState(133); match(T__17);
+			setState(134); match(T__19);
+			setState(135); match(INT);
+			setState(136); match(T__9);
+			setState(137); match(PAGE_ID);
+			setState(145);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			while (_la==T__18) {
 				{
 				{
-				setState(134); match(T__18);
-				setState(135); match(T__19);
-				setState(136); match(INT);
-				setState(137); match(T__9);
-				setState(138); match(PAGE_ID);
+				setState(138); match(T__18);
+				setState(139); match(T__19);
+				setState(140); match(INT);
+				setState(141); match(T__9);
+				setState(142); match(PAGE_ID);
 				}
 				}
-				setState(143);
+				setState(147);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(144); match(T__1);
+			setState(148); match(T__1);
 			}
 		}
 		catch (RecognitionException re) {
@@ -728,8 +729,8 @@ public class NyxScriptParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(146); match(T__6);
-			setState(147); match(QUOTED_STRING);
+			setState(150); match(T__6);
+			setState(151); match(QUOTED_STRING);
 			}
 		}
 		catch (RecognitionException re) {
@@ -765,10 +766,10 @@ public class NyxScriptParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(149); match(T__36);
-			setState(150); match(T__33);
-			setState(151); match(QUOTED_STRING);
-			setState(152); match(T__1);
+			setState(153); match(T__36);
+			setState(154); match(T__33);
+			setState(155); match(QUOTED_STRING);
+			setState(156); match(T__1);
 			}
 		}
 		catch (RecognitionException re) {
@@ -806,20 +807,20 @@ public class NyxScriptParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(154); match(T__34);
-			setState(155); match(T__33);
-			setState(156); match(QUOTED_STRING);
-			setState(160);
+			setState(158); match(T__34);
+			setState(159); match(T__33);
+			setState(160); match(QUOTED_STRING);
+			setState(164);
 			_la = _input.LA(1);
 			if (_la==T__18) {
 				{
-				setState(157); match(T__18);
-				setState(158); match(T__14);
-				setState(159); match(INT);
+				setState(161); match(T__18);
+				setState(162); match(T__14);
+				setState(163); match(INT);
 				}
 			}
 
-			setState(162); match(T__1);
+			setState(166); match(T__1);
 			}
 		}
 		catch (RecognitionException re) {
@@ -864,30 +865,30 @@ public class NyxScriptParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(164); action_prefix();
-			setState(165); match(T__12);
-			setState(170); 
+			setState(168); action_prefix();
+			setState(169); match(T__12);
+			setState(174); 
 			_errHandler.sync(this);
 			_la = _input.LA(1);
 			do {
 				{
 				{
-				setState(166); button();
-				setState(168);
+				setState(170); button();
+				setState(172);
 				_la = _input.LA(1);
 				if (_la==T__18) {
 					{
-					setState(167); match(T__18);
+					setState(171); match(T__18);
 					}
 				}
 
 				}
 				}
-				setState(172); 
+				setState(176); 
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			} while ( _la==T__30 );
-			setState(174); match(T__1);
+			setState(178); match(T__1);
 			}
 		}
 		catch (RecognitionException re) {
@@ -932,32 +933,32 @@ public class NyxScriptParser extends Parser {
 			enterOuterAlt(_localctx, 1);
 			{
 			{
-			setState(176); match(T__30);
-			setState(177); match(INT);
+			setState(180); match(T__30);
+			setState(181); match(INT);
 			}
-			setState(179); match(T__9);
-			setState(182);
+			setState(183); match(T__9);
+			setState(186);
 			switch (_input.LA(1)) {
 			case T__25:
 				{
-				setState(180); range();
+				setState(184); range();
 				}
 				break;
 			case PAGE_ID:
 				{
-				setState(181); match(PAGE_ID);
+				setState(185); match(PAGE_ID);
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(184); match(T__18);
+			setState(188); match(T__18);
 			{
-			setState(185); match(T__23);
-			setState(186); match(INT);
+			setState(189); match(T__23);
+			setState(190); match(INT);
 			}
-			setState(188); match(T__9);
-			setState(189); match(QUOTED_STRING);
+			setState(192); match(T__9);
+			setState(193); match(QUOTED_STRING);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1003,22 +1004,22 @@ public class NyxScriptParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(191); action_prefix();
-			setState(192); match(T__7);
-			setState(193); time();
-			setState(194); match(T__18);
-			setState(195); action_target();
-			setState(199);
+			setState(195); action_prefix();
+			setState(196); match(T__7);
+			setState(197); time();
+			setState(198); match(T__18);
+			setState(199); action_target();
+			setState(203);
 			_la = _input.LA(1);
 			if (_la==T__18) {
 				{
-				setState(196); match(T__18);
-				setState(197); match(T__16);
-				setState(198); match(DELAY_STYLE);
+				setState(200); match(T__18);
+				setState(201); match(T__16);
+				setState(202); match(DELAY_STYLE);
 				}
 			}
 
-			setState(201); match(T__1);
+			setState(205); match(T__1);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1060,47 +1061,47 @@ public class NyxScriptParser extends Parser {
 		enterRule(_localctx, 30, RULE_time);
 		int _la;
 		try {
-			setState(222);
+			setState(226);
 			switch ( getInterpreter().adaptivePredict(_input,21,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(203); match(T__15);
-				setState(204); match(T__26);
-				setState(205); match(T__2);
-				setState(206); match(INT);
-				setState(208);
+				setState(207); match(T__15);
+				setState(208); match(T__26);
+				setState(209); match(T__2);
+				setState(210); match(INT);
+				setState(212);
 				_la = _input.LA(1);
 				if (_la==TIME_UNIT) {
 					{
-					setState(207); match(TIME_UNIT);
+					setState(211); match(TIME_UNIT);
 					}
 				}
 
-				setState(210); match(T__18);
-				setState(211); match(T__27);
-				setState(212); match(INT);
-				setState(214);
+				setState(214); match(T__18);
+				setState(215); match(T__27);
+				setState(216); match(INT);
+				setState(218);
 				_la = _input.LA(1);
 				if (_la==TIME_UNIT) {
 					{
-					setState(213); match(TIME_UNIT);
+					setState(217); match(TIME_UNIT);
 					}
 				}
 
-				setState(216); match(T__1);
+				setState(220); match(T__1);
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(217); match(T__15);
-				setState(218); match(INT);
-				setState(220);
+				setState(221); match(T__15);
+				setState(222); match(INT);
+				setState(224);
 				_la = _input.LA(1);
 				if (_la==TIME_UNIT) {
 					{
-					setState(219); match(TIME_UNIT);
+					setState(223); match(TIME_UNIT);
 					}
 				}
 
@@ -1146,10 +1147,10 @@ public class NyxScriptParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(224); action_prefix();
-			setState(225); match(T__13);
-			setState(226); action_target();
-			setState(227); match(T__1);
+			setState(228); action_prefix();
+			setState(229); match(T__13);
+			setState(230); action_target();
+			setState(231); match(T__1);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1167,16 +1168,12 @@ public class NyxScriptParser extends Parser {
 		public Action_prefixContext action_prefix() {
 			return getRuleContext(Action_prefixContext.class,0);
 		}
-		public TerminalNode PAGE_ID(int i) {
-			return getToken(NyxScriptParser.PAGE_ID, i);
+		public Yes_buttonContext yes_button() {
+			return getRuleContext(Yes_buttonContext.class,0);
 		}
-		public RangeContext range(int i) {
-			return getRuleContext(RangeContext.class,i);
+		public No_buttonContext no_button() {
+			return getRuleContext(No_buttonContext.class,0);
 		}
-		public List<RangeContext> range() {
-			return getRuleContexts(RangeContext.class);
-		}
-		public List<TerminalNode> PAGE_ID() { return getTokens(NyxScriptParser.PAGE_ID); }
 		public Action_ynContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
@@ -1197,42 +1194,120 @@ public class NyxScriptParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(229); action_prefix();
-			setState(230); match(T__20);
-			setState(231); match(T__24);
-			setState(234);
-			switch (_input.LA(1)) {
-			case T__25:
-				{
-				setState(232); range();
-				}
-				break;
-			case PAGE_ID:
-				{
-				setState(233); match(PAGE_ID);
-				}
-				break;
-			default:
-				throw new NoViableAltException(this);
-			}
+			setState(233); action_prefix();
+			setState(234); match(T__20);
+			setState(235); yes_button();
 			setState(236); match(T__18);
-			setState(237); match(T__5);
-			setState(240);
+			setState(237); no_button();
+			setState(238); match(T__1);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class Yes_buttonContext extends ParserRuleContext {
+		public RangeContext range() {
+			return getRuleContext(RangeContext.class,0);
+		}
+		public TerminalNode PAGE_ID() { return getToken(NyxScriptParser.PAGE_ID, 0); }
+		public Yes_buttonContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_yes_button; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof NyxScriptListener ) ((NyxScriptListener)listener).enterYes_button(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof NyxScriptListener ) ((NyxScriptListener)listener).exitYes_button(this);
+		}
+	}
+
+	public final Yes_buttonContext yes_button() throws RecognitionException {
+		Yes_buttonContext _localctx = new Yes_buttonContext(_ctx, getState());
+		enterRule(_localctx, 36, RULE_yes_button);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(240); match(T__24);
+			setState(243);
 			switch (_input.LA(1)) {
 			case T__25:
 				{
-				setState(238); range();
+				setState(241); range();
 				}
 				break;
 			case PAGE_ID:
 				{
-				setState(239); match(PAGE_ID);
+				setState(242); match(PAGE_ID);
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
 			}
-			setState(242); match(T__1);
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	public static class No_buttonContext extends ParserRuleContext {
+		public RangeContext range() {
+			return getRuleContext(RangeContext.class,0);
+		}
+		public TerminalNode PAGE_ID() { return getToken(NyxScriptParser.PAGE_ID, 0); }
+		public No_buttonContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_no_button; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof NyxScriptListener ) ((NyxScriptListener)listener).enterNo_button(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof NyxScriptListener ) ((NyxScriptListener)listener).exitNo_button(this);
+		}
+	}
+
+	public final No_buttonContext no_button() throws RecognitionException {
+		No_buttonContext _localctx = new No_buttonContext(_ctx, getState());
+		enterRule(_localctx, 38, RULE_no_button);
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(245); match(T__5);
+			setState(248);
+			switch (_input.LA(1)) {
+			case T__25:
+				{
+				setState(246); range();
+				}
+				break;
+			case PAGE_ID:
+				{
+				setState(247); match(PAGE_ID);
+				}
+				break;
+			default:
+				throw new NoViableAltException(this);
+			}
 			}
 		}
 		catch (RecognitionException re) {
@@ -1267,21 +1342,21 @@ public class NyxScriptParser extends Parser {
 
 	public final Action_targetContext action_target() throws RecognitionException {
 		Action_targetContext _localctx = new Action_targetContext(_ctx, getState());
-		enterRule(_localctx, 36, RULE_action_target);
+		enterRule(_localctx, 40, RULE_action_target);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(244); match(T__28);
-			setState(247);
+			setState(250); match(T__28);
+			setState(253);
 			switch (_input.LA(1)) {
 			case T__25:
 				{
-				setState(245); range();
+				setState(251); range();
 				}
 				break;
 			case PAGE_ID:
 				{
-				setState(246); match(PAGE_ID);
+				setState(252); match(PAGE_ID);
 				}
 				break;
 			default:
@@ -1322,29 +1397,29 @@ public class NyxScriptParser extends Parser {
 
 	public final RangeContext range() throws RecognitionException {
 		RangeContext _localctx = new RangeContext(_ctx, getState());
-		enterRule(_localctx, 38, RULE_range);
+		enterRule(_localctx, 42, RULE_range);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(249); match(T__25);
-			setState(250); match(T__21);
-			setState(251); match(INT);
-			setState(252); match(T__18);
-			setState(253); match(T__10);
-			setState(254); match(INT);
-			setState(255); match(T__18);
-			setState(257);
+			setState(255); match(T__25);
+			setState(256); match(T__21);
+			setState(257); match(INT);
+			setState(258); match(T__18);
+			setState(259); match(T__10);
+			setState(260); match(INT);
+			setState(261); match(T__18);
+			setState(263);
 			_la = _input.LA(1);
 			if (_la==T__0) {
 				{
-				setState(256); match(T__0);
+				setState(262); match(T__0);
 				}
 			}
 
-			setState(259); match(T__9);
-			setState(260); match(QUOTED_STRING);
-			setState(261); match(T__1);
+			setState(265); match(T__9);
+			setState(266); match(QUOTED_STRING);
+			setState(267); match(T__1);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1359,91 +1434,93 @@ public class NyxScriptParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\60\u010a\4\2\t\2"+
+		"\3\u0430\ud6d1\u8206\uad2d\u4417\uaef1\u8d80\uaadd\3\60\u0110\4\2\t\2"+
 		"\4\3\t\3\4\4\t\4\4\5\t\5\4\6\t\6\4\7\t\7\4\b\t\b\4\t\t\t\4\n\t\n\4\13"+
 		"\t\13\4\f\t\f\4\r\t\r\4\16\t\16\4\17\t\17\4\20\t\20\4\21\t\21\4\22\t\22"+
-		"\4\23\t\23\4\24\t\24\4\25\t\25\3\2\7\2,\n\2\f\2\16\2/\13\2\3\3\3\3\3\3"+
-		"\3\3\3\3\3\3\3\3\7\38\n\3\f\3\16\3;\13\3\5\3=\n\3\3\3\5\3@\n\3\3\4\3\4"+
-		"\3\4\3\4\3\4\3\4\3\4\3\4\6\4J\n\4\r\4\16\4K\3\4\3\4\3\5\3\5\3\5\3\5\3"+
-		"\5\3\5\3\5\3\5\6\5X\n\5\r\5\16\5Y\3\5\3\5\3\6\3\6\3\6\3\6\3\6\5\6c\n\6"+
-		"\3\7\3\7\3\7\3\7\3\7\5\7j\n\7\3\b\3\b\3\b\3\b\3\b\5\bq\n\b\7\bs\n\b\f"+
-		"\b\16\bv\13\b\3\b\3\b\3\t\3\t\3\t\3\t\3\t\5\t\177\n\t\3\n\5\n\u0082\n"+
-		"\n\3\n\3\n\3\n\3\n\3\n\3\n\3\n\3\n\3\n\3\n\7\n\u008e\n\n\f\n\16\n\u0091"+
-		"\13\n\3\n\3\n\3\13\3\13\3\13\3\f\3\f\3\f\3\f\3\f\3\r\3\r\3\r\3\r\3\r\3"+
-		"\r\5\r\u00a3\n\r\3\r\3\r\3\16\3\16\3\16\3\16\5\16\u00ab\n\16\6\16\u00ad"+
-		"\n\16\r\16\16\16\u00ae\3\16\3\16\3\17\3\17\3\17\3\17\3\17\3\17\5\17\u00b9"+
-		"\n\17\3\17\3\17\3\17\3\17\3\17\3\17\3\17\3\20\3\20\3\20\3\20\3\20\3\20"+
-		"\3\20\3\20\5\20\u00ca\n\20\3\20\3\20\3\21\3\21\3\21\3\21\3\21\5\21\u00d3"+
-		"\n\21\3\21\3\21\3\21\3\21\5\21\u00d9\n\21\3\21\3\21\3\21\3\21\5\21\u00df"+
-		"\n\21\5\21\u00e1\n\21\3\22\3\22\3\22\3\22\3\22\3\23\3\23\3\23\3\23\3\23"+
-		"\5\23\u00ed\n\23\3\23\3\23\3\23\3\23\5\23\u00f3\n\23\3\23\3\23\3\24\3"+
-		"\24\3\24\5\24\u00fa\n\24\3\25\3\25\3\25\3\25\3\25\3\25\3\25\3\25\5\25"+
-		"\u0104\n\25\3\25\3\25\3\25\3\25\3\25\2\2\26\2\4\6\b\n\f\16\20\22\24\26"+
-		"\30\32\34\36 \"$&(\2\3\4\2\t\n!!\u0117\2-\3\2\2\2\4?\3\2\2\2\6A\3\2\2"+
-		"\2\bO\3\2\2\2\nb\3\2\2\2\fi\3\2\2\2\16k\3\2\2\2\20~\3\2\2\2\22\u0081\3"+
-		"\2\2\2\24\u0094\3\2\2\2\26\u0097\3\2\2\2\30\u009c\3\2\2\2\32\u00a6\3\2"+
-		"\2\2\34\u00b2\3\2\2\2\36\u00c1\3\2\2\2 \u00e0\3\2\2\2\"\u00e2\3\2\2\2"+
-		"$\u00e7\3\2\2\2&\u00f6\3\2\2\2(\u00fb\3\2\2\2*,\5\4\3\2+*\3\2\2\2,/\3"+
-		"\2\2\2-+\3\2\2\2-.\3\2\2\2.\3\3\2\2\2/-\3\2\2\2\60@\5\6\4\2\61@\5\b\5"+
-		"\2\62\63\7-\2\2\63<\7%\2\2\649\5\n\6\2\65\66\7\27\2\2\668\5\n\6\2\67\65"+
-		"\3\2\2\28;\3\2\2\29\67\3\2\2\29:\3\2\2\2:=\3\2\2\2;9\3\2\2\2<\64\3\2\2"+
-		"\2<=\3\2\2\2=>\3\2\2\2>@\7(\2\2?\60\3\2\2\2?\61\3\2\2\2?\62\3\2\2\2@\5"+
-		"\3\2\2\2AB\7\6\2\2BC\7\f\2\2CI\7-\2\2DE\7\27\2\2EF\7\26\2\2FG\7.\2\2G"+
-		"H\7 \2\2HJ\7-\2\2ID\3\2\2\2JK\3\2\2\2KI\3\2\2\2KL\3\2\2\2LM\3\2\2\2MN"+
-		"\7(\2\2N\7\3\2\2\2OP\7\36\2\2PQ\7\f\2\2QW\7-\2\2RS\7\27\2\2ST\7\26\2\2"+
-		"TU\7.\2\2UV\7 \2\2VX\7-\2\2WR\3\2\2\2XY\3\2\2\2YW\3\2\2\2YZ\3\2\2\2Z["+
-		"\3\2\2\2[\\\7(\2\2\\\t\3\2\2\2]c\5\24\13\2^c\5\26\f\2_c\5\30\r\2`c\5\16"+
-		"\b\2ac\5\f\7\2b]\3\2\2\2b^\3\2\2\2b_\3\2\2\2b`\3\2\2\2ba\3\2\2\2c\13\3"+
-		"\2\2\2dj\5\32\16\2ej\5\36\20\2fj\5\"\22\2gj\5$\23\2hj\5\22\n\2id\3\2\2"+
-		"\2ie\3\2\2\2if\3\2\2\2ig\3\2\2\2ih\3\2\2\2j\r\3\2\2\2kl\5\20\t\2lm\t\2"+
-		"\2\2mt\7\23\2\2np\5\f\7\2oq\7\27\2\2po\3\2\2\2pq\3\2\2\2qs\3\2\2\2rn\3"+
-		"\2\2\2sv\3\2\2\2tr\3\2\2\2tu\3\2\2\2uw\3\2\2\2vt\3\2\2\2wx\7(\2\2x\17"+
-		"\3\2\2\2y\177\7\3\2\2z\177\7\4\2\2{|\7&\2\2|}\7.\2\2}\177\7 \2\2~y\3\2"+
-		"\2\2~z\3\2\2\2~{\3\2\2\2\177\21\3\2\2\2\u0080\u0082\5\20\t\2\u0081\u0080"+
-		"\3\2\2\2\u0081\u0082\3\2\2\2\u0082\u0083\3\2\2\2\u0083\u0084\7\30\2\2"+
-		"\u0084\u0085\7\26\2\2\u0085\u0086\7.\2\2\u0086\u0087\7 \2\2\u0087\u008f"+
-		"\7-\2\2\u0088\u0089\7\27\2\2\u0089\u008a\7\26\2\2\u008a\u008b\7.\2\2\u008b"+
-		"\u008c\7 \2\2\u008c\u008e\7-\2\2\u008d\u0088\3\2\2\2\u008e\u0091\3\2\2"+
-		"\2\u008f\u008d\3\2\2\2\u008f\u0090\3\2\2\2\u0090\u0092\3\2\2\2\u0091\u008f"+
-		"\3\2\2\2\u0092\u0093\7(\2\2\u0093\23\3\2\2\2\u0094\u0095\7#\2\2\u0095"+
-		"\u0096\7,\2\2\u0096\25\3\2\2\2\u0097\u0098\7\5\2\2\u0098\u0099\7\b\2\2"+
-		"\u0099\u009a\7,\2\2\u009a\u009b\7(\2\2\u009b\27\3\2\2\2\u009c\u009d\7"+
-		"\7\2\2\u009d\u009e\7\b\2\2\u009e\u00a2\7,\2\2\u009f\u00a0\7\27\2\2\u00a0"+
-		"\u00a1\7\33\2\2\u00a1\u00a3\7.\2\2\u00a2\u009f\3\2\2\2\u00a2\u00a3\3\2"+
-		"\2\2\u00a3\u00a4\3\2\2\2\u00a4\u00a5\7(\2\2\u00a5\31\3\2\2\2\u00a6\u00a7"+
-		"\5\20\t\2\u00a7\u00ac\7\35\2\2\u00a8\u00aa\5\34\17\2\u00a9\u00ab\7\27"+
-		"\2\2\u00aa\u00a9\3\2\2\2\u00aa\u00ab\3\2\2\2\u00ab\u00ad\3\2\2\2\u00ac"+
-		"\u00a8\3\2\2\2\u00ad\u00ae\3\2\2\2\u00ae\u00ac\3\2\2\2\u00ae\u00af\3\2"+
-		"\2\2\u00af\u00b0\3\2\2\2\u00b0\u00b1\7(\2\2\u00b1\33\3\2\2\2\u00b2\u00b3"+
-		"\7\13\2\2\u00b3\u00b4\7.\2\2\u00b4\u00b5\3\2\2\2\u00b5\u00b8\7 \2\2\u00b6"+
-		"\u00b9\5(\25\2\u00b7\u00b9\7-\2\2\u00b8\u00b6\3\2\2\2\u00b8\u00b7\3\2"+
-		"\2\2\u00b9\u00ba\3\2\2\2\u00ba\u00bb\7\27\2\2\u00bb\u00bc\7\22\2\2\u00bc"+
-		"\u00bd\7.\2\2\u00bd\u00be\3\2\2\2\u00be\u00bf\7 \2\2\u00bf\u00c0\7,\2"+
-		"\2\u00c0\35\3\2\2\2\u00c1\u00c2\5\20\t\2\u00c2\u00c3\7\"\2\2\u00c3\u00c4"+
-		"\5 \21\2\u00c4\u00c5\7\27\2\2\u00c5\u00c9\5&\24\2\u00c6\u00c7\7\27\2\2"+
-		"\u00c7\u00c8\7\31\2\2\u00c8\u00ca\7*\2\2\u00c9\u00c6\3\2\2\2\u00c9\u00ca"+
-		"\3\2\2\2\u00ca\u00cb\3\2\2\2\u00cb\u00cc\7(\2\2\u00cc\37\3\2\2\2\u00cd"+
-		"\u00ce\7\32\2\2\u00ce\u00cf\7\17\2\2\u00cf\u00d0\7\'\2\2\u00d0\u00d2\7"+
-		".\2\2\u00d1\u00d3\7+\2\2\u00d2\u00d1\3\2\2\2\u00d2\u00d3\3\2\2\2\u00d3"+
-		"\u00d4\3\2\2\2\u00d4\u00d5\7\27\2\2\u00d5\u00d6\7\16\2\2\u00d6\u00d8\7"+
-		".\2\2\u00d7\u00d9\7+\2\2\u00d8\u00d7\3\2\2\2\u00d8\u00d9\3\2\2\2\u00d9"+
-		"\u00da\3\2\2\2\u00da\u00e1\7(\2\2\u00db\u00dc\7\32\2\2\u00dc\u00de\7."+
-		"\2\2\u00dd\u00df\7+\2\2\u00de\u00dd\3\2\2\2\u00de\u00df\3\2\2\2\u00df"+
-		"\u00e1\3\2\2\2\u00e0\u00cd\3\2\2\2\u00e0\u00db\3\2\2\2\u00e1!\3\2\2\2"+
-		"\u00e2\u00e3\5\20\t\2\u00e3\u00e4\7\34\2\2\u00e4\u00e5\5&\24\2\u00e5\u00e6"+
-		"\7(\2\2\u00e6#\3\2\2\2\u00e7\u00e8\5\20\t\2\u00e8\u00e9\7\25\2\2\u00e9"+
-		"\u00ec\7\21\2\2\u00ea\u00ed\5(\25\2\u00eb\u00ed\7-\2\2\u00ec\u00ea\3\2"+
-		"\2\2\u00ec\u00eb\3\2\2\2\u00ed\u00ee\3\2\2\2\u00ee\u00ef\7\27\2\2\u00ef"+
-		"\u00f2\7$\2\2\u00f0\u00f3\5(\25\2\u00f1\u00f3\7-\2\2\u00f2\u00f0\3\2\2"+
-		"\2\u00f2\u00f1\3\2\2\2\u00f3\u00f4\3\2\2\2\u00f4\u00f5\7(\2\2\u00f5%\3"+
-		"\2\2\2\u00f6\u00f9\7\r\2\2\u00f7\u00fa\5(\25\2\u00f8\u00fa\7-\2\2\u00f9"+
-		"\u00f7\3\2\2\2\u00f9\u00f8\3\2\2\2\u00fa\'\3\2\2\2\u00fb\u00fc\7\20\2"+
-		"\2\u00fc\u00fd\7\24\2\2\u00fd\u00fe\7.\2\2\u00fe\u00ff\7\27\2\2\u00ff"+
-		"\u0100\7\37\2\2\u0100\u0101\7.\2\2\u0101\u0103\7\27\2\2\u0102\u0104\7"+
-		")\2\2\u0103\u0102\3\2\2\2\u0103\u0104\3\2\2\2\u0104\u0105\3\2\2\2\u0105"+
-		"\u0106\7 \2\2\u0106\u0107\7,\2\2\u0107\u0108\7(\2\2\u0108)\3\2\2\2\34"+
-		"-9<?KYbipt~\u0081\u008f\u00a2\u00aa\u00ae\u00b8\u00c9\u00d2\u00d8\u00de"+
-		"\u00e0\u00ec\u00f2\u00f9\u0103";
+		"\4\23\t\23\4\24\t\24\4\25\t\25\4\26\t\26\4\27\t\27\3\2\7\2\60\n\2\f\2"+
+		"\16\2\63\13\2\3\3\3\3\3\3\3\3\3\3\3\3\3\3\7\3<\n\3\f\3\16\3?\13\3\5\3"+
+		"A\n\3\3\3\5\3D\n\3\3\4\3\4\3\4\3\4\3\4\3\4\3\4\3\4\6\4N\n\4\r\4\16\4O"+
+		"\3\4\3\4\3\5\3\5\3\5\3\5\3\5\3\5\3\5\3\5\6\5\\\n\5\r\5\16\5]\3\5\3\5\3"+
+		"\6\3\6\3\6\3\6\3\6\5\6g\n\6\3\7\3\7\3\7\3\7\3\7\5\7n\n\7\3\b\3\b\3\b\3"+
+		"\b\3\b\5\bu\n\b\7\bw\n\b\f\b\16\bz\13\b\3\b\3\b\3\t\3\t\3\t\3\t\3\t\5"+
+		"\t\u0083\n\t\3\n\5\n\u0086\n\n\3\n\3\n\3\n\3\n\3\n\3\n\3\n\3\n\3\n\3\n"+
+		"\7\n\u0092\n\n\f\n\16\n\u0095\13\n\3\n\3\n\3\13\3\13\3\13\3\f\3\f\3\f"+
+		"\3\f\3\f\3\r\3\r\3\r\3\r\3\r\3\r\5\r\u00a7\n\r\3\r\3\r\3\16\3\16\3\16"+
+		"\3\16\5\16\u00af\n\16\6\16\u00b1\n\16\r\16\16\16\u00b2\3\16\3\16\3\17"+
+		"\3\17\3\17\3\17\3\17\3\17\5\17\u00bd\n\17\3\17\3\17\3\17\3\17\3\17\3\17"+
+		"\3\17\3\20\3\20\3\20\3\20\3\20\3\20\3\20\3\20\5\20\u00ce\n\20\3\20\3\20"+
+		"\3\21\3\21\3\21\3\21\3\21\5\21\u00d7\n\21\3\21\3\21\3\21\3\21\5\21\u00dd"+
+		"\n\21\3\21\3\21\3\21\3\21\5\21\u00e3\n\21\5\21\u00e5\n\21\3\22\3\22\3"+
+		"\22\3\22\3\22\3\23\3\23\3\23\3\23\3\23\3\23\3\23\3\24\3\24\3\24\5\24\u00f6"+
+		"\n\24\3\25\3\25\3\25\5\25\u00fb\n\25\3\26\3\26\3\26\5\26\u0100\n\26\3"+
+		"\27\3\27\3\27\3\27\3\27\3\27\3\27\3\27\5\27\u010a\n\27\3\27\3\27\3\27"+
+		"\3\27\3\27\2\2\30\2\4\6\b\n\f\16\20\22\24\26\30\32\34\36 \"$&(*,\2\3\4"+
+		"\2\t\n!!\u011b\2\61\3\2\2\2\4C\3\2\2\2\6E\3\2\2\2\bS\3\2\2\2\nf\3\2\2"+
+		"\2\fm\3\2\2\2\16o\3\2\2\2\20\u0082\3\2\2\2\22\u0085\3\2\2\2\24\u0098\3"+
+		"\2\2\2\26\u009b\3\2\2\2\30\u00a0\3\2\2\2\32\u00aa\3\2\2\2\34\u00b6\3\2"+
+		"\2\2\36\u00c5\3\2\2\2 \u00e4\3\2\2\2\"\u00e6\3\2\2\2$\u00eb\3\2\2\2&\u00f2"+
+		"\3\2\2\2(\u00f7\3\2\2\2*\u00fc\3\2\2\2,\u0101\3\2\2\2.\60\5\4\3\2/.\3"+
+		"\2\2\2\60\63\3\2\2\2\61/\3\2\2\2\61\62\3\2\2\2\62\3\3\2\2\2\63\61\3\2"+
+		"\2\2\64D\5\6\4\2\65D\5\b\5\2\66\67\7-\2\2\67@\7%\2\28=\5\n\6\29:\7\27"+
+		"\2\2:<\5\n\6\2;9\3\2\2\2<?\3\2\2\2=;\3\2\2\2=>\3\2\2\2>A\3\2\2\2?=\3\2"+
+		"\2\2@8\3\2\2\2@A\3\2\2\2AB\3\2\2\2BD\7(\2\2C\64\3\2\2\2C\65\3\2\2\2C\66"+
+		"\3\2\2\2D\5\3\2\2\2EF\7\6\2\2FG\7\f\2\2GM\7-\2\2HI\7\27\2\2IJ\7\26\2\2"+
+		"JK\7.\2\2KL\7 \2\2LN\7-\2\2MH\3\2\2\2NO\3\2\2\2OM\3\2\2\2OP\3\2\2\2PQ"+
+		"\3\2\2\2QR\7(\2\2R\7\3\2\2\2ST\7\36\2\2TU\7\f\2\2U[\7-\2\2VW\7\27\2\2"+
+		"WX\7\26\2\2XY\7.\2\2YZ\7 \2\2Z\\\7-\2\2[V\3\2\2\2\\]\3\2\2\2][\3\2\2\2"+
+		"]^\3\2\2\2^_\3\2\2\2_`\7(\2\2`\t\3\2\2\2ag\5\24\13\2bg\5\26\f\2cg\5\30"+
+		"\r\2dg\5\16\b\2eg\5\f\7\2fa\3\2\2\2fb\3\2\2\2fc\3\2\2\2fd\3\2\2\2fe\3"+
+		"\2\2\2g\13\3\2\2\2hn\5\32\16\2in\5\36\20\2jn\5\"\22\2kn\5$\23\2ln\5\22"+
+		"\n\2mh\3\2\2\2mi\3\2\2\2mj\3\2\2\2mk\3\2\2\2ml\3\2\2\2n\r\3\2\2\2op\5"+
+		"\20\t\2pq\t\2\2\2qx\7\23\2\2rt\5\f\7\2su\7\27\2\2ts\3\2\2\2tu\3\2\2\2"+
+		"uw\3\2\2\2vr\3\2\2\2wz\3\2\2\2xv\3\2\2\2xy\3\2\2\2y{\3\2\2\2zx\3\2\2\2"+
+		"{|\7(\2\2|\17\3\2\2\2}\u0083\7\3\2\2~\u0083\7\4\2\2\177\u0080\7&\2\2\u0080"+
+		"\u0081\7.\2\2\u0081\u0083\7 \2\2\u0082}\3\2\2\2\u0082~\3\2\2\2\u0082\177"+
+		"\3\2\2\2\u0083\21\3\2\2\2\u0084\u0086\5\20\t\2\u0085\u0084\3\2\2\2\u0085"+
+		"\u0086\3\2\2\2\u0086\u0087\3\2\2\2\u0087\u0088\7\30\2\2\u0088\u0089\7"+
+		"\26\2\2\u0089\u008a\7.\2\2\u008a\u008b\7 \2\2\u008b\u0093\7-\2\2\u008c"+
+		"\u008d\7\27\2\2\u008d\u008e\7\26\2\2\u008e\u008f\7.\2\2\u008f\u0090\7"+
+		" \2\2\u0090\u0092\7-\2\2\u0091\u008c\3\2\2\2\u0092\u0095\3\2\2\2\u0093"+
+		"\u0091\3\2\2\2\u0093\u0094\3\2\2\2\u0094\u0096\3\2\2\2\u0095\u0093\3\2"+
+		"\2\2\u0096\u0097\7(\2\2\u0097\23\3\2\2\2\u0098\u0099\7#\2\2\u0099\u009a"+
+		"\7,\2\2\u009a\25\3\2\2\2\u009b\u009c\7\5\2\2\u009c\u009d\7\b\2\2\u009d"+
+		"\u009e\7,\2\2\u009e\u009f\7(\2\2\u009f\27\3\2\2\2\u00a0\u00a1\7\7\2\2"+
+		"\u00a1\u00a2\7\b\2\2\u00a2\u00a6\7,\2\2\u00a3\u00a4\7\27\2\2\u00a4\u00a5"+
+		"\7\33\2\2\u00a5\u00a7\7.\2\2\u00a6\u00a3\3\2\2\2\u00a6\u00a7\3\2\2\2\u00a7"+
+		"\u00a8\3\2\2\2\u00a8\u00a9\7(\2\2\u00a9\31\3\2\2\2\u00aa\u00ab\5\20\t"+
+		"\2\u00ab\u00b0\7\35\2\2\u00ac\u00ae\5\34\17\2\u00ad\u00af\7\27\2\2\u00ae"+
+		"\u00ad\3\2\2\2\u00ae\u00af\3\2\2\2\u00af\u00b1\3\2\2\2\u00b0\u00ac\3\2"+
+		"\2\2\u00b1\u00b2\3\2\2\2\u00b2\u00b0\3\2\2\2\u00b2\u00b3\3\2\2\2\u00b3"+
+		"\u00b4\3\2\2\2\u00b4\u00b5\7(\2\2\u00b5\33\3\2\2\2\u00b6\u00b7\7\13\2"+
+		"\2\u00b7\u00b8\7.\2\2\u00b8\u00b9\3\2\2\2\u00b9\u00bc\7 \2\2\u00ba\u00bd"+
+		"\5,\27\2\u00bb\u00bd\7-\2\2\u00bc\u00ba\3\2\2\2\u00bc\u00bb\3\2\2\2\u00bd"+
+		"\u00be\3\2\2\2\u00be\u00bf\7\27\2\2\u00bf\u00c0\7\22\2\2\u00c0\u00c1\7"+
+		".\2\2\u00c1\u00c2\3\2\2\2\u00c2\u00c3\7 \2\2\u00c3\u00c4\7,\2\2\u00c4"+
+		"\35\3\2\2\2\u00c5\u00c6\5\20\t\2\u00c6\u00c7\7\"\2\2\u00c7\u00c8\5 \21"+
+		"\2\u00c8\u00c9\7\27\2\2\u00c9\u00cd\5*\26\2\u00ca\u00cb\7\27\2\2\u00cb"+
+		"\u00cc\7\31\2\2\u00cc\u00ce\7*\2\2\u00cd\u00ca\3\2\2\2\u00cd\u00ce\3\2"+
+		"\2\2\u00ce\u00cf\3\2\2\2\u00cf\u00d0\7(\2\2\u00d0\37\3\2\2\2\u00d1\u00d2"+
+		"\7\32\2\2\u00d2\u00d3\7\17\2\2\u00d3\u00d4\7\'\2\2\u00d4\u00d6\7.\2\2"+
+		"\u00d5\u00d7\7+\2\2\u00d6\u00d5\3\2\2\2\u00d6\u00d7\3\2\2\2\u00d7\u00d8"+
+		"\3\2\2\2\u00d8\u00d9\7\27\2\2\u00d9\u00da\7\16\2\2\u00da\u00dc\7.\2\2"+
+		"\u00db\u00dd\7+\2\2\u00dc\u00db\3\2\2\2\u00dc\u00dd\3\2\2\2\u00dd\u00de"+
+		"\3\2\2\2\u00de\u00e5\7(\2\2\u00df\u00e0\7\32\2\2\u00e0\u00e2\7.\2\2\u00e1"+
+		"\u00e3\7+\2\2\u00e2\u00e1\3\2\2\2\u00e2\u00e3\3\2\2\2\u00e3\u00e5\3\2"+
+		"\2\2\u00e4\u00d1\3\2\2\2\u00e4\u00df\3\2\2\2\u00e5!\3\2\2\2\u00e6\u00e7"+
+		"\5\20\t\2\u00e7\u00e8\7\34\2\2\u00e8\u00e9\5*\26\2\u00e9\u00ea\7(\2\2"+
+		"\u00ea#\3\2\2\2\u00eb\u00ec\5\20\t\2\u00ec\u00ed\7\25\2\2\u00ed\u00ee"+
+		"\5&\24\2\u00ee\u00ef\7\27\2\2\u00ef\u00f0\5(\25\2\u00f0\u00f1\7(\2\2\u00f1"+
+		"%\3\2\2\2\u00f2\u00f5\7\21\2\2\u00f3\u00f6\5,\27\2\u00f4\u00f6\7-\2\2"+
+		"\u00f5\u00f3\3\2\2\2\u00f5\u00f4\3\2\2\2\u00f6\'\3\2\2\2\u00f7\u00fa\7"+
+		"$\2\2\u00f8\u00fb\5,\27\2\u00f9\u00fb\7-\2\2\u00fa\u00f8\3\2\2\2\u00fa"+
+		"\u00f9\3\2\2\2\u00fb)\3\2\2\2\u00fc\u00ff\7\r\2\2\u00fd\u0100\5,\27\2"+
+		"\u00fe\u0100\7-\2\2\u00ff\u00fd\3\2\2\2\u00ff\u00fe\3\2\2\2\u0100+\3\2"+
+		"\2\2\u0101\u0102\7\20\2\2\u0102\u0103\7\24\2\2\u0103\u0104\7.\2\2\u0104"+
+		"\u0105\7\27\2\2\u0105\u0106\7\37\2\2\u0106\u0107\7.\2\2\u0107\u0109\7"+
+		"\27\2\2\u0108\u010a\7)\2\2\u0109\u0108\3\2\2\2\u0109\u010a\3\2\2\2\u010a"+
+		"\u010b\3\2\2\2\u010b\u010c\7 \2\2\u010c\u010d\7,\2\2\u010d\u010e\7(\2"+
+		"\2\u010e-\3\2\2\2\34\61=@CO]fmtx\u0082\u0085\u0093\u00a6\u00ae\u00b2\u00bc"+
+		"\u00cd\u00d6\u00dc\u00e2\u00e4\u00f5\u00fa\u00ff\u0109";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

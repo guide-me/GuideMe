@@ -29,6 +29,18 @@ public class NyxScriptBaseListener implements NyxScriptListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterYes_button(@NotNull NyxScriptParser.Yes_buttonContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitYes_button(@NotNull NyxScriptParser.Yes_buttonContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterRange(@NotNull NyxScriptParser.RangeContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -72,6 +84,18 @@ public class NyxScriptBaseListener implements NyxScriptListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitAction_delay(@NotNull NyxScriptParser.Action_delayContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterNo_button(@NotNull NyxScriptParser.No_buttonContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitNo_button(@NotNull NyxScriptParser.No_buttonContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

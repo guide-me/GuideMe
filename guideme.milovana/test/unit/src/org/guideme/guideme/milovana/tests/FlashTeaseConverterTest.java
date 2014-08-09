@@ -1,5 +1,6 @@
 package org.guideme.guideme.milovana.tests;
 
+import java.util.List;
 import org.guideme.guideme.milovana.FlashTeaseConverter;
 import org.guideme.guideme.model.*;
 import org.guideme.guideme.model.Delay.Style;
@@ -41,7 +42,7 @@ public class FlashTeaseConverterTest {
 
         assertNotNull(guide.findPage("e1"));
     }
-    
+
     @Test
     public void twoPages() {
         sut.parseScript(guide, "start#page()\np2#page()\n");
@@ -106,7 +107,7 @@ public class FlashTeaseConverterTest {
     @Test
     public void actionDelayInSecondsNoStyle() {
         sut.parseScript(guide, "page3#page(action:delay(time:90sec,target:page7#))");
-        
+
         Delay delay = guide.getPages().get(0).getDelays().get(0);
         assertEquals(90, delay.getPeriodInSeconds());
         assertEquals("page7", delay.getTarget());
@@ -116,27 +117,72 @@ public class FlashTeaseConverterTest {
     @Test
     public void actionDelayInMinutes() {
         sut.parseScript(guide, "page3#page(action:delay(time:2min,target:page13#))");
-        
+
         Delay delay = guide.getPages().get(0).getDelays().get(0);
-        assertEquals(2*60, delay.getPeriodInSeconds());
+        assertEquals(2 * 60, delay.getPeriodInSeconds());
     }
-    
+
     @Test
     public void actionDelayInHours() {
         sut.parseScript(guide, "page3#page(action:delay(time:2hrs,target:page13#))");
-        
+
         Delay delay = guide.getPages().get(0).getDelays().get(0);
-        assertEquals(2*60*60, delay.getPeriodInSeconds());
+        assertEquals(2 * 60 * 60, delay.getPeriodInSeconds());
     }
 
     @Test
     public void actionDelayInSecondSecret() {
         sut.parseScript(guide, "page3#page(action:delay(time:40sec,target:page4#,style:secret))");
-        
+
         Delay delay = guide.getPages().get(0).getDelays().get(0);
         assertEquals(40, delay.getPeriodInSeconds());
         assertEquals("page4", delay.getTarget());
         assertEquals(Style.Secret, delay.getStyle());
     }
+
+    @Test
+    public void actionDelayHidden() {
+        sut.parseScript(guide, "page3#page(action:delay(time:40sec,target:page4#,style:hidden))");
+
+        Delay delay = guide.getPages().get(0).getDelays().get(0);
+        assertEquals(40, delay.getPeriodInSeconds());
+        assertEquals("page4", delay.getTarget());
+        assertEquals(Style.Hidden, delay.getStyle());
+    }
     
+    @Test
+    public void singleButton() {
+        sut.parseScript(guide, "page3#page(action:buttons(target0:past17#,cap0:\"Thank You\"))");
+        
+        Button button = guide.findPage("page3").getButtons().get(0);
+        assertEquals("past17", button.getTarget());
+        assertEquals("Thank You", button.getText());
+    }
+    
+    @Test
+    public void multipleButtons() {
+        sut.parseScript(guide, "start#page(action:buttons(target0:p1#,cap0:\"First\",target1:p2#,cap1:\"Second\",target2:p3#,cap2:\"Third\"))");
+        
+        List<Button> buttons = guide.findPage("start").getButtons();
+        assertEquals(3, buttons.size());
+        assertEquals("First", buttons.get(0).getText());
+        assertEquals("p1", buttons.get(0).getTarget());
+        assertEquals("Second", buttons.get(1).getText());
+        assertEquals("p2", buttons.get(1).getTarget());
+        assertEquals("Third", buttons.get(2).getText());
+        assertEquals("p3", buttons.get(2).getTarget());
+    }
+    
+    @Test
+    public void yesNoButtons() {
+        sut.parseScript(guide, "start#page(action:yn(yes:past3#,no:dumped#))");
+
+        List<Button> buttons = guide.findPage("start").getButtons();
+        assertEquals(2, buttons.size());
+        assertEquals("Yes", buttons.get(0).getText());
+        assertEquals("past3", buttons.get(0).getTarget());
+        assertEquals("No", buttons.get(1).getText());
+        assertEquals("dumped", buttons.get(1).getTarget());
+    }
+
 }
