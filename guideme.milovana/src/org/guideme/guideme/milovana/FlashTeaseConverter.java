@@ -10,6 +10,7 @@ import org.guideme.guideme.editor.GuideEditor;
 import org.guideme.guideme.milovana.nyxparser.NyxScriptBaseListener;
 import org.guideme.guideme.milovana.nyxparser.NyxScriptLexer;
 import org.guideme.guideme.milovana.nyxparser.NyxScriptParser;
+import org.guideme.guideme.model.Audio;
 import org.guideme.guideme.model.Button;
 import org.guideme.guideme.model.Delay;
 import org.guideme.guideme.model.Guide;
@@ -69,7 +70,7 @@ public class FlashTeaseConverter {
             TerminalNode pageId = ctx.PAGE_ID();
             if (pageId != null) {
                 // if pageId still ends with a #, strip it.
-                String pageIdText = StringUtils.stripEnd(pageId.getText().trim(), "#");
+                String pageIdText = StringUtils.stripEnd(pageId.getText(), "#");
                 currentPage.setId(pageIdText);
             }
             super.enterPage(ctx);
@@ -90,7 +91,7 @@ public class FlashTeaseConverter {
                 TerminalNode quotedString = ctx.QUOTED_STRING();
                 if (quotedString != null) {
                     // Strip surrounding quotes.
-                    String textString = StringUtils.strip(quotedString.getText().trim(), "\"'’");
+                    String textString = StringUtils.strip(quotedString.getText(), "\"'’");
                     currentPage.setText(textString);
                 }
             }
@@ -103,7 +104,7 @@ public class FlashTeaseConverter {
                 TerminalNode quotedString = ctx.QUOTED_STRING();
                 if (quotedString != null) {
                     // Strip surrounding quotes.
-                    String srcString = StringUtils.strip(quotedString.getText().trim(), "\"'’");
+                    String srcString = StringUtils.strip(quotedString.getText(), "\"'’");
                     Image img = new Image();
                     img.setSrc(srcString);
                     currentPage.addImage(img);
@@ -120,7 +121,7 @@ public class FlashTeaseConverter {
                     TerminalNode pageId = actionTarget.PAGE_ID();
                     if (pageId != null) {
                         // if pageId still ends with a #, strip it.
-                        String pageIdText = StringUtils.stripEnd(pageId.getText().trim(), "#");
+                        String pageIdText = StringUtils.stripEnd(pageId.getText(), "#");
                         Button btn = GuideEditor.createContinueButton(pageIdText);
                         currentPage.addButton(btn);
                     }
@@ -137,15 +138,15 @@ public class FlashTeaseConverter {
                 NyxScriptParser.TimeContext time = ctx.time();
                 if (time != null) {
                     if (time.INT().size() > 0 && time.TIME_UNIT().size() > 0) {
-                        switch (time.TIME_UNIT(0).getText().trim()) {
+                        switch (time.TIME_UNIT(0).getText()) {
                             case "sec":
-                                delay.setPeriod("00:00:" + time.INT(0).getText().trim());
+                                delay.setPeriod(String.format("00:00:%s", time.INT(0).getText()));
                                 break;
                             case "min":
-                                delay.setPeriod("00:" + time.INT(0).getText().trim() + ":00");
+                                delay.setPeriod(String.format("00:%s:00", time.INT(0).getText()));
                                 break;
                             case "hrs":
-                                delay.setPeriod(time.INT(0).getText().trim() + ":00:00");
+                                delay.setPeriod(String.format("%s:00:00", time.INT(0).getText()));
                                 break;
                         }
                     }
@@ -170,7 +171,7 @@ public class FlashTeaseConverter {
                 if (actionTarget != null) {
                     if (actionTarget.PAGE_ID() != null) {
                         // if pageId still ends with a #, strip it.
-                        delay.setTarget(StringUtils.stripEnd(actionTarget.PAGE_ID().getText().trim(), "#"));
+                        delay.setTarget(StringUtils.stripEnd(actionTarget.PAGE_ID().getText(), "#"));
                     }
                 }
 
@@ -186,11 +187,11 @@ public class FlashTeaseConverter {
 
                 if (ctx.PAGE_ID() != null) {
                     // if pageId still ends with a #, strip it.
-                    button.setTarget(StringUtils.stripEnd(ctx.PAGE_ID().getText().trim(), "#"));
+                    button.setTarget(StringUtils.stripEnd(ctx.PAGE_ID().getText(), "#"));
                 }
                 
                 if (ctx.QUOTED_STRING() != null) {
-                    button.setText(StringUtils.strip(ctx.QUOTED_STRING().getText().trim(), "\"'’"));
+                    button.setText(StringUtils.strip(ctx.QUOTED_STRING().getText(), "\"'’"));
                 }
 
                 currentPage.addButton(button);
@@ -203,18 +204,35 @@ public class FlashTeaseConverter {
             if (currentPage != null) {
                 if (ctx.yes_button() != null) {
                     if (ctx.yes_button().PAGE_ID() != null) {
-                        String yesTarget = StringUtils.stripEnd(ctx.yes_button().PAGE_ID().getText().trim(), "#");
+                        String yesTarget = StringUtils.stripEnd(ctx.yes_button().PAGE_ID().getText(), "#");
                         currentPage.addButton(GuideEditor.createYesButton(yesTarget));
                     }
                 }
                 if (ctx.no_button() != null) {
                     if (ctx.no_button().PAGE_ID() != null) {
-                        String noTarget = StringUtils.stripEnd(ctx.no_button().PAGE_ID().getText().trim(), "#");
+                        String noTarget = StringUtils.stripEnd(ctx.no_button().PAGE_ID().getText(), "#");
                         currentPage.addButton(GuideEditor.createNoButton(noTarget));
                     }
                 }
             }
             super.enterAction_yn(ctx);
+        }
+
+        @Override
+        public void enterHidden_sound(NyxScriptParser.Hidden_soundContext ctx) {
+            if (currentPage != null) {
+                Audio audio = new Audio();
+                
+                if (ctx.QUOTED_STRING() != null) {
+                    audio.setSrc(StringUtils.strip(ctx.QUOTED_STRING().getText(), "\"'’"));
+                }
+                if (ctx.INT() != null) {
+                    audio.setLoops(Integer.valueOf(ctx.INT().getText()));
+                }
+                
+                currentPage.addAudio(audio);
+            }
+            super.enterHidden_sound(ctx);
         }
 
         

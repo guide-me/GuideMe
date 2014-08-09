@@ -83,6 +83,14 @@ public class FlashTeaseConverterTest {
         Image img = guide.getPages().get(0).getImages().get(0);
         assertEquals("path/to/image.png", img.getSrc());
     }
+    
+    @Test
+    public void randomImage() {
+        sut.parseScript(guide, "start#page(media:pic(id:\"*.png\"))");
+
+        Image img = guide.getPages().get(0).getImages().get(0);
+        assertEquals("*.png", img.getSrc());
+    }
 
     @Test
     public void actionGo() {
@@ -184,5 +192,34 @@ public class FlashTeaseConverterTest {
         assertEquals("No", buttons.get(1).getText());
         assertEquals("dumped", buttons.get(1).getTarget());
     }
+    
+    @Test
+    public void actionVert() {
+        sut.parseScript(guide, "start#page(action:vert(e0:buttons(target0:page27#,cap0:\"I Came\"),e1:delay(time:10sec,target:page5#,style:hidden)))");
+        
+        Button button = guide.findPage("start").getButtons().get(0);
+        assertEquals("page27", button.getTarget());
+        assertEquals("I Came", button.getText());
 
+        Delay delay = guide.findPage("start").getDelays().get(0);
+        assertEquals("page5", delay.getTarget());
+        assertEquals(10, delay.getPeriodInSeconds());
+        assertEquals(Style.Hidden, delay.getStyle());
+    }
+    
+    @Test
+    public void hiddenSound() {
+        sut.parseScript(guide, "start#page(hidden:sound(id:'60bpm2min.mp3'))");
+        
+        assertEquals("60bpm2min.mp3", guide.findPage("start").getAudios().get(0).getSrc());
+    }
+
+    
+    @Test
+    public void hiddenSoundWithLoops() {
+        sut.parseScript(guide, "start#page(hidden:sound(id:'60bpm2min.mp3',loops:3))");
+        
+        assertEquals("60bpm2min.mp3", guide.findPage("start").getAudios().get(0).getSrc());
+        assertEquals(3, guide.findPage("start").getAudios().get(0).getLoops());
+    }
 }
