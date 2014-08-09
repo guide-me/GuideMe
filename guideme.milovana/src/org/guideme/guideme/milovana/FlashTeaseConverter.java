@@ -10,6 +10,7 @@ import org.guideme.guideme.editor.GuideEditor;
 import org.guideme.guideme.milovana.nyxparser.NyxScriptBaseListener;
 import org.guideme.guideme.milovana.nyxparser.NyxScriptLexer;
 import org.guideme.guideme.milovana.nyxparser.NyxScriptParser;
+import org.guideme.guideme.milovana.nyxparser.NyxScriptParser.RangeContext;
 import org.guideme.guideme.model.Audio;
 import org.guideme.guideme.model.Button;
 import org.guideme.guideme.model.Delay;
@@ -118,13 +119,8 @@ public class FlashTeaseConverter {
             if (currentPage != null) {
                 NyxScriptParser.Action_targetContext actionTarget = ctx.action_target();
                 if (actionTarget != null) {
-                    TerminalNode pageId = actionTarget.PAGE_ID();
-                    if (pageId != null) {
-                        // if pageId still ends with a #, strip it.
-                        String pageIdText = StringUtils.stripEnd(pageId.getText(), "#");
-                        Button btn = GuideEditor.createContinueButton(pageIdText);
-                        currentPage.addButton(btn);
-                    }
+                    String target = getTarget(actionTarget.PAGE_ID(), actionTarget.range());
+                    currentPage.addButton(GuideEditor.createContinueButton(target));
                 }
             }
             super.enterAction_go(ctx);
@@ -169,12 +165,9 @@ public class FlashTeaseConverter {
                     }
                 }
 
-                NyxScriptParser.Action_targetContext actionTarget = ctx.action_target();
-                if (actionTarget != null) {
-                    if (actionTarget.PAGE_ID() != null) {
-                        // if pageId still ends with a #, strip it.
-                        delay.setTarget(StringUtils.stripEnd(actionTarget.PAGE_ID().getText(), "#"));
-                    }
+                if (ctx.action_target() != null) {
+                    String target = getTarget(ctx.action_target().PAGE_ID(), ctx.action_target().range());
+                    delay.setTarget(target);
                 }
 
                 currentPage.addDelay(delay);
@@ -187,11 +180,9 @@ public class FlashTeaseConverter {
             if (currentPage != null) {
                 Button button = new Button();
 
-                if (ctx.PAGE_ID() != null) {
-                    // if pageId still ends with a #, strip it.
-                    button.setTarget(StringUtils.stripEnd(ctx.PAGE_ID().getText(), "#"));
-                }
-                
+                String target = getTarget(ctx.PAGE_ID(), ctx.range());
+                button.setTarget(target);
+
                 if (ctx.QUOTED_STRING() != null) {
                     button.setText(StringUtils.strip(ctx.QUOTED_STRING().getText(), "\"'’"));
                 }
@@ -205,16 +196,12 @@ public class FlashTeaseConverter {
         public void enterAction_yn(NyxScriptParser.Action_ynContext ctx) {
             if (currentPage != null) {
                 if (ctx.yes_button() != null) {
-                    if (ctx.yes_button().PAGE_ID() != null) {
-                        String yesTarget = StringUtils.stripEnd(ctx.yes_button().PAGE_ID().getText(), "#");
-                        currentPage.addButton(GuideEditor.createYesButton(yesTarget));
-                    }
+                    String yesTarget = getTarget(ctx.yes_button().PAGE_ID(), ctx.yes_button().range());
+                    currentPage.addButton(GuideEditor.createYesButton(yesTarget));
                 }
                 if (ctx.no_button() != null) {
-                    if (ctx.no_button().PAGE_ID() != null) {
-                        String noTarget = StringUtils.stripEnd(ctx.no_button().PAGE_ID().getText(), "#");
-                        currentPage.addButton(GuideEditor.createNoButton(noTarget));
-                    }
+                    String noTarget = getTarget(ctx.no_button().PAGE_ID(), ctx.no_button().range());
+                    currentPage.addButton(GuideEditor.createNoButton(noTarget));
                 }
             }
             super.enterAction_yn(ctx);
@@ -224,20 +211,40 @@ public class FlashTeaseConverter {
         public void enterHidden_sound(NyxScriptParser.Hidden_soundContext ctx) {
             if (currentPage != null) {
                 Audio audio = new Audio();
-                
+
                 if (ctx.QUOTED_STRING() != null) {
                     audio.setSrc(StringUtils.strip(ctx.QUOTED_STRING().getText(), "\"'’"));
                 }
                 if (ctx.INT() != null) {
                     audio.setLoops(Integer.valueOf(ctx.INT().getText()));
                 }
-                
+
                 currentPage.addAudio(audio);
             }
             super.enterHidden_sound(ctx);
         }
 
         
+        
+        private String getTarget(TerminalNode pageId, RangeContext rangeContext) {
+            String target = null;
+            if (pageId != null) {
+                // if pageId still ends with a #, strip it.
+                target = StringUtils.stripEnd(pageId.getText(), "#");
+            } else if (rangeContext != null) {
+                //if (rangeContext.INT().size() == 2) {
+                    String prefix = "";
+                    if (rangeContext.QUOTED_STRING() != null) {
+                        prefix = StringUtils.strip(rangeContext.QUOTED_STRING().getText(), "\"'’");
+                    }
+                    String from = rangeContext.INT(0).getText();
+                    String to = rangeContext.INT(1).getText();
+                    target = String.format("%s(%s..%s)", prefix, from, to);
+                //}
+            }
+            return target;
+        }
+
     }
 
 }

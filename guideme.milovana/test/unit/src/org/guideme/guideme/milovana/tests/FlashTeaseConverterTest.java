@@ -9,9 +9,7 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- *
- */
+
 public class FlashTeaseConverterTest {
 
     private FlashTeaseConverter sut;
@@ -102,6 +100,30 @@ public class FlashTeaseConverterTest {
     }
 
     @Test
+    public void actionGoRange() {
+        sut.parseScript(guide, "start#page(action:go(target:range(from:1,to:4,prefix:'page')))");
+
+        Button btn = guide.getPages().get(0).getButtons().get(0);
+        assertEquals("page(1..4)", btn.getTarget());
+    }
+
+    @Test
+    public void actionGoRangeNoPrefixLabel() {
+        sut.parseScript(guide, "start#page(action:go(target:range(from:1,to:4,:'page')))");
+
+        Button btn = guide.getPages().get(0).getButtons().get(0);
+        assertEquals("page(1..4)", btn.getTarget());
+    }
+
+    @Test
+    public void actionGoRangeNoPrefix() {
+        sut.parseScript(guide, "start#page(action:go(target:range(from:1,to:4)))");
+
+        Button btn = guide.getPages().get(0).getButtons().get(0);
+        assertEquals("(1..4)", btn.getTarget());
+    }
+
+    @Test
     public void combinedTextPicActionGo() {
         String line = "start#page(text:'<TEXTFORMAT LEADING=\"2\"><P ALIGN=\"CENTER\"><FONT FACE=\"FontSans\" SIZE=\"24\" COLOR=\"#FFFFFF\" LETTERSPACING=\"0\" KERNING=\"0\">Welcome to this tease.</FONT></P></TEXTFORMAT><TEXTFORMAT LEADING=\"2\"><P ALIGN=\"CENTER\"><FONT FACE=\"FontSans\" SIZE=\"24\" COLOR=\"#FF0000\" LETTERSPACING=\"0\" KERNING=\"0\">Click the &quot;Continue&quot; button.</FONT></P></TEXTFORMAT>',media:pic(id:\"pics01.jpg\"),action:go(target:page2#))";
         sut.parseScript(guide, line);
@@ -167,6 +189,13 @@ public class FlashTeaseConverterTest {
     }
     
     @Test
+    public void delayRangeTarget() {
+        sut.parseScript(guide, "start#page(action:delay(time:1sec,target:range(from:0,to:6,:'page')))");
+        
+        assertEquals("page(0..6)", guide.findPage("start").getDelays().get(0).getTarget());
+    }
+    
+    @Test
     public void singleButton() {
         sut.parseScript(guide, "page3#page(action:buttons(target0:past17#,cap0:\"Thank You\"))");
         
@@ -199,6 +228,16 @@ public class FlashTeaseConverterTest {
         assertEquals("past3", buttons.get(0).getTarget());
         assertEquals("No", buttons.get(1).getText());
         assertEquals("dumped", buttons.get(1).getTarget());
+    }
+    
+    @Test
+    public void rangeTargetYesNoButtons() {
+        sut.parseScript(guide, "start#page(action:yn(yes:range(from:1,to:3,prefix:''),no:range(from:4,to:6,prefix:'p')))");
+
+        List<Button> buttons = guide.findPage("start").getButtons();
+        assertEquals(2, buttons.size());
+        assertEquals("(1..3)", buttons.get(0).getTarget());
+        assertEquals("p(4..6)", buttons.get(1).getTarget());
     }
     
     @Test

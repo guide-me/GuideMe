@@ -99,7 +99,7 @@ action_target
     ;
 
 range
-    : 'range(' 'from:' INT ',' 'to:' INT ',' 'prefix'? ':' QUOTED_STRING ')'
+    : 'range(' 'from:' INT ',' 'to:' INT (',' 'prefix'? ':' QUOTED_STRING)? ')'
     ;
 
 DELAY_STYLE   
