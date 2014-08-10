@@ -22,7 +22,7 @@ import org.openide.windows.WindowManager;
         iconBase="org/guideme/guideme/resources/playGuide.png", 
         persistenceType = TopComponent.PERSISTENCE_ALWAYS
 )
-@TopComponent.Registration(mode = "editor", openAtStartup = false)
+@TopComponent.Registration(mode = "editor", openAtStartup = true)
 @ActionID(category = "Window", id = "org.guideme.guideme.player.ui.GuidePlayerTopComponent")
 @ActionReference(path = "Menu/Window", position = 10, separatorAfter = 11)
 @TopComponent.OpenActionRegistration(
