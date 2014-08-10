@@ -136,18 +136,18 @@ public class FlashTeaseConverter {
 
                 NyxScriptParser.TimeContext time = ctx.time();
                 if (time != null) {
-                    if (time.INT().size() > 0 && time.TIME_UNIT().size() > 0) {
-                        switch (time.TIME_UNIT(0).getText()) {
-                            case "sec":
-                                delay.setPeriod(String.format("00:00:%s", time.INT(0).getText()));
-                                break;
-                            case "min":
-                                delay.setPeriod(String.format("00:%s:00", time.INT(0).getText()));
-                                break;
-                            case "hrs":
-                                delay.setPeriod(String.format("%s:00:00", time.INT(0).getText()));
-                                break;
-                        }
+                    String length = (time.INT().size() > 0) ? time.INT(0).getText() : "0";
+                    String unit = (time.TIME_UNIT().size() > 0) ? time.TIME_UNIT(0).getText() : "sec";
+                    switch (unit) {
+                        case "hrs":
+                            delay.setPeriod(String.format("%s:00:00", length));
+                            break;
+                        case "min":
+                            delay.setPeriod(String.format("00:%s:00", length));
+                            break;
+                        default:
+                            delay.setPeriod(String.format("00:00:%s", length));
+                            break;
                     }
                 }
 

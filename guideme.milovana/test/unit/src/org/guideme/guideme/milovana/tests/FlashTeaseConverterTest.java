@@ -158,6 +158,14 @@ public class FlashTeaseConverterTest {
         Delay delay = guide.getPages().get(0).getDelays().get(0);
         assertEquals(2 * 60 * 60, delay.getPeriodInSeconds());
     }
+    
+    @Test
+    public void actionDelayNoTimeUnitShouldResultInSeconds() {
+        sut.parseScript(guide, "page3#page(action:delay(time:5,target:page13#))");
+
+        Delay delay = guide.getPages().get(0).getDelays().get(0);
+        assertEquals(5, delay.getPeriodInSeconds());
+    }
 
     @Test
     public void actionDelayInSecondSecret() {
