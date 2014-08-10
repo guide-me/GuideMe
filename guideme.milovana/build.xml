@@ -5,4 +5,27 @@
 <project name="org.guideme.guideme.milovana" default="netbeans" basedir=".">
     <description>Builds, tests, and runs the project org.guideme.guideme.milovana.</description>
     <import file="nbproject/build-impl.xml"/>
+    
+    <!-- Define a dependency on antlr task to compile the grammar when the project is compiled. -->
+    <target name="netbeans-extra" depends="antlr" />
+    
+    <target name="antlr" description="Compiles the NyxScript antlr grammar." unless="up-to-date">
+        <property name="antlr.jar" location="./release/modules/ext/antlr-4.4-complete.jar"/>
+        <property name="antlr.grammar" location="./src/org/guideme/guideme/milovana/nyxparser/NyxScript.g4"/>
+        <property name="antlr.package" value="org.guideme.guideme.milovana.nyxparser" />
+        <java classname="org.antlr.v4.Tool" fork="true">
+            <arg line="${antlr.grammar} -package ${antlr.package}"/>
+            <classpath path="${antlr.jar}"/>
+        </java>
+        
+        <!-- Strip the absolute path in first line of the generated java files
+             so that these files can be checked into source control. -->
+        <replaceregexp byline="true">
+            <regexp pattern="^// Generated from (.*)NyxScript.g4 by ANTLR 4\.4$" />
+            <substitution expression="// Generated from NyxScript.g4 by ANTLR 4.4" />
+            <fileset dir="./src/org/guideme/guideme/milovana/nyxparser">
+                <include name="*.java"/>
+            </fileset>
+        </replaceregexp>
+    </target>
 </project>

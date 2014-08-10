@@ -122,8 +122,8 @@ public class MilovanaDownloadWizardPanel2 implements WizardDescriptor.Validating
         
         String projectName = (String)wiz.getProperty("pojectName");
         if (projectName == null || projectName.length() == 0) {
-            Guide guide = (Guide)wiz.getProperty("guide");
-            projectName = guide.getTitle();
+            TeaseSummary teaseSummary = (TeaseSummary)wiz.getProperty("teaseSummary");
+            projectName = teaseSummary.getTitle();
         }
         getComponent().setProjectName(projectName);
         

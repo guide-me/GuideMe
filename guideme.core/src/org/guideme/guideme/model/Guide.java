@@ -204,6 +204,30 @@ public class Guide {
     }
 
     /**
+     * Finds a single page by its ID (returns null if not found).
+     *
+     * @param pageId
+     * @return
+     */
+    public Page findPage(String pageId) {
+        if (pageId != null) {
+            for (Page page : this.pages) {
+                if (pageId.equals(page.getId())) {
+                    return page;
+                }
+            }
+            for (Chapter chapter : this.chapters) {
+                for (Page page : chapter.getPages()) {
+                    if (pageId.equals(page.getId())) {
+                        return page;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
      * Adds a page to this guide (not in a chapter) at the end.
      *
      * @param page

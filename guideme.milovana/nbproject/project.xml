@@ -156,7 +156,20 @@
                     </run-dependency>
                 </dependency>
             </module-dependencies>
+            <test-dependencies>
+                <test-type>
+                    <name>unit</name>
+                    <test-dependency>
+                        <code-name-base>org.netbeans.libs.junit4</code-name-base>
+                        <compile-dependency/>
+                    </test-dependency>
+                </test-type>
+            </test-dependencies>
             <public-packages/>
+            <class-path-extension>
+                <runtime-relative-path>ext/antlr-4.4-complete.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/antlr-4.4-complete.jar</binary-origin>
+            </class-path-extension>
             <class-path-extension>
                 <runtime-relative-path>ext/jsoup-1.7.3.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/jsoup-1.7.3.jar</binary-origin>
@@ -164,6 +177,10 @@
             <class-path-extension>
                 <runtime-relative-path>ext/commons-lang3-3.3.2.jar</runtime-relative-path>
                 <binary-origin>release/modules/ext/commons-lang3-3.3.2.jar</binary-origin>
+            </class-path-extension>
+            <class-path-extension>
+                <runtime-relative-path>ext/commons-io-2.4.jar</runtime-relative-path>
+                <binary-origin>release/modules/ext/commons-io-2.4.jar</binary-origin>
             </class-path-extension>
         </data>
     </configuration>

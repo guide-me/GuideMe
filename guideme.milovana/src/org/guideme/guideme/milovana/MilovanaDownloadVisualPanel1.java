@@ -3,7 +3,6 @@ package org.guideme.guideme.milovana;
 import javax.swing.JPanel;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import org.guideme.guideme.model.Guide;
 
 public final class MilovanaDownloadVisualPanel1 extends JPanel implements DocumentListener {
 
@@ -27,10 +26,10 @@ public final class MilovanaDownloadVisualPanel1 extends JPanel implements Docume
         return teaseIdTextField.getText();
     }
 
-    private Guide guide;
+    private TeaseSummary teaseSummary;
 
-    public Guide getGuide() {
-        return guide;
+    public TeaseSummary getTeaseSummary() {
+        return teaseSummary;
     }
 
     /**
@@ -145,17 +144,15 @@ public final class MilovanaDownloadVisualPanel1 extends JPanel implements Docume
     private void goButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_goButtonActionPerformed
         // TODO add your handling code here:
         if (getTeaseId() != null && getTeaseId().length() > 0) {
-            guide = new HtmlTeaseConverter().createGuide(getTeaseId(), false);
-            if (guide.getTitle() != null && guide.getTitle().length() > 0) {
-                titleTextField.setText(guide.getTitle());
-                authorTextField.setText(guide.getAuthorName());
+            teaseSummary = new MilovanaDownloader().getSummary(getTeaseId());
+            if (teaseSummary != null) {
+                titleTextField.setText(teaseSummary.getTitle());
+                authorTextField.setText(teaseSummary.getAuthorName());
             } else {
-                guide = null;
                 titleTextField.setText("");
-                authorTextField.setText("");
+                authorTextField.setText("");                
             }
         } else {
-            guide = null;
             titleTextField.setText("");
             authorTextField.setText("");
         }
