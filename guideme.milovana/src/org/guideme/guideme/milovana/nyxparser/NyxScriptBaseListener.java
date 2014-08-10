@@ -77,6 +77,18 @@ public class NyxScriptBaseListener implements NyxScriptListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterAction_goto(@NotNull NyxScriptParser.Action_gotoContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAction_goto(@NotNull NyxScriptParser.Action_gotoContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterAction_delay(@NotNull NyxScriptParser.Action_delayContext ctx) { }
 	/**
 	 * {@inheritDoc}

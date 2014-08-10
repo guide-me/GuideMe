@@ -31,6 +31,7 @@ action
     : action_buttons
     | action_delay
     | action_go 
+    | action_goto
     | action_yn
     | action_set
     | action_unset
@@ -72,6 +73,11 @@ action_buttons
 
 button
     : ('target' INT) ':' (range | PAGE_ID) ',' ('cap' INT) ':' QUOTED_STRING
+    ;
+
+
+action_goto
+    : action_prefix 'goto(' action_target ')'
     ;
 
 action_delay

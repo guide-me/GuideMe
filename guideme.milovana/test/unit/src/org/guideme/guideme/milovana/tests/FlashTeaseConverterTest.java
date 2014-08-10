@@ -9,7 +9,6 @@ import static org.junit.Assert.*;
 import org.junit.Before;
 import org.junit.Test;
 
-
 public class FlashTeaseConverterTest {
 
     private FlashTeaseConverter sut;
@@ -81,7 +80,7 @@ public class FlashTeaseConverterTest {
         Image img = guide.getPages().get(0).getImages().get(0);
         assertEquals("path/to/image.png", img.getSrc());
     }
-    
+
     @Test
     public void randomImage() {
         sut.parseScript(guide, "start#page(media:pic(id:\"*.png\"))");
@@ -179,7 +178,7 @@ public class FlashTeaseConverterTest {
         assertEquals("page4", delay.getTarget());
         assertEquals(Style.Hidden, delay.getStyle());
     }
-    
+
     @Test
     public void delayQuotedStyle() {
         sut.parseScript(guide, "page3#page(action:delay(time:40sec,target:page4#,style:'hidden'))");
@@ -187,27 +186,27 @@ public class FlashTeaseConverterTest {
         Delay delay = guide.getPages().get(0).getDelays().get(0);
         assertEquals(Style.Hidden, delay.getStyle());
     }
-    
+
     @Test
     public void delayRangeTarget() {
         sut.parseScript(guide, "start#page(action:delay(time:1sec,target:range(from:0,to:6,:'page')))");
-        
+
         assertEquals("page(0..6)", guide.findPage("start").getDelays().get(0).getTarget());
     }
-    
+
     @Test
     public void singleButton() {
         sut.parseScript(guide, "page3#page(action:buttons(target0:past17#,cap0:\"Thank You\"))");
-        
+
         Button button = guide.findPage("page3").getButtons().get(0);
         assertEquals("past17", button.getTarget());
         assertEquals("Thank You", button.getText());
     }
-    
+
     @Test
     public void multipleButtons() {
         sut.parseScript(guide, "start#page(action:buttons(target0:p1#,cap0:\"First\",target1:p2#,cap1:\"Second\",target2:p3#,cap2:\"Third\"))");
-        
+
         List<Button> buttons = guide.findPage("start").getButtons();
         assertEquals(3, buttons.size());
         assertEquals("First", buttons.get(0).getText());
@@ -217,7 +216,7 @@ public class FlashTeaseConverterTest {
         assertEquals("Third", buttons.get(2).getText());
         assertEquals("p3", buttons.get(2).getTarget());
     }
-    
+
     @Test
     public void yesNoButtons() {
         sut.parseScript(guide, "start#page(action:yn(yes:past3#,no:dumped#))");
@@ -229,7 +228,7 @@ public class FlashTeaseConverterTest {
         assertEquals("No", buttons.get(1).getText());
         assertEquals("dumped", buttons.get(1).getTarget());
     }
-    
+
     @Test
     public void rangeTargetYesNoButtons() {
         sut.parseScript(guide, "start#page(action:yn(yes:range(from:1,to:3,prefix:''),no:range(from:4,to:6,prefix:'p')))");
@@ -239,11 +238,11 @@ public class FlashTeaseConverterTest {
         assertEquals("(1..3)", buttons.get(0).getTarget());
         assertEquals("p(4..6)", buttons.get(1).getTarget());
     }
-    
+
     @Test
     public void actionVert() {
         sut.parseScript(guide, "start#page(action:vert(e0:buttons(target0:page27#,cap0:\"I Came\"),e1:delay(time:10sec,target:page5#,style:hidden)))");
-        
+
         Button button = guide.findPage("start").getButtons().get(0);
         assertEquals("page27", button.getTarget());
         assertEquals("I Came", button.getText());
@@ -253,56 +252,65 @@ public class FlashTeaseConverterTest {
         assertEquals(10, delay.getPeriodInSeconds());
         assertEquals(Style.Hidden, delay.getStyle());
     }
-    
+
     @Test
     public void hiddenSound() {
         sut.parseScript(guide, "start#page(hidden:sound(id:'60bpm2min.mp3'))");
-        
+
         assertEquals("60bpm2min.mp3", guide.findPage("start").getAudios().get(0).getSrc());
     }
 
-    
     @Test
     public void hiddenSoundWithLoops() {
         sut.parseScript(guide, "start#page(hidden:sound(id:'60bpm2min.mp3',loops:3))");
-        
+
         assertEquals("60bpm2min.mp3", guide.findPage("start").getAudios().get(0).getSrc());
         assertEquals(3, guide.findPage("start").getAudios().get(0).getLoops());
     }
-    
+
     @Test
     public void singleSet() {
         sut.parseScript(guide, "start#page(instruc:set(action0:325#))");
-        
+
         assertEquals("325", guide.findPage("start").getSet());
     }
-    
+
     @Test
     public void multipleSets() {
         sut.parseScript(guide, "start#page(instruc:set(action0:325#,action1:326#,action2:327#))");
-        
+
         assertEquals("325,326,327", guide.findPage("start").getSet());
     }
-    
+
     @Test
     public void singleUnset() {
         sut.parseScript(guide, "start#page(instruc:unset(action0:325#))");
-        
+
         assertEquals("325", guide.findPage("start").getUnSet());
     }
-    
+
     @Test
     public void multipleUnsets() {
         sut.parseScript(guide, "start#page(instruc:unset(action0:325#,action1:326#,action2:327#))");
-        
+
         assertEquals("325,326,327", guide.findPage("start").getUnSet());
     }
-    
+
     @Test
     public void combinationOfSetAndUnSet() {
         sut.parseScript(guide, "start#page(instruc:mult(e0:unset(action0:p1#),e1:set(action0:p2#)))");
-        
+
         assertEquals("p1", guide.findPage("start").getUnSet());
         assertEquals("p2", guide.findPage("start").getSet());
+    }
+
+    @Test
+    public void actionGotoResultsInHiddenDelayWithZeroSeconds() {
+        sut.parseScript(guide, "start#page(action:goto(target:p2#))");
+
+        Delay delay = guide.findPage("start").getDelays().get(0);
+        assertEquals("p2", delay.getTarget());
+        assertEquals(Style.Hidden, delay.getStyle());
+        assertEquals(0, delay.getPeriodInSeconds());
     }
 }

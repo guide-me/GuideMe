@@ -59,6 +59,16 @@ public interface NyxScriptListener extends ParseTreeListener {
 	 */
 	void exitAction_buttons(@NotNull NyxScriptParser.Action_buttonsContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link NyxScriptParser#action_goto}.
+	 * @param ctx the parse tree
+	 */
+	void enterAction_goto(@NotNull NyxScriptParser.Action_gotoContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link NyxScriptParser#action_goto}.
+	 * @param ctx the parse tree
+	 */
+	void exitAction_goto(@NotNull NyxScriptParser.Action_gotoContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link NyxScriptParser#action_delay}.
 	 * @param ctx the parse tree
 	 */

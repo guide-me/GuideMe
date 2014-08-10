@@ -16,6 +16,7 @@ import org.guideme.guideme.milovana.nyxparser.NyxScriptParser.RangeContext;
 import org.guideme.guideme.model.Audio;
 import org.guideme.guideme.model.Button;
 import org.guideme.guideme.model.Delay;
+import org.guideme.guideme.model.Delay.Style;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Image;
 import org.guideme.guideme.model.Page;
@@ -256,9 +257,22 @@ public class FlashTeaseConverter {
             super.enterAction_set(ctx);
         }
 
-        
-        
-        
+        @Override
+        public void enterAction_goto(NyxScriptParser.Action_gotoContext ctx) {
+            if (currentPage != null) {
+                if (ctx.action_target() != null && ctx.action_target().PAGE_ID() != null) {
+                    String target = StringUtils.stripEnd(ctx.action_target().PAGE_ID().getText(), "#");
+
+                    Delay delay = new Delay();
+                    delay.setStyle(Style.Hidden);
+                    delay.setPeriod("00:00:00");
+                    delay.setTarget(target);
+                    currentPage.addDelay(delay);
+                }
+            }
+            super.enterAction_goto(ctx);
+        }
+
         private String getTarget(TerminalNode pageId, RangeContext rangeContext) {
             String target = null;
             if (pageId != null) {
@@ -266,13 +280,13 @@ public class FlashTeaseConverter {
                 target = StringUtils.stripEnd(pageId.getText(), "#");
             } else if (rangeContext != null) {
                 //if (rangeContext.INT().size() == 2) {
-                    String prefix = "";
-                    if (rangeContext.QUOTED_STRING() != null) {
-                        prefix = StringUtils.strip(rangeContext.QUOTED_STRING().getText(), "\"'’");
-                    }
-                    String from = rangeContext.INT(0).getText();
-                    String to = rangeContext.INT(1).getText();
-                    target = String.format("%s(%s..%s)", prefix, from, to);
+                String prefix = "";
+                if (rangeContext.QUOTED_STRING() != null) {
+                    prefix = StringUtils.strip(rangeContext.QUOTED_STRING().getText(), "\"'’");
+                }
+                String from = rangeContext.INT(0).getText();
+                String to = rangeContext.INT(1).getText();
+                target = String.format("%s(%s..%s)", prefix, from, to);
                 //}
             }
             return target;
