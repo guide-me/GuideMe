@@ -54,8 +54,7 @@ public class GuideProject implements Project {
         if (lookup == null) {
             lookup = Lookups.fixed(new Object[] {
                 this,
-                new Info(),
-                new GuideLogicalViewProvider(this)
+                new Info()
             });
         }
         return lookup;

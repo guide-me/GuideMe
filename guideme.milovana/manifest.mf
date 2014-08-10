@@ -1,6 +1,5 @@
 Manifest-Version: 1.0
 OpenIDE-Module: org.guideme.guideme.milovana
-OpenIDE-Module-Layer: org/guideme/guideme/milovana/layer.xml
 OpenIDE-Module-Localizing-Bundle: org/guideme/guideme/milovana/Bundle.properties
 OpenIDE-Module-Specification-Version: 1.0
 
