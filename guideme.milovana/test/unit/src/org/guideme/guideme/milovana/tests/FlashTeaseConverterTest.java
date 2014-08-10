@@ -269,4 +269,40 @@ public class FlashTeaseConverterTest {
         assertEquals("60bpm2min.mp3", guide.findPage("start").getAudios().get(0).getSrc());
         assertEquals(3, guide.findPage("start").getAudios().get(0).getLoops());
     }
+    
+    @Test
+    public void singleSet() {
+        sut.parseScript(guide, "start#page(instruc:set(action0:325#))");
+        
+        assertEquals("325", guide.findPage("start").getSet());
+    }
+    
+    @Test
+    public void multipleSets() {
+        sut.parseScript(guide, "start#page(instruc:set(action0:325#,action1:326#,action2:327#))");
+        
+        assertEquals("325,326,327", guide.findPage("start").getSet());
+    }
+    
+    @Test
+    public void singleUnset() {
+        sut.parseScript(guide, "start#page(instruc:unset(action0:325#))");
+        
+        assertEquals("325", guide.findPage("start").getUnSet());
+    }
+    
+    @Test
+    public void multipleUnsets() {
+        sut.parseScript(guide, "start#page(instruc:unset(action0:325#,action1:326#,action2:327#))");
+        
+        assertEquals("325,326,327", guide.findPage("start").getUnSet());
+    }
+    
+    @Test
+    public void combinationOfSetAndUnSet() {
+        sut.parseScript(guide, "start#page(instruc:mult(e0:unset(action0:p1#),e1:set(action0:p2#)))");
+        
+        assertEquals("p1", guide.findPage("start").getUnSet());
+        assertEquals("p2", guide.findPage("start").getSet());
+    }
 }

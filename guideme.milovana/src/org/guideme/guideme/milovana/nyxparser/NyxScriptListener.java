@@ -228,4 +228,14 @@ public interface NyxScriptListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitPage_option(@NotNull NyxScriptParser.Page_optionContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link NyxScriptParser#action_set}.
+	 * @param ctx the parse tree
+	 */
+	void enterAction_set(@NotNull NyxScriptParser.Action_setContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link NyxScriptParser#action_set}.
+	 * @param ctx the parse tree
+	 */
+	void exitAction_set(@NotNull NyxScriptParser.Action_setContext ctx);
 }

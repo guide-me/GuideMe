@@ -276,6 +276,18 @@ public class NyxScriptBaseListener implements NyxScriptListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitPage_option(@NotNull NyxScriptParser.Page_optionContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAction_set(@NotNull NyxScriptParser.Action_setContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAction_set(@NotNull NyxScriptParser.Action_setContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

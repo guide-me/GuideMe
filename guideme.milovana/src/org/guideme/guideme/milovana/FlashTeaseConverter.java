@@ -2,6 +2,8 @@ package org.guideme.guideme.milovana;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.tree.*;
 import org.apache.commons.io.IOUtils;
@@ -224,6 +226,37 @@ public class FlashTeaseConverter {
             super.enterHidden_sound(ctx);
         }
 
+        @Override
+        public void enterAction_unset(NyxScriptParser.Action_unsetContext ctx) {
+            if (currentPage != null) {
+                if (ctx.PAGE_ID().size() > 0) {
+                    List<String> flags = new ArrayList<>();
+                    for (TerminalNode pageId : ctx.PAGE_ID()) {
+                        flags.add(StringUtils.stripEnd(pageId.getText(), "#"));
+                    }
+                    currentPage.setUnSet(StringUtils.join(flags, ","));
+                }
+
+            }
+            super.enterAction_unset(ctx);
+        }
+
+        @Override
+        public void enterAction_set(NyxScriptParser.Action_setContext ctx) {
+            if (currentPage != null) {
+                if (ctx.PAGE_ID().size() > 0) {
+                    List<String> flags = new ArrayList<>();
+                    for (TerminalNode pageId : ctx.PAGE_ID()) {
+                        flags.add(StringUtils.stripEnd(pageId.getText(), "#"));
+                    }
+                    currentPage.setSet(StringUtils.join(flags, ","));
+                }
+
+            }
+            super.enterAction_set(ctx);
+        }
+
+        
         
         
         private String getTarget(TerminalNode pageId, RangeContext rangeContext) {

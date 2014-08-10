@@ -12,6 +12,8 @@ public class Page {
     private String title;
     private String text;
     private String script;
+    private String set;
+    private String unSet;
     private final ArrayList<Image> images = new ArrayList<>();
     private final ArrayList<Audio> audios = new ArrayList<>();
     private final ArrayList<Metronome> metronomes = new ArrayList<>();
@@ -104,6 +106,42 @@ public class Page {
      */
     public void setScript(String script) {
         this.script = script;
+    }
+
+    /**
+     * The flags to be set when the page is shown.
+     *
+     * @return
+     */
+    public String getSet() {
+        return set;
+    }
+
+    /**
+     * The flags to be set when the page is shown.
+     *
+     * @param set
+     */
+    public void setSet(String set) {
+        this.set = set;
+    }
+
+    /**
+     * The flags to be unset when the page is shown.
+     *
+     * @return
+     */
+    public String getUnSet() {
+        return unSet;
+    }
+
+    /**
+     * The flags to be unset when the page is shown.
+     *
+     * @param unSet
+     */
+    public void setUnSet(String unSet) {
+        this.unSet = unSet;
     }
 
     /**
@@ -212,8 +250,8 @@ public class Page {
     }
 
     /**
-     * List with possible delays to be used. Which one will actually be used
-     * is determined by the ifSet/ifNotSet flags etc.
+     * List with possible delays to be used. Which one will actually be used is
+     * determined by the ifSet/ifNotSet flags etc.
      *
      * @return
      */
@@ -222,8 +260,8 @@ public class Page {
     }
 
     /**
-     * List with possible delays to be used. Which one will actually be used
-     * is determined by the ifSet/ifNotSet flags etc.
+     * List with possible delays to be used. Which one will actually be used is
+     * determined by the ifSet/ifNotSet flags etc.
      *
      * @param delays
      */

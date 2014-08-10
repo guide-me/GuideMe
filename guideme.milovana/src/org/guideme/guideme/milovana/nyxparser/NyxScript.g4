@@ -32,6 +32,7 @@ action
     | action_delay
     | action_go 
     | action_yn
+    | action_set
     | action_unset
     ;
  
@@ -43,6 +44,10 @@ action_prefix
     : 'action:'
     | 'instruc:'
     | 'e' INT ':'
+    ;
+
+action_set
+    : action_prefix? 'set(' 'action' INT ':' PAGE_ID (',' 'action' INT ':' PAGE_ID)* ')'
     ;
 
 action_unset
