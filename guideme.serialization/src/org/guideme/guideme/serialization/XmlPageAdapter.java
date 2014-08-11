@@ -11,6 +11,8 @@ import org.guideme.guideme.model.Page;
  */
 class XmlPageAdapter {
     
+    
+    
     @XmlAttribute(name = "id")
     public String Id;
 
@@ -43,6 +45,9 @@ class XmlPageAdapter {
         
     @XmlElement(name = "Button")
     public XmlButtonAdapter[] Buttons;
+        
+    @XmlElement(name = "Delay")
+    public XmlDelayAdapter[] Delays;
     
 
     public XmlPageAdapter() {
@@ -60,6 +65,7 @@ class XmlPageAdapter {
         this.Metronomes = XmlMetronomeAdapter.fromList(page.getMetronomes());
         this.Videos = XmlVideoAdapter.fromList(page.getVideos());
         this.Buttons = XmlButtonAdapter.fromList(page.getButtons());
+        this.Delays = XmlDelayAdapter.fromList(page.getDelays());
     }
 
     public Page toPage() {
@@ -94,6 +100,11 @@ class XmlPageAdapter {
         if (this.Buttons != null && this.Buttons.length > 0) {
             for (XmlButtonAdapter button : this.Buttons) {
                 page.addButton(button.toButton());
+            }
+        }
+        if (this.Delays != null && this.Delays.length > 0) {
+            for (XmlDelayAdapter delay : this.Delays) {
+                page.addDelay(delay.toDelay());
             }
         }
         return page;

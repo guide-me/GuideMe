@@ -28,8 +28,7 @@ public class Delay {
      * Default delay style (normal: wait time is shown).
      */
     public static final Style DEFAULT_STYLE = Style.Normal;
-    
-    private String period;
+
     private int periodInSeconds;
 
     private Style style = DEFAULT_STYLE;
@@ -48,15 +47,6 @@ public class Delay {
     }
 
     /**
-     * Period of the delay (format HH:mm:ss).
-     *
-     * @return
-     */
-    public String getPeriod() {
-        return period;
-    }
-
-    /**
      * Gets the (initial) total number of seconds of the delay.
      *
      * @return
@@ -66,12 +56,32 @@ public class Delay {
     }
 
     /**
+     * Sets the (initial) total number of seconds of the delay.
+     *
+     * @param periodInSeconds
+     */
+    public void setPeriodInSeconds(int periodInSeconds) {
+        this.periodInSeconds = periodInSeconds;
+    }
+
+    /**
+     * Period of the delay (format HH:mm:ss).
+     *
+     * @return
+     */
+    public String getPeriod() {
+        int hrs = periodInSeconds / (60*60);
+        int min = (periodInSeconds - (hrs*60*60)) / 60;
+        int sec = periodInSeconds - (hrs*60*60) - (min*60);
+        return String.format("%d:%02d:%02d", hrs, min, sec);
+    }
+
+    /**
      * Period of the delay (format HH:mm:ss).
      *
      * @param period
      */
     public void setPeriod(String period) {
-        this.period = period;
         this.periodInSeconds = parsePeriod(period, 0);
     }
 

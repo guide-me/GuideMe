@@ -54,7 +54,11 @@ class XmlDelayAdapter {
         Delay delay = new Delay();
         delay.setPeriod(this.Period);
         if (this.Style != null && this.Style.length() > 0) {
-            delay.setStyle(Delay.Style.valueOf(this.Style));
+            switch (this.Style.toLowerCase()) {
+                case "hidden": delay.setStyle(Delay.Style.Hidden); break;
+                case "secret": delay.setStyle(Delay.Style.Secret); break;
+                default: delay.setStyle(Delay.Style.Normal); break;
+            }
         }
         delay.setTarget(this.Target);
         delay.setIfSet(this.IfSet);
