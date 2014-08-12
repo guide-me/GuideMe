@@ -1,5 +1,0 @@
-Manifest-Version: 1.0
-OpenIDE-Module: org.guideme.guideme.serialization
-OpenIDE-Module-Localizing-Bundle: org/guideme/guideme/serialization/Bundle.properties
-OpenIDE-Module-Specification-Version: 1.0
-

@@ -5,8 +5,7 @@ import java.util.HashSet;
 import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import org.guideme.guideme.model.Guide;
-import org.netbeans.spi.project.ui.support.ProjectChooser;
+import org.apache.commons.io.FileUtils;
 import org.openide.WizardDescriptor;
 import org.openide.WizardValidationException;
 import org.openide.filesystems.FileUtil;
@@ -128,10 +127,8 @@ public class MilovanaDownloadWizardPanel2 implements WizardDescriptor.Validating
         getComponent().setProjectName(projectName);
         
         File projectLocation = (File) wiz.getProperty("pojectLocation");
-        if (projectLocation == null || projectLocation.getParentFile() == null || !projectLocation.getParentFile().isDirectory()) {
-            projectLocation = ProjectChooser.getProjectsFolder();
-        } else {
-            projectLocation = projectLocation.getParentFile();
+        if (projectLocation == null) {
+            projectLocation = FileUtils.getUserDirectory();
         }
         getComponent().setProjectLocation(projectLocation.getAbsolutePath());
     }
