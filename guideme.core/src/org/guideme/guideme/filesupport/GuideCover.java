@@ -2,10 +2,12 @@ package org.guideme.guideme.filesupport;
 
 import java.awt.Frame;
 import javax.swing.Action;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import org.guideme.guideme.player.ui.PlayerWindow;
+import org.guideme.guideme.resources.Icons;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
@@ -33,13 +35,26 @@ public final class GuideCover extends JPanel implements MultiViewElement {
         obj = lkp.lookup(GuideDataObject.class);
         assert obj != null;
         initComponents();
+
+        initializeToolbar();
         showGuideDetails();
+    }
+
+    private void initializeToolbar() {
+        JButton playButton = new JButton("Play", Icons.getPlayGuideIcon());
+        playButton.addActionListener((java.awt.event.ActionEvent evt) -> {
+            PlayerWindow window = new PlayerWindow();
+            window.setVisible(true);
+            window.setExtendedState(Frame.MAXIMIZED_BOTH);
+            window.playGuide(obj.getGuide());
+        });
+        toolbar.add(playButton);
     }
 
     private void showGuideDetails() {
         titleField.setText(obj.getGuide().getTitle());
     }
-    
+
     @Override
     public String getName() {
         return "GuideCover";
@@ -53,15 +68,7 @@ public final class GuideCover extends JPanel implements MultiViewElement {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        playButton = new javax.swing.JButton();
         titleField = new javax.swing.JTextField();
-
-        org.openide.awt.Mnemonics.setLocalizedText(playButton, org.openide.util.NbBundle.getMessage(GuideCover.class, "GuideCover.playButton.text")); // NOI18N
-        playButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                playButtonActionPerformed(evt);
-            }
-        });
 
         titleField.setText(org.openide.util.NbBundle.getMessage(GuideCover.class, "GuideCover.titleField.text")); // NOI18N
 
@@ -70,11 +77,8 @@ public final class GuideCover extends JPanel implements MultiViewElement {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addGap(0, 325, Short.MAX_VALUE)
-                .addComponent(playButton))
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(titleField)
+                .addComponent(titleField, javax.swing.GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -82,24 +86,11 @@ public final class GuideCover extends JPanel implements MultiViewElement {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(titleField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 231, Short.MAX_VALUE)
-                .addComponent(playButton)
-                .addContainerGap())
+                .addContainerGap(266, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
-    private void playButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_playButtonActionPerformed
-        // TODO add your handling code here:
-        
-        // Start a new maximized JFrame with the guide player.
-        PlayerWindow window = new PlayerWindow();
-        window.setVisible(true);
-        window.setExtendedState(Frame.MAXIMIZED_BOTH);
-        window.playGuide(obj.getGuide());
-    }//GEN-LAST:event_playButtonActionPerformed
-
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton playButton;
     private javax.swing.JTextField titleField;
     // End of variables declaration//GEN-END:variables
     @Override
