@@ -60,11 +60,14 @@ public final class GuideCover extends JPanel implements MultiViewElement {
     }
 
     private void showGuideDetails() {
-        FileObject thumbnail = obj.getPrimaryFile().getParent().getFileObject(obj.getGuide().getThumbnail());
-        ImagePanel imagePanel = new ImagePanel(FileUtil.toFile(thumbnail));
-        imagePanel.setSize(thumbnailPanelHolder.getSize());
-        thumbnailPanelHolder.add(imagePanel);
-        
+        if (obj.getGuide().getThumbnail() != null) {
+            FileObject thumbnail = obj.getPrimaryFile().getParent().getFileObject(obj.getGuide().getThumbnail());
+            if (thumbnail != null) {
+                ImagePanel imagePanel = new ImagePanel(FileUtil.toFile(thumbnail));
+                imagePanel.setSize(thumbnailPanelHolder.getSize());
+                thumbnailPanelHolder.add(imagePanel);
+            }
+        }
         titleLabel.setText(obj.getGuide().getTitle());
         authorLabel.setText(obj.getGuide().getAuthorName());
     }
