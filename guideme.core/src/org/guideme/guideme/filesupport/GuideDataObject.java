@@ -29,7 +29,7 @@ import org.openide.windows.TopComponent;
 )
 @DataObject.Registration(
         mimeType = "application/guideme+xml",
-        iconBase = "org/guideme/guideme/filesupport/icon_16x16.gif",
+        iconBase = "org/guideme/guideme/resources/guide.png",
         displayName = "#LBL_GuideMe_LOADER",
         position = 300
 )
@@ -85,11 +85,11 @@ import org.openide.windows.TopComponent;
             position = 1400
     )
 })
-public class GuideMeDataObject extends MultiDataObject {
+public class GuideDataObject extends MultiDataObject {
 
     private Guide guide;
 
-    public GuideMeDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
+    public GuideDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
         registerEditor("application/guideme+xml", true);
 
@@ -111,7 +111,7 @@ public class GuideMeDataObject extends MultiDataObject {
 
     @MultiViewElement.Registration(
             displayName = "#LBL_GuideMe_EDITOR",
-            iconBase = "org/guideme/guideme/filesupport/icon_16x16.gif",
+            iconBase = "org/guideme/guideme/resources/guide.png",
             mimeType = "application/guideme+xml",
             persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
             preferredID = "GuideMe",

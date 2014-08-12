@@ -16,21 +16,21 @@ import org.openide.windows.TopComponent;
 
 @MultiViewElement.Registration(
         displayName = "#LBL_GuideMe_VISUAL",
-        iconBase = "org/guideme/guideme/filesupport/icon_16x16.gif",
+        iconBase = "org/guideme/guideme/resources/guide.png",
         mimeType = "application/guideme+xml",
         persistenceType = TopComponent.PERSISTENCE_NEVER,
-        preferredID = "GuideMeVisual",
+        preferredID = "GuideCover",
         position = 500
 )
 @Messages("LBL_GuideMe_VISUAL=Cover")
-public final class GuideMeVisualElement extends JPanel implements MultiViewElement {
+public final class GuideCover extends JPanel implements MultiViewElement {
 
-    private GuideMeDataObject obj;
+    private GuideDataObject obj;
     private JToolBar toolbar = new JToolBar();
     private transient MultiViewElementCallback callback;
 
-    public GuideMeVisualElement(Lookup lkp) {
-        obj = lkp.lookup(GuideMeDataObject.class);
+    public GuideCover(Lookup lkp) {
+        obj = lkp.lookup(GuideDataObject.class);
         assert obj != null;
         initComponents();
         showGuideDetails();
@@ -42,7 +42,7 @@ public final class GuideMeVisualElement extends JPanel implements MultiViewEleme
     
     @Override
     public String getName() {
-        return "GuideMeVisualElement";
+        return "GuideCover";
     }
 
     /**
@@ -56,14 +56,14 @@ public final class GuideMeVisualElement extends JPanel implements MultiViewEleme
         playButton = new javax.swing.JButton();
         titleField = new javax.swing.JTextField();
 
-        org.openide.awt.Mnemonics.setLocalizedText(playButton, org.openide.util.NbBundle.getMessage(GuideMeVisualElement.class, "GuideMeVisualElement.playButton.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(playButton, org.openide.util.NbBundle.getMessage(GuideCover.class, "GuideCover.playButton.text")); // NOI18N
         playButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 playButtonActionPerformed(evt);
             }
         });
 
-        titleField.setText(org.openide.util.NbBundle.getMessage(GuideMeVisualElement.class, "GuideMeVisualElement.titleField.text")); // NOI18N
+        titleField.setText(org.openide.util.NbBundle.getMessage(GuideCover.class, "GuideCover.titleField.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);

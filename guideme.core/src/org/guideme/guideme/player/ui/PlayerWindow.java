@@ -46,6 +46,7 @@ public class PlayerWindow extends javax.swing.JFrame implements CurrentPageChang
      */
     @Override
     public void currentPageChanged(CurrentPageChangeEvent ev) {
+        textField.setContentType("text/html");
         textField.setText(ev.getCurrentPage().getText());
         // TODO show image, start delay, add buttons etc.
     }
