@@ -1,6 +1,11 @@
 package org.guideme.guideme.filesupport;
 
 import java.awt.Frame;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.io.File;
+import java.io.IOException;
+import javax.imageio.ImageIO;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -12,6 +17,9 @@ import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
 import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.openide.awt.UndoRedo;
+import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
+import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
@@ -52,7 +60,13 @@ public final class GuideCover extends JPanel implements MultiViewElement {
     }
 
     private void showGuideDetails() {
-        titleField.setText(obj.getGuide().getTitle());
+        FileObject thumbnail = obj.getPrimaryFile().getParent().getFileObject(obj.getGuide().getThumbnail());
+        ImagePanel imagePanel = new ImagePanel(FileUtil.toFile(thumbnail));
+        imagePanel.setSize(thumbnailPanelHolder.getSize());
+        thumbnailPanelHolder.add(imagePanel);
+        
+        titleLabel.setText(obj.getGuide().getTitle());
+        authorLabel.setText(obj.getGuide().getAuthorName());
     }
 
     @Override
@@ -68,9 +82,31 @@ public final class GuideCover extends JPanel implements MultiViewElement {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        titleField = new javax.swing.JTextField();
+        thumbnailPanelHolder = new javax.swing.JPanel();
+        titleLabel = new javax.swing.JLabel();
+        authorLabel = new javax.swing.JLabel();
 
-        titleField.setText(org.openide.util.NbBundle.getMessage(GuideCover.class, "GuideCover.titleField.text")); // NOI18N
+        thumbnailPanelHolder.setBackground(javax.swing.UIManager.getDefaults().getColor("windowBorder"));
+        thumbnailPanelHolder.setMinimumSize(new java.awt.Dimension(120, 100));
+        thumbnailPanelHolder.setPreferredSize(new java.awt.Dimension(120, 100));
+        thumbnailPanelHolder.setSize(new java.awt.Dimension(120, 100));
+
+        javax.swing.GroupLayout thumbnailPanelHolderLayout = new javax.swing.GroupLayout(thumbnailPanelHolder);
+        thumbnailPanelHolder.setLayout(thumbnailPanelHolderLayout);
+        thumbnailPanelHolderLayout.setHorizontalGroup(
+            thumbnailPanelHolderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 120, Short.MAX_VALUE)
+        );
+        thumbnailPanelHolderLayout.setVerticalGroup(
+            thumbnailPanelHolderLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGap(0, 100, Short.MAX_VALUE)
+        );
+
+        titleLabel.setFont(titleLabel.getFont().deriveFont(titleLabel.getFont().getStyle() | java.awt.Font.BOLD, titleLabel.getFont().getSize()+3));
+        org.openide.awt.Mnemonics.setLocalizedText(titleLabel, org.openide.util.NbBundle.getMessage(GuideCover.class, "GuideCover.titleLabel.text")); // NOI18N
+
+        authorLabel.setFont(authorLabel.getFont().deriveFont((authorLabel.getFont().getStyle() | java.awt.Font.ITALIC)));
+        org.openide.awt.Mnemonics.setLocalizedText(authorLabel, org.openide.util.NbBundle.getMessage(GuideCover.class, "GuideCover.authorLabel.text")); // NOI18N
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -78,20 +114,31 @@ public final class GuideCover extends JPanel implements MultiViewElement {
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(titleField, javax.swing.GroupLayout.DEFAULT_SIZE, 388, Short.MAX_VALUE)
-                .addContainerGap())
+                .addComponent(thumbnailPanelHolder, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(titleLabel)
+                    .addComponent(authorLabel))
+                .addContainerGap(213, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+            .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addComponent(titleField, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(266, Short.MAX_VALUE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addComponent(titleLabel)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(authorLabel))
+                    .addComponent(thumbnailPanelHolder, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addContainerGap(194, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField titleField;
+    private javax.swing.JLabel authorLabel;
+    private javax.swing.JPanel thumbnailPanelHolder;
+    private javax.swing.JLabel titleLabel;
     // End of variables declaration//GEN-END:variables
     @Override
     public JComponent getVisualRepresentation() {
@@ -152,4 +199,25 @@ public final class GuideCover extends JPanel implements MultiViewElement {
         return CloseOperationState.STATE_OK;
     }
 
+    public class ImagePanel extends JPanel {
+        
+        Image image;
+        
+        public ImagePanel(File imageFile) {
+            try {
+                image = ImageIO.read(imageFile);
+            } catch (IOException ex) {
+                Exceptions.printStackTrace(ex);
+            }
+        }
+
+        @Override
+        protected void paintComponent(Graphics g) {
+            super.paintComponent(g);
+            if (image != null) {
+                g.drawImage(image, 0, 0, null);
+            }
+        }
+        
+    }
 }

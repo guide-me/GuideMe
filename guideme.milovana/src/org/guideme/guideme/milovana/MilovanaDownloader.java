@@ -219,6 +219,7 @@ public class MilovanaDownloader {
         guide.setAuthorUrl("http://www.milovana.com/forum/memberlist.php?mode=viewprofile&u=" + teaseSummary.getAuthorId());
         guide.setDescription(teaseSummary.getDescription());
         guide.setKeywords(teaseSummary.getKeywords());
+        guide.setThumbnail(teaseSummary.getThumbnail());
 
         if (teaseSummary.isFlash()) {
             guide.setOriginalUrl("http://www.milovana.com/webteases/showflash.php?id=" + teaseSummary.getTeaseId());
