@@ -1,16 +1,15 @@
 package org.guideme.guideme.filesupport;
 
 import java.awt.Frame;
-import java.awt.Graphics;
-import java.awt.Image;
 import java.io.File;
 import java.io.IOException;
-import javax.imageio.ImageIO;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
+import org.guideme.guideme.controls.ImagePanel;
 import org.guideme.guideme.player.ui.PlayerWindow;
 import org.guideme.guideme.resources.Icons;
 import org.netbeans.core.spi.multiview.CloseOperationState;
@@ -47,23 +46,30 @@ public final class GuideCover extends JPanel implements MultiViewElement {
         initializeToolbar();
         showGuideDetails();
     }
+    
+    private FileObject getGuideDirectory() {
+        return obj.getPrimaryFile().getParent();
+    }
 
     private void initializeToolbar() {
         JButton playButton = new JButton("Play", Icons.getPlayGuideIcon());
         playButton.addActionListener((java.awt.event.ActionEvent evt) -> {
             PlayerWindow window = new PlayerWindow();
-            window.setVisible(true);
             window.setExtendedState(Frame.MAXIMIZED_BOTH);
-            window.playGuide(obj.getGuide());
+            window.setVisible(true);
+            SwingUtilities.invokeLater(() -> {
+                window.playGuide(obj.getGuide(), getGuideDirectory());
+            });
         });
         toolbar.add(playButton);
     }
 
     private void showGuideDetails() {
         if (obj.getGuide().getThumbnail() != null) {
-            FileObject thumbnail = obj.getPrimaryFile().getParent().getFileObject(obj.getGuide().getThumbnail());
+            FileObject thumbnail = getGuideDirectory().getFileObject(obj.getGuide().getThumbnail());
             if (thumbnail != null) {
-                ImagePanel imagePanel = new ImagePanel(FileUtil.toFile(thumbnail));
+                ImagePanel imagePanel = new ImagePanel();
+                imagePanel.showImage(FileUtil.toFile(thumbnail));
                 imagePanel.setSize(thumbnailPanelHolder.getSize());
                 thumbnailPanelHolder.add(imagePanel);
             }
@@ -200,27 +206,5 @@ public final class GuideCover extends JPanel implements MultiViewElement {
     @Override
     public CloseOperationState canCloseElement() {
         return CloseOperationState.STATE_OK;
-    }
-
-    public class ImagePanel extends JPanel {
-        
-        Image image;
-        
-        public ImagePanel(File imageFile) {
-            try {
-                image = ImageIO.read(imageFile);
-            } catch (IOException ex) {
-                Exceptions.printStackTrace(ex);
-            }
-        }
-
-        @Override
-        protected void paintComponent(Graphics g) {
-            super.paintComponent(g);
-            if (image != null) {
-                g.drawImage(image, 0, 0, null);
-            }
-        }
-        
     }
 }
