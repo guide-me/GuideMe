@@ -138,7 +138,7 @@ public class MilovanaDownloader {
         return null;
     }
 
-    public void saveGuide(TeaseSummary teaseSummary, File destinationFolder) throws IOException {
+    public FileObject saveGuide(TeaseSummary teaseSummary, File destinationFolder) throws IOException {
         if (destinationFolder.mkdir()) {
 
             FileObject projectDir = FileUtil.toFileObject(destinationFolder);
@@ -204,7 +204,9 @@ public class MilovanaDownloader {
             try (OutputStream stream = projectDir.createAndOpen(Constants.GUIDE_FILE)) {
                 GuideSerializer.getDefault().WriteGuide(guide, stream);
             }
+            return projectDir.getFileObject(Constants.GUIDE_FILE);
         }
+        return null;
     }
 
     private String extractFileNameFromURL(URL url) {
@@ -219,6 +221,7 @@ public class MilovanaDownloader {
         guide.setAuthorUrl("http://www.milovana.com/forum/memberlist.php?mode=viewprofile&u=" + teaseSummary.getAuthorId());
         guide.setDescription(teaseSummary.getDescription());
         guide.setKeywords(teaseSummary.getKeywords());
+        guide.setThumbnail(teaseSummary.getThumbnail());
 
         if (teaseSummary.isFlash()) {
             guide.setOriginalUrl("http://www.milovana.com/webteases/showflash.php?id=" + teaseSummary.getTeaseId());

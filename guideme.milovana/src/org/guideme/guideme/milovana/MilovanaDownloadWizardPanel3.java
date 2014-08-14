@@ -7,6 +7,7 @@ import java.util.Set;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import org.openide.WizardDescriptor;
+import org.openide.filesystems.FileObject;
 import org.openide.util.Exceptions;
 import org.openide.util.HelpCtx;
 
@@ -21,6 +22,7 @@ public class MilovanaDownloadWizardPanel3 implements WizardDescriptor.Panel<Wiza
     private TeaseSummary teaseSummary;
     private File destinationFolder;
     private boolean downloadCompleted;
+    private FileObject guideFile;
 
     // Get the visual component for the panel. In this template, the component
     // is kept separate. This can be more efficient: if the wizard is created
@@ -63,6 +65,7 @@ public class MilovanaDownloadWizardPanel3 implements WizardDescriptor.Panel<Wiza
     @Override
     public void storeSettings(WizardDescriptor wiz) {
         // use wiz.putProperty to remember current panel state
+        wiz.putProperty("guideFile", guideFile);
     }
 
     private final Set<ChangeListener> listeners = new HashSet<>();
@@ -99,7 +102,7 @@ public class MilovanaDownloadWizardPanel3 implements WizardDescriptor.Panel<Wiza
         addChangeListener(this);
 
         try {
-            new MilovanaDownloader().saveGuide(teaseSummary, destinationFolder); 
+            guideFile = new MilovanaDownloader().saveGuide(teaseSummary, destinationFolder); 
             component.addProgress("Download complete.");
             
         } catch (IOException ex) {

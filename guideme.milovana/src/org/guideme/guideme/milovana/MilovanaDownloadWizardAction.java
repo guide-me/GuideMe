@@ -4,27 +4,26 @@ import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
-import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JComponent;
-import org.netbeans.api.project.Project;
-import org.netbeans.api.project.ProjectManager;
-import org.netbeans.api.project.ui.OpenProjects;
 import org.openide.DialogDisplayer;
 import org.openide.WizardDescriptor;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
+import org.openide.cookies.OpenCookie;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
+import org.openide.loaders.DataObject;
+import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
 import org.openide.util.ImageUtilities;
 
 @ActionID(category="Milovana", id="org.guideme.guideme.milovana.MilovanaDownloadWizardAction")
 @ActionRegistration(displayName="From Milovana...")
-@ActionReference(path="Menu/File/Import", position=5)
+@ActionReference(path="Menu/File/Import", position=50)
 public final class MilovanaDownloadWizardAction implements ActionListener {
 
     @Override
@@ -54,17 +53,15 @@ public final class MilovanaDownloadWizardAction implements ActionListener {
         wiz.putProperty(WizardDescriptor.PROP_IMAGE, ImageUtilities.loadImage("org/guideme/guideme/milovana/resources/milovana.gif", true));
         if (DialogDisplayer.getDefault().notify(wiz) == WizardDescriptor.FINISH_OPTION) {
             try {
-                // Open the just downloaded guide.
-                FileObject projectFolder = FileUtil.toFileObject((File)wiz.getProperty("destinationFolder"));
-                Project project = ProjectManager.getDefault().findProject(projectFolder);
-                Project[] array = new Project[1];
-                array[0] = project;
-                OpenProjects.getDefault().open(array, false, true);
-            } catch (IOException | IllegalArgumentException ex) {
+                // Open the guide.
+                FileObject guideFile = (FileObject) wiz.getProperty("guideFile");
+                DataObject file = DataObject.find(guideFile);
+                file.getLookup().lookup(OpenCookie.class).open();
+            } catch (DataObjectNotFoundException ex) {
                 Exceptions.printStackTrace(ex);
             }
 
-        }
+        }   
     }
 
 }
