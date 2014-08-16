@@ -208,13 +208,15 @@ public final class RecentGuides {
      */
     private static void addFile(final TopComponent tc) {
         RP.post(() -> {
-            String path = obtainPath(tc);
-            // This works because GuideCover sets the displayname to the guide title.
-            String guideTitle = tc.getDisplayName();
-            if (guideTitle == null || guideTitle.trim().length() == 0) {
-                guideTitle = path;
+            GuideDataObject dataObject = tc.getLookup().lookup(GuideDataObject.class);
+            if (dataObject != null) {
+                String path = dataObject.getGuideFile().getAbsolutePath();
+                String guideTitle = dataObject.getGuide().getTitle();
+                if (guideTitle == null || guideTitle.trim().length() == 0) {
+                    guideTitle = path;
+                }
+                addFile(path, guideTitle);
             }
-            addFile(path, guideTitle);
         });
     }
 
@@ -340,7 +342,7 @@ public final class RecentGuides {
         public String getGuideTitle() {
             return guideTitle;
         }
-        
+
         public String getFileName() {
             if (fileName == null) {
                 int pos = path.lastIndexOf(File.separatorChar);

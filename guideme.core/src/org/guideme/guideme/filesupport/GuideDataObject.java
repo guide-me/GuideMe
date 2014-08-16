@@ -1,23 +1,21 @@
 package org.guideme.guideme.filesupport;
 
+import java.io.File;
 import java.io.IOException;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.serialization.GuideSerializer;
-import org.netbeans.core.spi.multiview.MultiViewElement;
-import org.netbeans.core.spi.multiview.text.MultiViewEditorElement;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionReferences;
 import org.openide.filesystems.FileObject;
+import org.openide.filesystems.FileUtil;
 import org.openide.filesystems.MIMEResolver;
 import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectExistsException;
 import org.openide.loaders.MultiDataObject;
 import org.openide.loaders.MultiFileLoader;
 import org.openide.util.Exceptions;
-import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
-import org.openide.windows.TopComponent;
 
 @Messages({
     "LBL_GuideMe_LOADER=Files of GuideMe"
@@ -87,12 +85,14 @@ import org.openide.windows.TopComponent;
 })
 public class GuideDataObject extends MultiDataObject {
 
+    private File guideFile;
     private Guide guide;
 
     public GuideDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
         registerEditor("application/guideme+xml", true);
 
+        guideFile = FileUtil.toFile(pf);
         try {
             guide = GuideSerializer.getDefault().ReadGuide(pf.getInputStream());
         } catch (IOException ex) {
@@ -102,6 +102,10 @@ public class GuideDataObject extends MultiDataObject {
 
     public Guide getGuide() {
         return guide;
+    }
+    
+    public File getGuideFile() {
+        return guideFile;
     }
 
     @Override
