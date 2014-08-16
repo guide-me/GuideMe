@@ -11,9 +11,18 @@
             <file name="org-netbeans-modules-print-action-PrintAction.shadow_hidden"/>
             <file name="org-openide-actions-SaveAllAction.shadow_hidden"/>
             <file name="org-openide-actions-SaveAsAction.shadow_hidden"/>
+            <file name="Separator45.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="45"/>
+            </file>
             <folder name="Import">
                 <attr name="position" intvalue="50"/>
+                <attr name="separator-before" boolvalue="true"/>
             </folder>
+            <file name="Separator55.instance">
+                <attr name="instanceClass" stringvalue="javax.swing.JSeparator"/>
+                <attr name="position" intvalue="55"/>
+            </file>
         </folder>
         <file name="GoTo_hidden"/>
         <file name="Source_hidden"/>
