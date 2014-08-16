@@ -22,8 +22,8 @@ import org.openide.util.NbBundle.Messages;
 @ActionRegistration(
         displayName = "#CTL_OpenGuideAction"
 )
-@ActionReference(path = "Menu/File", position = 1, separatorAfter = 2)
-@Messages("CTL_OpenGuideAction=Open Guide")
+@ActionReference(path = "Menu/File", position = 10)
+@Messages("CTL_OpenGuideAction=Open Guide...")
 public final class OpenGuideAction implements ActionListener {
 
     @Override

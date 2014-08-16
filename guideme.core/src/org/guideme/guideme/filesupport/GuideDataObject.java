@@ -109,17 +109,17 @@ public class GuideDataObject extends MultiDataObject {
         return 1;
     }
 
-    @MultiViewElement.Registration(
-            displayName = "#LBL_GuideMe_EDITOR",
-            iconBase = "org/guideme/guideme/resources/guide.png",
-            mimeType = "application/guideme+xml",
-            persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
-            preferredID = "GuideMe",
-            position = 2000
-    )
-    @Messages("LBL_GuideMe_EDITOR=Source")
-    public static MultiViewEditorElement createEditor(Lookup lkp) {
-        return new MultiViewEditorElement(lkp);
-    }
+//    @MultiViewElement.Registration(
+//            displayName = "#LBL_GuideMe_EDITOR",
+//            iconBase = "org/guideme/guideme/resources/guide.png",
+//            mimeType = "application/guideme+xml",
+//            persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
+//            preferredID = "GuideMe",
+//            position = 2000
+//    )
+//    @Messages("LBL_GuideMe_EDITOR=Source")
+//    public static MultiViewEditorElement createEditor(Lookup lkp) {
+//        return new MultiViewEditorElement(lkp);
+//    }
 
 }

@@ -1,8 +1,6 @@
 package org.guideme.guideme.filesupport;
 
 import java.awt.Frame;
-import java.io.File;
-import java.io.IOException;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -18,7 +16,6 @@ import org.netbeans.core.spi.multiview.MultiViewElementCallback;
 import org.openide.awt.UndoRedo;
 import org.openide.filesystems.FileObject;
 import org.openide.filesystems.FileUtil;
-import org.openide.util.Exceptions;
 import org.openide.util.Lookup;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
@@ -49,6 +46,17 @@ public final class GuideCover extends JPanel implements MultiViewElement {
     
     private FileObject getGuideDirectory() {
         return obj.getPrimaryFile().getParent();
+    }
+    
+    private void updateDisplayName() {
+        if (callback != null) {
+            String title = obj.getGuide().getTitle();
+            TopComponent tc = callback.getTopComponent();
+            tc.setHtmlDisplayName(title);
+            tc.setDisplayName(title);
+            tc.setName(getName());
+            tc.setToolTipText(getToolTipText());
+        }
     }
 
     private void initializeToolbar() {
@@ -179,6 +187,9 @@ public final class GuideCover extends JPanel implements MultiViewElement {
 
     @Override
     public void componentShowing() {
+        if (callback != null) {
+            updateDisplayName();
+        }
     }
 
     @Override
