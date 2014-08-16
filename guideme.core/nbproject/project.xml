@@ -116,9 +116,11 @@
             </test-dependencies>
             <public-packages>
                 <package>org.guideme.guideme</package>
-                <package>org.guideme.guideme.editor</package>
+                <package>org.guideme.guideme.controls</package>
                 <package>org.guideme.guideme.filesupport</package>
                 <package>org.guideme.guideme.model</package>
+                <package>org.guideme.guideme.player</package>
+                <package>org.guideme.guideme.player.ui</package>
                 <package>org.guideme.guideme.resources</package>
                 <package>org.guideme.guideme.serialization</package>
             </public-packages>

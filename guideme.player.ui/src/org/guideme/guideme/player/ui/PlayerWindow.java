@@ -3,8 +3,6 @@ package org.guideme.guideme.player.ui;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.Insets;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JTextPane;
 import org.guideme.guideme.controls.GmButton;

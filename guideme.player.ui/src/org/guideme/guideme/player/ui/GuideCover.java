@@ -1,4 +1,4 @@
-package org.guideme.guideme.filesupport;
+package org.guideme.guideme.player.ui;
 
 import java.awt.Frame;
 import javax.swing.Action;
@@ -8,7 +8,7 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import org.guideme.guideme.controls.ImagePanel;
-import org.guideme.guideme.player.ui.PlayerWindow;
+import org.guideme.guideme.filesupport.GuideDataObject;
 import org.guideme.guideme.resources.Icons;
 import org.netbeans.core.spi.multiview.CloseOperationState;
 import org.netbeans.core.spi.multiview.MultiViewElement;
@@ -21,7 +21,7 @@ import org.openide.util.NbBundle.Messages;
 import org.openide.windows.TopComponent;
 
 @MultiViewElement.Registration(
-        displayName = "#LBL_GuideMe_VISUAL",
+        displayName = "Cover",
         iconBase = "org/guideme/guideme/resources/guide.png",
         mimeType = "application/guideme+xml",
         persistenceType = TopComponent.PERSISTENCE_NEVER,
@@ -38,16 +38,17 @@ public final class GuideCover extends JPanel implements MultiViewElement {
     public GuideCover(Lookup lkp) {
         obj = lkp.lookup(GuideDataObject.class);
         assert obj != null;
+
         initComponents();
 
         initializeToolbar();
         showGuideDetails();
     }
-    
+
     private FileObject getGuideDirectory() {
         return obj.getPrimaryFile().getParent();
     }
-    
+
     private void updateDisplayName() {
         if (callback != null) {
             String title = obj.getGuide().getTitle();
@@ -65,9 +66,7 @@ public final class GuideCover extends JPanel implements MultiViewElement {
             PlayerWindow window = new PlayerWindow();
             window.setExtendedState(Frame.MAXIMIZED_BOTH);
             window.setVisible(true);
-            SwingUtilities.invokeLater(() -> {
-                window.playGuide(obj.getGuide(), getGuideDirectory());
-            });
+            window.playGuide(obj.getGuide(), getGuideDirectory());
         });
         toolbar.add(playButton);
     }
@@ -120,10 +119,10 @@ public final class GuideCover extends JPanel implements MultiViewElement {
         );
 
         titleLabel.setFont(titleLabel.getFont().deriveFont(titleLabel.getFont().getStyle() | java.awt.Font.BOLD, titleLabel.getFont().getSize()+3));
-        org.openide.awt.Mnemonics.setLocalizedText(titleLabel, org.openide.util.NbBundle.getMessage(GuideCover.class, "GuideCover.titleLabel.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(titleLabel, "[title]");
 
         authorLabel.setFont(authorLabel.getFont().deriveFont((authorLabel.getFont().getStyle() | java.awt.Font.ITALIC)));
-        org.openide.awt.Mnemonics.setLocalizedText(authorLabel, org.openide.util.NbBundle.getMessage(GuideCover.class, "GuideCover.authorLabel.text")); // NOI18N
+        org.openide.awt.Mnemonics.setLocalizedText(authorLabel, "[author]");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
