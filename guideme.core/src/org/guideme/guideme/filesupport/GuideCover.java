@@ -50,6 +50,17 @@ public final class GuideCover extends JPanel implements MultiViewElement {
     private FileObject getGuideDirectory() {
         return obj.getPrimaryFile().getParent();
     }
+    
+    private void updateDisplayName() {
+        if (callback != null) {
+            String title = obj.getGuide().getTitle();
+            TopComponent tc = callback.getTopComponent();
+            tc.setHtmlDisplayName(title);
+            tc.setDisplayName(title);
+            tc.setName(getName());
+            tc.setToolTipText(getToolTipText());
+        }
+    }
 
     private void initializeToolbar() {
         JButton playButton = new JButton("Play", Icons.getPlayGuideIcon());
@@ -179,6 +190,9 @@ public final class GuideCover extends JPanel implements MultiViewElement {
 
     @Override
     public void componentShowing() {
+        if (callback != null) {
+            updateDisplayName();
+        }
     }
 
     @Override
