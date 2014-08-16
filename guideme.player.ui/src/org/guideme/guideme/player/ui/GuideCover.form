@@ -85,9 +85,7 @@
             <Font bold="true" component="titleLabel" property="font" relativeSize="true" size="3"/>
           </FontInfo>
         </Property>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/guideme/guideme/filesupport/Bundle.properties" key="GuideCover.titleLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-        </Property>
+        <Property name="text" type="java.lang.String" value="[title]"/>
       </Properties>
     </Component>
     <Component class="javax.swing.JLabel" name="authorLabel">
@@ -97,9 +95,7 @@
             <Font component="authorLabel" italic="true" property="font" relativeSize="true" size="0"/>
           </FontInfo>
         </Property>
-        <Property name="text" type="java.lang.String" editor="org.netbeans.modules.i18n.form.FormI18nStringEditor">
-          <ResourceString bundle="org/guideme/guideme/filesupport/Bundle.properties" key="GuideCover.authorLabel.text" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
-        </Property>
+        <Property name="text" type="java.lang.String" value="[author]"/>
       </Properties>
     </Component>
   </SubComponents>
