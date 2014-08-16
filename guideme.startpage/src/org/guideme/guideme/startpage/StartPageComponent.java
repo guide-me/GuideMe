@@ -62,7 +62,7 @@ public class StartPageComponent extends TopComponent {
     public static StartPageComponent findComp() {
         StartPageComponent wc = component.get();
         if (wc == null) {
-            TopComponent tc = WindowManager.getDefault().findTopComponent("StartPage"); // NOI18N
+            TopComponent tc = WindowManager.getDefault().findTopComponent("StartPageComponent"); // NOI18N
             if (tc != null) {
                 if (tc instanceof StartPageComponent) {
                     wc = (StartPageComponent) tc;

@@ -5,11 +5,11 @@
     <folder name="Windows2">
         <folder name="Modes">
             <folder name="editor">
-                <file name="StartPage.wstcref" url="StartPage.wstcref"/>
+                <file name="StartPageComponent.wstcref" url="resources/StartPageComponent.wstcref"/>
             </folder>
         </folder>
         <folder name="Components">
-            <file name="StartPageComponent.settings" url="StartPageComponent.settings"/>
+            <file name="StartPageComponent.settings" url="resources/StartPageComponent.settings"/>
         </folder>
     </folder>
    

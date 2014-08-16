@@ -6,6 +6,6 @@
 
 <tc-ref version="2.0" id="StartPage">
     <module name="org.guideme.guideme.startpage" />
-    <tc-id id="StartPage" />
+    <tc-id id="StartPageComponent" />
     <state opened="true" />
 </tc-ref>
