@@ -229,7 +229,7 @@ public class RecentGuideAction extends AbstractAction
      * @param path the path to the file or {@code null}.
      * @return error message or {@code null} on success.
      */
-    private String openFile(String path) {
+    public static String openFile(String path) {
         if (path == null || path.length() == 0) {
             return Bundle.OFMSG_PATH_IS_NOT_DEFINED();
         }
