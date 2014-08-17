@@ -6,19 +6,14 @@ import java.beans.PropertyChangeListener;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
-import org.openide.filesystems.FileObject;
-import org.openide.filesystems.FileUtil;
-import org.openide.loaders.DataObject;
 import org.openide.modules.OnStop;
 import org.openide.util.NbPreferences;
 import org.openide.util.RequestProcessor;
-import org.openide.windows.CloneableTopComponent;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
@@ -31,18 +26,17 @@ public final class RecentGuides {
     private static final Logger LOG = Logger.getLogger(RecentGuides.class.getName());
 
     /**
-     * List of recently closed files
-     */
-    private static final List<HistoryItem> history = new ArrayList<>();
-    /**
      * Request processor
      */
     private static final RequestProcessor RP = new RequestProcessor(RecentGuides.class);
+
     /**
      * Preferences node for storing history info
      */
     private static Preferences prefs;
-    private static final Object HISTORY_LOCK = new Object();
+
+    private static final List<HistoryItem> historyItems = new ArrayList<>();
+
     /**
      * Name of preferences node where we persist history
      */
@@ -62,8 +56,7 @@ public final class RecentGuides {
 
     private static PropertyChangeListener windowRegistryListener;
 
-    private static final String RECENT_FILE_KEY = "nb.recent.file.path"; // NOI18N
-
+    
     private RecentGuides() {
     }
 
@@ -73,10 +66,10 @@ public final class RecentGuides {
     public static void init() {
         WindowManager.getDefault().invokeWhenUIReady(() -> {
             List<HistoryItem> loaded = load();
-            synchronized (HISTORY_LOCK) {
-                history.addAll(0, loaded);
+            synchronized (historyItems) {
+                historyItems.addAll(loaded);
                 if (windowRegistryListener == null) {
-                    windowRegistryListener = new WindowRegistryL();
+                    windowRegistryListener = new WindowRegistryListener();
                     TopComponent.getRegistry().addPropertyChangeListener(
                             windowRegistryListener);
                 }
@@ -86,30 +79,13 @@ public final class RecentGuides {
 
     /**
      * Returns read-only list of recently closed guides
-     */
-    static List<HistoryItem> getRecentGuides() {
-        synchronized (HISTORY_LOCK) {
-            checkHistory();
-            return Collections.unmodifiableList(history);
-        }
-    }
-    private static volatile boolean historyProbablyValid;
-
-    /**
-     * True if there are probably some recently closed guides. Note: will still
-     * be true if all of them are in fact invalid, but this is much faster than
-     * calling {@link #getRecentGuides}.
      *
      * @return
      */
-    public static boolean hasRecentGuides() {
-        if (!historyProbablyValid) {
-            synchronized (HISTORY_LOCK) {
-                checkHistory();
-                return !history.isEmpty();
-            }
+    public static List<HistoryItem> getRecentGuides() {
+        synchronized (historyItems) {
+            return Collections.unmodifiableList(historyItems);
         }
-        return historyProbablyValid;
     }
 
     /**
@@ -162,11 +138,12 @@ public final class RecentGuides {
     }
 
     static void store() {
-        store(history);
+        store(getRecentGuides());
     }
 
     static void store(List<HistoryItem> history) {
         Preferences _prefs = getPrefs();
+
         for (int i = 0; i < history.size(); i++) {
             HistoryItem hi = history.get(i);
             if ((hi.id != i) && (hi.id >= history.size())) {
@@ -178,21 +155,6 @@ public final class RecentGuides {
             _prefs.put(PROP_TITLE_PREFIX + i, hi.getGuideTitle());
         }
         LOG.log(Level.FINE, "Stored");
-    }
-
-    /**
-     * Clear the history. Should be called only from tests.
-     */
-    static void clear() {
-        try {
-            synchronized (HISTORY_LOCK) {
-                history.clear();
-                getPrefs().clear();
-                getPrefs().flush();
-            }
-        } catch (BackingStoreException ex) {
-            LOG.log(Level.WARNING, null, ex);
-        }
     }
 
     static Preferences getPrefs() {
@@ -222,18 +184,19 @@ public final class RecentGuides {
 
     static void addFile(String path, String guideTitle) {
         if (path != null) {
-            historyProbablyValid = false;
-            synchronized (HISTORY_LOCK) {
+            synchronized (historyItems) {
                 // avoid duplicates
-                HistoryItem hItem;
-                do {
-                    hItem = findHistoryItem(path);
-                } while (history.remove(hItem));
+                HistoryItem hItem = findHistoryItem(path);
+                if (hItem != null) {
+                    historyItems.remove(hItem);
+                }
 
-                final HistoryItem newItem = new HistoryItem(0, path, guideTitle);
-                history.add(0, newItem);
-                for (int i = MAX_HISTORY_ITEMS; i < history.size(); i++) {
-                    history.remove(i);
+                // Add the file to the beginning of the list.
+                historyItems.add(0, new HistoryItem(0, path, guideTitle));
+
+                // Remove guides if the list gets too big.
+                for (int i = MAX_HISTORY_ITEMS; i < historyItems.size(); i++) {
+                    historyItems.remove(i);
                 }
                 store();
             }
@@ -245,141 +208,44 @@ public final class RecentGuides {
      */
     private static void removeFile(final TopComponent tc) {
         RP.post(() -> {
-            historyProbablyValid = false;
-            String path = obtainPath(tc);
-            if (path != null) {
-                synchronized (HISTORY_LOCK) {
-                    HistoryItem hItem = findHistoryItem(path);
-                    if (hItem != null) {
-                        history.remove(hItem);
+            GuideDataObject dataObject = tc.getLookup().lookup(GuideDataObject.class);
+            if (dataObject != null) {
+                String path = dataObject.getGuideFile().getAbsolutePath();
+                if (path != null) {
+                    synchronized (historyItems) {
+                        HistoryItem hItem = findHistoryItem(path);
+                        if (hItem != null) {
+                            historyItems.remove(hItem);
+                        }
+                        store();
                     }
-                    store();
                 }
             }
         });
     }
 
-    private static String obtainPath(TopComponent tc) {
-        Object file = tc.getClientProperty(RECENT_FILE_KEY);
-        if (file instanceof File) {
-            return ((File) file).getPath();
-        }
-        if (tc instanceof CloneableTopComponent) {
-            DataObject dObj = tc.getLookup().lookup(DataObject.class);
-            if (dObj != null) {
-                FileObject fo = dObj.getPrimaryFile();
-                if (fo != null) {
-                    return convertFile2Path(fo);
-                }
-            }
-        }
-        return null;
-    }
-
     private static HistoryItem findHistoryItem(String path) {
-        for (HistoryItem hItem : history) {
-            if (path.equals(hItem.getPath())) {
-                return hItem;
-            }
-        }
-        return null;
-    }
-
-    static String convertFile2Path(FileObject fo) {
-        File f = FileUtil.toFile(fo);
-        return f == null ? null : f.getPath();
-    }
-
-    static FileObject convertPath2File(String path) {
-        File f = new File(path);
-        f = FileUtil.normalizeFile(f);
-        return f == null ? null : FileUtil.toFileObject(f);
-    }
-
-    /**
-     * Checks recent files history and removes non-valid entries
-     */
-    private static void checkHistory() {
-        assert Thread.holdsLock(HISTORY_LOCK);
-        historyProbablyValid = !history.isEmpty();
+        return historyItems.stream()
+                .filter((HistoryItem hItem) -> path.equals(hItem.getPath()))
+                .findFirst()
+                .orElse(null);
     }
 
     static void pruneHistory() {
-        synchronized (HISTORY_LOCK) {
-            Iterator<HistoryItem> it = history.iterator();
-            while (it.hasNext()) {
-                HistoryItem historyItem = it.next();
+        synchronized (historyItems) {
+            historyItems.forEach((HistoryItem historyItem) -> {
                 File f = new File(historyItem.getPath());
                 if (!f.exists()) {
-                    it.remove();
+                    historyItems.remove(historyItem);
                 }
-            }
-        }
-    }
-
-    /**
-     * One item of the recently closed guides history. Comparable by the time
-     * field, ascending from most recent to older items.
-     */
-    static final class HistoryItem implements Comparable<HistoryItem> {
-
-        private int id;
-        private final String path;
-        private final String guideTitle;
-        private String fileName;
-
-        HistoryItem(int id, String path,
-                String guideTitle) {
-            this.path = path;
-            this.id = id;
-            this.guideTitle = guideTitle;
-        }
-
-        public String getPath() {
-            return path;
-        }
-
-        public String getGuideTitle() {
-            return guideTitle;
-        }
-
-        public String getFileName() {
-            if (fileName == null) {
-                int pos = path.lastIndexOf(File.separatorChar);
-                if ((pos != -1) && (pos < path.length())) {
-                    fileName = path.substring(pos + 1);
-                } else {
-                    fileName = path;
-                }
-            }
-            return fileName;
-        }
-
-        @Override
-        public int compareTo(HistoryItem o) {
-            return this.id - o.id;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof HistoryItem) {
-                return ((HistoryItem) obj).getPath().equals(path);
-            }
-            return false;
-        }
-
-        @Override
-        public int hashCode() {
-            int hash = 7;
-            hash = 17 * hash + (this.path != null ? this.path.hashCode() : 0);
-            return hash;
+            });
         }
     }
 
     /**
      * Receives info about opened and closed TopComponents from window system.
      */
-    private static class WindowRegistryL implements PropertyChangeListener {
+    private static class WindowRegistryListener implements PropertyChangeListener {
 
         @Override
         public void propertyChange(PropertyChangeEvent evt) {

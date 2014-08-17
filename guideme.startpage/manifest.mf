@@ -1,0 +1,7 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.guideme.guideme.startpage
+OpenIDE-Module-Install: org/guideme/guideme/startpage/Installer.class
+OpenIDE-Module-Layer: org/guideme/guideme/startpage/layer.xml
+OpenIDE-Module-Localizing-Bundle: org/guideme/guideme/startpage/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
