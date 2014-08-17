@@ -49,10 +49,6 @@ public final class RecentGuides {
      * Prefix of property for recent guide title.
      */
     private static final String PROP_TITLE_PREFIX = "RecentGuidesTitle."; //NOI18N
-    /**
-     * Boundary for items count in history
-     */
-    static final int MAX_HISTORY_ITEMS = 15;
 
     private static PropertyChangeListener windowRegistryListener;
 
@@ -85,6 +81,16 @@ public final class RecentGuides {
     public static List<HistoryItem> getRecentGuides() {
         synchronized (historyItems) {
             return Collections.unmodifiableList(historyItems);
+        }
+    }
+    
+    /**
+     * Clears the list of recently opened guides.
+     */
+    public static void clearHistory() {
+        synchronized (historyItems) {
+            historyItems.clear();
+            store(historyItems);
         }
     }
 
@@ -195,7 +201,8 @@ public final class RecentGuides {
                 historyItems.add(0, new HistoryItem(0, path, guideTitle));
 
                 // Remove guides if the list gets too big.
-                for (int i = MAX_HISTORY_ITEMS; i < historyItems.size(); i++) {
+                int maxGuidesToRemember = NbPreferences.forModule(RecentGuidesPanel.class).getInt("maxGuidesToRemember", 15);
+                for (int i = maxGuidesToRemember; i < historyItems.size(); i++) {
                     historyItems.remove(i);
                 }
                 store();
