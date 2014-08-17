@@ -20,16 +20,20 @@ public final class RecentGuidesOptionsPanelController extends OptionsPanelContro
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     private boolean changed;
 
+    void clearHistory() {
+        RecentGuides.clearHistory();
+    }
+
     @Override
     public void update() {
-        getPanel().load();
+        panel.setMaxToRemember(RecentGuides.getMaxToRemember());
         changed = false;
     }
 
     @Override
     public void applyChanges() {
         SwingUtilities.invokeLater(() -> {
-            getPanel().store();
+            RecentGuides.setMaxToRemember(panel.getMaxToRemember());
             changed = false;
         });
     }
@@ -41,7 +45,7 @@ public final class RecentGuidesOptionsPanelController extends OptionsPanelContro
 
     @Override
     public boolean isValid() {
-        return getPanel().valid();
+        return true;
     }
 
     @Override

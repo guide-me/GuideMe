@@ -31,7 +31,7 @@ import org.openide.windows.WindowManager;
 })
 public class RecentGuidesPanel extends JPanel implements Runnable {
 
-    private static final int MAX_GUIDES = 10;
+    private static final int MAX_GUIDES = RecentGuides.getMaxToRemember();
 
     public RecentGuidesPanel() {
         super(new BorderLayout());

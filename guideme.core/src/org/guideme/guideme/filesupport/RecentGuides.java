@@ -52,7 +52,10 @@ public final class RecentGuides {
 
     private static PropertyChangeListener windowRegistryListener;
 
-    
+    private static int DEFAULT_MAX_GUIDES = 15;
+    private static String PROP_MAX_GUIDES = "MaxGuidesToRemember";
+    private static int maxGuidesToRemember = getPrefs().getInt(PROP_MAX_GUIDES, DEFAULT_MAX_GUIDES);
+
     private RecentGuides() {
     }
 
@@ -83,7 +86,30 @@ public final class RecentGuides {
             return Collections.unmodifiableList(historyItems);
         }
     }
-    
+
+    /**
+     * Gets the maximum number of guides to remember.
+     *
+     * @return
+     */
+    public static int getMaxToRemember() {
+        return maxGuidesToRemember;
+    }
+
+    /**
+     * Sets the maximum number of guides to remember.
+     *
+     * @param value
+     */
+    public static void setMaxToRemember(int value) {
+        maxGuidesToRemember = value;
+        getPrefs().putInt(PROP_MAX_GUIDES, value);
+
+        synchronized (historyItems) {
+            removeGuidesIfListIsTooBig();
+        }
+    }
+
     /**
      * Clears the list of recently opened guides.
      */
@@ -200,14 +226,18 @@ public final class RecentGuides {
                 // Add the file to the beginning of the list.
                 historyItems.add(0, new HistoryItem(0, path, guideTitle));
 
-                // Remove guides if the list gets too big.
-                int maxGuidesToRemember = NbPreferences.forModule(RecentGuidesPanel.class).getInt("maxGuidesToRemember", 15);
-                for (int i = maxGuidesToRemember; i < historyItems.size(); i++) {
-                    historyItems.remove(i);
-                }
+                removeGuidesIfListIsTooBig();
+
                 store();
             }
         }
+    }
+
+    private static void removeGuidesIfListIsTooBig() {
+        for (int i = maxGuidesToRemember; i < historyItems.size(); i++) {
+            historyItems.remove(i);
+        }
+        store();
     }
 
     /**

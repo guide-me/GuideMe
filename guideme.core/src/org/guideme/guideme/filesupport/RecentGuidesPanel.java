@@ -1,15 +1,29 @@
 package org.guideme.guideme.filesupport;
 
-import org.openide.util.NbPreferences;
+import java.awt.event.ActionEvent;
+import javax.swing.event.ChangeEvent;
 
 final class RecentGuidesPanel extends javax.swing.JPanel {
 
     private final RecentGuidesOptionsPanelController controller;
 
+    int getMaxToRemember() {
+        return (int) maxGuidesToRememberInput.getValue();
+    }
+
+    void setMaxToRemember(int value) {
+        maxGuidesToRememberInput.setValue(value);
+    }
+
     RecentGuidesPanel(RecentGuidesOptionsPanelController controller) {
         this.controller = controller;
         initComponents();
-        // TODO listen to changes in form fields and call controller.changed()
+        maxGuidesToRememberInput.getModel().addChangeListener((ChangeEvent e) -> {
+            this.controller.changed();
+        });
+        clearHistoryButton.addActionListener((ActionEvent e) -> {
+            this.controller.clearHistory();
+        });
     }
 
     /**
@@ -30,11 +44,6 @@ final class RecentGuidesPanel extends javax.swing.JPanel {
 
         org.openide.awt.Mnemonics.setLocalizedText(clearHistoryButton, org.openide.util.NbBundle.getMessage(RecentGuidesPanel.class, "RecentGuidesPanel.clearHistoryButton.text")); // NOI18N
         clearHistoryButton.setToolTipText(org.openide.util.NbBundle.getMessage(RecentGuidesPanel.class, "RecentGuidesPanel.clearHistoryButton.toolTipText")); // NOI18N
-        clearHistoryButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                clearHistoryButtonActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
@@ -62,37 +71,6 @@ final class RecentGuidesPanel extends javax.swing.JPanel {
                 .addContainerGap(46, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
-
-    private void clearHistoryButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearHistoryButtonActionPerformed
-        RecentGuides.clearHistory();
-    }//GEN-LAST:event_clearHistoryButtonActionPerformed
-
-    void load() {
-        // TODO read settings and initialize GUI
-        // Example:        
-        // someCheckBox.setSelected(Preferences.userNodeForPackage(RecentGuidesPanel.class).getBoolean("someFlag", false));
-        // or for org.openide.util with API spec. version >= 7.4:
-        // someCheckBox.setSelected(NbPreferences.forModule(RecentGuidesPanel.class).getBoolean("someFlag", false));
-        // or:
-        // someTextField.setText(SomeSystemOption.getDefault().getSomeStringProperty());
-        maxGuidesToRememberInput.setValue(NbPreferences.forModule(RecentGuidesPanel.class).getInt("maxGuidesToRemember", 15));
-    }
-
-    void store() {
-        // TODO store modified settings
-        // Example:
-        // Preferences.userNodeForPackage(RecentGuidesPanel.class).putBoolean("someFlag", someCheckBox.isSelected());
-        // or for org.openide.util with API spec. version >= 7.4:
-        // NbPreferences.forModule(RecentGuidesPanel.class).putBoolean("someFlag", someCheckBox.isSelected());
-        // or:
-        // SomeSystemOption.getDefault().setSomeStringProperty(someTextField.getText());
-        NbPreferences.forModule(RecentGuidesPanel.class).putInt("maxGuidesToRemember", (int)maxGuidesToRememberInput.getValue());
-    }
-
-    boolean valid() {
-        // TODO check whether form is consistent and complete
-        return true;
-    }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton clearHistoryButton;

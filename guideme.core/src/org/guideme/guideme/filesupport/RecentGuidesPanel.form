@@ -68,9 +68,6 @@
           <ResourceString bundle="org/guideme/guideme/filesupport/Bundle.properties" key="RecentGuidesPanel.clearHistoryButton.toolTipText" replaceFormat="org.openide.util.NbBundle.getMessage({sourceFileName}.class, &quot;{key}&quot;)"/>
         </Property>
       </Properties>
-      <Events>
-        <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="clearHistoryButtonActionPerformed"/>
-      </Events>
     </Component>
   </SubComponents>
 </Form>
