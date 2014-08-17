@@ -14,6 +14,9 @@ public class StartPageContent extends JPanel {
 
     public StartPageContent() {
         super(new BorderLayout());
+        
+        
+        add(new RecentGuidesPanel(), BorderLayout.WEST);
 
         add(new ShowOnStartup(), BorderLayout.SOUTH);
     }

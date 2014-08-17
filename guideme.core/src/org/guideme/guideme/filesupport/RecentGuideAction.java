@@ -16,7 +16,6 @@ import javax.swing.Action;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
-import javax.swing.KeyStroke;
 import javax.swing.MenuElement;
 import javax.swing.MenuSelectionManager;
 import javax.swing.SwingUtilities;
@@ -24,7 +23,6 @@ import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import javax.swing.event.PopupMenuEvent;
 import javax.swing.event.PopupMenuListener;
-import org.guideme.guideme.filesupport.RecentGuides.HistoryItem;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
 import org.openide.awt.ActionRegistration;
@@ -119,7 +117,7 @@ public class RecentGuideAction extends AbstractAction
      * Fills sub menu with recently closed guides got from RecentGuides support
      */
     private void fillSubMenu() {
-        RecentGuides.getRecentGuides().stream().forEach((hItem) -> {
+        RecentGuides.getRecentGuides().stream().forEach((HistoryItem hItem) -> {
             try {
                 menu.add(newSubMenuItem(hItem));
             } catch (Exception ex) {
@@ -265,7 +263,8 @@ public class RecentGuideAction extends AbstractAction
 
         @Override
         public JComponent[] getMenuPresenters() {
-            setEnabled(RecentGuides.hasRecentGuides());
+            List<HistoryItem> recentGuides = RecentGuides.getRecentGuides();
+            setEnabled(!recentGuides.isEmpty());
             return content;
         }
 

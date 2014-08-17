@@ -120,9 +120,9 @@
                 <package>org.guideme.guideme.filesupport</package>
                 <package>org.guideme.guideme.model</package>
                 <package>org.guideme.guideme.player</package>
-                <package>org.guideme.guideme.player.ui</package>
                 <package>org.guideme.guideme.resources</package>
                 <package>org.guideme.guideme.serialization</package>
+                <package>org.guideme.guideme.utilities</package>
             </public-packages>
         </data>
     </configuration>
