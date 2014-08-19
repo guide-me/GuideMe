@@ -16,24 +16,26 @@ import org.openide.util.Lookup;
 @org.openide.util.NbBundle.Messages({"AdvancedOption_DisplayName_RecentGuides=Recent Guides", "AdvancedOption_Keywords_RecentGuides=recent guides"})
 public final class RecentGuidesOptionsPanelController extends OptionsPanelController {
 
+    private static final RecentGuides RECENT_GUIDES = RecentGuides.getDefault();
+
     private RecentGuidesPanel panel;
     private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
     private boolean changed;
 
     void clearHistory() {
-        RecentGuides.clearHistory();
+        RECENT_GUIDES.clearHistory();
     }
 
     @Override
     public void update() {
-        panel.setMaxToRemember(RecentGuides.getMaxToRemember());
+        panel.setMaxToRemember(RECENT_GUIDES.getMaxNumberOfGuides());
         changed = false;
     }
 
     @Override
     public void applyChanges() {
         SwingUtilities.invokeLater(() -> {
-            RecentGuides.setMaxToRemember(panel.getMaxToRemember());
+            RECENT_GUIDES.setMaxNumberOfGuides(panel.getMaxToRemember());
             changed = false;
         });
     }

@@ -13,7 +13,7 @@ public class Installer extends ModuleInstall {
      */
     @Override
     public void restored() {
-        RecentGuides.init();
+        RecentGuides.getDefault().initialize();
     }
 
 }

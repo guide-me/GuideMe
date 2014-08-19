@@ -1,4 +1,3 @@
-// Implementation is taken and adapted from org.netbeans.modules.openfile.RecentFiles.
 package org.guideme.guideme.filesupport;
 
 import java.beans.PropertyChangeEvent;
@@ -11,17 +10,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+import org.guideme.guideme.utilities.CentralLookup;
 import org.openide.modules.OnStop;
+import org.openide.util.Exceptions;
 import org.openide.util.NbPreferences;
 import org.openide.util.RequestProcessor;
 import org.openide.windows.TopComponent;
 import org.openide.windows.WindowManager;
 
-/**
- * Manages prioritized set of recently closed guides.
- *
- */
-public final class RecentGuides {
+public class RecentGuides {
 
     private static final Logger LOG = Logger.getLogger(RecentGuides.class.getName());
 
@@ -30,177 +27,144 @@ public final class RecentGuides {
      */
     private static final RequestProcessor RP = new RequestProcessor(RecentGuides.class);
 
-    /**
-     * Preferences node for storing history info
-     */
-    private static Preferences prefs;
+    private static final String PREFS_NODE = "RecentGuides";
+    private static final String PROP_PREFIX_TITLE = "RecentGuideTitle.";
+    private static final String PROP_PREFIX_PATH = "RecentGuidePath.";
+    private static final String PROP_MAX_NUMBER = "MaxNumberOfGuides";
+    private static final int DEFAULT_MAX_NUMBER = 15;
+    private static RecentGuides instance;
 
-    private static final List<HistoryItem> historyItems = new ArrayList<>();
+    public static RecentGuides getDefault() {
+        if (instance == null) {
+            instance = new RecentGuides();
+        }
+        return instance;
+    }
 
-    /**
-     * Name of preferences node where we persist history
-     */
-    private static final String PREFS_NODE = "RecentGuidesHistory"; //NOI18N
-    /**
-     * Prefix of property for recent file URL
-     */
-    private static final String PROP_URL_PREFIX = "RecentGuidesURL."; //NOI18N
-    /**
-     * Prefix of property for recent guide title.
-     */
-    private static final String PROP_TITLE_PREFIX = "RecentGuidesTitle."; //NOI18N
+    private final CentralLookup lookup;
+    private final Preferences preferences;
 
-    private static PropertyChangeListener windowRegistryListener;
+    private int maxNumberOfGuides;
 
-    private static int DEFAULT_MAX_GUIDES = 15;
-    private static String PROP_MAX_GUIDES = "MaxGuidesToRemember";
-    private static int maxGuidesToRemember = getPrefs().getInt(PROP_MAX_GUIDES, DEFAULT_MAX_GUIDES);
+    private final WindowRegistryListener windowRegistryListener = new WindowRegistryListener();
 
     private RecentGuides() {
+        lookup = CentralLookup.getDefault();
+        preferences = NbPreferences.forModule(RecentGuides.class).node(PREFS_NODE);
+        maxNumberOfGuides = preferences.getInt(PROP_MAX_NUMBER, DEFAULT_MAX_NUMBER);
     }
 
     /**
      * Starts to listen for recently closed files
      */
-    public static void init() {
+    public void initialize() {
         WindowManager.getDefault().invokeWhenUIReady(() -> {
-            List<HistoryItem> loaded = load();
-            synchronized (historyItems) {
-                historyItems.addAll(loaded);
-                if (windowRegistryListener == null) {
-                    windowRegistryListener = new WindowRegistryListener();
-                    TopComponent.getRegistry().addPropertyChangeListener(
-                            windowRegistryListener);
-                }
+            List<RecentGuide> recentGuides = loadFromPreferences();
+            recentGuides.stream().forEach((guide) -> {
+                lookup.add(guide);
+            });
+            TopComponent.getRegistry().addPropertyChangeListener(windowRegistryListener);
+        });
+        LOG.log(Level.INFO, "RecentGuideService initialized.");
+    }
+
+    public void removeNonExistingGuides() {
+        getGuides().forEach((RecentGuide rg) -> {
+            File f = new File(rg.getPath());
+            if (!f.exists()) {
+                lookup.remove(rg);
             }
         });
     }
 
-    /**
-     * Returns read-only list of recently closed guides
-     *
-     * @return
-     */
-    public static List<HistoryItem> getRecentGuides() {
-        synchronized (historyItems) {
-            return Collections.unmodifiableList(historyItems);
-        }
+    public void clearHistory() {
+        getGuides().forEach((RecentGuide rg) -> lookup.remove(rg));
+        saveToPreferences();
+        LOG.log(Level.INFO, "RecentGuide history cleared.");
+    }
+
+    public int getMaxNumberOfGuides() {
+        return maxNumberOfGuides;
+    }
+
+    public void setMaxNumberOfGuides(int maxNumberOfGuides) {
+        this.maxNumberOfGuides = maxNumberOfGuides;
+        preferences.putInt(PROP_MAX_NUMBER, this.maxNumberOfGuides);
+        removeGuidesIfListIsTooBig();
+        saveToPreferences();
     }
 
     /**
-     * Gets the maximum number of guides to remember.
-     *
-     * @return
+     * The first item in the list is the guide opened most recently.
+     * @return 
      */
-    public static int getMaxToRemember() {
-        return maxGuidesToRemember;
+    public List<RecentGuide> getGuides() {
+        List<RecentGuide> result = new ArrayList<>();
+        result.addAll(lookup.lookupAll(RecentGuide.class));
+        Collections.reverse(result);
+        return Collections.unmodifiableList(result);
     }
 
-    /**
-     * Sets the maximum number of guides to remember.
-     *
-     * @param value
-     */
-    public static void setMaxToRemember(int value) {
-        maxGuidesToRemember = value;
-        getPrefs().putInt(PROP_MAX_GUIDES, value);
-
-        synchronized (historyItems) {
-            removeGuidesIfListIsTooBig();
-        }
-    }
-
-    /**
-     * Clears the list of recently opened guides.
-     */
-    public static void clearHistory() {
-        synchronized (historyItems) {
-            historyItems.clear();
-            store(historyItems);
-        }
-    }
-
-    /**
-     * Loads list of recent guides stored in previous system sessions.
-     *
-     * @return list of stored recent guides
-     */
-    static List<HistoryItem> load() {
+    private List<RecentGuide> loadFromPreferences() {
         String[] keys;
-        Preferences _prefs = getPrefs();
         try {
-            keys = _prefs.keys();
+            keys = preferences.keys();
         } catch (BackingStoreException ex) {
             LOG.log(Level.FINE, ex.getMessage(), ex);
             return Collections.emptyList();
         }
 
-        List<HistoryItem> result = new ArrayList<>();
+        List<RecentGuide> result = new ArrayList<>();
         for (String curKey : keys) {
-            if (curKey.startsWith(PROP_TITLE_PREFIX)) {
-                continue;
-            }
-            String value = _prefs.get(curKey, null);
-            if (value != null) {
-                try {
-                    int id = Integer.parseInt(curKey.substring(PROP_URL_PREFIX.length()));
-                    HistoryItem hItem = new HistoryItem(id, value, _prefs.get(PROP_TITLE_PREFIX + id, value));
-                    int ind = result.indexOf(hItem);
-                    if (ind == -1) {
-                        result.add(hItem);
-                    } else {
-                        _prefs.remove(PROP_URL_PREFIX
-                                + Math.max(result.get(ind).id, id));
-                        result.get(ind).id = Math.min(result.get(ind).id, id);
+            if (curKey.startsWith(PROP_PREFIX_PATH)) {
+                String path = preferences.get(curKey, null);
+                if (path != null && new File(path).exists()) {
+                    try {
+                        int id = Integer.parseInt(curKey.substring(PROP_PREFIX_PATH.length()));
+                        RecentGuide recentGuide = new RecentGuide(id, path, preferences.get(PROP_PREFIX_TITLE + id, path));
+                        int ind = result.indexOf(recentGuide);
+                        if (ind == -1) {
+                            result.add(recentGuide);
+                        } else {
+                            preferences.remove(PROP_PREFIX_PATH + Math.max(result.get(ind).id, id));
+                            result.get(ind).id = Math.min(result.get(ind).id, id);
+                        }
+                    } catch (NumberFormatException ex) {
+                        LOG.log(Level.FINE, ex.getMessage(), ex);
+                        preferences.remove(curKey);
                     }
-                } catch (NumberFormatException ex) {
-                    LOG.log(Level.FINE, ex.getMessage(), ex);
-                    _prefs.remove(curKey);
+                } else {
+                    //clear the recent files history file from the old,
+                    // not known and broken keys
+                    preferences.remove(curKey);
                 }
-            } else {
-                //clear the recent files history file from the old,
-                // not known and broken keys
-                _prefs.remove(curKey);
+
             }
         }
         Collections.sort(result);
-        store(result);
+
+        // If the list was bigger than the max, throw the last items away.
+        for (int i = maxNumberOfGuides; i < result.size(); i++) {
+            result.remove(i);
+        }
 
         return result;
     }
 
-    static void store() {
-        store(getRecentGuides());
-    }
-
-    static void store(List<HistoryItem> history) {
-        Preferences _prefs = getPrefs();
-
-        for (int i = 0; i < history.size(); i++) {
-            HistoryItem hi = history.get(i);
-            if ((hi.id != i) && (hi.id >= history.size())) {
-                _prefs.remove(PROP_URL_PREFIX + hi.id);
-                _prefs.remove(PROP_TITLE_PREFIX + hi.id);
-            }
-            hi.id = i;
-            _prefs.put(PROP_URL_PREFIX + i, hi.getPath());
-            _prefs.put(PROP_TITLE_PREFIX + i, hi.getGuideTitle());
+    private void removeGuidesIfListIsTooBig() {
+        List<RecentGuide> list = getGuides();
+        for (int i = maxNumberOfGuides; i < list.size(); i++) {
+            lookup.remove(list.get(i));
         }
-        LOG.log(Level.FINE, "Stored");
-    }
-
-    static Preferences getPrefs() {
-        if (prefs == null) {
-            prefs = NbPreferences.forModule(RecentGuides.class).node(PREFS_NODE);
-        }
-        return prefs;
     }
 
     /**
      * Adds guide represented by given TopComponent to the list, if conditions
      * are met.
+     *
+     * @param tc
      */
-    private static void addFile(final TopComponent tc) {
+    public void addFile(final TopComponent tc) {
         RP.post(() -> {
             GuideDataObject dataObject = tc.getLookup().lookup(GuideDataObject.class);
             if (dataObject != null) {
@@ -214,69 +178,73 @@ public final class RecentGuides {
         });
     }
 
-    static void addFile(String path, String guideTitle) {
+    private void addFile(String path, String guideTitle) {
         if (path != null) {
-            synchronized (historyItems) {
-                // avoid duplicates
-                HistoryItem hItem = findHistoryItem(path);
-                if (hItem != null) {
-                    historyItems.remove(hItem);
-                }
-
-                // Add the file to the beginning of the list.
-                historyItems.add(0, new HistoryItem(0, path, guideTitle));
-
-                removeGuidesIfListIsTooBig();
-
-                store();
+            // avoid duplicates
+            RecentGuide guide = findRecentGuideByPath(path);
+            if (guide != null) {
+                lookup.remove(guide);
             }
-        }
-    }
 
-    private static void removeGuidesIfListIsTooBig() {
-        for (int i = maxGuidesToRemember; i < historyItems.size(); i++) {
-            historyItems.remove(i);
+            lookup.add(new RecentGuide(0, path, guideTitle));
+
+            removeGuidesIfListIsTooBig();
+
+            saveToPreferences();
         }
-        store();
     }
 
     /**
      * Removes file represented by given TopComponent from the list
+     *
+     * @param tc
      */
-    private static void removeFile(final TopComponent tc) {
+    public void removeFile(final TopComponent tc) {
         RP.post(() -> {
             GuideDataObject dataObject = tc.getLookup().lookup(GuideDataObject.class);
             if (dataObject != null) {
                 String path = dataObject.getGuideFile().getAbsolutePath();
                 if (path != null) {
-                    synchronized (historyItems) {
-                        HistoryItem hItem = findHistoryItem(path);
-                        if (hItem != null) {
-                            historyItems.remove(hItem);
-                        }
-                        store();
+                    RecentGuide rg = findRecentGuideByPath(path);
+                    if (rg != null) {
+                        lookup.remove(rg);
+                        saveToPreferences();
                     }
                 }
             }
         });
     }
 
-    private static HistoryItem findHistoryItem(String path) {
-        return historyItems.stream()
-                .filter((HistoryItem hItem) -> path.equals(hItem.getPath()))
+    private RecentGuide findRecentGuideByPath(String path) {
+        return getGuides().stream()
+                .filter((RecentGuide rg) -> path.equals(rg.getPath()))
                 .findFirst()
                 .orElse(null);
     }
 
-    static void pruneHistory() {
-        synchronized (historyItems) {
-            historyItems.forEach((HistoryItem historyItem) -> {
-                File f = new File(historyItem.getPath());
-                if (!f.exists()) {
-                    historyItems.remove(historyItem);
-                }
-            });
+    void saveToPreferences() {        
+        String[] keys;
+        try {
+            keys = preferences.keys();
+        } catch (BackingStoreException ex) {
+            Exceptions.printStackTrace(ex);
+            return;
         }
+        // Just clear the previous values.
+        for (String key : keys) {
+            if (key.startsWith(PROP_PREFIX_PATH) || key.startsWith(PROP_PREFIX_TITLE)) {
+                preferences.remove(key);
+            }
+        }
+        // Save the new list.
+        List<RecentGuide> list = new ArrayList<>(getGuides());
+        for (int i = 0; i < list.size(); i++) {
+            RecentGuide rg = list.get(i);
+            rg.id = i;
+            preferences.put(PROP_PREFIX_PATH + i, rg.getPath());
+            preferences.put(PROP_PREFIX_TITLE + i, rg.getGuideTitle());
+        }
+        LOG.log(Level.FINE, "Stored");
     }
 
     /**
@@ -288,10 +256,10 @@ public final class RecentGuides {
         public void propertyChange(PropertyChangeEvent evt) {
             String name = evt.getPropertyName();
             if (TopComponent.Registry.PROP_TC_CLOSED.equals(name)) {
-                addFile((TopComponent) evt.getNewValue());
+                getDefault().addFile((TopComponent) evt.getNewValue());
             }
             if (TopComponent.Registry.PROP_TC_OPENED.equals(name)) {
-                removeFile((TopComponent) evt.getNewValue());
+                getDefault().removeFile((TopComponent) evt.getNewValue());
             }
         }
     }
@@ -308,9 +276,10 @@ public final class RecentGuides {
         public void run() {
             for (TopComponent tc : TopComponent.getRegistry().getOpened()) {
                 if (TopComponent.PERSISTENCE_NEVER == tc.getPersistenceType()) {
-                    addFile(tc);
+                    getDefault().addFile(tc);
                 }
             }
         }
     }
+
 }
