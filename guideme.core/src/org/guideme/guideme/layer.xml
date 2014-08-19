@@ -45,7 +45,10 @@
         <file name="org-netbeans-modules-quicksearch-QuickSearchAction.shadow_hidden"/>
     </folder>
     <folder name="OptionsDialog">
-        <file name="Advanced.instance_hidden"/>
+        <folder name="Advanced">
+            <file name="OutputSettings.instance_hidden"/>
+            <file name="org-netbeans-core-ui-options-filetypes-FileAssociationsOptionsPanelController.instance_hidden"/>
+        </folder>
         <file name="Appearance.instance_hidden"/>
         <file name="FontsAndColors.instance_hidden"/>
         <file name="Keymaps.instance_hidden"/>

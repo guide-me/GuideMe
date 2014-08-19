@@ -8,6 +8,8 @@ import java.awt.PointerInfo;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,7 +36,6 @@ import org.openide.loaders.DataObject;
 import org.openide.loaders.DataObjectNotFoundException;
 import org.openide.util.Exceptions;
 import org.openide.util.NbBundle;
-import org.openide.util.RequestProcessor;
 import org.openide.util.Utilities;
 import org.openide.util.actions.Presenter;
 
@@ -59,13 +60,38 @@ public class RecentGuideAction extends AbstractAction
     private static final Logger LOG
             = Logger.getLogger(RecentGuideAction.class.getName());
 
-    private static final RequestProcessor RP
-            = new RequestProcessor(RecentGuideAction.class);
+    private static final RecentGuides RECENT_GUIDES = RecentGuides.getDefault();
 
     /**
      * property of menu items where we store file path to open
      */
     private static final String PATH_PROP = "RecentGuideAction.Recent_Guide_Path";
+
+    /**
+     * Open a file.
+     *
+     * @param path the path to the file or {@code null}.
+     * @return error message or {@code null} on success.
+     */
+    public static String openFile(String path) {
+        if (path == null || path.length() == 0) {
+            return Bundle.OFMSG_PATH_IS_NOT_DEFINED();
+        }
+        File f = new File(path);
+        if (!f.exists()) {
+            return Bundle.OFMSG_FILE_NOT_EXISTS();
+        }
+        File nf = FileUtil.normalizeFile(f);
+        //Original code: return OpenFile.open(FileUtil.toFileObject(nf), -1);
+        try {
+            DataObject file = DataObject.find(FileUtil.toFileObject(nf));
+            file.getLookup().lookup(OpenCookie.class).open();
+            return null;
+        } catch (DataObjectNotFoundException ex) {
+            Exceptions.printStackTrace(ex);
+            return ex.getMessage();
+        }
+    }
 
     private JMenu menu;
 
@@ -117,7 +143,7 @@ public class RecentGuideAction extends AbstractAction
      * Fills sub menu with recently closed guides got from RecentGuides support
      */
     private void fillSubMenu() {
-        RecentGuides.getRecentGuides().stream().forEach((HistoryItem hItem) -> {
+        RECENT_GUIDES.getGuides().forEach((RecentGuide hItem) -> {
             try {
                 menu.add(newSubMenuItem(hItem));
             } catch (Exception ex) {
@@ -134,7 +160,7 @@ public class RecentGuideAction extends AbstractAction
      * @param hItem the {@code HistoryItem}.
      * @return the menu item.
      */
-    private JMenuItem newSubMenuItem(final HistoryItem hItem) {
+    private JMenuItem newSubMenuItem(final RecentGuide hItem) {
         final String path = hItem.getPath();
         final JMenuItem jmi = new JMenuItem(hItem.getGuideTitle()) {
 
@@ -205,9 +231,9 @@ public class RecentGuideAction extends AbstractAction
             JMenuItem menuItem = (JMenuItem) source;
             path = (String) menuItem.getClientProperty(PATH_PROP);
         } else {
-            List<HistoryItem> items = RecentGuides.getRecentGuides();
+            List<RecentGuide> items = new ArrayList<>(RECENT_GUIDES.getGuides());
             if (!items.isEmpty()) {
-                HistoryItem item = items.get(0);
+                RecentGuide item = items.get(0);
                 path = item.getPath();
             } else {
                 msg = Bundle.OFMSG_NO_RECENT_FILE();
@@ -219,35 +245,10 @@ public class RecentGuideAction extends AbstractAction
         if (msg != null) {
             StatusDisplayer.getDefault().setStatusText(msg);
             Toolkit.getDefaultToolkit().beep();
-            RecentGuides.pruneHistory();
+            RECENT_GUIDES.removeNonExistingGuides();
         }
     }
 
-    /**
-     * Open a file.
-     *
-     * @param path the path to the file or {@code null}.
-     * @return error message or {@code null} on success.
-     */
-    public static String openFile(String path) {
-        if (path == null || path.length() == 0) {
-            return Bundle.OFMSG_PATH_IS_NOT_DEFINED();
-        }
-        File f = new File(path);
-        if (!f.exists()) {
-            return Bundle.OFMSG_FILE_NOT_EXISTS();
-        }
-        File nf = FileUtil.normalizeFile(f);
-        //Original code: return OpenFile.open(FileUtil.toFileObject(nf), -1);
-        try {
-            DataObject file = DataObject.find(FileUtil.toFileObject(nf));
-            file.getLookup().lookup(OpenCookie.class).open();
-            return null;
-        } catch (DataObjectNotFoundException ex) {
-            Exceptions.printStackTrace(ex);
-            return ex.getMessage();
-        }
-    }
 
     /**
      * Menu that checks its enabled state just before is populated
@@ -263,8 +264,7 @@ public class RecentGuideAction extends AbstractAction
 
         @Override
         public JComponent[] getMenuPresenters() {
-            List<HistoryItem> recentGuides = RecentGuides.getRecentGuides();
-            setEnabled(!recentGuides.isEmpty());
+            setEnabled(!RECENT_GUIDES.getGuides().isEmpty());
             return content;
         }
 

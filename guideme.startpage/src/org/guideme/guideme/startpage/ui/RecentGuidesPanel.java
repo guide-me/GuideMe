@@ -1,7 +1,6 @@
 package org.guideme.guideme.startpage.ui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
@@ -17,11 +16,14 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
-import javax.swing.border.LineBorder;
-import org.guideme.guideme.filesupport.HistoryItem;
+import org.guideme.guideme.filesupport.RecentGuide;
 import org.guideme.guideme.filesupport.RecentGuideAction;
 import org.guideme.guideme.filesupport.RecentGuides;
+import org.guideme.guideme.utilities.CentralLookup;
 import org.openide.awt.StatusDisplayer;
+import org.openide.util.Lookup;
+import org.openide.util.LookupEvent;
+import org.openide.util.LookupListener;
 import org.openide.util.NbBundle.Messages;
 import org.openide.windows.WindowManager;
 
@@ -29,14 +31,19 @@ import org.openide.windows.WindowManager;
     "LBL_NoRecentGuides=No recent guides",
     "LBL_RecentGuidesTitle=Recent guides"
 })
-public class RecentGuidesPanel extends JPanel implements Runnable {
+public class RecentGuidesPanel extends JPanel implements Runnable, LookupListener {
 
-    private static final int MAX_GUIDES = 10;
+    private static final int MAX_GUIDES = RecentGuides.getDefault().getMaxNumberOfGuides();
+
+    Lookup.Result<RecentGuide> lookupResult;
 
     public RecentGuidesPanel() {
         super(new BorderLayout());
 
         setOpaque(false);
+
+        lookupResult = CentralLookup.getDefault().lookupResult(RecentGuide.class);
+        lookupResult.addLookupListener(this);
 
         WindowManager.getDefault().invokeWhenUIReady(this);
     }
@@ -45,10 +52,15 @@ public class RecentGuidesPanel extends JPanel implements Runnable {
     public void run() {
         removeAll();
         add(titleLabel(), BorderLayout.NORTH);
-        add(rebuildContent(RecentGuides.getRecentGuides()), BorderLayout.CENTER);
+        add(rebuildContent(RecentGuides.getDefault().getGuides()), BorderLayout.CENTER);
         invalidate();
         revalidate();
         repaint();
+    }
+
+    @Override
+    public void resultChanged(LookupEvent ev) {
+        SwingUtilities.invokeLater(this);
     }
 
     private JLabel titleLabel() {
@@ -57,39 +69,39 @@ public class RecentGuidesPanel extends JPanel implements Runnable {
         return titleLabel;
     }
 
-    private JPanel rebuildContent(List<HistoryItem> recentGuides) {
+    private JPanel rebuildContent(List<RecentGuide> recentGuides) {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setOpaque(false);
         int row = 0;
-        for (HistoryItem hItem : recentGuides) {
+        for (RecentGuide hItem : recentGuides) {
             addProject(panel, row++, hItem);
             if (row >= MAX_GUIDES) {
                 break;
             }
         }
         if (0 == row) {
-            panel.add(new JLabel(Bundle.LBL_NoRecentGuides()),
-                    new GridBagConstraints(0, row, 1, 1, 1.0, 1.0,
-                            GridBagConstraints.CENTER, GridBagConstraints.NONE,
-                            new Insets(10, 10, 10, 10), 0, 0));
-        } else {
-            panel.add(new JLabel(), new GridBagConstraints(0, row, 1, 1, 0.0, 1.0,
-                    GridBagConstraints.CENTER, GridBagConstraints.NONE,
-                    new Insets(0, 0, 0, 0), 0, 0));
+            JLabel noGuides = new JLabel(Bundle.LBL_NoRecentGuides());
+            noGuides.setFont(new Font(noGuides.getFont().getName(), Font.ITALIC, noGuides.getFont().getSize()));
+            panel.add(noGuides,
+                    new GridBagConstraints(0, row, 1, 1, 1.0, 0.0,
+                            GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
         }
+        panel.add(new JLabel(),
+                new GridBagConstraints(0, row, 1, 1, 0.0, 1.0,
+                        GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         return panel;
     }
 
-    private void addProject(JPanel panel, int row, final HistoryItem historyItem) {
+    private void addProject(JPanel panel, int row, final RecentGuide historyItem) {
         panel.add(new RecentGuideButton(historyItem), new GridBagConstraints(0, row, 1, 1, 1.0, 0.0,
                 GridBagConstraints.NORTHWEST, GridBagConstraints.NONE, new Insets(2, 2, 2, 2), 0, 0));
     }
 
     private class RecentGuideButton extends JButton implements MouseListener, ActionListener {
 
-        private final HistoryItem historyItem;
+        private final RecentGuide historyItem;
 
-        public RecentGuideButton(HistoryItem historyItem) {
+        public RecentGuideButton(RecentGuide historyItem) {
             this.historyItem = historyItem;
 
             setText("<html><u>" + historyItem.getGuideTitle() + "</u></html>");
