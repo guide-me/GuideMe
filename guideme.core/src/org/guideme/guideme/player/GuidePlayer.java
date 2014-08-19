@@ -40,7 +40,7 @@ public class GuidePlayer {
     protected void fireCurrentPageChangeEvent() {
         Set<CurrentPageChangeListener> ls;
         synchronized (currentPagelisteners) {
-            ls = new HashSet(currentPagelisteners);
+            ls = new HashSet<>(currentPagelisteners);
         }
         CurrentPageChangeEvent ev = createCurrentPageChangeEvent();
         for (CurrentPageChangeListener l : ls) {

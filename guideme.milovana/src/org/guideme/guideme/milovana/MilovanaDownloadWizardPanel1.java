@@ -63,7 +63,7 @@ public class MilovanaDownloadWizardPanel1 implements WizardDescriptor.Panel<Wiza
     protected final void fireChangeEvent() {
         Set<ChangeListener> ls;
         synchronized (listeners) {
-            ls = new HashSet(listeners);
+            ls = new HashSet<>(listeners);
         }
         ChangeEvent ev = new ChangeEvent(this);
         for (ChangeListener l : ls) {
