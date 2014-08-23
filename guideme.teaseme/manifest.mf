@@ -1,0 +1,5 @@
+Manifest-Version: 1.0
+OpenIDE-Module: org.guideme.guideme.teaseme
+OpenIDE-Module-Localizing-Bundle: org/guideme/guideme/teaseme/Bundle.properties
+OpenIDE-Module-Specification-Version: 1.0
+
