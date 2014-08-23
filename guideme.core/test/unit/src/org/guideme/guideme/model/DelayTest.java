@@ -17,13 +17,13 @@ public class DelayTest {
     @Test
     public void getPeriodWithOnlySeconds() {
         sut.setPeriodInSeconds(10);
-        assertEquals("0:00:10", sut.getPeriod());
+        assertEquals("0:10", sut.getPeriod());
     }
 
     @Test
     public void getPeriodWithMinutes() {
         sut.setPeriodInSeconds(85);
-        assertEquals("0:01:25", sut.getPeriod());
+        assertEquals("1:25", sut.getPeriod());
     }
 
     @Test

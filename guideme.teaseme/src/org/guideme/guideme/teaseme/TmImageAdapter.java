@@ -1,7 +1,6 @@
 package org.guideme.guideme.teaseme;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import org.*;
 import org.apache.commons.io.FileUtils;
 import org.guideme.guideme.model.Image;
 

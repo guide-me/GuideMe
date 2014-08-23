@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import org.guideme.guideme.filesupport.GuideDataObject;
-import org.guideme.guideme.filesupport.OpenGuideAction;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.serialization.GuideSerializer;
 import org.openide.awt.ActionID;
@@ -29,7 +28,7 @@ import org.openide.util.NbBundle.Messages;
         displayName = "#CTL_ImportTeaseAction"
 )
 @ActionReference(path = "Menu/File/Import", position = -90)
-@Messages("CTL_ImportTeaseAction=From TeaseMe...")
+@Messages("CTL_ImportTeaseAction=TeaseMe file...")
 public final class ImportTeaseAction implements ActionListener {
 
     @Override

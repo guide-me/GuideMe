@@ -1,7 +1,5 @@
 package org.guideme.guideme.teaseme;
 
-import java.io.StringWriter;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -9,25 +7,12 @@ import java.util.Optional;
 import javax.xml.bind.annotation.XmlAnyElement;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.transform.Transformer;
-import javax.xml.transform.TransformerConfigurationException;
-import javax.xml.transform.TransformerException;
-import javax.xml.transform.TransformerFactory;
-import javax.xml.transform.dom.DOMSource;
-import javax.xml.transform.stream.StreamResult;
 import org.guideme.guideme.model.Page;
-import org.openide.util.Exceptions;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.ls.DOMImplementationLS;
 import org.w3c.dom.ls.LSSerializer;
-//import org.guideme.guideme.serialization.XmlAudioAdapter;
-//import org.guideme.guideme.serialization.XmlButtonAdapter;
-//import org.guideme.guideme.serialization.XmlDelayAdapter;
-//import org.guideme.guideme.serialization.XmlImageAdapter;
-//import org.guideme.guideme.serialization.XmlMetronomeAdapter;
-//import org.guideme.guideme.serialization.XmlVideoAdapter;
 
 /**
  * Adapter for XML-serialization.
@@ -52,20 +37,18 @@ class TmPageAdapter {
     @XmlElement(name = "Image")
     public TmImageAdapter[] Images;
 
-//    @XmlElement(name = "Audio")
-//    public XmlAudioAdapter[] Audios;
-//        
-//    @XmlElement(name = "Metronomes")
-//    public XmlMetronomeAdapter[] Metronomes;
-//        
-//    @XmlElement(name = "Video")
-//    public XmlVideoAdapter[] Videos;
-//        
+    @XmlElement(name = "Metronome")
+    public TmMetronomeAdapter[] Metronomes;
+
+    @XmlElement(name = "Media")
+    public TmMediaAdapter[] Media;
+
     @XmlElement(name = "Button")
     public TmButtonAdapter[] Buttons;
 
-//    @XmlElement(name = "Delay")
-//    public XmlDelayAdapter[] Delays;
+    @XmlElement(name = "Delay")
+    public TmDelayAdapter[] Delays;
+
     public TmPageAdapter() {
     }
 
@@ -106,21 +89,21 @@ class TmPageAdapter {
                 page.addImage(image.toImage(mediaDirectory));
             }
         }
-//        if (this.Audios != null && this.Audios.length > 0) {
-//            for (XmlAudioAdapter audio : this.Audios) {
-//                page.addAudio(audio.toAudio());
-//            }
-//        }
-//        if (this.Metronomes != null && this.Metronomes.length > 0) {
-//            for (XmlMetronomeAdapter metronome : this.Metronomes) {
-//                page.addMetronome(metronome.toMetronome());
-//            }
-//        }
-//        if (this.Videos != null && this.Videos.length > 0) {
-//            for (XmlVideoAdapter video : this.Videos) {
-//                page.addVideo(video.toVideo());
-//            }
-//        }        
+        if (this.Metronomes != null && this.Metronomes.length > 0) {
+            for (TmMetronomeAdapter metronome : this.Metronomes) {
+                page.addMetronome(metronome.toMetronome());
+            }
+        }
+        if (this.Media != null && this.Media.length > 0) {
+            // In TeaseMe there was no distinction between audio and video.
+            for (TmMediaAdapter media : this.Media) {
+                if (media.isAudio()) {
+                    page.addAudio(media.toAudio());
+                } else {
+                    page.addVideo(media.toVideo());
+                }
+            }
+        }
         if (this.Buttons != null && this.Buttons.length > 0) {
             // The Buttons in TeaseMe are added in reverse order.
             List<TmButtonAdapter> buttonAdapters = Arrays.asList(this.Buttons);
@@ -129,11 +112,11 @@ class TmPageAdapter {
                 page.addButton(button.toButton());
             }
         }
-//        if (this.Delays != null && this.Delays.length > 0) {
-//            for (XmlDelayAdapter delay : this.Delays) {
-//                page.addDelay(delay.toDelay());
-//            }
-//        }
+        if (this.Delays != null && this.Delays.length > 0) {
+            for (TmDelayAdapter delay : this.Delays) {
+                page.addDelay(delay.toDelay());
+            }
+        }
         return page;
     }
 
