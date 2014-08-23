@@ -27,7 +27,7 @@ import org.openide.util.NbBundle.Messages;
 @ActionRegistration(
         displayName = "#CTL_ImportTeaseAction"
 )
-@ActionReference(path = "Menu/File/Import", position = -90)
+@ActionReference(path = "Menu/File/Import", position = 200)
 @Messages("CTL_ImportTeaseAction=TeaseMe file...")
 public final class ImportTeaseAction implements ActionListener {
 

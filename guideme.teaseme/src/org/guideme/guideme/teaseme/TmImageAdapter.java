@@ -1,7 +1,6 @@
 package org.guideme.guideme.teaseme;
 
 import javax.xml.bind.annotation.XmlAttribute;
-import org.apache.commons.io.FileUtils;
 import org.guideme.guideme.model.Image;
 
 /**
@@ -27,9 +26,9 @@ class TmImageAdapter {
     public TmImageAdapter() {
     }
 
-    public Image toImage(String mediaDirectory) {
+    public Image toImage() {
         Image image = new Image();
-        image.setSrc(FileUtils.getFile(mediaDirectory, this.Src).getPath());
+        image.setSrc(this.Src);
         image.setIfSet(this.IfSet);
         image.setIfNotSet(this.IfNotSet);
         image.setSet(this.Set);

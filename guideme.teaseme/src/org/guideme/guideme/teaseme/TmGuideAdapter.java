@@ -27,6 +27,9 @@ class TmGuideAdapter {
     @XmlElement(name = "Description")
     public String Description;
 
+    @XmlElement(name = "MediaDirectory")
+    String MediaDirectory;
+
     @XmlElement(name = "Thumbnail")
     public String Thumbnail;
 
@@ -37,14 +40,6 @@ class TmGuideAdapter {
     @XmlElementWrapper(name = "Pages")
     @XmlElement(name = "Page")
     public TmPageAdapter[] Pages;
-    
-//
-//    @XmlElementWrapper(name = "Chapters")
-//    @XmlElement(name = "Chapter")
-//    public XmlChapterAdapter[] Chapters;
-    
-    @XmlElement(name = "MediaDirectory")
-    String MediaDirectory;
     
     public TmGuideAdapter() {
     }
@@ -58,21 +53,16 @@ class TmGuideAdapter {
         guide.setAuthorUrl(this.Author.Url);
         guide.setDescription(Description);
         guide.setThumbnail(Thumbnail);
+        guide.setMediaDirectory(MediaDirectory);
         if (this.Keywords != null && this.Keywords.length > 0) {
             guide.setKeywords(Arrays.asList(this.Keywords));
         }
 
         if (this.Pages != null && this.Pages.length > 0) {
             for (TmPageAdapter Page : this.Pages) {
-                guide.addPage(Page.toPage(this.MediaDirectory));
+                guide.addPage(Page.toPage());
             }
         }
-//
-//        if (this.Chapters != null && this.Chapters.length > 0) {
-//            for (XmlChapterAdapter Chapter : this.Chapters) {
-//                guide.addChapter(Chapter.toChapter());
-//            }
-//        }
         return guide;
     }
 

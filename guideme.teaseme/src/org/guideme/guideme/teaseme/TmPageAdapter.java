@@ -76,7 +76,7 @@ class TmPageAdapter {
         return sb.toString();
     }
 
-    public Page toPage(String mediaDirectory) {
+    public Page toPage() {
         Page page = new Page();
         page.setId(this.Id);
         page.setTitle(this.Title);
@@ -86,7 +86,7 @@ class TmPageAdapter {
 
         if (this.Images != null && this.Images.length > 0) {
             for (TmImageAdapter image : this.Images) {
-                page.addImage(image.toImage(mediaDirectory));
+                page.addImage(image.toImage());
             }
         }
         if (this.Metronomes != null && this.Metronomes.length > 0) {

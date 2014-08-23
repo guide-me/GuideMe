@@ -1,12 +1,14 @@
 package org.guideme.guideme.player.ui;
 
 import java.awt.Frame;
+import java.io.File;
 import javax.swing.Action;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
+import org.apache.commons.io.FileUtils;
 import org.guideme.guideme.controls.ImagePanel;
 import org.guideme.guideme.filesupport.GuideDataObject;
 import org.guideme.guideme.resources.Icons;
@@ -73,7 +75,8 @@ public final class GuideCover extends JPanel implements MultiViewElement {
 
     private void showGuideDetails() {
         if (obj.getGuide().getThumbnail() != null) {
-            FileObject thumbnail = getGuideDirectory().getFileObject(obj.getGuide().getThumbnail());
+            File thumbnailFile = obj.getGuide().getMediaFile(obj.getGuide().getThumbnail());
+            FileObject thumbnail = getGuideDirectory().getFileObject(thumbnailFile.getPath());
             if (thumbnail != null) {
                 ImagePanel imagePanel = new ImagePanel();
                 imagePanel.showImage(FileUtil.toFile(thumbnail));

@@ -17,7 +17,7 @@ public class Constants {
      * The directory in the guide directory containing the images, audio and
      * video files.
      */
-    public static final String MEDIA_DIR = "media";
+    public static final String DEFAULT_MEDIA_DIRECTORY = "media";
 
     /**
      * ID of the start page of a guide. 
