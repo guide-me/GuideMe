@@ -13,6 +13,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 import org.guideme.guideme.Constants;
+import org.guideme.guideme.filesupport.GuideDataObject;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Image;
 import org.guideme.guideme.model.Page;
@@ -201,10 +202,11 @@ public class MilovanaDownloader {
                 guide.setThumbnail(imagesFolder.getName() + "/" + imageName);
             }
 
-            try (OutputStream stream = projectDir.createAndOpen(Constants.GUIDE_FILE)) {
+            String fileName = projectDir.getName() + "." + GuideDataObject.FILE_EXTENSION;            
+            try (OutputStream stream = projectDir.createAndOpen(fileName)) {
                 GuideSerializer.getDefault().WriteGuide(guide, stream);
             }
-            return projectDir.getFileObject(Constants.GUIDE_FILE);
+            return projectDir.getFileObject(fileName);
         }
         return null;
     }

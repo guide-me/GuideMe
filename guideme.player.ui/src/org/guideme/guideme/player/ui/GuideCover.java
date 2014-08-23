@@ -23,7 +23,7 @@ import org.openide.windows.TopComponent;
 @MultiViewElement.Registration(
         displayName = "Cover",
         iconBase = "org/guideme/guideme/resources/guide.png",
-        mimeType = "application/guideme+xml",
+        mimeType = "text/guideme+xml",
         persistenceType = TopComponent.PERSISTENCE_NEVER,
         preferredID = "GuideCover",
         position = 500

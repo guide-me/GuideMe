@@ -14,11 +14,6 @@ public class Constants {
     public static final String GM_DIR = "_gm";
 
     /**
-     * The XML-file containing the guide itself.
-     */
-    public static final String GUIDE_FILE = "guide.xml";
-
-    /**
      * The directory in the guide directory containing the images, audio and
      * video files.
      */

@@ -20,77 +20,79 @@ import org.openide.util.NbBundle.Messages;
 @Messages({
     "LBL_GuideMe_LOADER=Files of GuideMe"
 })
-@MIMEResolver.NamespaceRegistration(
+@MIMEResolver.ExtensionRegistration(
         displayName = "#LBL_GuideMe_LOADER",
-        mimeType = "application/guideme+xml",
-        elementNS = {"org.guideme.guideme"}
+        mimeType = "text/guideme+xml",
+        extension = { GuideDataObject.FILE_EXTENSION }
 )
 @DataObject.Registration(
-        mimeType = "application/guideme+xml",
+        mimeType = "text/guideme+xml",
         iconBase = "org/guideme/guideme/resources/guide.png",
         displayName = "#LBL_GuideMe_LOADER",
         position = 300
 )
 @ActionReferences({
     @ActionReference(
-            path = "Loaders/application/guideme+xml/Actions",
+            path = "Loaders/text/guideme+xml/Actions",
             id = @ActionID(category = "System", id = "org.openide.actions.OpenAction"),
             position = 100,
             separatorAfter = 200
     ),
     @ActionReference(
-            path = "Loaders/application/guideme+xml/Actions",
+            path = "Loaders/text/guideme+xml/Actions",
             id = @ActionID(category = "Edit", id = "org.openide.actions.CutAction"),
             position = 300
     ),
     @ActionReference(
-            path = "Loaders/application/guideme+xml/Actions",
+            path = "Loaders/text/guideme+xml/Actions",
             id = @ActionID(category = "Edit", id = "org.openide.actions.CopyAction"),
             position = 400,
             separatorAfter = 500
     ),
     @ActionReference(
-            path = "Loaders/application/guideme+xml/Actions",
+            path = "Loaders/text/guideme+xml/Actions",
             id = @ActionID(category = "Edit", id = "org.openide.actions.DeleteAction"),
             position = 600
     ),
     @ActionReference(
-            path = "Loaders/application/guideme+xml/Actions",
+            path = "Loaders/text/guideme+xml/Actions",
             id = @ActionID(category = "System", id = "org.openide.actions.RenameAction"),
             position = 700,
             separatorAfter = 800
     ),
     @ActionReference(
-            path = "Loaders/application/guideme+xml/Actions",
+            path = "Loaders/text/guideme+xml/Actions",
             id = @ActionID(category = "System", id = "org.openide.actions.SaveAsTemplateAction"),
             position = 900,
             separatorAfter = 1000
     ),
     @ActionReference(
-            path = "Loaders/application/guideme+xml/Actions",
+            path = "Loaders/text/guideme+xml/Actions",
             id = @ActionID(category = "System", id = "org.openide.actions.FileSystemAction"),
             position = 1100,
             separatorAfter = 1200
     ),
     @ActionReference(
-            path = "Loaders/application/guideme+xml/Actions",
+            path = "Loaders/text/guideme+xml/Actions",
             id = @ActionID(category = "System", id = "org.openide.actions.ToolsAction"),
             position = 1300
     ),
     @ActionReference(
-            path = "Loaders/application/guideme+xml/Actions",
+            path = "Loaders/text/guideme+xml/Actions",
             id = @ActionID(category = "System", id = "org.openide.actions.PropertiesAction"),
             position = 1400
     )
 })
 public class GuideDataObject extends MultiDataObject {
 
+    public static final String FILE_EXTENSION = "guide";
+    
     private File guideFile;
     private Guide guide;
-
+    
     public GuideDataObject(FileObject pf, MultiFileLoader loader) throws DataObjectExistsException, IOException {
         super(pf, loader);
-        registerEditor("application/guideme+xml", true);
+        registerEditor("text/guideme+xml", true);
 
         guideFile = FileUtil.toFile(pf);
         try {
@@ -116,7 +118,7 @@ public class GuideDataObject extends MultiDataObject {
 //    @MultiViewElement.Registration(
 //            displayName = "#LBL_GuideMe_EDITOR",
 //            iconBase = "org/guideme/guideme/resources/guide.png",
-//            mimeType = "application/guideme+xml",
+//            mimeType = "text/guideme+xml",
 //            persistenceType = TopComponent.PERSISTENCE_ONLY_OPENED,
 //            preferredID = "GuideMe",
 //            position = 2000
