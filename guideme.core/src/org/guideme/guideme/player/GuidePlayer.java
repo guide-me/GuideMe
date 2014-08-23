@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.io.FileUtils;
 import org.guideme.guideme.Constants;
 import org.guideme.guideme.model.Button;
 import org.guideme.guideme.model.Delay;
@@ -112,7 +113,8 @@ public class GuidePlayer {
         Image gmImage = currentPage.getImages().iterator().hasNext() ? currentPage.getImages().iterator().next() : null;
         if (gmImage != null) {
             // TODO getSrc() might return image name with wildcards. 
-            imageFile = FileUtil.toFile(guideDirectory.getFileObject(gmImage.getSrc()));
+            File fileName = guide.getMediaFile(gmImage.getSrc());
+            imageFile = FileUtil.toFile(guideDirectory.getFileObject(fileName.getPath()));
         }
 
         currentDelay = null;

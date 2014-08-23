@@ -29,6 +29,9 @@ class XmlGuideAdapter {
     
     @XmlElement(name = "Description")
     public String Description;
+
+    @XmlElement(name = "MediaDirectory")
+    public String MediaDirectory;
     
     @XmlElement(name = "Thumbnail")
     public String Thumbnail;
@@ -56,6 +59,7 @@ class XmlGuideAdapter {
         this.AuthorUrl = guide.getAuthorUrl();
         this.Description = guide.getDescription();
         this.Thumbnail = guide.getThumbnail();
+        this.MediaDirectory = guide.getMediaDirectory();
         this.Keywords = guide.getKeywords().isEmpty() ? null : guide.getKeywords().toArray(new String[guide.getKeywords().size()]);
 
         this.Pages = XmlPageAdapter.fromList(guide.getPages());
@@ -71,6 +75,7 @@ class XmlGuideAdapter {
         guide.setAuthorUrl(AuthorUrl);
         guide.setDescription(Description);
         guide.setThumbnail(Thumbnail);
+        guide.setMediaDirectory(MediaDirectory);
         if (this.Keywords != null && this.Keywords.length > 0) {
             guide.setKeywords(Arrays.asList(this.Keywords));
         }

@@ -73,7 +73,10 @@ public class Delay {
         int hrs = periodInSeconds / (60*60);
         int min = (periodInSeconds - (hrs*60*60)) / 60;
         int sec = periodInSeconds - (hrs*60*60) - (min*60);
-        return String.format("%d:%02d:%02d", hrs, min, sec);
+        if (hrs > 0) {
+            return String.format("%d:%02d:%02d", hrs, min, sec);
+        }
+        return String.format("%d:%02d", min, sec);
     }
 
     /**

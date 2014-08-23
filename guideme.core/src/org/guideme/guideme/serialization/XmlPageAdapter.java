@@ -37,7 +37,7 @@ class XmlPageAdapter {
     @XmlElement(name = "Audio")
     public XmlAudioAdapter[] Audios;
         
-    @XmlElement(name = "Metronomes")
+    @XmlElement(name = "Metronome")
     public XmlMetronomeAdapter[] Metronomes;
         
     @XmlElement(name = "Video")

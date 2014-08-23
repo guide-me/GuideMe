@@ -145,9 +145,10 @@ public class MilovanaDownloader {
             FileObject projectDir = FileUtil.toFileObject(destinationFolder);
 
             Guide guide = createGuide(teaseSummary);
+            guide.setMediaDirectory(Constants.DEFAULT_MEDIA_DIRECTORY);
 
             // TODO download images and change Image ids.
-            FileObject imagesFolder = projectDir.createFolder(Constants.MEDIA_DIR);
+            FileObject imagesFolder = projectDir.createFolder(guide.getMediaDirectory());
             for (Page page : guide.getPages()) {
                 for (Image image : page.getImages()) {
                     if (image.getSrc() != null) {
@@ -179,8 +180,8 @@ public class MilovanaDownloader {
                             }
                         }
 
-                        // image ID is url relative to guide.xml.
-                        image.setSrc(imagesFolder.getName() + "/" + imageName);
+                        // image ID is url relative to Guide.MediaDirectory.
+                        image.setSrc(imageName);
                     }
                 }
             }
@@ -199,7 +200,7 @@ public class MilovanaDownloader {
                         }
                     }
                 }
-                guide.setThumbnail(imagesFolder.getName() + "/" + imageName);
+                guide.setThumbnail(imageName);
             }
 
             String fileName = projectDir.getName() + "." + GuideDataObject.FILE_EXTENSION;            

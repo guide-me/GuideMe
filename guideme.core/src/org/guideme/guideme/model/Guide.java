@@ -1,7 +1,11 @@
 package org.guideme.guideme.model;
 
+import com.sun.corba.se.impl.orbutil.closure.Constant;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
+import org.guideme.guideme.Constants;
 
 /**
  * Guide.
@@ -14,6 +18,7 @@ public class Guide {
     private String authorUrl;
     private String description;
     private String thumbnail;
+    private String mediaDirectory = Constants.DEFAULT_MEDIA_DIRECTORY;
     private final ArrayList<String> keywords = new ArrayList<>();
     private final ArrayList<Page> pages = new ArrayList<>();
     private final ArrayList<Chapter> chapters = new ArrayList<>();
@@ -132,6 +137,34 @@ public class Guide {
         this.thumbnail = thumbnail;
     }
 
+    /**
+     * Relative path to the directory that contains the images/audio/video.
+     * 
+     * @return 
+     */
+    public String getMediaDirectory() {
+        return mediaDirectory;
+    }
+
+    /**
+     * Relative path to the directory that contains the images/audio/video.
+     * 
+     * @param mediaDirectory 
+     */
+    public void setMediaDirectory(String mediaDirectory) {
+        this.mediaDirectory = mediaDirectory;
+    }
+
+    /**
+     * Get MediaFile relative to GuideDirectory and MediaDirectory.
+     * 
+     * @param path
+     * @return 
+     */
+    public File getMediaFile(String path) {
+        return FileUtils.getFile(getMediaDirectory(), path);
+    }
+    
     /**
      * List of keywords to describe the contents of this guide.
      *
