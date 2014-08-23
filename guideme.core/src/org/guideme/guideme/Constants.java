@@ -23,4 +23,9 @@ public class Constants {
      * ID of the start page of a guide. 
      */
     public static final String START_PAGE_ID = "start";
+    
+    /**
+     * XML namespace for the current Guide Schema.
+     */
+    public static final String XML_NS = "org.guideme.guideme/v2";
 }
