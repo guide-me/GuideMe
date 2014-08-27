@@ -58,11 +58,12 @@ public class FlashTeaseConverterTest {
 
     @Test
     public void textWithMarkup() {
-        String markupText = "<TEXTFORMAT LEADING=\"2\"><P ALIGN=\"CENTER\"><FONT FACE=\"FontSans\" SIZE=\"24\" COLOR=\"#FFFFFF\" LETTERSPACING=\"0\" KERNING=\"0\">Welcome to this tease.</FONT></P></TEXTFORMAT>";
-        sut.parseScript(guide, "start#page(text:'" + markupText + "')");
+        String nyxMarkupText = "<TEXTFORMAT LEADING=\"2\"><P ALIGN=\"CENTER\"><FONT FACE=\"FontSans\" SIZE=\"24\" COLOR=\"#FFFFFF\" LETTERSPACING=\"0\" KERNING=\"0\">Welcome to this tease.</FONT></P></TEXTFORMAT>";
+        String sanitizeText = "<p><font color=\"#FFFFFF\">Welcome to this tease.</font></p>";
+        sut.parseScript(guide, "start#page(text:'" + nyxMarkupText + "')");
 
         Page page = guide.getPages().get(0);
-        assertEquals(markupText, page.getText());
+        assertEquals(sanitizeText, page.getText());
     }
 
     @Test
@@ -70,7 +71,7 @@ public class FlashTeaseConverterTest {
         sut.parseScript(guide, "start#page(text:'hello \"stranger\".')");
 
         Page page = guide.getPages().get(0);
-        assertEquals("hello \"stranger\".", page.getText());
+        assertEquals("hello &quot;stranger&quot;.", page.getText());
     }
 
     @Test

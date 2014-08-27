@@ -96,7 +96,7 @@ public class FlashTeaseConverter {
                 if (quotedString != null) {
                     // Strip surrounding quotes.
                     String textString = StringUtils.strip(quotedString.getText(), "\"'’");
-                    currentPage.setText(textString);
+                    currentPage.setText(TextUtil.sanitizeNyxText(textString));
                 }
             }
             super.enterText(ctx);
