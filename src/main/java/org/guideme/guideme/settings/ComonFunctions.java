@@ -2,13 +2,14 @@ package org.guideme.guideme.settings;
 
 import java.io.File;
 //import java.io.FileInputStream;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+//import java.nio.charset.StandardCharsets;
+//import java.nio.file.Files;
+//import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Date;
@@ -43,6 +44,7 @@ import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import sun.misc.IOUtils;
 
 public class ComonFunctions{
 	/**
@@ -387,7 +389,8 @@ public class ComonFunctions{
 		//returns the contents of a file as a String
 		String returnVal = "";
 		try {
-			byte[] encoded = Files.readAllBytes(Paths.get(path));
+            byte[] encoded = IOUtils.readFully(new FileInputStream(new File(path)), -1, false);
+            // byte[] encoded = Files.readAllBytes(Paths.get(path));
 			returnVal =  encoding.decode(ByteBuffer.wrap(encoded)).toString();
 		} catch (Exception ex) {
 			logger.error(ex.getLocalizedMessage(),ex);
@@ -433,7 +436,10 @@ public class ComonFunctions{
 			fileName = dataDirectory + fileSeparator + strSubDir + fileSeparator + media;
 		}
 
-		Charset encodeSet;
+		Charset encodeSet = Charset.forName(encoding);
+
+/*
+
 		switch (encoding) {
 		case "ISO_8859_1":
 			encodeSet = StandardCharsets.ISO_8859_1;
@@ -455,6 +461,8 @@ public class ComonFunctions{
 			break;
 
 		}
+
+*/
 		String fileToReturn = "";
 		
 		try {

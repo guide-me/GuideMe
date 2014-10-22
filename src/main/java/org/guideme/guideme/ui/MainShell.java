@@ -1,7 +1,6 @@
 package org.guideme.guideme.ui;
 
-import java.awt.Frame;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -9,18 +8,16 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 
+import ie.dcu.swt.CocoaUIEnhancer;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.SashForm;
-import org.eclipse.swt.events.ControlAdapter;
-import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.SelectionAdapter;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.ShellAdapter;
-import org.eclipse.swt.events.ShellEvent;
+import org.eclipse.swt.events.*;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
@@ -30,7 +27,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.RowLayout;
-import java.awt.Canvas;
+
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.image.BufferedImage;
@@ -434,7 +431,10 @@ public class MainShell {
 			imageLabelFormData.right = new FormAttachment(100,0);
 			imageLabelFormData.bottom = new FormAttachment(100,0);
 			imageLabel.setLayoutData(imageLabelFormData);
-			
+
+
+
+
 			//Menu Bar
 			Menu MenuBar = new Menu (shell, SWT.BAR);
 
@@ -457,10 +457,12 @@ public class MainShell {
 			fileRestartItem.setText ("&Restart");
 			fileRestartItem.addSelectionListener(new FileRestartListener());
 
-			//File Preferences menu item
-			MenuItem filePreferencesItem = new MenuItem (fileSubMenu, SWT.PUSH);
-			filePreferencesItem.setText ("&Application Preferences");
-			filePreferencesItem.addSelectionListener(new FilePreferences());
+            final FilePreferences filePreferences = new FilePreferences();
+
+			// File Preferences menu item
+            MenuItem filePreferencesItem = new MenuItem(fileSubMenu, SWT.PUSH);
+            filePreferencesItem.setText("&Application Preferences");
+            filePreferencesItem.addSelectionListener(filePreferences);
 
 			//File Preferences Guide menu item
 			MenuItem filePreferencesGuideItem = new MenuItem (fileSubMenu, SWT.PUSH);
@@ -472,19 +474,48 @@ public class MainShell {
 			fileGuidePreferencesItem.setText ("&Guide Preferences");
 			fileGuidePreferencesItem.addSelectionListener(new FileGuidePreferences());
 
-			//File Exit menu item
-			MenuItem fileExitItem = new MenuItem (fileSubMenu, SWT.PUSH);
-			fileExitItem.setText ("&Exit");
-			fileExitItem.addListener (SWT.Selection, new Listener () {
-				public void handleEvent (Event e) {
-					logger.trace("Enter Menu Exit");
-					shell.close();
-					logger.trace("Exit Menu Exit");
-				}
-			});
+            // exit listener when exit or quit (mac os x) are triggered
+            Listener exitListener = new Listener() {
+                public void handleEvent(Event e) {
+                    logger.trace("Enter Menu Exit");
+                    // only close if not closed yet
+                    if(!shell.isDisposed()) {
+                        shell.close();
+                    }
+                    logger.trace("Exit Menu Exit");
+                }
+            };
+
+            // File Exit menu item - windows/linux only - not for mac os x
+            // on mac os x, we use the app menu, set later
+            if ( !SWT.getPlatform().equalsIgnoreCase("cocoa")) {
+                MenuItem fileExitItem = new MenuItem (fileSubMenu, SWT.PUSH);
+                fileExitItem.setText ("&Exit");
+                fileExitItem.addListener(SWT.Selection, exitListener);
+            }
+
+            // add mac os x app menu handlers
+            if ( SWT.getPlatform().equalsIgnoreCase("cocoa")) {
+                CocoaUIEnhancer enhancer = new CocoaUIEnhancer( "Guide Me" );
+
+                IAction aboutAction = new Action(){
+                    @Override
+                    public void run() {
+                        // TODO bring up about box on Mac
+                    }
+                };
+
+                IAction preferencesAction = new Action(){
+                    @Override
+                    public void run() {
+                        filePreferences.widgetSelected(null);
+                    }
+                };
+                enhancer.hookApplicationMenu( shell.getDisplay(), exitListener, aboutAction, preferencesAction );
+            }
 
 			// Add the menu bar to the shell
-			shell.setMenuBar (MenuBar);
+			shell.setMenuBar(MenuBar);
 
 			// Resize the image if the control containing it changes size
 			imageLabel.addControlListener(new ImageControlAdapter());
@@ -576,6 +607,12 @@ public class MainShell {
 		@Override
 		public void handleEvent(Event event) {
 			try {
+                // handle CMD-Quit on Mac OS
+                if (((event.stateMask & SWT.COMMAND) == SWT.COMMAND) && ((event.keyCode == 'q') || (event.keyCode == 'Q'))) {
+                    if (comonFunctions.onMac()) {
+                        shell.close();
+                    }
+                }
 				if (((event.stateMask & SWT.ALT) == SWT.ALT) && (event.keyCode == 'd')) {
 					if (comonFunctions.onWindows() && event.character != "d".charAt(0)) {
 						//ignore
@@ -908,8 +945,15 @@ public class MainShell {
 									  Scalr.resize(img, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC,
 											  newWidth, newHeight, Scalr.OP_ANTIALIAS);
 							String imgType = imgPath.substring(imgPath.length() - 3);
-							tmpImagePath = System.getProperty("user.dir") + File.pathSeparator + "tmpImage." + imgType;
-							ImageIO.write(imagenew, imgType, new File(tmpImagePath));			
+							
+							// use a temp file - gets cleaned up automatically on VM shutdown
+							// former code:
+							// 		tmpImagePath = System.getProperty("user.dir") + File.pathSeparator + "tmpImage." + imgType;
+							// 		ImageIO.write(imagenew, imgType, new File(tmpImagePath));			
+							File newImage = File.createTempFile("tmpImage", imgType);
+							tmpImagePath = newImage.getAbsolutePath();
+							ImageIO.write(imagenew, imgType, newImage);		
+							
 							strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" /></td></tr></table></body></html>";
 						}
 						me.setText(strHtml, true);
@@ -1103,12 +1147,26 @@ public class MainShell {
 					img = ImageIO.read(new File(imgPath));
 				} catch (IOException e) {
 				}
-				BufferedImage imagenew =
-						Scalr.resize(img, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC,
-								newWidth, newHeight, Scalr.OP_ANTIALIAS);
+
+
+                BufferedImage imageNew =
+                        Scalr.resize(img, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC,
+                                newWidth, newHeight, Scalr.OP_ANTIALIAS);
+
+//				java.awt.Image tempImage =  img.getScaledInstance(newWidth, newHeight, java.awt.Image.SCALE_SMOOTH);
+//                BufferedImage imageNew = new BufferedImage(newWidth, newHeight, BufferedImage.TYPE_INT_RGB);
+//                Graphics g = imageNew.createGraphics();
+//                g.drawImage(tempImage, 0, 0, null);
+//                g.dispose();
+
 				String imgType = imgPath.substring(imgPath.length() - 3);
-				tmpImagePath = System.getProperty("user.dir") + File.pathSeparator + "tmpImage." + imgType;
-				ImageIO.write(imagenew, imgType, new File(tmpImagePath));			
+
+				// write out image in a temporary file - gets cleaned up on VM shutdown
+				// former code:
+				// 		tmpImagePath = System.getProperty("user.dir") + File.pathSeparator + "tmpImage." + imgType;
+				File newImage = File.createTempFile("tmpImage", imgType);
+				tmpImagePath = newImage.getAbsolutePath();
+				ImageIO.write(imageNew, imgType, newImage);
 				//Image tmpImage2 = imageLabel.getImage();
 				//imageLabel.setImage(resize(memImage, newWidth, newHeight));
 				memImage.dispose();
@@ -1521,8 +1579,14 @@ public class MainShell {
 
 		@Override
 		public void run() {
-			logger.debug("MainShell VideoStop run: " + mediaPlayer.mrl());
-			mediaPlayer.stop();
+			try {
+				if (mediaPlayer != null && mediaPlayer.isPlayable()) {
+					logger.debug("MainShell VideoStop run: Stopping media player " + mediaPlayer.mrl());
+					mediaPlayer.stop();
+				}
+			} catch (Exception e) {
+				logger.error(" MainShell VideoStop run: " + e.getLocalizedMessage(), e);
+			}		
 		}
 		
 	}

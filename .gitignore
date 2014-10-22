@@ -8,3 +8,9 @@ data/
 *.jar
 *.war
 *.ear
+
+guideme.iml
+
+.idea/
+
+third-party/
