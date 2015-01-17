@@ -345,6 +345,7 @@ public class MainLogic {
 											File flImage = new File(imgPath);
 											if (flImage.exists()){
 												blnImage = true;
+												break;
 											}
 										}
 									}
@@ -543,6 +544,7 @@ public class MainLogic {
 								objMetronome = objCurrPage.getMetronome(i2);
 								if (objMetronome.canShow(guide.getFlags())) {
 									blnMetronome = true;
+									break;
 								}
 							}
 						}
