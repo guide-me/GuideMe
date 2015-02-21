@@ -52,7 +52,7 @@ public class ComonFunctions{
 	private static Logger logger = LogManager.getLogger();
     private XPathFactory factory = XPathFactory.newInstance();
     private XPath xpath = factory.newXPath();
-    private static final String version = "0.1.2";
+    private static final String version = "0.1.3";
     private osFamily os;
     public static enum osFamily {Windows, Mac, Unix, Unknown};
 
@@ -642,6 +642,49 @@ public class ComonFunctions{
 		
 	}
 	
+	public String ListFiles(String FolderName) {
+		String files = "";
+		AppSettings appSettings = AppSettings.getAppSettings();
+		Guide guide = Guide.getGuide(); 
+		String fileSeparator = appSettings.getFileSeparator();
+		
+		String dataDirectory;
+		String prefix = "";
+		dataDirectory = appSettings.getDataDirectory();
+		if (dataDirectory.startsWith("/")) {
+			prefix = "/";
+		}
+		dataDirectory = prefix + fixSeparator(appSettings.getDataDirectory(), fileSeparator);
+		String mediaDirectory = fixSeparator(guide.getMediaDirectory(), fileSeparator);
+		dataDirectory = dataDirectory + fileSeparator + mediaDirectory;
+		
+		
+		String media = fixSeparator(FolderName, fileSeparator);
+		FolderName = dataDirectory + fileSeparator + media;
+		logger.debug("CommonFunctions ListFiles full Path " + FolderName);
+		File file = new File(FolderName);
+		String[] filesList = file.list(new FilenameFilter() {
+		  @Override
+		  public boolean accept(File current, String name) {
+		    return new File(current, name).isFile();
+		  }
+		});
+		StringBuffer builder = new StringBuffer();
+		for(String s : filesList) {
+		    builder.append(s);
+		    builder.append(",");
+		}
+		int length = builder.length();
+		if (length > 0) {
+			builder.delete(length - 1, length);
+		}
+		
+		files = builder.toString();
+		logger.debug("CommonFunctions ListFiles returned " + files);
+		return files;
+		
+	}
+	
 	public String GetRandomFile(String wildcard, String strSubDir) {
 		return GetRandomFile(wildcard, strSubDir, false);
 	}
@@ -740,6 +783,7 @@ public class ComonFunctions{
 	public Boolean onUnix() {
 		return os == osFamily.Unix;
 	}
+	
 	
 	
 	/*

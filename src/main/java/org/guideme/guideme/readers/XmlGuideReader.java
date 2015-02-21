@@ -491,6 +491,7 @@ public class XmlGuideReader {
 								}
 								logger.trace("loadXML " + PresName + " GlobalJavascript " + javascript);
 								if (! javascript.equals("")) {
+									javascript = guide.getGlobaljScript() + javascript;
 									guide.setGlobaljScript(javascript);
 								}
 							}
