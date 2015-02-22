@@ -598,6 +598,10 @@ public class ComonFunctions{
 	}
 	
 	public String ListSubFolders(String FolderName) {
+		return ListSubFolders(FolderName, true);
+	}
+	
+	public String ListSubFolders(String FolderName, Boolean blnArr) {
 		String folders = "";
 		AppSettings appSettings = AppSettings.getAppSettings();
 		Guide guide = Guide.getGuide(); 
@@ -625,16 +629,27 @@ public class ComonFunctions{
 		  }
 		});
 		StringBuffer builder = new StringBuffer();
-		builder.append("[\"");
-		for(String s : directories) {
-		    builder.append(s);
-		    builder.append("\", \"");
+		if (blnArr) {
+			builder.append("[\"");
+			for(String s : directories) {
+			    builder.append(s);
+			    builder.append("\", \"");
+			}
+			int length = builder.length();
+			if (length > 2) {
+				builder.delete(length - 3, length);
+			}
+		    builder.append("]");
+		} else {
+			for(String s : directories) {
+			    builder.append(s);
+			    builder.append(",");
+			}
+			int length = builder.length();
+			if (length > 0) {
+				builder.delete(length - 1, length);
+			}
 		}
-		int length = builder.length();
-		if (length > 2) {
-			builder.delete(length - 3, length);
-		}
-	    builder.append("]");
 		
 		folders = builder.toString();
 		logger.debug("CommonFunctions ListSubFolders returned " + folders);
