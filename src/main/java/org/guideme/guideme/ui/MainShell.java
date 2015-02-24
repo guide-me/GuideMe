@@ -301,7 +301,6 @@ public class MainShell {
 
 			defaultStyle = "html { overflow-y: auto; } body { color: white; background-color: black; font-family: Tahoma; font-size:" + MintHtmlFontSize + "px } html, body, #wrapper { height:100%; width: 100%; margin: 0; padding: 0; border: 0; } #wrapper td { vertical-align: middle; text-align: center; }";
 			style = defaultStyle;
-<<<<<<< HEAD
 			String appImage = appSettings.getUserDir() + appSettings.getFileSeparator() + "userSettings" + appSettings.getFileSeparator() + "GuidemeBeta.jpg"; 
 			String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style + "</style></head><body></body></html>";
 			String strHtml2 = "<!DOCTYPE HTML><html><head><meta http-equiv='Content-type' content='text/html;charset=UTF-8' /><title>Guideme - Explore Yourself</title><style type='text/css'> html { overflow-y: auto; } body { color: white; background-color: black; font-family: Tahoma; font-size:16px } html, body, #wrapper { height:100%; width: 100%; margin: 0; padding: 0; border: 0; } #wrapper { vertical-align: middle; text-align: center; } #bannerimg { width: 90%; border-top: 3px solid #cccccc; border-right: 3px solid #cccccc; border-bottom: 3px solid #666666; border-left: 3px solid #666666; }</style></head><body><div id='wrapper' ><div id='bannerimg'><img src='" + appImage + "' /></div><div><h2>Welcome to Guideme!</h2>To get started, click File/Load and select a guide.</div></div></body></html>";
@@ -334,36 +333,6 @@ public class MainShell {
 			//brwsText = new Browser(sashform2, SWT.MOZILLA);
 			brwsText = new Browser(sashform2, SWT.NONE);
 			//brwsText = new Browser(sashform2, SWT.WEBKIT);
-=======
-			String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style + "</style></head><body></body></html>";
-			imageLabel = new Browser(leftFrame, 0);
-			imageLabel.setText(strHtml);
-			imageLabel.setBackground(colourBlack);
-			//imageLabel.setAlignment(SWT.CENTER);
-
-			if (!multiMonitor) {
-				sashform2 = new SashForm(sashform, SWT.VERTICAL);
-			} else {
-				sashform2 = new SashForm(shell2, SWT.VERTICAL);
-			}
-			sashform2.setBackground(colourBlack);
-
-			if (!overlayTimer) {
-				lblRight = new Label(sashform2, SWT.RIGHT);
-			} else {
-				if (!multiMonitor) {
-					lblRight = new Label(shell, SWT.RIGHT);
-				} else {
-					lblRight = new Label(leftFrame, SWT.RIGHT);
-				}
-			}
-			lblRight.setBackground(colourBlack);
-			lblRight.setForeground(colourWhite);
-			lblRight.setFont(timerFont);
-			lblRight.setAlignment(SWT.CENTER);
-
-			brwsText = new Browser(sashform2, 0);
->>>>>>> refs/remotes/origin/Philo
 			brwsText.setText(strHtml);
 			brwsText.setBackground(colourBlack);
 
