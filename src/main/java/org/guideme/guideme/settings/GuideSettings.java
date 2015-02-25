@@ -58,6 +58,7 @@ public class GuideSettings{
 	private HashMap<String, String> userNumericDesc = new HashMap<String, String>();
 	private LinkedHashSet<String> userNumericKeys = new LinkedHashSet<String>(); 
 	private boolean pageSound = true;
+	private boolean forceStartPage = false;
 	private static Logger logger = LogManager.getLogger();
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 
@@ -579,6 +580,14 @@ public class GuideSettings{
 
 	public String getFilename() {
 		return filename;
+	}
+
+	public boolean isForceStartPage() {
+		return forceStartPage;
+	}
+
+	public void setForceStartPage(boolean forceStartPage) {
+		this.forceStartPage = forceStartPage;
 	}
 
 	

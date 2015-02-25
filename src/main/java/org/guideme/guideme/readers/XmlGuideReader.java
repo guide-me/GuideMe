@@ -83,6 +83,9 @@ public class XmlGuideReader {
 
 			// Return to where we left off
 			try {
+				if (guideSettings.isForceStartPage()) {
+					guideSettings.setPage("start");
+				}
 				strPage = guideSettings.getPage();
 				strFlags = guideSettings.getFlags();
 				if (strFlags != "") {
@@ -389,6 +392,13 @@ public class XmlGuideReader {
 											guideSettings.setPageSound(Boolean.parseBoolean(reader.getText()));
 										} else {
 											guideSettings.setPageSound(true); 
+										}
+									} else if (reader.getName().getLocalPart().equals("ForceStartPage")) {
+										reader.next();
+										if (reader.getEventType() == XMLStreamConstants.CHARACTERS) {
+											guideSettings.setForceStartPage(Boolean.parseBoolean(reader.getText()));
+										} else {
+											guideSettings.setPageSound(false); 
 										}
 									}	        				 
 								}

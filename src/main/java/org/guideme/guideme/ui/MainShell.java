@@ -912,8 +912,10 @@ public class MainShell {
 									  Scalr.resize(img, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC,
 											  newWidth, newHeight, Scalr.OP_ANTIALIAS);
 							String imgType = imgPath.substring(imgPath.length() - 3);
-							tmpImagePath = System.getProperty("user.dir") + File.pathSeparator + "tmpImage." + imgType;
-							ImageIO.write(imagenew, imgType, new File(tmpImagePath));			
+							File newImage = File.createTempFile("tmpImage", imgType);
+							newImage.deleteOnExit();
+							tmpImagePath = newImage.getAbsolutePath();
+							ImageIO.write(imagenew, imgType, newImage);			
 							strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" /></td></tr></table></body></html>";
 						}
 						me.setText(strHtml, true);
@@ -1107,12 +1109,16 @@ public class MainShell {
 					img = ImageIO.read(new File(imgPath));
 				} catch (IOException e) {
 				}
-				BufferedImage imagenew =
+				BufferedImage imageNew =
 						Scalr.resize(img, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC,
 								newWidth, newHeight, Scalr.OP_ANTIALIAS);
 				String imgType = imgPath.substring(imgPath.length() - 3);
-				tmpImagePath = System.getProperty("user.dir") + File.pathSeparator + "tmpImage." + imgType;
-				ImageIO.write(imagenew, imgType, new File(tmpImagePath));			
+				File newImage = File.createTempFile("tmpImage", imgType);
+				newImage.deleteOnExit();
+				tmpImagePath = newImage.getAbsolutePath();
+				ImageIO.write(imageNew, imgType, newImage);
+				//tmpImagePath = System.getProperty("user.dir") + File.pathSeparator + "tmpImage." + imgType;
+				//ImageIO.write(imagenew, imgType, new File(tmpImagePath));			
 				//Image tmpImage2 = imageLabel.getImage();
 				//imageLabel.setImage(resize(memImage, newWidth, newHeight));
 				memImage.dispose();
@@ -1525,8 +1531,14 @@ public class MainShell {
 
 		@Override
 		public void run() {
-			logger.debug("MainShell VideoStop run: " + mediaPlayer.mrl());
-			mediaPlayer.stop();
+			try {
+				if (mediaPlayer != null && mediaPlayer.isPlayable()) {
+					logger.debug("MainShell VideoStop run: Stopping media player " + mediaPlayer.mrl());
+					mediaPlayer.stop();
+				}
+			} catch (Exception e) {
+				logger.error(" MainShell VideoStop run: " + e.getLocalizedMessage(), e);
+			}
 		}
 		
 	}
