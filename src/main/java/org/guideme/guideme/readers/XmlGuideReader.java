@@ -19,6 +19,7 @@ import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Image;
 import org.guideme.guideme.model.Metronome;
 import org.guideme.guideme.model.Page;
+import org.guideme.guideme.model.Timer;
 import org.guideme.guideme.model.Video;
 import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
@@ -49,7 +50,7 @@ public class XmlGuideReader {
 
 	private enum TagName
 	{
-		pref, Title, Author, MediaDirectory, Settings, Page, Metronome, Image, Audio, Video, Delay, Button, Text, javascript, GlobalJavascript, CSS, Include, NOVALUE;
+		pref, Title, Author, MediaDirectory, Settings, Page, Metronome, Image, Audio, Video, Delay, Timer, Button, Text, javascript, GlobalJavascript, CSS, Include, NOVALUE;
 
 		public static TagName toTag(String str)
 		{
@@ -285,9 +286,22 @@ public class XmlGuideReader {
 							if (javascript == null) javascript = "";
 							Delay delay = new Delay(strTarget, strSeconds, ifSet, ifNotSet, strStartWith, strStyle, Set, UnSet, javascript);
 							page.addDelay(delay);
-							logger.trace("loadXML " + PresName + " Delay " + strTarget+ "|" + strSeconds+ "|" + ifSet+ "|" + ifNotSet+ "|" + strStartWith+ "|" + strStyle+ "|" + Set+ "|" + UnSet);
+							logger.trace("loadXML " + PresName + " Delay " + strTarget+ "|" + strSeconds+ "|" + ifSet+ "|" + ifNotSet+ "|" + strStartWith+ "|" + strStyle+ "|" + Set+ "|" + UnSet + "|" + javascript);
 						} catch (Exception e1) {
 							logger.error("loadXML " + PresName + " Delay Exception " + e1.getLocalizedMessage(), e1);
+						}
+						break;
+					case Timer:
+						try {
+							String strSeconds;
+							strSeconds = reader.getAttributeValue(null, "seconds");
+							String javascript = reader.getAttributeValue(null, "onTriggered");
+							if (javascript == null) javascript = "";
+							Timer timer = new Timer(strSeconds, javascript);
+							page.addTimer(timer);
+							logger.trace("loadXML " + PresName + " Timer " + strSeconds + "|" + javascript);
+						} catch (Exception e1) {
+							logger.error("loadXML " + PresName + " Timer Exception " + e1.getLocalizedMessage(), e1);
 						}
 						break;
 					case Image:

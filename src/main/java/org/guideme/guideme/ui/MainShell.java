@@ -54,6 +54,7 @@ import org.guideme.guideme.MainLogic;
 import org.guideme.guideme.model.Button;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Page;
+import org.guideme.guideme.model.Timer;
 import org.guideme.guideme.readers.XmlGuideReader;
 import org.guideme.guideme.scripting.Jscript;
 import org.guideme.guideme.settings.AppSettings;
@@ -133,6 +134,7 @@ public class MainShell {
 	private Boolean overlayTimer = false;
 	private HashMap<String, com.snapps.swt.SquareButton> hotKeys = new HashMap<String, com.snapps.swt.SquareButton>();
 	private shellKeyEventListener keyListener;
+	private ArrayList<Timer> timer = new ArrayList<Timer>();
 
 	public Shell createShell(final Display display) {
 		logger.trace("Enter createShell");
@@ -1018,6 +1020,19 @@ public class MainShell {
 					} else {
 						lblLeft.setText("");
 					}
+					//check timers
+					if (getTimerCount() > 0) {
+						for (int i2 = 0; i2 < getTimerCount(); i2++) {
+							Calendar calTemp = getTimer(i2).getTimerEnd();
+							if (cal.after(calTemp)) {
+								//add a year to the timer so we don't trigger it again
+								calTemp.add(Calendar.YEAR, 1);
+								getTimer(i2).setTimerEnd(calTemp);
+								//run the java script
+								mainShell.runJscript(getTimer(i2).getjScript());
+							}
+						}
+					}
 					dateFormat = null;
 					cal = null;
 					javascript = null;
@@ -1399,7 +1414,7 @@ public class MainShell {
 		if (function == null) function = "";
 		if (! function.equals("")) {
 			getFormFields();
-			Jscript jscript = new Jscript(guide, userSettings, appSettings, guide.getInPrefGuide());
+			Jscript jscript = new Jscript(guide, userSettings, appSettings, guide.getInPrefGuide(), mainShell);
 			Page objCurrPage = guide.getChapters().get(guideSettings.getChapter()).getPages().get(guideSettings.getPage());
 			String pageJavascript = objCurrPage.getjScript();
 			jscript.runScript(pageJavascript, function, false);
@@ -1579,6 +1594,12 @@ public class MainShell {
 		catch (Exception ex) {
 			logger.error(" stopVideo " + ex.getLocalizedMessage(), ex);
 		}
+		try {
+			timerReset();
+		}
+		catch (Exception ex) {
+			logger.error(" timerReset " + ex.getLocalizedMessage(), ex);
+		}
 	}
 
 	public void setStyle(String style) {
@@ -1601,4 +1622,20 @@ public class MainShell {
 		return shell3;
 	}
 
+	public Timer getTimer(int timIndex) {
+		return timer.get(timIndex);
+	}
+
+	public void addTimer(Timer timer) {
+		this.timer.add(timer);
+	}
+
+	public int getTimerCount() {
+		return timer.size();
+	}
+	
+	private void timerReset() {
+		timer = new ArrayList<Timer>();
+	}
+	
 }

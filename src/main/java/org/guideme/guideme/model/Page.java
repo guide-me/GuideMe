@@ -9,6 +9,7 @@ public class Page {
 	private String id; //Page Name
 	private ArrayList<Button> button = new ArrayList<Button>();
 	private ArrayList<Delay> delay = new ArrayList<Delay>(); 
+	private ArrayList<Timer> timer = new ArrayList<Timer>(); 
 	private ArrayList<Video> video = new ArrayList<Video>();
 	private ArrayList<Image> image = new ArrayList<Image>();
 	private ArrayList<Audio> audio = new ArrayList<Audio>();
@@ -58,6 +59,14 @@ public class Page {
 		this.delay.add(delay);
 	}
 
+	public Timer getTimer(int timIndex) {
+		return timer.get(timIndex);
+	}
+
+	public void addTimer(Timer timer) {
+		this.timer.add(timer);
+	}
+
 	public Video getVideo(int vidIndex) {
 		return video.get(vidIndex);
 	}
@@ -100,6 +109,10 @@ public class Page {
 
 	public int getDelayCount() {
 		return delay.size();
+	}
+
+	public int getTimerCount() {
+		return timer.size();
 	}
 
 	public int getVideoCount() {

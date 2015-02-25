@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 import org.guideme.guideme.model.Audio;
 import org.guideme.guideme.model.Button;
 import org.guideme.guideme.model.Delay;
+import org.guideme.guideme.model.Timer;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Image;
 import org.guideme.guideme.model.Metronome;
@@ -102,6 +103,7 @@ public class MainLogic {
 		String strFlags;
 		Page objCurrPage;
 		Delay objDelay;
+		Timer objTimer;
 		Image objImage;
 		Button objButton;
 		Video objVideo;
@@ -183,7 +185,7 @@ public class MainLogic {
 				String pageJavascript = objCurrPage.getjScript();
 				if (! pageJavascript.equals("")) {
 					if (pageJavascript.contains("pageLoad")) {
-						Jscript jscript = new Jscript(guide, userSettings, appSettings, guide.getInPrefGuide());
+						Jscript jscript = new Jscript(guide, userSettings, appSettings, guide.getInPrefGuide(), mainShell);
 						jscript.setOverRide(overRide);
 						jscript.runScript(pageJavascript, "pageLoad", true);
 					}
@@ -259,8 +261,19 @@ public class MainLogic {
 				logger.error("displayPage Delay Exception " + e1.getLocalizedMessage(), e1);
 				mainShell.setLblLeft("");
 			}
-
-			if (!(intDelSeconds == 0)) { 
+			
+			//if delay is zero don't bother with the page stuff
+			if (!(intDelSeconds == 0)) {
+				//add timers
+				if (objCurrPage.getTimerCount() > 0) {
+					for (int i2 = 0; i2 < objCurrPage.getTimerCount(); i2++) {
+						objTimer = objCurrPage.getTimer(i2);
+						Calendar timCountDown = Calendar.getInstance();
+						timCountDown.add(Calendar.SECOND, objTimer.getTimerSec());
+						objTimer.setTimerEnd(timCountDown);
+						mainShell.addTimer(objTimer);
+					}
+				}
 				if (overRide.getLeftHtml().equals("")) {
 					// Video
 					blnVideo = false;

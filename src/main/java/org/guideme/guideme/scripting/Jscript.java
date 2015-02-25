@@ -11,6 +11,7 @@ import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
 import org.guideme.guideme.settings.UserSettings;
+import org.guideme.guideme.ui.MainShell;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.EvaluatorException;
@@ -28,14 +29,16 @@ public class Jscript {
 	private static Logger logger = LogManager.getLogger();
 	private static final Marker JSCRIPT_MARKER = MarkerManager.getMarker("JSCRIPT");
 	private static Boolean inPrefGuide;
+	private static MainShell mainShell;
 
-	public Jscript(Guide Iguide, UserSettings IuserSettings, AppSettings IappSettings, Boolean IinPrefGuide) {
+	public Jscript(Guide Iguide, UserSettings IuserSettings, AppSettings IappSettings, Boolean IinPrefGuide, MainShell ImainShell) {
 		super();
 		guide = Iguide;
 		guideSettings = Iguide.getSettings();
 		userSettings = IuserSettings;
 		appSettings = IappSettings;
 		inPrefGuide = IinPrefGuide;
+		mainShell = ImainShell;
 	}
 
 
@@ -79,6 +82,7 @@ public class Jscript {
 			ScriptableObject.putProperty(scope, "mediaDir", appSettings.getDataDirectory());
 			ScriptableObject.putProperty(scope, "fileSeparator", java.lang.System.getProperty("file.separator"));
 			ScriptableObject.putProperty(scope, "jscriptLog", jlog);
+			ScriptableObject.putProperty(scope, "mainShell", mainShell);
 			logger.info(JSCRIPT_MARKER, "Starting ScriptVariables: " + scriptVars);
 			logger.info(JSCRIPT_MARKER, "Starting Flags {" + guideSettings.getFlags() + "}");
 			
