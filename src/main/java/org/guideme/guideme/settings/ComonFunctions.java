@@ -11,6 +11,7 @@ import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 //import javax.xml.stream.XMLInputFactory;
 //import javax.xml.stream.XMLStreamConstants;
@@ -386,6 +387,7 @@ public class ComonFunctions{
 		//returns the contents of a file as a String
 		String returnVal = "";
 		try {
+			Thread.interrupted();
 			byte[] encoded = Files.readAllBytes(Paths.get(path));
 			returnVal =  encoding.decode(ByteBuffer.wrap(encoded)).toString();
 		} catch (Exception ex) {
@@ -798,7 +800,26 @@ public class ComonFunctions{
 		return os == osFamily.Unix;
 	}
 	
-	
+	public long dateDifference(String type, Object jsdate1, Object jsdate2) {
+		Date date1 = (Date) Context.jsToJava(jsdate1, Date.class);
+		Date date2 = (Date) Context.jsToJava(jsdate2, Date.class);
+		long diffInMillies = date2.getTime() - date1.getTime();
+		long returnVal = 0;
+		if (type.equals("d")) {
+			returnVal = TimeUnit.DAYS.convert(diffInMillies,TimeUnit.MILLISECONDS);
+		}
+		if (type.equals("h")) {
+			returnVal = TimeUnit.HOURS.convert(diffInMillies,TimeUnit.MILLISECONDS);
+		}
+		if (type.equals("m")) {
+			returnVal = TimeUnit.MINUTES.convert(diffInMillies,TimeUnit.MILLISECONDS);
+		}
+		if (type.equals("s")) {
+			returnVal = TimeUnit.SECONDS.convert(diffInMillies,TimeUnit.MILLISECONDS);
+		}
+		return returnVal;
+		
+	}
 	
 	/*
 	public Object xmlFileToObject(String xmlFileName) { 

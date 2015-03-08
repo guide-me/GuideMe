@@ -87,8 +87,12 @@ public class App
 				//loop round until the window is closed
 				while (!shell.isDisposed()) {
 					if (appSettings.isMonitorChanging()) {
-						shell.close();
-					}
+						try {
+							shell.close();
+						}
+						catch (Exception ex) {
+							logger.error("Main shell close " + ex.getLocalizedMessage(), ex);
+						}					}
 					if (!display.readAndDispatch())
 					{
 						display.sleep();
