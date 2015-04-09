@@ -134,6 +134,7 @@ public class MainShell {
 	private Boolean overlayTimer = false;
 	private HashMap<String, com.snapps.swt.SquareButton> hotKeys = new HashMap<String, com.snapps.swt.SquareButton>();
 	private shellKeyEventListener keyListener;
+	//private shellMouseMoveListener mouseListen;
 	private ArrayList<Timer> timer = new ArrayList<Timer>();
 
 	public Shell createShell(final Display display) {
@@ -198,6 +199,9 @@ public class MainShell {
 			logger.trace("key filter");
 			keyListener = new shellKeyEventListener();
 			myDisplay.addFilter(SWT.KeyDown, keyListener);
+			//TODO hide menu
+			//mouseListen = new shellMouseMoveListener();
+			//myDisplay.addFilter(SWT.MouseMove, mouseListen);
 			int mainMonitor = appSettings.getMainMonitor();
 			
 			Rectangle clientArea2 = null;
@@ -533,6 +537,22 @@ public class MainShell {
 		return shell;
 	}
 
+	class shellMouseMoveListener implements Listener {
+
+		@Override
+		public void handleEvent(Event e) {
+        	if (e.x <= 100 && !shell.getMenuBar().getVisible()) {
+        		shell.getMenuBar().setVisible(true);
+        		shell.layout(true);
+        	} else if (shell.getMenuBar().getVisible()) {
+        		shell.getMenuBar().setVisible(false);
+        		shell.layout(true);
+        	}
+		}		
+
+	}
+	
+	
 	class shellCloseListen  extends ShellAdapter {
 		// Clean up stuff when the application closes
 		@Override
@@ -1449,6 +1469,34 @@ public class MainShell {
 		String value;
 		String type;
 		String checked;
+		for (int i = 0; i < fields.length; i++) {
+			values = fields[i].split("¬");
+			if (!fields[i].equals("")) {
+				name = values[0];
+				value = values[1];
+				type = values[2];
+				checked = values[3];
+				if (type.equals("checkbox")) {
+					guideSettings.setFormField(name, checked);
+				}
+				if (type.equals("radio")) {
+					if (checked.equals("true")) {
+						guideSettings.setFormField(name, value);
+					}
+				}
+				if (type.equals("text")) {
+					guideSettings.setFormField(name, value);
+				}
+				
+				if (type.equals("select-one")) {
+					guideSettings.setFormField(name, value);
+				}
+
+				logger.trace(name + "|" + value +  "|" + type +  "|" + checked);
+			}
+		}
+		String node2 = (String) imageLabel.evaluate(evaluateScript);
+		fields = node2.split("\\|");
 		for (int i = 0; i < fields.length; i++) {
 			values = fields[i].split("¬");
 			if (!fields[i].equals("")) {

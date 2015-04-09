@@ -110,6 +110,7 @@ public class MainLogic {
 		Metronome objMetronome;
 		Audio objAudio;
 		String fileSeparator = appSettings.getFileSeparator();
+		String imgForDebug = "";
 
 		logger.debug("displayPage PagePassed " + pageId);
 		logger.debug("displayPage Flags " + comonFunctions.GetFlags(guide.getFlags()));
@@ -366,6 +367,7 @@ public class MainLogic {
 							}
 							if (blnImage) {
 								try {
+									imgForDebug = strImage;
 									mainShell.setImageLabel(imgPath, strImage);
 								} catch (Exception e1) {
 									logger.error("displayPage Image Exception " + e1.getLocalizedMessage(), e1);
@@ -534,7 +536,7 @@ public class MainLogic {
 						if (blnDelay) {
 							mainShell.addDelayButton(guide);
 						}
-						mainShell.setLblCentre(" " + strPageId);
+						mainShell.setLblCentre(" " + strPageId + " / " + imgForDebug);
 					} else {
 						mainShell.setLblCentre(guide.getTitle());
 					}
