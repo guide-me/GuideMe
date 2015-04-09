@@ -12,6 +12,7 @@ import org.eclipse.swt.graphics.DeviceData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.guideme.guideme.settings.AppSettings;
+import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.ui.MainShell;
 
 import uk.co.caprica.vlcj.discovery.NativeDiscovery;
@@ -52,6 +53,9 @@ public class App
 					//so we can turn it on, on a users machine
 					logger.error(key + " - " + value);
 				}
+				String version;
+				version = ComonFunctions.getVersion();
+				logger.error("GuideMe Version - " + version);
 			}
 
 			if (loadSleak) {
