@@ -59,6 +59,7 @@ public class GuideSettings{
 	private LinkedHashSet<String> userNumericKeys = new LinkedHashSet<String>(); 
 	private boolean pageSound = true;
 	private boolean forceStartPage = false;
+	private boolean globalScriptLogged = false;
 	private static Logger logger = LogManager.getLogger();
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 
@@ -588,6 +589,14 @@ public class GuideSettings{
 
 	public void setForceStartPage(boolean forceStartPage) {
 		this.forceStartPage = forceStartPage;
+	}
+
+	public boolean isGlobalScriptLogged() {
+		return globalScriptLogged;
+	}
+
+	public void setGlobalScriptLogged(boolean globalScriptLogged) {
+		this.globalScriptLogged = globalScriptLogged;
 	}
 
 	

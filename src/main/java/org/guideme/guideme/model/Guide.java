@@ -53,7 +53,35 @@ public class Guide {
 
 	public static synchronized Guide getGuide() {
 		if (guide == null) {
+			AppSettings appSettings = AppSettings.getAppSettings();
 			guide = new Guide();
+			HashMap<String, Chapter> chapters = guide.getChapters();
+			Chapter chapter = new Chapter("default");
+			chapters.put("default", chapter);
+			Page page404 = new Page("GuideMe404Error","", "", "", "", false);
+			chapter.getPages().put(page404.getId(), page404);
+			Page start = new Page("start","", "", "", "", false);
+			String appImage = appSettings.getUserDir().replace("\\", "\\\\") + appSettings.getFileSeparator() + appSettings.getFileSeparator() + "userSettings" + appSettings.getFileSeparator() + appSettings.getFileSeparator() + "GuidemeBeta.jpg";
+			String strLoadScript = "function pageLoad() {";
+			strLoadScript = strLoadScript + "	var lefthtml = \"<!DOCTYPE html>\";";
+			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"<html>\";";
+			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"<head>\";";
+			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"<meta http-equiv='Content-type' content='text/html;charset=UTF-8' />\";";
+			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"<title>Guideme - Explore Yourself</title><style type='text/css'> html { overflow-y: auto; } body { color: white; background-color: black; font-family: Tahoma; font-size:16px } html, body, #wrapper { height:100%; width: 100%; margin: 0; padding: 0; border: 0; } #wrapper { vertical-align: middle; text-align: center; } #bannerimg { width: 90%; border-top: 3px solid #cccccc; border-right: 3px solid #cccccc; border-bottom: 3px solid #666666; border-left: 3px solid #666666; }</style>\";";
+			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"</head>\";";
+			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"<body>\";";
+			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"<div id='wrapper' ><div id='bannerimg'><img src='" + appImage + "' /></div><div><h2>Welcome to Guideme!</h2>To get started, click File/Load and select a guide.</div></div>\";";
+			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"</body>\";";
+			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"</html>\";";
+			strLoadScript = strLoadScript + "	overRide.leftHtml = lefthtml;";
+			strLoadScript = strLoadScript + "}";
+			start.setjScript(strLoadScript);
+			guide.globaljScript = "";
+			guide.inPrefGuide = false;
+			guide.css = "";
+			guide.autoSetPage = false;
+			chapter.getPages().put(start.getId(), start);
+			guide.setMediaDirectory(appSettings.getUserDir() + appSettings.getFileSeparator() + "userSettings" + appSettings.getFileSeparator());
 		}
 		return guide;
 	}

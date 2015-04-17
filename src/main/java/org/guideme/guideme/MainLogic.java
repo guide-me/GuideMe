@@ -176,6 +176,13 @@ public class MainLogic {
 
 			// get the page to display
 			objCurrPage = guide.getChapters().get(chapterName).getPages().get(strPageId);
+			if (objCurrPage == null) {
+				objCurrPage = guide.getChapters().get(chapterName).getPages().get("GuideMe404Error");
+				String strText = "<div><p><h1>Oops it looks like page " + strPageId + " does not exist</h1></p>";
+				strText = strText + "<p>Please contact the Author to let them know the issue</p></div>"; 
+				objCurrPage.setText(strText);
+				strPageId = "GuideMe404Error";
+			}
 			debugShell.setPage(strPageId, true);
 			guideSettings.setPrevPage(guideSettings.getCurrPage());
 			guideSettings.setCurrPage(strPageId);
@@ -499,7 +506,7 @@ public class MainLogic {
 				mainShell.removeButtons();
 
 				// add new buttons
-				for (int i1 = objCurrPage.getButtonCount() - 1; i1 >= 0; i1--) {
+ 				for (int i1 = objCurrPage.getButtonCount() - 1; i1 >= 0; i1--) {
 					try {
 						objButton = objCurrPage.getButton(i1);
 						if (objButton.canShow(guide.getFlags())) {

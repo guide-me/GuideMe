@@ -17,6 +17,8 @@ import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
@@ -25,6 +27,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -134,11 +137,14 @@ public class MainShell {
 	private Boolean overlayTimer = false;
 	private HashMap<String, com.snapps.swt.SquareButton> hotKeys = new HashMap<String, com.snapps.swt.SquareButton>();
 	private shellKeyEventListener keyListener;
-	//private shellMouseMoveListener mouseListen;
+	private shellMouseMoveListener mouseListen;
+	private Boolean showMenu = true;
+	private Menu MenuBar;
 	private ArrayList<Timer> timer = new ArrayList<Timer>();
 
 	public Shell createShell(final Display display) {
 		logger.trace("Enter createShell");
+		comonFunctions.setDisplay(display);
 		// Initialise variable
 		int[] intWeights1 = new int[2];
 		int[] intWeights2 = new int[2];
@@ -200,8 +206,8 @@ public class MainShell {
 			keyListener = new shellKeyEventListener();
 			myDisplay.addFilter(SWT.KeyDown, keyListener);
 			//TODO hide menu
-			//mouseListen = new shellMouseMoveListener();
-			//myDisplay.addFilter(SWT.MouseMove, mouseListen);
+			mouseListen = new shellMouseMoveListener();
+			myDisplay.addFilter(SWT.MouseMove, mouseListen);
 			int mainMonitor = appSettings.getMainMonitor();
 			
 			Rectangle clientArea2 = null;
@@ -446,7 +452,7 @@ public class MainShell {
 			imageLabel.setLayoutData(imageLabelFormData);
 			
 			//Menu Bar
-			Menu MenuBar = new Menu (shell, SWT.BAR);
+			MenuBar = new Menu (shell, SWT.BAR);
 
 			//Top Level File drop down
 			MenuItem fileItem = new MenuItem (MenuBar, SWT.CASCADE);
@@ -541,13 +547,35 @@ public class MainShell {
 
 		@Override
 		public void handleEvent(Event e) {
-        	if (e.x <= 100 && !shell.getMenuBar().getVisible()) {
-        		shell.getMenuBar().setVisible(true);
-        		shell.layout(true);
-        	} else if (shell.getMenuBar().getVisible()) {
-        		shell.getMenuBar().setVisible(false);
-        		shell.layout(true);
-        	}
+		    if (e.widget instanceof Control) {
+		        Point absolutePos = ((Control) e.widget).toDisplay(e.x, e.y);
+				//String coord;
+	        	if (absolutePos.y <= 100 && !showMenu) {
+	        		if (!shell.isDisposed()) {
+	        			shell.setMenuBar(MenuBar);
+	        			shell.pack();
+	        		}
+	        		if (multiMonitor) {
+	        			if (!shell2.isDisposed()) {
+	        				shell2.pack();
+	        			}
+	        		}
+	        		showMenu = true;
+	        	} else if (absolutePos.y > 100 && showMenu) {
+	        		if (!shell.isDisposed()) {
+	        			shell.setMenuBar(null);
+	        			shell.pack();
+	        		}
+	        		if (multiMonitor) {
+	        			if (!shell2.isDisposed()) {
+	        				shell2.pack();
+	        			}
+	        		}
+	        		showMenu = false;
+	        	}
+				//coord = "show " + showMenu.toString() + " "  + absolutePos.x + " , " + absolutePos.y;
+				//mainShell.setLblRight(coord);
+		    }
 		}		
 
 	}
@@ -1124,15 +1152,27 @@ public class MainShell {
 			logger.trace("Lable Width: " + RectImage.width);
 			logger.trace("Image Height: " + imgData.height);
 			logger.trace("Image Width: " + imgData.width);
-
-			if (dblScreenRatio > dblImageRatio) {
-				newHeight = (int) (((double) RectImage.width * dblImageRatio) * imgOffSet);
-				newWidth = (int) ((double) RectImage.width * imgOffSet);
-				logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
+			
+			if (((RectImage.height / 2) >  imgData.height) || ((RectImage.width / 2) >  imgData.width)) {
+				if (dblScreenRatio > dblImageRatio) {
+					newHeight = (int) (((double) (imgData.width * 2) * dblImageRatio) * imgOffSet);
+					newWidth = (int) ((double) (imgData.width * 2) * imgOffSet);
+					logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
+				} else {
+					newHeight = (int) ((double) (imgData.height * 2) * imgOffSet);
+					newWidth = (int) (((double) (imgData.height * 2) / dblImageRatio) * imgOffSet);
+					logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
+				}
 			} else {
-				newHeight = (int) ((double) RectImage.height * imgOffSet);
-				newWidth = (int) (((double) RectImage.height / dblImageRatio) * imgOffSet);
-				logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
+				if (dblScreenRatio > dblImageRatio) {
+					newHeight = (int) (((double) RectImage.width * dblImageRatio) * imgOffSet);
+					newWidth = (int) ((double) RectImage.width * imgOffSet);
+					logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
+				} else {
+					newHeight = (int) ((double) RectImage.height * imgOffSet);
+					newWidth = (int) (((double) RectImage.height / dblImageRatio) * imgOffSet);
+					logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
+				}
 			}
 			if (imgPath.endsWith(".gif")) {
 				memImage.dispose();
@@ -1364,7 +1404,54 @@ public class MainShell {
 				}
 			}
 			com.snapps.swt.SquareButton btnDynamic = new com.snapps.swt.SquareButton(btnComp, SWT.PUSH );
-			btnDynamic.setFont(buttonFont);
+			
+			int fntHeight = 0;
+			try {
+				fntHeight = Integer.parseInt(button.getFontHeight());
+			}
+			catch (Exception e) {
+				fntHeight = 0;
+			}
+			try {
+				if (button.getFontName() == "" && fntHeight == 0) {
+					btnDynamic.setFont(buttonFont);
+				} else {
+					FontData[] fontData = buttonFont.getFontData();
+					if (fntHeight > 0) {
+						fontData[0].setHeight(fntHeight);
+					}
+					if (button.getFontName() != "") {
+						fontData[0].setName(button.getFontName());
+					}
+					
+					final Font newFont = new Font(myDisplay, fontData);
+					btnDynamic.setFont(newFont);
+	
+					// Since you created the font, you must dispose it
+					btnDynamic.addDisposeListener(new DisposeListener() {
+						@Override
+						public void widgetDisposed(DisposeEvent e) {
+							newFont.dispose();
+						}
+					});
+				}
+			}
+			catch (Exception e) {
+				logger.error("addButton set font" + e.getLocalizedMessage(), e);
+			}
+			
+			try {
+				org.eclipse.swt.graphics.Color bgColor1 = button.getbgColor1();
+				org.eclipse.swt.graphics.Color bgColor2 = button.getbgColor2();
+				org.eclipse.swt.graphics.Color fontColor = button.getfontColor();
+				
+				btnDynamic.setDefaultColors(bgColor1, bgColor2, btnDynamic.getBackground(), fontColor);
+			}
+			catch (Exception e) {
+				logger.error("addButton set colors" + e.getLocalizedMessage(), e);
+			}
+
+			
 			btnDynamic.setText(strBtnText);
 			if (!strBtnImage.equals("")){
 				btnDynamic.setBackgroundImage(new Image(myDisplay, strBtnImage));
@@ -1609,8 +1696,15 @@ public class MainShell {
 	}
 	
 	public void stopDelay() {
-		calCountDown = null;
-		lblRight.setText("");
+		try {
+			calCountDown = null;
+			if (!lblRight.isDisposed()) {
+				lblRight.setText("");
+			}
+		}
+		catch (Exception ex) {
+			logger.error(" stopDelay " + ex.getLocalizedMessage(), ex);
+		}
 	}
 
 	public void stopAll() {

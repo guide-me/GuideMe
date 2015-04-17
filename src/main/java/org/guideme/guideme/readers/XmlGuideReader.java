@@ -115,6 +115,8 @@ public class XmlGuideReader {
 		String strTmpTitle = "";
 		String strTmpAuthor = "";
 
+		Page page404 = new Page("GuideMe404Error","", "", "", "", false);
+		chapter.getPages().put(page404.getId(), page404);
 		guideSettings = guide.getSettings();
 
 		try {
@@ -247,14 +249,34 @@ public class XmlGuideReader {
 							String hotKey;
 							hotKey = reader.getAttributeValue(null, "hotkey");
 							if (hotKey == null) hotKey = "";
-							reader.next();
-							String BtnText;
-							if (reader.getEventType() == XMLStreamConstants.CHARACTERS) {
-								BtnText = reader.getText();
-							} else {
-								BtnText = "";
+
+							String fontName;
+							fontName = reader.getAttributeValue(null, "fontName");
+							if (fontName == null) fontName = "";
+							String fontHeight;
+							fontHeight = reader.getAttributeValue(null, "fontHeight");
+							if (fontHeight == null) fontHeight = "";
+							String bgColor1;
+							bgColor1 = reader.getAttributeValue(null, "bgColor1");
+							if (bgColor1 == null) bgColor1 = "";
+							String bgColor2;
+							bgColor2 = reader.getAttributeValue(null, "bgColor2");
+							if (bgColor2 == null) bgColor2 = "";
+							String fontColor;
+							fontColor = reader.getAttributeValue(null, "fontColor");
+							if (fontColor == null) fontColor = "";
+							
+							//reader.next();
+							String BtnText = "";
+							if (reader.getName().getLocalPart().equals("Button")) {
+								BtnText = processText(reader, "Button");
 							}
-							Button button = new Button(strTarget, BtnText, ifSet, ifNotSet, Set, UnSet, javascript, image, hotKey);
+							//if (reader.getEventType() == XMLStreamConstants.CHARACTERS) {
+							//	BtnText = reader.getText();
+							//} else {
+							//	BtnText = "";
+							//}
+							Button button = new Button(strTarget, BtnText, ifSet, ifNotSet, Set, UnSet, javascript, image, hotKey, fontName, fontHeight, fontColor, bgColor1, bgColor2);
 							page.addButton(button);
 							logger.trace("loadXML " + PresName + " Button " + strTarget+ "|" + BtnText + "|" + ifSet+ "|" + ifNotSet+ "|" + Set+ "|" + UnSet + "|" + javascript);
 						} catch (Exception e1) {
@@ -428,7 +450,7 @@ public class XmlGuideReader {
 					case Text:
 						try {
 							if (reader.getName().getLocalPart().equals("Text")) {
-								String text = processText(reader);
+								String text = processText(reader, "Text");
 								page.setText(text);
 								logger.trace("loadXML " + PresName + " Text " + text);
 							}
@@ -590,7 +612,7 @@ public class XmlGuideReader {
 
 	}
 
-	private String processText(XMLStreamReader reader) throws XMLStreamException {
+	private String processText(XMLStreamReader reader, String tagName) throws XMLStreamException {
 		String text = "";
 		ArrayList<String> tag = new ArrayList<String>();
 		boolean emptyTagTest = false;
@@ -633,7 +655,7 @@ public class XmlGuideReader {
 			}
 			eventType2 = reader.next();
 			if (eventType2 == XMLStreamConstants.END_ELEMENT) {
-				if (reader.getName().getLocalPart().equals("Text")) break;
+				if (reader.getName().getLocalPart().equals(tagName)) break;
 			}
 		}
 		return text;

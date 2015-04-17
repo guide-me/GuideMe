@@ -54,10 +54,14 @@ public class Jscript {
 		try {
 			String javaScriptToRun = javaScriptText + guide.getGlobaljScript();
 			logger.info(JSCRIPT_MARKER, "Chapter: " + guideSettings.getChapter());
-			logger.info(JSCRIPT_MARKER, "Page: " + guideSettings.getPage());
+			logger.info(JSCRIPT_MARKER, "Page: " + guideSettings.getCurrPage());
 			logger.info(JSCRIPT_MARKER, "javaFunction: " + javaFunction);
 			logger.info(JSCRIPT_MARKER, "pageloading: " + pageloading);
-			logger.info(JSCRIPT_MARKER, "javaScriptText: " + javaScriptToRun);
+			logger.info(JSCRIPT_MARKER, "javaScriptText: " + javaScriptText);
+			if (!guideSettings.isGlobalScriptLogged()) {
+				logger.info(JSCRIPT_MARKER, "globalJavaScriptText: " + guide.getGlobaljScript());
+				guideSettings.setGlobalScriptLogged(true);
+			}
 			ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 			HashMap<String, Object> scriptVars;
 			scriptVars = guideSettings.getScriptVariables();

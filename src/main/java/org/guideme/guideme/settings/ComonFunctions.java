@@ -23,6 +23,8 @@ import javax.xml.xpath.XPathFactory;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
 import org.guideme.guideme.model.Guide;
 //import org.guideme.guideme.model.Audio;
 //import org.guideme.guideme.model.Button;
@@ -52,11 +54,12 @@ public class ComonFunctions{
 	private static Logger logger = LogManager.getLogger();
     private XPathFactory factory = XPathFactory.newInstance();
     private XPath xpath = factory.newXPath();
-    private static final String version = "0.1.3";
+    private static final String version = "0.1.4";
     private osFamily os;
     public static enum osFamily {Windows, Mac, Unix, Unknown};
 
 	private static ComonFunctions comonFunctions;
+	private Display display;
 
 	private ComonFunctions() {
 		os = getOS();
@@ -821,6 +824,67 @@ public class ComonFunctions{
 		
 	}
 	
+	public org.eclipse.swt.graphics.Color getColor(String color) { 
+		org.eclipse.swt.graphics.Color swtColor = display.getSystemColor(SWT.COLOR_WHITE);
+		switch (color) {
+		case "white":
+			swtColor = display.getSystemColor(SWT.COLOR_WHITE);
+			break;
+		case "black":
+			swtColor = display.getSystemColor(SWT.COLOR_BLACK);
+			break;
+		case "dark_red":
+			swtColor = display.getSystemColor(SWT.COLOR_DARK_RED);
+			break;
+		case "dark_green":
+			swtColor = display.getSystemColor(SWT.COLOR_DARK_GREEN);
+			break;
+		case "dark_yellow":
+			swtColor = display.getSystemColor(SWT.COLOR_DARK_YELLOW);
+			break;
+		case "dark_blue":
+			swtColor = display.getSystemColor(SWT.COLOR_DARK_BLUE);
+			break;
+		case "dark_magenta":
+			swtColor = display.getSystemColor(SWT.COLOR_DARK_MAGENTA);
+			break;
+		case "dark_cyan":
+			swtColor = display.getSystemColor(SWT.COLOR_DARK_CYAN);
+			break;
+		case "dark_gray":
+			swtColor = display.getSystemColor(SWT.COLOR_DARK_GRAY);
+			break;
+		case "gray":
+			swtColor = display.getSystemColor(SWT.COLOR_GRAY);
+			break;
+		case "red":
+			swtColor = display.getSystemColor(SWT.COLOR_RED);
+			break;
+		case "green":
+			swtColor = display.getSystemColor(SWT.COLOR_GREEN);
+			break;
+		case "yellow":
+			swtColor = display.getSystemColor(SWT.COLOR_YELLOW);
+			break;
+		case "blue":
+			swtColor = display.getSystemColor(SWT.COLOR_BLUE);
+			break;
+		case "magenta":
+			swtColor = display.getSystemColor(SWT.COLOR_MAGENTA);
+			break;
+		case "cyan":
+			swtColor = display.getSystemColor(SWT.COLOR_CYAN);
+			break;
+		}
+		return swtColor;
+	}
+	public Display getDisplay() {
+		return display;
+	}
+	public void setDisplay(Display display) {
+		this.display = display;
+	}
+
 	/*
 	public Object xmlFileToObject(String xmlFileName) { 
 

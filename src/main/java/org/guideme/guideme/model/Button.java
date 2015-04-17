@@ -15,9 +15,20 @@ public class Button
 	private String jScript;
 	private String image;
 	private String hotKey;
+	private String fontName;
+	private String fontHeight;
+	private org.eclipse.swt.graphics.Color bgColor1;
+	private org.eclipse.swt.graphics.Color bgColor2;
+	private org.eclipse.swt.graphics.Color fontColor;
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 
 	public Button(String target, String text, String ifSet, String ifNotSet, String set, String unSet, String jScript, String image, String hotKey)
+	{
+		this(target, text, ifSet, ifNotSet, set, unSet, jScript, image, hotKey, "", "", "", "", "");
+	}
+
+	
+	public Button(String target, String text, String ifSet, String ifNotSet, String set, String unSet, String jScript, String image, String hotKey, String fontName, String fontHeight, String fontColor, String bgColor1, String bgColor2)
 	{
 		this.target = target;
 		this.text = text;
@@ -28,8 +39,27 @@ public class Button
 		this.jScript = jScript;
 		this.image = image;
 		this.hotKey = hotKey;
+		this.fontName = fontName;
+		this.fontHeight = fontHeight;
+		if (bgColor1 == "") {
+			this.bgColor1 = comonFunctions.getColor("white");
+		} else {
+			this.bgColor1 = comonFunctions.getColor(bgColor1);
+		}
+		if (bgColor2 == "") {
+			this.bgColor2 = this.bgColor1;
+		} else {
+			this.bgColor2 = comonFunctions.getColor(bgColor2);
+		}
+		if (fontColor == "") {
+			this.fontColor = comonFunctions.getColor("black");
+		} else {
+			this.fontColor = comonFunctions.getColor(fontColor);
+		}
 	}
 
+	
+	
 	public void setUnSet(ArrayList<String> setList)
 	{
 		comonFunctions.SetFlags(this.set, setList);
@@ -80,5 +110,56 @@ public class Button
 	public String getIfNotSet() {
 		return ifNotSet;
 	}
+
+
+	public String getFontName() {
+		return fontName;
+	}
+
+
+	public void setFontName(String fontName) {
+		this.fontName = fontName;
+	}
+
+
+	public String getFontHeight() {
+		return fontHeight;
+	}
+
+
+	public void setFontHeight(String fontHeight) {
+		this.fontHeight = fontHeight;
+	}
+
+
+	public org.eclipse.swt.graphics.Color getbgColor1() {
+		return bgColor1;
+	}
+
+
+	public void setbgColor1(String bgColor1) {
+		this.bgColor1 = comonFunctions.getColor(bgColor1);
+	}
+
+
+	public org.eclipse.swt.graphics.Color getbgColor2() {
+		return bgColor2;
+	}
+
+
+	public void setbgColor2(String bgColor2) {
+		this.bgColor2 = comonFunctions.getColor(bgColor2);
+	}
+
+
+	public org.eclipse.swt.graphics.Color getfontColor() {
+		return fontColor;
+	}
+
+
+	public void setfontColor(String fontColor) {
+		this.fontColor = comonFunctions.getColor(fontColor);
+	}
+
 
 }
