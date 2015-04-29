@@ -104,8 +104,12 @@ public class PreferenceShell {
 			//Button Font Size
 			AddTextField(grpApp, "Button Font Size", appWidgets.get("AppTimerFontSizeNumCtrl"), appWidgets.get("AppTimerFontSizeNumCtrl"), String.valueOf(myAppSettings.getButtonFontSize()), "AppButtonFontSize", true);
 
+			//Image Scale
+			AddTextField(grpApp, "Maximum Image scaling % (0 unlimited)", appWidgets.get("AppButtonFontSizeNumCtrl"), appWidgets.get("AppButtonFontSizeNumCtrl"), String.valueOf(myAppSettings.getMaxImageScale()), "AppImageScale", true);
+			mainMonitor = myAppSettings.getMainMonitor();
+
 			//Debug
-			AddBooleanField(grpApp, "Debug", appWidgets.get("AppButtonFontSizeNumCtrl"), appWidgets.get("AppButtonFontSizeNumCtrl"), myAppSettings.getDebug(), "AppDebug");			
+			AddBooleanField(grpApp, "Debug", appWidgets.get("AppImageScaleNumCtrl"), appWidgets.get("AppImageScaleNumCtrl"), myAppSettings.getDebug(), "AppDebug");			
 
 			//Video
 			AddBooleanField(grpApp, "Video", appWidgets.get("AppDebugBlnCtrl"), appWidgets.get("AppDebugBlnCtrl"), myAppSettings.getVideoOn(), "AppVideo");			
@@ -134,12 +138,15 @@ public class PreferenceShell {
 			//To Clipboard (used for TTS)
 			AddBooleanField(grpApp, "Copy text to clipboard (used with a TTS Reader)", appWidgets.get("AppPageSoundBlnCtrl"), appWidgets.get("AppPageSoundBlnCtrl"), myAppSettings.isToclipboard(), "AppToClipboard");			
 
+			//Auto Hide Menu
+			AddBooleanField(grpApp, "Auto hide the menu", appWidgets.get("AppToClipboardBlnCtrl"), appWidgets.get("AppToClipboardBlnCtrl"), myAppSettings.isHideMenu(), "AppHideMenu");			
+
 			//Data Directory
 			//AddTextField(grpApp, "Data Directory", appWidgets.get("AppPageSoundBlnCtrl"), appWidgets.get("AppPageSoundBlnCtrl"), myAppSettings.getDataDirectory(), "AppDataDir", false);
 
 			//midiInstrument
 			//AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppDataDirCtrl"), appWidgets.get("AppDataDirCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
-			AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppToClipboardBlnCtrl"), appWidgets.get("AppToClipboardBlnCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
+			AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppHideMenuBlnCtrl"), appWidgets.get("AppHideMenuBlnCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
 
 			//midiVolume
 			AddTextField(grpApp, "Midi Volume (0 - 127)", appWidgets.get("AppMidiInstrumentNumCtrl"), appWidgets.get("AppMidiInstrumentNumCtrl"), String.valueOf(myAppSettings.getMidiVolume()), "AppMidiVolume", true);
@@ -290,6 +297,9 @@ public class PreferenceShell {
 				txtTmp = (Text) appWidgets.get("AppButtonFontSizeNumCtrl");
 				myAppSettings.setButtonFontSize(Integer.parseInt(txtTmp.getText()));
 
+				txtTmp = (Text) appWidgets.get("AppImageScaleNumCtrl");
+				myAppSettings.setMaxImageScale(Integer.parseInt(txtTmp.getText()));
+				
 				btnTmp = (Button) appWidgets.get("AppDebugBlnCtrl");
 				myAppSettings.setDebug(btnTmp.getSelection());
 				
@@ -325,6 +335,9 @@ public class PreferenceShell {
 				
 				btnTmp = (Button) appWidgets.get("AppToClipboardBlnCtrl");
 				myAppSettings.setToclipboard(btnTmp.getSelection());
+				
+				btnTmp = (Button) appWidgets.get("AppHideMenuBlnCtrl");
+				myAppSettings.setHideMenu(btnTmp.getSelection());
 				
 				//txtTmp = (Text) appWidgets.get("AppDataDirCtrl");
 				//myAppSettings.setDataDirectory((txtTmp.getText()));

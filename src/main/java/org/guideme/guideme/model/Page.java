@@ -6,6 +6,7 @@ import org.guideme.guideme.settings.ComonFunctions;
 
 public class Page {
 	private String text = ""; //HTML to display
+	private String leftText = ""; //HTML to display in the left pane instead of an image
 	private String id; //Page Name
 	private ArrayList<Button> button = new ArrayList<Button>();
 	private ArrayList<Delay> delay = new ArrayList<Delay>(); 
@@ -22,6 +23,14 @@ public class Page {
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	
 	
+	public String getLeftText() {
+		return leftText;
+	}
+
+	public void setLeftText(String leftText) {
+		this.leftText = leftText;
+	}
+
 	public Page(String id) {
 		this.id = id;
 	}

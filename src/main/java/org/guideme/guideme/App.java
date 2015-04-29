@@ -29,6 +29,9 @@ public class App
 	public static void main(String[] args)
 	{
 		try {
+			
+			System.setProperty("org.eclipse.swt.browser.IEVersion", "11000");
+			
 			logger.trace("Enter main");
 			//Sleak will help diagnose SWT memory leaks
 			//if you set this to true you will get an additional window
@@ -36,6 +39,12 @@ public class App
 			boolean loadSleak = false;
 
 			AppSettings appSettings = AppSettings.getAppSettings();
+			
+			if (args.length > 1) {
+				appSettings.setDataDirectory(args[0]);
+				appSettings.setComandLineGuide(args[1]);
+			}
+			
 			Display display;
 			//user debug setting
 			if (appSettings.getDebug()) {

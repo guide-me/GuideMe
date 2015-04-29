@@ -141,6 +141,8 @@ public class MainShell {
 	private Boolean showMenu = true;
 	private Menu MenuBar;
 	private ArrayList<Timer> timer = new ArrayList<Timer>();
+	private Rectangle clientArea;
+	private Rectangle clientArea2;
 
 	public Shell createShell(final Display display) {
 		logger.trace("Enter createShell");
@@ -210,7 +212,7 @@ public class MainShell {
 			myDisplay.addFilter(SWT.MouseMove, mouseListen);
 			int mainMonitor = appSettings.getMainMonitor();
 			
-			Rectangle clientArea2 = null;
+			clientArea2 = null;
 			multiMonitor = appSettings.isMultiMonitor();
 			Monitor monitors[] = display.getMonitors();
 			if (multiMonitor) {
@@ -242,7 +244,7 @@ public class MainShell {
 			shell3 = debugShell.createShell(myDisplay, this);
 			
 			//get primary monitor and its size
-			Rectangle clientArea = monitors[0].getClientArea();
+			clientArea = monitors[0].getClientArea();
 			if (mainMonitor == 1) {
 				if (appSettings.isFullScreen()) {
 					clientArea = monitors[0].getBounds();
@@ -539,6 +541,9 @@ public class MainShell {
 		}
 		logger.trace("Exit createShell");
 		mainShell = this;
+		if (!appSettings.getComandLineGuide().equals("")) {
+			loadGuide(appSettings.getDataDirectory() + appSettings.getComandLineGuide());
+		}
 		mainShell.displayPage(guideSettings.getCurrPage());
 		return shell;
 	}
@@ -547,36 +552,62 @@ public class MainShell {
 
 		@Override
 		public void handleEvent(Event e) {
-		    if (e.widget instanceof Control) {
-		        Point absolutePos = ((Control) e.widget).toDisplay(e.x, e.y);
-				//String coord;
-	        	if (absolutePos.y <= 100 && !showMenu) {
-	        		if (!shell.isDisposed()) {
-	        			shell.setMenuBar(MenuBar);
-	        			shell.pack();
-	        		}
-	        		if (multiMonitor) {
-	        			if (!shell2.isDisposed()) {
-	        				shell2.pack();
-	        			}
-	        		}
-	        		showMenu = true;
-	        	} else if (absolutePos.y > 100 && showMenu) {
-	        		if (!shell.isDisposed()) {
-	        			shell.setMenuBar(null);
-	        			shell.pack();
-	        		}
-	        		if (multiMonitor) {
-	        			if (!shell2.isDisposed()) {
-	        				shell2.pack();
-	        			}
-	        		}
-	        		showMenu = false;
-	        	}
-				//coord = "show " + showMenu.toString() + " "  + absolutePos.x + " , " + absolutePos.y;
-				//mainShell.setLblRight(coord);
-		    }
-		}		
+			if (appSettings.isHideMenu()) {
+				if (e.widget instanceof Control) {
+					Point absolutePos = ((Control) e.widget).toDisplay(e.x, e.y);
+					//String coord;
+					if (absolutePos.y <= 100 && !showMenu) {
+						if (!shell.isDisposed()) {
+							shell.setMenuBar(MenuBar);
+							shell.pack();
+							shell.setMaximized(true);
+							shell.setBounds(clientArea);
+						}
+						if (multiMonitor) {
+							if (!shell2.isDisposed()) {
+								shell2.pack();
+								shell2.setMaximized(true);
+								shell2.setBounds(clientArea2);
+							}
+						}
+						showMenu = true;
+					} else if (absolutePos.y > 100 && showMenu) {
+						if (!shell.isDisposed()) {
+							shell.setMenuBar(null);
+							shell.pack();
+							shell.setMaximized(true);
+							shell.setBounds(clientArea);
+						}
+						if (multiMonitor) {
+							if (!shell2.isDisposed()) {
+								shell2.pack();
+								shell2.setMaximized(true);
+								shell2.setBounds(clientArea2);	        			}
+						}
+						showMenu = false;
+					}
+					//coord = "show " + showMenu.toString() + " "  + absolutePos.x + " , " + absolutePos.y;
+					//mainShell.setLblRight(coord);
+				}
+			} else {
+				if (!showMenu) {
+					if (!shell.isDisposed()) {
+						shell.setMenuBar(MenuBar);
+						shell.pack();
+						shell.setMaximized(true);
+						shell.setBounds(clientArea);
+					}
+					if (multiMonitor) {
+						if (!shell2.isDisposed()) {
+							shell2.pack();
+							shell2.setMaximized(true);
+							shell2.setBounds(clientArea2);
+						}
+					}
+					showMenu = true;
+				}
+			}
+		} 
 
 	}
 	
@@ -776,16 +807,7 @@ public class MainShell {
 							appSettings.setDataDirectory(strGuidePath);
 							//load the file it will return the start page and populate the guide object
 							//TODO Need to change this here to implement the new html format
-							debugShell.clearPagesCombo();
-							String strPage = xmlGuideReader.loadXML(strFileToLoad, guide, appSettings, debugShell);
-							guideSettings = guide.getSettings();
-							if (guide.getCss().equals("")) {
-								style = defaultStyle;
-							} else {
-								style = guide.getCss();
-							}
-							//display the first page
-							mainLogic.displayPage(strPage , false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
+							loadGuide(strFileToLoad);
 						}
 					}
 					catch (Exception ex5) {
@@ -803,6 +825,21 @@ public class MainShell {
 			super.widgetSelected(e);
 		}
 
+	}
+
+	
+	//Load the tease
+	private void loadGuide(String fileToLoad) {
+		debugShell.clearPagesCombo();
+		String strPage = xmlGuideReader.loadXML(fileToLoad, guide, appSettings, debugShell);
+		guideSettings = guide.getSettings();
+		if (guide.getCss().equals("")) {
+			style = defaultStyle;
+		} else {
+			style = guide.getCss();
+		}
+		//display the first page
+		mainLogic.displayPage(strPage , false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
 	}
 
 	// Restart 
@@ -1153,14 +1190,17 @@ public class MainShell {
 			logger.trace("Image Height: " + imgData.height);
 			logger.trace("Image Width: " + imgData.width);
 			
-			if (((RectImage.height / 2) >  imgData.height) || ((RectImage.width / 2) >  imgData.width)) {
+			int maxheight = (int) (imgData.height * ( (double) (appSettings.getMaxImageScale() / 100)));
+			int maxwidth = (int) (imgData.width * ((double) appSettings.getMaxImageScale() / 100));
+			
+			if ((RectImage.height >  maxheight) || (RectImage.width >  maxwidth)) {
 				if (dblScreenRatio > dblImageRatio) {
-					newHeight = (int) (((double) (imgData.width * 2) * dblImageRatio) * imgOffSet);
-					newWidth = (int) ((double) (imgData.width * 2) * imgOffSet);
+					newHeight = (int) (((double) (maxwidth) * dblImageRatio) * imgOffSet);
+					newWidth = (int) ((double) (maxwidth) * imgOffSet);
 					logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
 				} else {
-					newHeight = (int) ((double) (imgData.height * 2) * imgOffSet);
-					newWidth = (int) (((double) (imgData.height * 2) / dblImageRatio) * imgOffSet);
+					newHeight = (int) ((double) (maxheight) * imgOffSet);
+					newWidth = (int) (((double) (maxheight) / dblImageRatio) * imgOffSet);
 					logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
 				}
 			} else {
@@ -1214,6 +1254,10 @@ public class MainShell {
 		mediaPanel.setVisible(false);
 		this.imageLabel.setVisible(true);
 		leftFrame.layout(true);
+	}
+
+	public String getStyle() {
+		return style;
 	}
 
 	public void setImageHtml(String leftHtml) {
@@ -1340,6 +1384,33 @@ public class MainShell {
 			logger.error("displayPage Text Exception " + e1.getLocalizedMessage(), e1);
 			strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + overRideStyle +  "</style></head><body></body></html>";
 			this.brwsText.setText(strHTML);
+		}
+	}
+
+	public void setLeftText(String brwsText, String overRideStyle) {
+		//set HTML to be displayed in the browser control to the left of the screen
+		if (overRideStyle.equals("")) {
+			overRideStyle = style;
+		}
+		String strHTML;
+		try {
+			strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + overRideStyle +  "</style></head><body>" + brwsText + "</body></html>";
+			this.imageLabel.setText(strHTML);
+			if (appSettings.isToclipboard()) {
+				try {
+					//copy text to clip board for use in TTS
+					String htmlString = brwsText.replaceAll("\\<.*?\\>", " ");
+				    StringSelection stringSelection = new StringSelection(htmlString);
+				    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+				    clipboard.setContents(stringSelection, stringSelection);
+				} catch (Exception e2) {
+					logger.error("copy to clip board " + e2.getLocalizedMessage(), e2);		
+				}
+			}
+		} catch (Exception e1) {
+			logger.error("displayPage Text Exception " + e1.getLocalizedMessage(), e1);
+			strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + overRideStyle +  "</style></head><body></body></html>";
+			this.imageLabel.setText(strHTML);
 		}
 	}
 

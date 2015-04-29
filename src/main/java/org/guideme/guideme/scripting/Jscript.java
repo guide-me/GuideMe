@@ -29,7 +29,6 @@ public class Jscript {
 	private static Logger logger = LogManager.getLogger();
 	private static final Marker JSCRIPT_MARKER = MarkerManager.getMarker("JSCRIPT");
 	private static Boolean inPrefGuide;
-	private static MainShell mainShell;
 
 	public Jscript(Guide Iguide, UserSettings IuserSettings, AppSettings IappSettings, Boolean IinPrefGuide, MainShell ImainShell) {
 		super();
@@ -38,7 +37,7 @@ public class Jscript {
 		userSettings = IuserSettings;
 		appSettings = IappSettings;
 		inPrefGuide = IinPrefGuide;
-		mainShell = ImainShell;
+		guide.setMainshell(ImainShell);
 	}
 
 
@@ -79,14 +78,15 @@ public class Jscript {
 			cArg[0] = String.class;
 			java.lang.reflect.Method tjlog = Jscript.class.getMethod("jscriptLog", cArg);
 			FunctionObject jlog = new FunctionObject("jscriptLog", tjlog, scope);
+			//Deprecated should use guide now
 			ScriptableObject.putProperty(scope, "guideSettings", guideSettings);
+			//Deprecated should use guide now
 			ScriptableObject.putProperty(scope, "comonFunctions", comonFunctions);
 			ScriptableObject.putProperty(scope, "scriptVars", scriptVars);
 			ScriptableObject.putProperty(scope, "guide", guide);
 			ScriptableObject.putProperty(scope, "mediaDir", appSettings.getDataDirectory());
 			ScriptableObject.putProperty(scope, "fileSeparator", java.lang.System.getProperty("file.separator"));
 			ScriptableObject.putProperty(scope, "jscriptLog", jlog);
-			ScriptableObject.putProperty(scope, "mainShell", mainShell);
 			logger.info(JSCRIPT_MARKER, "Starting ScriptVariables: " + scriptVars);
 			logger.info(JSCRIPT_MARKER, "Starting Flags {" + guideSettings.getFlags() + "}");
 			

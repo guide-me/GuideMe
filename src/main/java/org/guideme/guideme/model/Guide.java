@@ -10,7 +10,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.guideme.guideme.MainLogic;
 import org.guideme.guideme.settings.AppSettings;
+import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
+import org.guideme.guideme.ui.MainShell;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
@@ -43,6 +45,8 @@ public class Guide {
 	private Boolean inPrefGuide;
 	private Scriptable scope;
 	private static Logger logger = LogManager.getLogger();
+	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
+	private MainShell mainshell;
 
 	private Guide() {
 		ContextFactory cntxFact = new ContextFactory();
@@ -86,12 +90,15 @@ public class Guide {
 		return guide;
 	}
 	
+	@Override
 	public Object clone() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}
 
-	
-	
+	public void setMainshell(MainShell mainshell) {
+		this.mainshell = mainshell;
+	}
+
 	public String getTitle() {
 		return title;
 	}
@@ -165,6 +172,11 @@ public class Guide {
 		this.chapters = chapters;
 	}
 	
+	/**
+	 * Returns the media directory for the guide
+	 * 
+	 * @return Media Directory
+	 */
 	public String getMediaDirectory() {
 		return mediaDirectory;
 	}
@@ -317,4 +329,286 @@ public class Guide {
 		return scope;
 	}
 
+	// Guide Setting Wrapper FOR JSCRIPT
+	
+	
+	/**
+	 * Gets a text guide preference  
+	 * 
+	 * @param key Name of the preference
+	 * @return value (Text)
+	 */
+	public String getPref(String key) {
+		return settings.getPref(key);
+	}
+	
+	/**
+	 * Sets an existing text guide preference
+	 * 
+	 * @param key Name of the preference
+	 * @return value new value (Text)
+	 */
+	public void setPref(String key, String value) {
+		settings.setPref(key, value);
+	}
+	
+	/**
+	 * Adds a new text guide preference
+	 * 
+	 * @param key Name of the preference
+	 * @param value Default value (Text) 
+	 * @param screenDesc Text displayed on the screen
+	 */
+	public void addPref(String key, String value, String screenDesc) {
+		settings.addPref(key, value, screenDesc);
+	}
+	
+	/**
+	 * Gets a true / false guide preference  
+	 * 
+	 * @param key Name of the preference
+	 * @return value (true / false)
+	 */
+	public Boolean isPref(String key) {
+		return settings.isPref(key);
+	}
+	
+	/**
+	 * Sets an existing true / false guide preference
+	 * 
+	 * @param key Name of the preference
+	 * @return value new value (true / false)
+	 */
+	public void setPref(String key, Boolean value) {
+		settings.setPref(key, value);
+	}
+	
+	/**
+	 * Adds a new true / false guide preference
+	 * 
+	 * @param key Name of the preference
+	 * @param value Default value (true / false) 
+	 * @param screenDesc Text displayed on the screen
+	 */
+	public void addPref(String key, Boolean value, String screenDesc) {
+		settings.addPref(key, value, screenDesc);
+	}
+	
+	/**
+	 * Gets a numeric guide preference  
+	 * 
+	 * @param key Name of the preference
+	 * @return value (Number)
+	 */
+	public Double getPrefNumber(String key) {
+		return settings.getPrefNumber(key);
+	}
+	
+	/**
+	 * Sets an existing numeric guide preference
+	 * 
+	 * @param key Name of the preference
+	 * @return value new value (Number)
+	 */
+	public void setPref(String key, Double value) {
+		settings.setPref(key, value);
+	}
+	
+	/**
+	 * Adds a new numeric guide preference
+	 * 
+	 * @param key Name of the preference
+	 * @param value Default value (Number) 
+	 * @param screenDesc Text displayed on the screen
+	 */
+	public void addPref(String key, Double value, String screenDesc) {
+		settings.addPref(key, value, screenDesc);
+	}
+	
+	/**
+	 * Gets the value of an html form field from either the left or right pane
+	 * 
+	 * @param key Name of the html input field in the form
+	 * @return value entered in the field
+	 */
+	public String getFormField(String key) {
+		return settings.getFormField(key);
+	}
+	
+	/**
+	 * Returns the current page name
+	 * 
+	 * @return The name of the current page
+	 */
+	public String getCurrPage() {
+		return settings.getCurrPage();
+	}
+	
+	/**
+	 * Returns the previous page name
+	 * 
+	 * @return Then name of the page you just came from
+	 */
+	public String getPrevPage() {
+		return settings.getPrevPage();
+	}
+	
+	// comonFunctions wrapper for javascript
+	/**
+	 * @param IifSet
+	 * @param IifNotSet
+	 * @return
+	 */
+	public boolean canShow(String IifSet, String IifNotSet) {
+		return comonFunctions.canShow(flags, IifSet, IifNotSet);
+	}
+	
+	/**
+	 * @param flagNames
+	 */
+	public void setFlags(String flagNames) {
+		comonFunctions.SetFlags(flagNames, flags);
+	}
+	
+	/**
+	 * @param flagNames
+	 */
+	public void unsetFlags(String flagNames) {
+		comonFunctions.UnsetFlags(flagNames, flags);
+	}
+	
+	/**
+	 * @param flagNames
+	 * @return
+	 */
+	public boolean isSet(String flagNames) {
+		return comonFunctions.isSet(flagNames, flags);
+	}
+	
+	/**
+	 * @param flagNames
+	 * @return
+	 */
+	public boolean isNotSet(String flagNames) {
+		return comonFunctions.isNotSet(flagNames, flags);
+	}
+	
+	/**
+	 * @param type
+	 * @param jsdate1
+	 * @param jsdate2
+	 * @return
+	 */
+	public long dateDifference(String type, Object jsdate1, Object jsdate2) {
+		return comonFunctions.dateDifference(type, jsdate1, jsdate2);
+	}
+	
+	/**
+	 * @param random
+	 * @return
+	 */
+	public int getRandom(String random) {
+		return comonFunctions.getRandom(random);
+	}
+
+	/**
+	 * @param iTime
+	 * @return
+	 */
+	public int getMilisecFromTime(String iTime) {
+		return comonFunctions.getMilisecFromTime(iTime);
+	}
+	
+	/**
+	 * @return
+	 */
+	public String getVersion() {
+		return ComonFunctions.getVersion();
+	}
+	
+	/**
+	 * @param FolderName
+	 * @return
+	 */
+	public String listFiles(String FolderName) {
+		return comonFunctions.ListFiles(FolderName);
+	}
+
+	/**
+	 * @param FolderName
+	 * @return
+	 */
+	public String listSubFolders(String FolderName) {
+		return comonFunctions.ListSubFolders(FolderName);
+	}
+
+	/**
+	 * @param wildcard
+	 * @param strSubDir
+	 * @return
+	 */
+	public String getRandomFile(String wildcard, String strSubDir) {
+		return comonFunctions.GetRandomFile(wildcard, strSubDir);
+	}
+
+	/**
+	 * @param fileName
+	 * @return
+	 */
+	public Boolean fileExists(String fileName) {
+		return comonFunctions.fileExists(fileName);
+	}
+	
+	/**
+	 * @param fileName
+	 * @return
+	 */
+	public Boolean directoryExists(String fileName) {
+		return comonFunctions.directoryExists(fileName);
+	}
+
+	/* main shell functions to update screen directly from javascript */
+	
+	/**
+	 * @param lblLeft
+	 */
+	public void setClockText(String lblLeft) {
+		mainshell.setLblLeft(lblLeft);
+	}
+	
+	/**
+	 * @param lblCentre
+	 */
+	public void setTitleText(String lblCentre) {
+		mainshell.setLblCentre(lblCentre);
+	}
+	
+	/**
+	 * @param lblRight
+	 */
+	public void setTimerText(String lblRight) {
+		mainshell.setLblRight(lblRight);
+	}
+	
+	/**
+	 * @param leftHtml
+	 */
+	public void setLeftHtml(String leftBody, String overRideStyle) {
+		mainshell.setLeftText(leftBody, overRideStyle);
+	}
+	
+	/**
+	 * 
+	 */
+	public void clearImage() {
+		mainshell.clearImage();
+	}
+	
+	/**
+	 * @param brwsText
+	 * @param overRideStyle
+	 */
+	public void setRightHtml(String brwsText, String overRideStyle) {
+		mainshell.setBrwsText(brwsText, overRideStyle);
+	}
 }

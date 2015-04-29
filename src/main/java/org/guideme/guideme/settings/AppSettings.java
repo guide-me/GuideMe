@@ -19,10 +19,12 @@ public class AppSettings {
 	private int musicVolume = 400;
 	private int videoVolume = 400;
 	private int mainMonitor = 1;
+	private int maxImageScale = 0;
 	
 	
 	private boolean Debug = false;
 	private boolean video = false;
+	private boolean hideMenu = false;
 	private String DataDirectory;
 	private int[] sash1Weights = new int[2];
 	private int[] sash2Weights = new int[3];
@@ -40,6 +42,7 @@ public class AppSettings {
 	private boolean monitorChanging = false;
 	private boolean clock = true;
 	private boolean metronome = true;
+	private String ComandLineGuide = "";
 
 	public static synchronized AppSettings getAppSettings() {
 		if (appSettings == null) {
@@ -97,6 +100,7 @@ public class AppSettings {
 				sash2Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights0", "150"));
 				sash2Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights1", "700"));
 				sash2Weights[2] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights2", "150"));
+				maxImageScale = Integer.parseInt(appSettingsProperties.getProperty("maxImageScale", "0"));
 			}
 			catch (Exception ex) {
 				logger.error(ex.getLocalizedMessage(), ex);
@@ -171,6 +175,7 @@ public class AppSettings {
 			appSettingsProperties.setProperty("sash2Weights1", String.valueOf(sash2Weights[1]));
 			appSettingsProperties.setProperty("sash2Weights2", String.valueOf(sash2Weights[2]));
 			appSettingsProperties.storeToXML(new FileOutputStream(settingsLocation), null);
+			appSettingsProperties.setProperty("maxImageScale", String.valueOf(maxImageScale));
 		}
 		catch (Exception e) {
 			logger.error(e.getLocalizedMessage(), e);
@@ -319,6 +324,30 @@ public class AppSettings {
 
 	public void setMetronome(boolean metronome) {
 		this.metronome = metronome;
+	}
+
+	public int getMaxImageScale() {
+		return maxImageScale;
+	}
+
+	public void setMaxImageScale(int maxImageScale) {
+		this.maxImageScale = maxImageScale;
+	}
+
+	public String getComandLineGuide() {
+		return ComandLineGuide;
+	}
+
+	public void setComandLineGuide(String ComandLineGuide) {
+		this.ComandLineGuide = ComandLineGuide;
+	}
+
+	public boolean isHideMenu() {
+		return hideMenu;
+	}
+
+	public void setHideMenu(boolean hideMenu) {
+		this.hideMenu = hideMenu;
 	}
 
 }

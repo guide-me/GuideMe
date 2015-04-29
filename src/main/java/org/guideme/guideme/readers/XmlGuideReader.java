@@ -50,7 +50,7 @@ public class XmlGuideReader {
 
 	private enum TagName
 	{
-		pref, Title, Author, MediaDirectory, Settings, Page, Metronome, Image, Audio, Video, Delay, Timer, Button, Text, javascript, GlobalJavascript, CSS, Include, NOVALUE;
+		pref, Title, Author, MediaDirectory, Settings, Page, Metronome, Image, Audio, Video, Delay, Timer, Button, LeftText, Text, javascript, GlobalJavascript, CSS, Include, NOVALUE;
 
 		public static TagName toTag(String str)
 		{
@@ -269,7 +269,12 @@ public class XmlGuideReader {
 							//reader.next();
 							String BtnText = "";
 							if (reader.getName().getLocalPart().equals("Button")) {
-								BtnText = processText(reader, "Button");
+								try {
+									BtnText = processText(reader, "Button");
+								}
+								catch (Exception ex) {
+									logger.error("loadXML " + PresName + " Button Exception Text " + ex.getLocalizedMessage(), ex);
+								}
 							}
 							//if (reader.getEventType() == XMLStreamConstants.CHARACTERS) {
 							//	BtnText = reader.getText();
@@ -458,6 +463,17 @@ public class XmlGuideReader {
 							logger.error("loadXML " + PresName + " Text Exception " + e1.getLocalizedMessage(), e1);
 						}
 						break;
+					case LeftText:
+						try {
+							if (reader.getName().getLocalPart().equals("LeftText")) {
+								String text = processText(reader, "LeftText");
+								page.setLeftText(text);
+								logger.trace("loadXML " + PresName + " Left Text " + text);
+							}
+						} catch (Exception e1) {
+							logger.error("loadXML " + PresName + " Left Text Exception " + e1.getLocalizedMessage(), e1);
+						}
+						break;
 					case Video:
 						try {
 							String strId;
@@ -616,6 +632,7 @@ public class XmlGuideReader {
 		String text = "";
 		ArrayList<String> tag = new ArrayList<String>();
 		boolean emptyTagTest = false;
+		boolean finished = false;
 		int tagCount = -1;
 		int eventType2 = reader.next();
 		while (true) {
@@ -637,13 +654,17 @@ public class XmlGuideReader {
 				}
 				break;
 			case XMLStreamConstants.END_ELEMENT:
-				if (emptyTagTest) {
-					text = text + "/>";
+				if (reader.getName().getLocalPart().equals(tagName)) {
+					finished = true;
 				} else {
-					text = text + "</"  + tag.get(tagCount) + ">";
+					if (emptyTagTest) {
+						text = text + "/>";
+					} else {
+						text = text + "</"  + tag.get(tagCount) + ">";
+					}
+					tagCount--;
+					emptyTagTest = false;
 				}
-				tagCount--;
-				emptyTagTest = false;
 				break;
 			case XMLStreamConstants.CHARACTERS:
 				if (emptyTagTest) {
@@ -651,6 +672,9 @@ public class XmlGuideReader {
 				}
 				emptyTagTest = false;
 				text = text + reader.getText();
+				break;
+			}
+			if (finished) {
 				break;
 			}
 			eventType2 = reader.next();

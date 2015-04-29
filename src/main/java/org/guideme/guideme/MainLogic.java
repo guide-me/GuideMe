@@ -282,7 +282,7 @@ public class MainLogic {
 						mainShell.addTimer(objTimer);
 					}
 				}
-				if (overRide.getLeftHtml().equals("")) {
+				if (overRide.getLeftHtml().equals("")  && overRide.getLeftBody().equals("")) {
 					// Video
 					blnVideo = false;
 					objVideo = overRide.getVideo();
@@ -381,8 +381,27 @@ public class MainLogic {
 									mainShell.clearImage();
 								}
 							} else {
-								mainShell.clearImage();
-								// No image
+								// Left text
+								//Replace any string pref in the HTML with the user preference
+								//they are encoded #prefName# 
+								try {
+									String displayText = objCurrPage.getLeftText();
+									// Media Directory
+									try {
+										String mediaPath;
+										mediaPath = getMediaFullPath("", fileSeparator, appSettings, guide);
+										displayText = displayText.replace("\\MediaDir\\", mediaPath);
+									} catch (Exception e) {
+										logger.error("displayPage BrwsText Media Directory Exception " + e.getLocalizedMessage(), e);
+									}
+									
+									displayText = substituteTextVars(displayText, guideSettings, userSettings);
+
+									mainShell.setLeftText(displayText, overRide.getRightCss());
+								} catch (Exception e) {
+									logger.error("displayPage BrwsText Exception " + e.getLocalizedMessage(), e);
+									mainShell.setLeftText("", "");
+								}
 							}
 						} else {
 							mainShell.clearImage();
@@ -393,25 +412,50 @@ public class MainLogic {
 						mainShell.clearImage();
 					}
 				} else {
-					String leftHtml = overRide.getLeftHtml();
-					// Media Directory
-					try {
-						String mediaPath;
-						mediaPath = getMediaFullPath("", fileSeparator, appSettings, guide);
-						mediaPath = mediaPath.replace("\\", "/");
-						leftHtml = leftHtml.replace("\\MediaDir\\", mediaPath);
-					} catch (Exception e) {
-						logger.error("displayPage Over ride lefthtml Media Directory Exception " + e.getLocalizedMessage(), e);
-					}
 					
-					// Guide CSS Directory
-					try {
-						leftHtml = leftHtml.replace("\\GuideCSS\\", guide.getCss());
-					} catch (Exception e) {
-						logger.error("displayPage Over ride lefthtml Guide CSS Exception " + e.getLocalizedMessage(), e);
+					if (overRide.getLeftHtml().equals("")) {
+						String leftHtml = overRide.getLeftHtml();
+						// Media Directory
+						try {
+							String mediaPath;
+							mediaPath = getMediaFullPath("", fileSeparator, appSettings, guide);
+							mediaPath = mediaPath.replace("\\", "/");
+							leftHtml = leftHtml.replace("\\MediaDir\\", mediaPath);
+						} catch (Exception e) {
+							logger.error("displayPage Over ride lefthtml Media Directory Exception " + e.getLocalizedMessage(), e);
+						}
+						
+						// Guide CSS Directory
+						try {
+							leftHtml = leftHtml.replace("\\GuideCSS\\", guide.getCss());
+						} catch (Exception e) {
+							logger.error("displayPage Over ride lefthtml Guide CSS Exception " + e.getLocalizedMessage(), e);
+						}
+						
+						mainShell.setImageHtml(leftHtml);
+					} else {
+						// Left text
+						//Replace any string pref in the HTML with the user preference
+						//they are encoded #prefName# 
+						try {
+							String displayText = overRide.getLeftBody();
+							// Media Directory
+							try {
+								String mediaPath;
+								mediaPath = getMediaFullPath("", fileSeparator, appSettings, guide);
+								displayText = displayText.replace("\\MediaDir\\", mediaPath);
+							} catch (Exception e) {
+								logger.error("displayPage BrwsText Media Directory Exception " + e.getLocalizedMessage(), e);
+							}
+							
+							displayText = substituteTextVars(displayText, guideSettings, userSettings);
+
+							mainShell.setLeftText(displayText, overRide.getRightCss());
+						} catch (Exception e) {
+							logger.error("displayPage BrwsText Exception " + e.getLocalizedMessage(), e);
+							mainShell.setLeftText("", "");
+						}
 					}
-					
-					mainShell.setImageHtml(leftHtml);
 				}
 
 
@@ -437,63 +481,6 @@ public class MainLogic {
 					}
 					
 					displayText = substituteTextVars(displayText, guideSettings, userSettings);
-					
-//					// Script Variables
-//					Set<String> set = guideSettings.getScriptVariables().keySet();
-//					String varValue;
-//					for (String s :set) {
-//						try {
-//							Object objVar =guideSettings.getScriptVariables().get(s);
-//							varValue = comonFunctions.getVarAsString(objVar);
-//							if (!varValue.equals("")) {
-//								displayText = displayText.replace("<span>" + s + "</span>", varValue);
-//							}
-//						} catch (Exception e) {
-//							logger.error("displayPage BrwsText ScriptVariables Exception " + s + " " + e.getLocalizedMessage(), e);
-//						}
-//					}
-//
-//					// String Guide Preferences
-//					set = guideSettings.getStringKeys(); 
-//					for (String s : set) {
-//						try {
-//							displayText = displayText.replace("<span>" + s + "</span>", guideSettings.getPref(s));
-//						} catch (Exception e) {
-//							logger.error("displayPage BrwsText String Guide Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
-//						}
-//					}
-//
-//					// Number Guide Preferences
-//					set = guideSettings.getNumberKeys(); 
-//					String numberRet = "";
-//					for (String s : set) {
-//						try {
-//						numberRet = FormatNumPref(guideSettings.getPrefNumber(s));
-//							displayText = displayText.replace("<span>" + s + "</span>", numberRet);
-//						} catch (Exception e) {
-//							logger.error("displayPage BrwsText Number Guide Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
-//						}
-//					}
-//
-//					// String User Preferences
-//					set = userSettings.getStringKeys(); 
-//					for (String s : set) {
-//						try {
-//							displayText = displayText.replace("<span>" + s + "</span>", userSettings.getPref(s));
-//						} catch (Exception e) {
-//							logger.error("displayPage BrwsText String User Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
-//						}
-//					}
-//
-//					// Number User Preferences
-//					set = userSettings.getNumberKeys(); 
-//					for (String s : set) {
-//						try {
-//						displayText = displayText.replace("<span>" + s + "</span>", FormatNumPref(userSettings.getPrefNumber(s)));
-//						} catch (Exception e) {
-//							logger.error("displayPage BrwsText Number User Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
-//						}
-//					}
 
 					mainShell.setBrwsText(displayText, overRide.getRightCss());
 				} catch (Exception e) {

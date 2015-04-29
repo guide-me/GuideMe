@@ -133,6 +133,14 @@ public class ComonFunctions{
     	return icanShow;
 	}
 
+    public boolean isSet(String condition, ArrayList<String> setList) {
+    	return MatchesIfSetCondition(condition, setList);
+    }
+    
+    public boolean isNotSet(String condition, ArrayList<String> setList) {
+    	return MatchesIfNotSetCondition(condition, setList);
+    }
+    
     //checks list of flags to see if they match
 	private boolean MatchesIfSetCondition(String condition, ArrayList<String> setList) {
 		boolean blnReturn = false;

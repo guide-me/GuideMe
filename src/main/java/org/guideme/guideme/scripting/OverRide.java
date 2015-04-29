@@ -18,6 +18,7 @@ public class OverRide {
 	private String html = "";
 	private String page = "";
 	private String leftHtml = "";
+	private String leftBody = "";
 	private String rightCss = "";
 	
 	public void addButton(String target, String text, String set, String unSet, String jScript, String image) {
@@ -47,6 +48,7 @@ public class OverRide {
 		html = "";
 		page = "";
 		leftHtml = "";
+		leftBody = "";
 		rightCss = "";
 	}
 
@@ -120,6 +122,14 @@ public class OverRide {
 
 	public void setRightCss(String rightCss) {
 		this.rightCss = rightCss;
+	}
+
+	public String getLeftBody() {
+		return leftBody;
+	}
+
+	public void setLeftBody(String leftBody) {
+		this.leftBody = leftBody;
 	}
 
 }
