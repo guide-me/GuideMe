@@ -10,7 +10,9 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
@@ -493,34 +495,31 @@ public class MainLogic {
 				mainShell.removeButtons();
 
 				// add new buttons
- 				for (int i1 = objCurrPage.getButtonCount() - 1; i1 >= 0; i1--) {
+				ArrayList<Button> button = new ArrayList<Button>();
+ 				for (int i1 = 0; i1 < objCurrPage.getButtonCount(); i1++) {
+ 					objButton = objCurrPage.getButton(i1);
+					if (objButton.canShow(guide.getFlags())) {
+						button.add(objButton);
+					}
+ 				}
+ 				for (int i1 = 0; i1 < overRide.buttonCount(); i1++) {
+ 					objButton = overRide.getButton(i1);
+					if (objButton.canShow(guide.getFlags())) {
+						button.add(objButton);
+					}
+ 				}
+				Collections.sort(button);
+
+ 				for (int i1 = button.size() - 1; i1 >= 0; i1--) {
 					try {
-						objButton = objCurrPage.getButton(i1);
-						if (objButton.canShow(guide.getFlags())) {
-							String javascriptid = objButton.getjScript();
-							String btnText = objButton.getText();
-							btnText = substituteTextVars(btnText, guideSettings, userSettings);
-							objButton.setText(btnText);
-							mainShell.addButton(objButton, javascriptid);
-						}
+						objButton = button.get(i1);
+						String javascriptid = objButton.getjScript();
+						String btnText = objButton.getText();
+						btnText = substituteTextVars(btnText, guideSettings, userSettings);
+						objButton.setText(btnText);
+						mainShell.addButton(objButton, javascriptid);
 					} catch (Exception e1) {
 						logger.error("displayPage Button Exception " + e1.getLocalizedMessage(), e1);
-					}
-				}
-
-				//add any buttons added by javascript
-				for (int i1 = overRide.buttonCount() - 1; i1 >= 0; i1--) {
-					try {
-						objButton = overRide.getButton(i1);
-						if (objButton.canShow(guide.getFlags())) {
-							String javascriptid = objButton.getjScript();
-							String btnText = objButton.getText();
-							btnText = substituteTextVars(btnText, guideSettings, userSettings);
-							objButton.setText(btnText);
-							mainShell.addButton(objButton, javascriptid);
-						}
-					} catch (Exception e1) {
-						logger.error("displayPage OverRide Exception " + e1.getLocalizedMessage(), e1);
 					}
 				}
 

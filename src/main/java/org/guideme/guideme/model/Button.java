@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import org.guideme.guideme.settings.ComonFunctions;
 
-public class Button
+public class Button  implements Comparable<Button>
 {
 	private String ifSet;
 	private String ifNotSet;
@@ -17,6 +17,7 @@ public class Button
 	private String hotKey;
 	private String fontName;
 	private String fontHeight;
+	private int sortOrder;
 	private org.eclipse.swt.graphics.Color bgColor1;
 	private org.eclipse.swt.graphics.Color bgColor2;
 	private org.eclipse.swt.graphics.Color fontColor;
@@ -24,11 +25,11 @@ public class Button
 
 	public Button(String target, String text, String ifSet, String ifNotSet, String set, String unSet, String jScript, String image, String hotKey)
 	{
-		this(target, text, ifSet, ifNotSet, set, unSet, jScript, image, hotKey, "", "", "", "", "");
+		this(target, text, ifSet, ifNotSet, set, unSet, jScript, image, hotKey, "", "", "", "", "", 1);
 	}
 
 	
-	public Button(String target, String text, String ifSet, String ifNotSet, String set, String unSet, String jScript, String image, String hotKey, String fontName, String fontHeight, String fontColor, String bgColor1, String bgColor2)
+	public Button(String target, String text, String ifSet, String ifNotSet, String set, String unSet, String jScript, String image, String hotKey, String fontName, String fontHeight, String fontColor, String bgColor1, String bgColor2, int sortOrder)
 	{
 		this.target = target;
 		this.text = text;
@@ -41,6 +42,7 @@ public class Button
 		this.hotKey = hotKey;
 		this.fontName = fontName;
 		this.fontHeight = fontHeight;
+		this.sortOrder = sortOrder;
 		if (bgColor1 == "") {
 			this.bgColor1 = comonFunctions.getColor("white");
 		} else {
@@ -159,6 +161,18 @@ public class Button
 
 	public void setfontColor(String fontColor) {
 		this.fontColor = comonFunctions.getColor(fontColor);
+	}
+
+
+	public int getSortOrder() {
+		return sortOrder;
+	}
+
+
+	@Override
+	public int compareTo(Button compareButton) {
+		int compareOrder = compareButton.getSortOrder();
+		return compareOrder-this.sortOrder;
 	}
 
 

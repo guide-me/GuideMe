@@ -30,6 +30,17 @@ public class OverRide {
 		this.button.add(button);
 	}
 
+	public void addButton(String target, String text, String set, String unSet, String jScript, String image, String hotKey, String sortOrder) {
+		int order;
+		try {
+			order = Integer.parseInt(sortOrder);
+		} catch (Exception e) {
+			order = 1;
+		}
+		Button button = new Button(target, text, "", "", set, unSet, jScript, image, hotKey, "", "", "", "", "", order);
+		this.button.add(button);
+	}
+
 	public Button getButton(int i) {
 		return button.get(i);
 	}

@@ -265,6 +265,16 @@ public class XmlGuideReader {
 							String fontColor;
 							fontColor = reader.getAttributeValue(null, "fontColor");
 							if (fontColor == null) fontColor = "";
+							String sort;
+							sort = reader.getAttributeValue(null, "sortOrder");
+							if (sort == null) sort = "1";
+							int sortOrder;
+							try {
+								sortOrder = Integer.parseInt(sort);
+							} catch (Exception ex) {
+								sortOrder = 1;
+							}
+							
 							
 							//reader.next();
 							String BtnText = "";
@@ -281,7 +291,7 @@ public class XmlGuideReader {
 							//} else {
 							//	BtnText = "";
 							//}
-							Button button = new Button(strTarget, BtnText, ifSet, ifNotSet, Set, UnSet, javascript, image, hotKey, fontName, fontHeight, fontColor, bgColor1, bgColor2);
+							Button button = new Button(strTarget, BtnText, ifSet, ifNotSet, Set, UnSet, javascript, image, hotKey, fontName, fontHeight, fontColor, bgColor1, bgColor2, sortOrder);
 							page.addButton(button);
 							logger.trace("loadXML " + PresName + " Button " + strTarget+ "|" + BtnText + "|" + ifSet+ "|" + ifNotSet+ "|" + Set+ "|" + UnSet + "|" + javascript);
 						} catch (Exception e1) {

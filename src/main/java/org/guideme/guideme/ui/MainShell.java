@@ -317,7 +317,7 @@ public class MainShell {
 			style = defaultStyle;
 			String appImage = appSettings.getUserDir() + appSettings.getFileSeparator() + "userSettings" + appSettings.getFileSeparator() + "GuidemeBeta.jpg"; 
 			String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style + "</style></head><body></body></html>";
-			String strHtml2 = "<!DOCTYPE HTML><html><head><meta http-equiv='Content-type' content='text/html;charset=UTF-8' /><title>Guideme - Explore Yourself</title><style type='text/css'> html { overflow-y: auto; } body { color: white; background-color: black; font-family: Tahoma; font-size:16px } html, body, #wrapper { height:100%; width: 100%; margin: 0; padding: 0; border: 0; } #wrapper { vertical-align: middle; text-align: center; } #bannerimg { width: 90%; border-top: 3px solid #cccccc; border-right: 3px solid #cccccc; border-bottom: 3px solid #666666; border-left: 3px solid #666666; }</style></head><body><div id='wrapper' ><div id='bannerimg'><img src='" + appImage + "' /></div><div><h2>Welcome to Guideme!</h2>To get started, click File/Load and select a guide.</div></div></body></html>";
+			String strHtml2 = "<!DOCTYPE HTML><html><head><meta http-equiv='Content-type' content='text/html;charset=UTF-8' /><title>Guideme - Explore Yourself</title><style type='text/css'> html { overflow-y: auto; } body { color: white; background-color: black; font-family: Tahoma; font-size:16px; overflow:hidden } html, body, #wrapper { height:100%; width: 100%; margin: 0; padding: 0; border: 0; } #wrapper { vertical-align: middle; text-align: center; } #bannerimg { width: 90%; border-top: 3px solid #cccccc; border-right: 3px solid #cccccc; border-bottom: 3px solid #666666; border-left: 3px solid #666666; }</style></head><body><div id='wrapper' ><div id='bannerimg'><img src='" + appImage + "' /></div><div><h2>Welcome to Guideme!</h2>To get started, click File/Load and select a guide.</div></div></body></html>";
 			imageLabel = new Browser(leftFrame, 0);
 			imageLabel.setText(strHtml2);
 			imageLabel.setBackground(colourBlack);
@@ -988,7 +988,7 @@ public class MainShell {
 						//String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
 						if (imgPath.endsWith(".gif")) {
 							tmpImagePath = imgPath;
-							strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
+							strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + " body { overflow:hidden } </style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
 						} else {
 							BufferedImage img = null;
 							try {
@@ -1004,7 +1004,7 @@ public class MainShell {
 							newImage.deleteOnExit();
 							tmpImagePath = newImage.getAbsolutePath();
 							ImageIO.write(imagenew, imgType, newImage);			
-							strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" /></td></tr></table></body></html>";
+							strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + " body { overflow:hidden } </style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" /></td></tr></table></body></html>";
 						}
 						me.setText(strHtml, true);
 						//Image tmpImage = me.getImage();
@@ -1218,7 +1218,7 @@ public class MainShell {
 				memImage.dispose();
 				memImage = null;
 				tmpImagePath = imgPath;
-				strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
+				strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + " body { overflow:hidden } " + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
 			} else {
 				BufferedImage img = null;
 				try {
@@ -1243,7 +1243,7 @@ public class MainShell {
 				//if (tmpImage2 != null) {
 				//	tmpImage2.dispose();
 				//}
-				strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" /></td></tr></table></body></html>";
+				strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + " body { overflow:hidden } </style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" /></td></tr></table></body></html>";
 			}
 			imageLabel.setText(strHtml, true);
 			logger.trace("Open: " + imgPath);
