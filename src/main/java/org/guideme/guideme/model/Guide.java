@@ -8,7 +8,6 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.guideme.guideme.MainLogic;
 import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
@@ -301,8 +300,7 @@ public class Guide {
 	public void setCss(String css) {
 		String mediaPath;
 		AppSettings appSettings = AppSettings.getAppSettings();
-		MainLogic mainLogic = MainLogic.getMainLogic();
-		mediaPath = mainLogic.getMediaFullPath("", appSettings.getFileSeparator(), appSettings, guide);
+		mediaPath = comonFunctions.getMediaFullPath("", appSettings.getFileSeparator(), appSettings, guide);
 		mediaPath = mediaPath.replace("\\", "/");
 		//mediaPath = "file:///" + mediaPath;
 		css = css.replace("\\MediaDir\\", mediaPath);

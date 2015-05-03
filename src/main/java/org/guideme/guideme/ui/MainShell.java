@@ -143,6 +143,7 @@ public class MainShell {
 	private ArrayList<Timer> timer = new ArrayList<Timer>();
 	private Rectangle clientArea;
 	private Rectangle clientArea2;
+	private boolean inPrefShell = false;
 
 	public Shell createShell(final Display display) {
 		logger.trace("Enter createShell");
@@ -207,7 +208,6 @@ public class MainShell {
 			logger.trace("key filter");
 			keyListener = new shellKeyEventListener();
 			myDisplay.addFilter(SWT.KeyDown, keyListener);
-			//TODO hide menu
 			mouseListen = new shellMouseMoveListener();
 			myDisplay.addFilter(SWT.MouseMove, mouseListen);
 			int mainMonitor = appSettings.getMainMonitor();
@@ -552,11 +552,11 @@ public class MainShell {
 
 		@Override
 		public void handleEvent(Event e) {
-			if (appSettings.isHideMenu()) {
+			if (appSettings.isHideMenu()  && !inPrefShell) {
 				if (e.widget instanceof Control) {
 					Point absolutePos = ((Control) e.widget).toDisplay(e.x, e.y);
 					//String coord;
-					if (absolutePos.y <= 100 && !showMenu) {
+					if (absolutePos.y <= 40 && !showMenu) {
 						if (!shell.isDisposed()) {
 							shell.setMenuBar(MenuBar);
 							shell.pack();
@@ -912,15 +912,18 @@ public class MainShell {
 			try {
 				logger.trace("Enter FilePreferences");
 				//display a modal shell to change the preferences
+				inPrefShell = true;
 				Shell prefShell = new PreferenceShell().createShell(myDisplay, userSettings, appSettings);
 				prefShell.open();
 				while (!prefShell.isDisposed()) {
 					if (!myDisplay.readAndDispatch())
 						myDisplay.sleep();
 				}
+				inPrefShell = false;
 			}
 			catch (Exception ex) {
 				logger.error(" FilePreferences " + ex.getLocalizedMessage());
+				inPrefShell = false;
 			}
 			super.widgetSelected(e);
 		}
@@ -935,15 +938,18 @@ public class MainShell {
 				logger.trace("Enter FileGuidePreferences");
 				//Display a modal shell for the guide specific preferences
 				guideSettings = guide.getSettings();
+				inPrefShell = true;
 				Shell prefShell = new GuidePreferenceShell().createShell(myDisplay, guideSettings, appSettings);
 				prefShell.open();
 				while (!prefShell.isDisposed()) {
 					if (!myDisplay.readAndDispatch())
 						myDisplay.sleep();
 				}
+				inPrefShell = false;
 			}
 			catch (Exception ex) {
 				logger.error(" FileGuidePreferences " + ex.getLocalizedMessage());
+				inPrefShell = false;
 			}
 			super.widgetSelected(e);
 		}
@@ -975,7 +981,34 @@ public class MainShell {
 						logger.trace("dblImageRatio: " + imageRatio);
 						logger.trace("Lable Height: " + RectImage.height);
 						logger.trace("Lable Width: " + RectImage.width);
-
+						
+						int maxImageScale = (int) imageLabel.getData("maxImageScale");
+						int maxheight = (int) imageLabel.getData("maxheight");
+						int maxwidth = (int) imageLabel.getData("maxwidth");
+						
+						if (((RectImage.height >  maxheight) || (RectImage.width >  maxwidth)) && maxImageScale != 0) {
+							if (dblScreenRatio > imageRatio) {
+								newHeight = (int) (((double) (maxwidth) * imageRatio) * imgOffSet);
+								newWidth = (int) ((double) (maxwidth) * imgOffSet);
+								logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
+							} else {
+								newHeight = (int) ((double) (maxheight) * imgOffSet);
+								newWidth = (int) (((double) (maxheight) / imageRatio) * imgOffSet);
+								logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
+							}
+						} else {
+							if (dblScreenRatio > imageRatio) {
+								newHeight = (int) (((double) RectImage.width * imageRatio) * imgOffSet);
+								newWidth = (int) ((double) RectImage.width * imgOffSet);
+								logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
+							} else {
+								newHeight = (int) ((double) RectImage.height * imgOffSet);
+								newWidth = (int) (((double) RectImage.height / imageRatio) * imgOffSet);
+								logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
+							}
+						}
+						
+						/*
 						if (dblScreenRatio > imageRatio) {
 							newHeight = (int) (((double) RectImage.width * imageRatio) * imgOffSet);
 							newWidth = (int) ((double) RectImage.width * imgOffSet);
@@ -985,6 +1018,7 @@ public class MainShell {
 							newWidth = (int) (((double) RectImage.height / imageRatio) * imgOffSet);
 							logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
 						}
+						*/
 						//String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
 						if (imgPath.endsWith(".gif")) {
 							tmpImagePath = imgPath;
@@ -1072,7 +1106,9 @@ public class MainShell {
 							comonFunctions.SetFlags(guide.getDelaySet(), guide.getFlags());
 							comonFunctions.UnsetFlags(guide.getDelayUnSet(), guide.getFlags());
 							javascript = guide.getDelayjScript();
-							mainShell.runJscript(javascript);
+							if (!javascript.equals("")) {
+								mainShell.runJscript(javascript);
+							}
 							mainLogic.displayPage(guide.getDelTarget(), false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
 						} else {
 							if (guide.getDelStyle().equals("hidden")) {
@@ -1114,8 +1150,44 @@ public class MainShell {
 								//add a year to the timer so we don't trigger it again
 								calTemp.add(Calendar.YEAR, 1);
 								getTimer(i2).setTimerEnd(calTemp);
-								//run the java script
-								mainShell.runJscript(getTimer(i2).getjScript());
+								Timer objTimer = getTimer(i2);
+								comonFunctions.SetFlags(objTimer.getSet(), guide.getFlags());
+								comonFunctions.UnsetFlags(objTimer.getUnSet(), guide.getFlags());
+								String strImage = objTimer.getImageId();
+								if (!strImage.equals("")) {
+									String imgPath = comonFunctions.getMediaFullPath(strImage, appSettings.getFileSeparator(), appSettings, guide);
+									File flImage = new File(imgPath);
+									if (flImage.exists()){
+										try {
+											setImageLabel(imgPath, strImage);
+										} catch (Exception e1) {
+											logger.error("Timer Image Exception " + e1.getLocalizedMessage(), e1);
+										}								
+									}
+								} 
+								String displayText = objTimer.getText();
+								if (!displayText.equals("")) {
+									try {
+										// Media Directory
+										try {
+											String mediaPath;
+											mediaPath = comonFunctions.getMediaFullPath("", appSettings.getFileSeparator(), appSettings, guide);
+											displayText = displayText.replace("\\MediaDir\\", mediaPath);
+										} catch (Exception e) {
+											logger.error("displayPage BrwsText Media Directory Exception " + e.getLocalizedMessage(), e);
+										}
+										
+										displayText = comonFunctions.substituteTextVars(displayText, guideSettings, userSettings);
+	
+										setBrwsText(displayText, "");
+									} catch (Exception e) {
+										logger.error("Timer BrwsText Exception " + e.getLocalizedMessage(), e);
+									}
+								}
+								javascript = objTimer.getjScript();
+								if (!javascript.equals("")) {
+									mainShell.runJscript(javascript);
+								}
 							}
 						}
 					}
@@ -1190,10 +1262,15 @@ public class MainShell {
 			logger.trace("Image Height: " + imgData.height);
 			logger.trace("Image Width: " + imgData.width);
 			
-			int maxheight = (int) (imgData.height * ( (double) (appSettings.getMaxImageScale() / 100)));
-			int maxwidth = (int) (imgData.width * ((double) appSettings.getMaxImageScale() / 100));
+			int maxImageScale = appSettings.getMaxImageScale();
+			int maxheight = (int) (imgData.height * ( (double) (maxImageScale / 100)));
+			int maxwidth = (int) (imgData.width * ((double) (maxImageScale / 100)));
 			
-			if ((RectImage.height >  maxheight) || (RectImage.width >  maxwidth)) {
+			imageLabel.setData("maxImageScale", maxImageScale);
+			imageLabel.setData("maxheight", maxheight);
+			imageLabel.setData("maxwidth", maxwidth);
+			
+			if (((RectImage.height >  maxheight) || (RectImage.width >  maxwidth)) && (maxImageScale != 0)) {
 				if (dblScreenRatio > dblImageRatio) {
 					newHeight = (int) (((double) (maxwidth) * dblImageRatio) * imgOffSet);
 					newWidth = (int) ((double) (maxwidth) * imgOffSet);
@@ -1466,7 +1543,7 @@ public class MainShell {
 			strBtnText = button.getText();
 			strBtnImage = button.getImage();
 			if (!strBtnImage.equals("")){
-				String imgPath = mainLogic.getMediaFullPath(strBtnImage, appSettings.getFileSeparator(), appSettings, guide);
+				String imgPath = comonFunctions.getMediaFullPath(strBtnImage, appSettings.getFileSeparator(), appSettings, guide);
 				File flImage = new File(imgPath);
 				if (flImage.exists()){
 					strBtnImage = imgPath;

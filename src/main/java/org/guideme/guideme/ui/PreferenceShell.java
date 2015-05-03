@@ -106,8 +106,7 @@ public class PreferenceShell {
 
 			//Image Scale
 			AddTextField(grpApp, "Maximum Image scaling % (0 unlimited)", appWidgets.get("AppButtonFontSizeNumCtrl"), appWidgets.get("AppButtonFontSizeNumCtrl"), String.valueOf(myAppSettings.getMaxImageScale()), "AppImageScale", true);
-			mainMonitor = myAppSettings.getMainMonitor();
-
+			
 			//Debug
 			AddBooleanField(grpApp, "Debug", appWidgets.get("AppImageScaleNumCtrl"), appWidgets.get("AppImageScaleNumCtrl"), myAppSettings.getDebug(), "AppDebug");			
 

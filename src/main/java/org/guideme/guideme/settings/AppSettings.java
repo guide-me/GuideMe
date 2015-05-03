@@ -101,6 +101,7 @@ public class AppSettings {
 				sash2Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights1", "700"));
 				sash2Weights[2] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights2", "150"));
 				maxImageScale = Integer.parseInt(appSettingsProperties.getProperty("maxImageScale", "0"));
+				hideMenu = Boolean.parseBoolean(appSettingsProperties.getProperty("hideMenu", "false"));
 			}
 			catch (Exception ex) {
 				logger.error(ex.getLocalizedMessage(), ex);
@@ -176,6 +177,7 @@ public class AppSettings {
 			appSettingsProperties.setProperty("sash2Weights2", String.valueOf(sash2Weights[2]));
 			appSettingsProperties.storeToXML(new FileOutputStream(settingsLocation), null);
 			appSettingsProperties.setProperty("maxImageScale", String.valueOf(maxImageScale));
+			appSettingsProperties.setProperty("hideMenu", String.valueOf(hideMenu));
 		}
 		catch (Exception e) {
 			logger.error(e.getLocalizedMessage(), e);

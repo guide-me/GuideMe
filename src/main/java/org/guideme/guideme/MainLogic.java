@@ -13,7 +13,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -278,10 +277,12 @@ public class MainLogic {
 				if (objCurrPage.getTimerCount() > 0) {
 					for (int i2 = 0; i2 < objCurrPage.getTimerCount(); i2++) {
 						objTimer = objCurrPage.getTimer(i2);
-						Calendar timCountDown = Calendar.getInstance();
-						timCountDown.add(Calendar.SECOND, objTimer.getTimerSec());
-						objTimer.setTimerEnd(timCountDown);
-						mainShell.addTimer(objTimer);
+						if (objTimer.canShow(guide.getFlags())) {
+							Calendar timCountDown = Calendar.getInstance();
+							timCountDown.add(Calendar.SECOND, objTimer.getTimerSec());
+							objTimer.setTimerEnd(timCountDown);
+							mainShell.addTimer(objTimer);
+						}
 					}
 				}
 				if (overRide.getLeftHtml().equals("")  && overRide.getLeftBody().equals("")) {
@@ -329,7 +330,7 @@ public class MainLogic {
 								logger.trace("displayPage stopat Exception " + e1.getLocalizedMessage());
 							}
 
-							imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
+							imgPath = comonFunctions.getMediaFullPath(strImage, fileSeparator, appSettings, guide);
 
 							String loops = objVideo.getRepeat();
 							int repeat = 0;
@@ -352,7 +353,7 @@ public class MainLogic {
 							blnImage = false;
 							strImage = overRide.getImage();
 							if (!strImage.equals("")) {
-								imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
+								imgPath = comonFunctions.getMediaFullPath(strImage, fileSeparator, appSettings, guide);
 								File flImage = new File(imgPath);
 								if (flImage.exists()){
 									blnImage = true;
@@ -364,7 +365,7 @@ public class MainLogic {
 										objImage = objCurrPage.getImage(i2);
 										if (objImage.canShow(guide.getFlags())) {
 											strImage = objImage.getId();
-											imgPath = getMediaFullPath(strImage, fileSeparator, appSettings, guide);
+											imgPath = comonFunctions.getMediaFullPath(strImage, fileSeparator, appSettings, guide);
 											File flImage = new File(imgPath);
 											if (flImage.exists()){
 												blnImage = true;
@@ -391,13 +392,13 @@ public class MainLogic {
 									// Media Directory
 									try {
 										String mediaPath;
-										mediaPath = getMediaFullPath("", fileSeparator, appSettings, guide);
+										mediaPath = comonFunctions.getMediaFullPath("", fileSeparator, appSettings, guide);
 										displayText = displayText.replace("\\MediaDir\\", mediaPath);
 									} catch (Exception e) {
 										logger.error("displayPage BrwsText Media Directory Exception " + e.getLocalizedMessage(), e);
 									}
 									
-									displayText = substituteTextVars(displayText, guideSettings, userSettings);
+									displayText = comonFunctions.substituteTextVars(displayText, guideSettings, userSettings);
 
 									mainShell.setLeftText(displayText, overRide.getRightCss());
 								} catch (Exception e) {
@@ -415,12 +416,12 @@ public class MainLogic {
 					}
 				} else {
 					
-					if (overRide.getLeftHtml().equals("")) {
+					if (!overRide.getLeftHtml().equals("")) {
 						String leftHtml = overRide.getLeftHtml();
 						// Media Directory
 						try {
 							String mediaPath;
-							mediaPath = getMediaFullPath("", fileSeparator, appSettings, guide);
+							mediaPath = comonFunctions.getMediaFullPath("", fileSeparator, appSettings, guide);
 							mediaPath = mediaPath.replace("\\", "/");
 							leftHtml = leftHtml.replace("\\MediaDir\\", mediaPath);
 						} catch (Exception e) {
@@ -444,13 +445,13 @@ public class MainLogic {
 							// Media Directory
 							try {
 								String mediaPath;
-								mediaPath = getMediaFullPath("", fileSeparator, appSettings, guide);
+								mediaPath = comonFunctions.getMediaFullPath("", fileSeparator, appSettings, guide);
 								displayText = displayText.replace("\\MediaDir\\", mediaPath);
 							} catch (Exception e) {
 								logger.error("displayPage BrwsText Media Directory Exception " + e.getLocalizedMessage(), e);
 							}
 							
-							displayText = substituteTextVars(displayText, guideSettings, userSettings);
+							displayText = comonFunctions.substituteTextVars(displayText, guideSettings, userSettings);
 
 							mainShell.setLeftText(displayText, overRide.getRightCss());
 						} catch (Exception e) {
@@ -476,13 +477,13 @@ public class MainLogic {
 					// Media Directory
 					try {
 						String mediaPath;
-						mediaPath = getMediaFullPath("", fileSeparator, appSettings, guide);
+						mediaPath = comonFunctions.getMediaFullPath("", fileSeparator, appSettings, guide);
 						displayText = displayText.replace("\\MediaDir\\", mediaPath);
 					} catch (Exception e) {
 						logger.error("displayPage BrwsText Media Directory Exception " + e.getLocalizedMessage(), e);
 					}
 					
-					displayText = substituteTextVars(displayText, guideSettings, userSettings);
+					displayText = comonFunctions.substituteTextVars(displayText, guideSettings, userSettings);
 
 					mainShell.setBrwsText(displayText, overRide.getRightCss());
 				} catch (Exception e) {
@@ -515,7 +516,7 @@ public class MainLogic {
 						objButton = button.get(i1);
 						String javascriptid = objButton.getjScript();
 						String btnText = objButton.getText();
-						btnText = substituteTextVars(btnText, guideSettings, userSettings);
+						btnText = comonFunctions.substituteTextVars(btnText, guideSettings, userSettings);
 						objButton.setText(btnText);
 						mainShell.addButton(objButton, javascriptid);
 					} catch (Exception e1) {
@@ -620,7 +621,7 @@ public class MainLogic {
 								stopAtSeconds = 0;
 							}
 
-							imgPath = getMediaFullPath(strAudio, fileSeparator, appSettings, guide);
+							imgPath = comonFunctions.getMediaFullPath(strAudio, fileSeparator, appSettings, guide);
 							strAudioTarget = objAudio.getTarget();
 							mainShell.playAudio(imgPath,startAtSeconds, stopAtSeconds, intAudioLoops, strAudioTarget, objAudio.getJscript());
 							logger.debug("displayPage Audio target " + strAudioTarget);
@@ -659,7 +660,7 @@ public class MainLogic {
 		}
 	}
 
-	
+	/*
 	private String substituteTextVars(String inString, GuideSettings guideSettings, UserSettings userSettings) {
 		String retString = inString;
 		// Script Variables
@@ -772,5 +773,6 @@ public class MainLogic {
 		
 		return mediaFound;
 	}
+	*/
 	
 }

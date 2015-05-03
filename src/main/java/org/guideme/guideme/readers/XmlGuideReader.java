@@ -331,10 +331,30 @@ public class XmlGuideReader {
 					case Timer:
 						try {
 							String strSeconds;
+							String imageId;
+							String text = "";
 							strSeconds = reader.getAttributeValue(null, "seconds");
+							ifSet = reader.getAttributeValue(null, "if-set");
+							if (ifSet == null) ifSet = "";
+							ifNotSet = reader.getAttributeValue(null, "if-not-set"); 
+							if (ifNotSet == null) ifNotSet = "";
+							Set = reader.getAttributeValue(null, "set");
+							if (Set == null) Set = "";
+							UnSet = reader.getAttributeValue(null, "unset");
+							if (UnSet == null) UnSet = "";
+							imageId = reader.getAttributeValue(null, "imageId");
+							if (imageId == null) imageId = "";
 							String javascript = reader.getAttributeValue(null, "onTriggered");
 							if (javascript == null) javascript = "";
-							Timer timer = new Timer(strSeconds, javascript);
+							if (reader.getName().getLocalPart().equals("Timer")) {
+								try {
+									text = processText(reader, "Timer");
+								}
+								catch (Exception ex) {
+									logger.error("loadXML " + PresName + " Timer Exception Text " + ex.getLocalizedMessage(), ex);
+								}
+							}
+							Timer timer = new Timer(strSeconds, javascript, imageId, text, ifSet, ifNotSet, Set, UnSet);
 							page.addTimer(timer);
 							logger.trace("loadXML " + PresName + " Timer " + strSeconds + "|" + javascript);
 						} catch (Exception e1) {
