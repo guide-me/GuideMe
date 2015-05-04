@@ -146,20 +146,31 @@ public class XmlGuideReader {
 						String screen = "";
 						String type;
 						String value = "";
+						String order = "";
+						int sortOrder = 0;
 						key = reader.getAttributeValue(null, "key");
 						type = reader.getAttributeValue(null, "type");
+						order = reader.getAttributeValue(null, "sortOrder");
+						try {
+							sortOrder = Integer.parseInt(order);
+						}
+						catch (Exception ex) {
+							sortOrder = 0;
+						}
 						if (! guideSettings.keyExists(key, type)) {
 							screen = reader.getAttributeValue(null, "screen");
 							value = reader.getAttributeValue(null, "value");
 							if (type.equals("String")) {
-								guideSettings.addPref(key, value, screen);
+								guideSettings.addPref(key, value, screen, sortOrder);
 							}
 							if (type.equals("Boolean")) {
-								guideSettings.addPref(key, Boolean.parseBoolean(value), screen);
+								guideSettings.addPref(key, Boolean.parseBoolean(value), screen, sortOrder);
 							}
 							if (type.equals("Number")) {
-								guideSettings.addPref(key, Double.parseDouble(value), screen);
+								guideSettings.addPref(key, Double.parseDouble(value), screen, sortOrder);
 							}
+						} else {
+							guideSettings.setPrefOrder(key, sortOrder);
 						}
 						logger.trace("loadXML " + PresName + " pref " + key + "|" + value + "|" + screen + "|" + type);
 						break;
@@ -268,7 +279,6 @@ public class XmlGuideReader {
 							String sort;
 							sort = reader.getAttributeValue(null, "sortOrder");
 							if (sort == null) sort = "1";
-							int sortOrder;
 							try {
 								sortOrder = Integer.parseInt(sort);
 							} catch (Exception ex) {

@@ -955,25 +955,22 @@ public class ComonFunctions{
 			}
 		}
 
-		// String Guide Preferences
-		set = guideSettings.getStringKeys(); 
+		// Guide Preferences
+		set = guideSettings.getKeys(); 
+		String numberRet;
+		String type;
 		for (String s : set) {
 			try {
-				retString = retString.replace("<span>" + s + "</span>", guideSettings.getPref(s));
+				type = guideSettings.getPrefType(s);
+				if (type.equals("String")) {
+					retString = retString.replace("<span>" + s + "</span>", guideSettings.getPref(s));
+				}
+				if (type.equals("Number")) {
+					numberRet = FormatNumPref(guideSettings.getPrefNumber(s));
+					retString = retString.replace("<span>" + s + "</span>", numberRet);
+				}
 			} catch (Exception e) {
 				logger.error("displayPage BrwsText String Guide Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
-			}
-		}
-
-		// Number Guide Preferences
-		set = guideSettings.getNumberKeys(); 
-		String numberRet = "";
-		for (String s : set) {
-			try {
-			numberRet = FormatNumPref(guideSettings.getPrefNumber(s));
-			retString = retString.replace("<span>" + s + "</span>", numberRet);
-			} catch (Exception e) {
-				logger.error("displayPage BrwsText Number Guide Preferences Exception " + s + " " + e.getLocalizedMessage(), e);
 			}
 		}
 

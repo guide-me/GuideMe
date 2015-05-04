@@ -357,8 +357,8 @@ public class Guide {
 	 * @param value Default value (Text) 
 	 * @param screenDesc Text displayed on the screen
 	 */
-	public void addPref(String key, String value, String screenDesc) {
-		settings.addPref(key, value, screenDesc);
+	public void addPref(String key, String value, String screenDesc, int sortOrder) {
+		settings.addPref(key, value, screenDesc, sortOrder);
 	}
 	
 	/**
@@ -388,8 +388,8 @@ public class Guide {
 	 * @param value Default value (true / false) 
 	 * @param screenDesc Text displayed on the screen
 	 */
-	public void addPref(String key, Boolean value, String screenDesc) {
-		settings.addPref(key, value, screenDesc);
+	public void addPref(String key, Boolean value, String screenDesc, int sortOrder) {
+		settings.addPref(key, value, screenDesc, sortOrder);
 	}
 	
 	/**
@@ -419,8 +419,8 @@ public class Guide {
 	 * @param value Default value (Number) 
 	 * @param screenDesc Text displayed on the screen
 	 */
-	public void addPref(String key, Double value, String screenDesc) {
-		settings.addPref(key, value, screenDesc);
+	public void addPref(String key, Double value, String screenDesc, int sortOrder) {
+		settings.addPref(key, value, screenDesc, sortOrder);
 	}
 	
 	/**
