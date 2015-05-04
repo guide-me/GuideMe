@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -52,6 +53,7 @@ public class DebugShell {
 	private MainShell mainShell;
 	private Composite tableComp;
 	private Composite varComp;
+	private ScrolledComposite varScrlComp;
 	private TabFolder  tabFolder;
 	private Table varTable;
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
@@ -162,8 +164,10 @@ public class DebugShell {
 			//Variables Tab
 			TabItem tabVariables = new TabItem(tabFolder, SWT.NONE);
 			tabVariables.setText("Variables");
-
-			varComp = new Composite(tabFolder, SWT.SHADOW_NONE);
+			
+			varScrlComp = new ScrolledComposite(tabFolder, SWT.V_SCROLL);
+		    
+			varComp = new Composite(varScrlComp, SWT.NONE);
 			FormLayout varlayout = new FormLayout();
 			varComp.setLayout(varlayout);
 			FormData varCompFormData = new FormData();
@@ -173,7 +177,8 @@ public class DebugShell {
 			varCompFormData.bottom = new FormAttachment(100,0);
 			varComp.setLayoutData(varCompFormData);
 			
-			varTable = new Table(varComp, SWT.NO_SCROLL + SWT.V_SCROLL);
+			
+			varTable = new Table(varComp, SWT.NONE);
 			varTable.setLinesVisible (true);
 			varTable.setHeaderVisible (true);
 			GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -213,12 +218,15 @@ public class DebugShell {
 			btnSetFormData.left = new FormAttachment(90, 0);
 			btnSet.setLayoutData(btnSetFormData);
 			btnSet.addSelectionListener(new SetButtonListener());
-
 			
-			
-			tabVariables.setControl(varComp);
+			varScrlComp.setContent(varComp);
+			varScrlComp.setAlwaysShowScrollBars(true);
+			varScrlComp.setExpandHorizontal(true);
+			varScrlComp.setExpandVertical(true);
+			tabVariables.setControl(varScrlComp);
 			
 			varComp.layout();
+			varScrlComp.layout();
 			tabFolder.layout();
 			shell.layout();
 
@@ -706,6 +714,11 @@ public class DebugShell {
 		tabFolder.pack();
 		tabFolder.update();
 		shell.layout();
+		varScrlComp.setMinSize(varComp.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		//Point temp = varComp.computeSize(SWT.DEFAULT, SWT.DEFAULT);
+		//varScrlComp.setMinHeight(temp.x);
+		//varScrlComp.setMinWidth(temp.y);
+
 	}
 
 	public void removePageTables() {
