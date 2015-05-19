@@ -1,5 +1,6 @@
 package org.guideme.guideme.model;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 
 import org.guideme.guideme.settings.ComonFunctions;
@@ -18,6 +19,8 @@ public class Button  implements Comparable<Button>
 	private String fontName;
 	private String fontHeight;
 	private int sortOrder;
+	private LocalTime ifBefore; //Time of day must be before this time
+	private LocalTime ifAfter; //Time of day must be after this time
 	private org.eclipse.swt.graphics.Color bgColor1;
 	private org.eclipse.swt.graphics.Color bgColor2;
 	private org.eclipse.swt.graphics.Color fontColor;
@@ -25,11 +28,11 @@ public class Button  implements Comparable<Button>
 
 	public Button(String target, String text, String ifSet, String ifNotSet, String set, String unSet, String jScript, String image, String hotKey)
 	{
-		this(target, text, ifSet, ifNotSet, set, unSet, jScript, image, hotKey, "", "", "", "", "", 1);
+		this(target, text, ifSet, ifNotSet, set, unSet, jScript, image, hotKey, "", "", "", "", "", 1, "", "");
 	}
 
 	
-	public Button(String target, String text, String ifSet, String ifNotSet, String set, String unSet, String jScript, String image, String hotKey, String fontName, String fontHeight, String fontColor, String bgColor1, String bgColor2, int sortOrder)
+	public Button(String target, String text, String ifSet, String ifNotSet, String set, String unSet, String jScript, String image, String hotKey, String fontName, String fontHeight, String fontColor, String bgColor1, String bgColor2, int sortOrder, String ifAfter, String ifBefore)
 	{
 		this.target = target;
 		this.text = text;
@@ -58,6 +61,16 @@ public class Button  implements Comparable<Button>
 		} else {
 			this.fontColor = comonFunctions.getColor(fontColor);
 		}
+		if (ifBefore.equals("")) {
+			this.ifBefore = null;
+		} else {
+			this.ifBefore = LocalTime.parse(ifBefore);
+		}
+		if (ifAfter.equals("")) {
+			this.ifAfter = null;
+		} else {
+			this.ifAfter = LocalTime.parse(ifAfter);
+		}
 	}
 
 	
@@ -78,7 +91,11 @@ public class Button  implements Comparable<Button>
 
 	public boolean canShow(ArrayList<String> setList)
 	{
-		return comonFunctions.canShow(setList, this.ifSet, this.ifNotSet);
+		boolean retVal = comonFunctions.canShowTime(ifBefore, ifAfter);
+		if (retVal) {
+			retVal =  comonFunctions.canShow(setList, ifSet, ifNotSet);
+		}
+		return retVal;
 	}
 
 	public String getText() {
@@ -167,6 +184,31 @@ public class Button  implements Comparable<Button>
 	public int getSortOrder() {
 		return sortOrder;
 	}
+
+	public LocalTime getIfBefore() {
+		return ifBefore;
+	}
+
+	public void setIfBefore(String ifBefore) {
+		if (ifBefore.equals("")) {
+			this.ifBefore = null;
+		} else {
+			this.ifBefore = LocalTime.parse(ifBefore);
+		}
+	}
+
+	public LocalTime getIfAfter() {
+		return ifAfter;
+	}
+
+	public void setIfAfter(String ifAfter) {
+		if (ifAfter.equals("")) {
+			this.ifAfter = null;
+		} else {
+			this.ifAfter = LocalTime.parse(ifAfter);
+		}
+	}
+
 
 
 	@Override

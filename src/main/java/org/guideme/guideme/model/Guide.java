@@ -61,9 +61,9 @@ public class Guide {
 			HashMap<String, Chapter> chapters = guide.getChapters();
 			Chapter chapter = new Chapter("default");
 			chapters.put("default", chapter);
-			Page page404 = new Page("GuideMe404Error","", "", "", "", false);
+			Page page404 = new Page("GuideMe404Error","", "", "", "", false, "", "");
 			chapter.getPages().put(page404.getId(), page404);
-			Page start = new Page("start","", "", "", "", false);
+			Page start = new Page("start","", "", "", "", false, "", "");
 			String appImage = appSettings.getUserDir().replace("\\", "\\\\") + appSettings.getFileSeparator() + appSettings.getFileSeparator() + "userSettings" + appSettings.getFileSeparator() + appSettings.getFileSeparator() + "GuidemeBeta.jpg";
 			String strLoadScript = "function pageLoad() {";
 			strLoadScript = strLoadScript + "	var lefthtml = \"<!DOCTYPE html>\";";

@@ -1,5 +1,6 @@
 package org.guideme.guideme.model;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 
 import org.guideme.guideme.settings.ComonFunctions;
@@ -17,6 +18,8 @@ public class Page {
 	private ArrayList<Metronome> metronome = new ArrayList<Metronome>();
 	private String ifSet;
 	private String ifNotSet;
+	private LocalTime ifBefore; //Time of day must be before this time
+	private LocalTime ifAfter; //Time of day must be after this time
 	private String set;
 	private String unSet;
 	private String jScript = "";
@@ -35,12 +38,22 @@ public class Page {
 		this.id = id;
 	}
 
-	public Page(String id, String ifSet, String ifNotSet, String set, String unSet, boolean autoSet) {
+	public Page(String id, String ifSet, String ifNotSet, String set, String unSet, boolean autoSet, String ifAfter, String ifBefore) {
 		this.id = id;
 		this.ifSet = ifSet;
 		this.ifNotSet = ifNotSet;
 		this.set = set;
 		this.unSet = unSet;
+		if (ifBefore.equals("")) {
+			this.ifBefore = null;
+		} else {
+			this.ifBefore = LocalTime.parse(ifBefore);
+		}
+		if (ifAfter.equals("")) {
+			this.ifAfter = null;
+		} else {
+			this.ifAfter = LocalTime.parse(ifAfter);
+		}
 		
 		if (autoSet) {
 			if (this.set.length() == 0) {
@@ -137,7 +150,11 @@ public class Page {
 	}
 
 	public boolean canShow(ArrayList<String> setList) {
-		return comonFunctions.canShow(setList, ifSet, ifNotSet, id);
+		boolean retVal = comonFunctions.canShowTime(ifBefore, ifAfter);
+		if (retVal) {
+			retVal =  comonFunctions.canShow(setList, ifSet, ifNotSet);
+		}
+		return retVal;
 	}
 
 	public void setUnSet(ArrayList<String> setList) {
@@ -186,4 +203,27 @@ public class Page {
 		return unSet;
 	}
 
+	public LocalTime getIfBefore() {
+		return ifBefore;
+	}
+
+	public void setIfBefore(String ifBefore) {
+		if (ifBefore.equals("")) {
+			this.ifBefore = null;
+		} else {
+			this.ifBefore = LocalTime.parse(ifBefore);
+		}
+	}
+
+	public LocalTime getIfAfter() {
+		return ifAfter;
+	}
+
+	public void setIfAfter(String ifAfter) {
+		if (ifAfter.equals("")) {
+			this.ifAfter = null;
+		} else {
+			this.ifAfter = LocalTime.parse(ifAfter);
+		}
+	}
 }

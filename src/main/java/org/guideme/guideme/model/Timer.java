@@ -1,5 +1,6 @@
 package org.guideme.guideme.model;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Calendar;
 
@@ -15,13 +16,15 @@ public class Timer {
 	private String ifNotSet;
 	private String set;
 	private String unSet;
+	private LocalTime ifBefore; //Time of day must be before this time
+	private LocalTime ifAfter; //Time of day must be after this time
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	
 	public Timer(String delay, String jScript) {
-		this(delay, jScript, "", "", "", "", "", "");
+		this(delay, jScript, "", "", "", "", "", "", "", "");
 	}
 
-	public Timer(String delay, String jScript, String imageId, String text, String ifSet, String ifNotSet, String set, String unSet) {
+	public Timer(String delay, String jScript, String imageId, String text, String ifSet, String ifNotSet, String set, String unSet, String ifAfter, String ifBefore) {
 		this.delay = delay;
 		this.jScript = jScript;
 		this.imageId = imageId;
@@ -30,6 +33,16 @@ public class Timer {
 		this.ifNotSet  =ifNotSet;
 		this.set = set;
 		this.unSet = unSet;
+		if (ifBefore.equals("")) {
+			this.ifBefore = null;
+		} else {
+			this.ifBefore = LocalTime.parse(ifBefore);
+		}
+		if (ifAfter.equals("")) {
+			this.ifAfter = null;
+		} else {
+			this.ifAfter = LocalTime.parse(ifAfter);
+		}
 	}
 
 	public int getTimerSec() {
@@ -66,7 +79,11 @@ public class Timer {
 	}
 
 	public boolean canShow(ArrayList<String> setList) {
-		return comonFunctions.canShow(setList, ifSet, ifNotSet);
+		boolean retVal = comonFunctions.canShowTime(ifBefore, ifAfter);
+		if (retVal) {
+			retVal =  comonFunctions.canShow(setList, ifSet, ifNotSet);
+		}
+		return retVal;
 	}
 
 	public String getSet() {
@@ -78,4 +95,28 @@ public class Timer {
 	}
 	
 	
+	public LocalTime getIfBefore() {
+		return ifBefore;
+	}
+
+	public void setIfBefore(String ifBefore) {
+		if (ifBefore.equals("")) {
+			this.ifBefore = null;
+		} else {
+			this.ifBefore = LocalTime.parse(ifBefore);
+		}
+	}
+
+	public LocalTime getIfAfter() {
+		return ifAfter;
+	}
+
+	public void setIfAfter(String ifAfter) {
+		if (ifAfter.equals("")) {
+			this.ifAfter = null;
+		} else {
+			this.ifAfter = LocalTime.parse(ifAfter);
+		}
+	}
+
 }

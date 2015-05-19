@@ -54,7 +54,7 @@ public class HtmlGuideReader {
 			//String sizes = doc.select("head link[rel=icon]").attr("sizes");
 			//int width = Integer.parseInt(sizes.split("x")[0]);
 			//int height = Integer.parseInt(sizes.split("x")[1]);
-			guide.setThumbnail(new Image(url, "", ""));
+			guide.setThumbnail(new Image(url, "", "", "", ""));
 		}
 	}
 
@@ -76,7 +76,7 @@ public class HtmlGuideReader {
 			Element section = sections.get(i);
 			
 			//TODO need to add in the rest of the page stuff
-			Page page = new Page(section.attr("id"), "", "", "", "", false);
+			Page page = new Page(section.attr("id"), "", "", "", "", false, "", "");
 			
 			chapter.getPages().put(section.attr("id"), page);
 		}

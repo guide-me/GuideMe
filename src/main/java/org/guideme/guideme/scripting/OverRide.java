@@ -37,7 +37,7 @@ public class OverRide {
 		} catch (Exception e) {
 			order = 1;
 		}
-		Button button = new Button(target, text, "", "", set, unSet, jScript, image, hotKey, "", "", "", "", "", order);
+		Button button = new Button(target, text, "", "", set, unSet, jScript, image, hotKey, "", "", "", "", "", order, "", "");
 		this.button.add(button);
 	}
 
@@ -68,7 +68,7 @@ public class OverRide {
 	}
 
 	public void setDelay(String target, String delay, String startWith, String style, String set, String unSet, String jScript) {
-		this.delay = new Delay(target, delay, "", "", startWith, style, set, unSet, jScript);
+		this.delay = new Delay(target, delay, "", "", startWith, style, set, unSet, jScript, "", "");
 	}
 
 	public Video getVideo() {
@@ -76,7 +76,7 @@ public class OverRide {
 	}
 
 	public void setVideo(String id, String startAt, String stopAt, String target, String set, String unSet, String repeat, String jscript) {
-		this.video = new Video(id, startAt, stopAt, target, "", "", set, unSet, repeat, jscript);
+		this.video = new Video(id, startAt, stopAt, target, "", "", set, unSet, repeat, jscript, "", "");
 	}
 
 	public Audio getAudio() {
@@ -84,7 +84,7 @@ public class OverRide {
 	}
 
 	public void setAudio(String id, String startAt, String stopAt, String target, String set, String unSet, String repeat, String jscript) {
-		this.audio = new Audio(id, startAt, stopAt, target, "", "", set, unSet, repeat, jscript);
+		this.audio = new Audio(id, startAt, stopAt, target, "", "", set, unSet, repeat, jscript, "", "");
 	}
 
 	public Metronome getMetronome() {
@@ -92,7 +92,7 @@ public class OverRide {
 	}
 
 	public void setMetronome(String bpm, int resolution, int loops, String rhythm) {
-		this.metronome = new Metronome(bpm, "", "", resolution, loops, rhythm);
+		this.metronome = new Metronome(bpm, "", "", resolution, loops, rhythm, "", "");
 	}
 
 	public String getHtml() {

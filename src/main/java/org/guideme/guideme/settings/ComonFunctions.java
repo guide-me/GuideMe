@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Set;
@@ -112,6 +113,30 @@ public class ComonFunctions{
     		logger.error(ex.getLocalizedMessage(), ex);
     	}
     	return icanShow;
+    }
+    
+    public boolean canShowTime(LocalTime ifBefore, LocalTime ifAfter) {
+    	boolean before = true;
+    	boolean after = true;
+    	boolean show = false;
+    	LocalTime now = LocalTime.now();
+    	if (ifBefore != null) {
+    		if (ifBefore.isAfter(now)) {
+    			before = false;
+    		}
+    	}
+    	if (ifAfter != null) {
+    		if (ifAfter.isBefore(now)) {
+    			after = false;
+    		}
+    	}
+    	
+    	if (before && after) {
+    		show = true;
+    	} else {
+    		show = false;
+    	}
+    	return show;
     }
 
     
