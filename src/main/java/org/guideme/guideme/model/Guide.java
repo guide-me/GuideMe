@@ -16,6 +16,14 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
 
+/**
+ * @author James
+ *
+ */
+/**
+ * @author James
+ *
+ */
 public class Guide {
 	private String title;
 	private String authorName;
@@ -344,7 +352,6 @@ public class Guide {
 	 * Sets an existing text guide preference
 	 * 
 	 * @param key Name of the preference
-	 * @return value new value (Text)
 	 */
 	public void setPref(String key, String value) {
 		settings.setPref(key, value);
@@ -609,4 +616,47 @@ public class Guide {
 	public void setRightHtml(String brwsText, String overRideStyle) {
 		mainshell.setBrwsText(brwsText, overRideStyle);
 	}
+	
+	/**
+	 * @param path
+	 * @return
+	 */
+	public String jsReadFile(String path) {
+		return comonFunctions.jsReadFile(path);
+	}
+	
+	/**
+	 * @param fileName
+	 * @param encoding
+	 * @return
+	 */
+	public String jsReadFile(String fileName, String encoding) {
+		return comonFunctions.jsReadFile(fileName, encoding);
+	}
+	
+	/**
+	 * @param fileName
+	 * @return
+	 */
+	public String[] jsReadFileArray(String fileName) {
+		return comonFunctions.jsReadFileArray(fileName);
+	}
+
+	/**
+	 * @param fileName
+	 * @param encoding
+	 * @return
+	 */
+	public String[] jsReadFileArray(String fileName, String encoding) {
+		return comonFunctions.jsReadFileArray(fileName, encoding);
+	}
+	
+	public void enableButton(String id) {
+		mainshell.enableButton(id);
+	}
+
+	public void disableButton(String id) {
+		mainshell.disableButton(id);
+	}
+
 }

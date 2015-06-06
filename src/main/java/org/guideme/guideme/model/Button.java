@@ -21,6 +21,8 @@ public class Button  implements Comparable<Button>
 	private int sortOrder;
 	private LocalTime ifBefore; //Time of day must be before this time
 	private LocalTime ifAfter; //Time of day must be after this time
+	private boolean disabled;
+	private String id;
 	private org.eclipse.swt.graphics.Color bgColor1;
 	private org.eclipse.swt.graphics.Color bgColor2;
 	private org.eclipse.swt.graphics.Color fontColor;
@@ -28,11 +30,11 @@ public class Button  implements Comparable<Button>
 
 	public Button(String target, String text, String ifSet, String ifNotSet, String set, String unSet, String jScript, String image, String hotKey)
 	{
-		this(target, text, ifSet, ifNotSet, set, unSet, jScript, image, hotKey, "", "", "", "", "", 1, "", "");
+		this(target, text, ifSet, ifNotSet, set, unSet, jScript, image, hotKey, "", "", "", "", "", 1, "", "", false, "");
 	}
 
 	
-	public Button(String target, String text, String ifSet, String ifNotSet, String set, String unSet, String jScript, String image, String hotKey, String fontName, String fontHeight, String fontColor, String bgColor1, String bgColor2, int sortOrder, String ifAfter, String ifBefore)
+	public Button(String target, String text, String ifSet, String ifNotSet, String set, String unSet, String jScript, String image, String hotKey, String fontName, String fontHeight, String fontColor, String bgColor1, String bgColor2, int sortOrder, String ifAfter, String ifBefore, boolean disabled, String id)
 	{
 		this.target = target;
 		this.text = text;
@@ -71,6 +73,8 @@ public class Button  implements Comparable<Button>
 		} else {
 			this.ifAfter = LocalTime.parse(ifAfter);
 		}
+		this.disabled = disabled;
+		this.id = id;
 	}
 
 	
@@ -215,6 +219,21 @@ public class Button  implements Comparable<Button>
 	public int compareTo(Button compareButton) {
 		int compareOrder = compareButton.getSortOrder();
 		return compareOrder-this.sortOrder;
+	}
+
+
+	public Boolean getDisabled() {
+		return disabled;
+	}
+
+
+	public void setDisabled(Boolean disabled) {
+		this.disabled = disabled;
+	}
+
+
+	public String getId() {
+		return id;
 	}
 
 

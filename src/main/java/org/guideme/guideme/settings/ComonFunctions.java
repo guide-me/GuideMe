@@ -7,11 +7,13 @@ import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.SecureRandom;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -503,6 +505,80 @@ public class ComonFunctions{
 		
 		return fileToReturn;
 	}
+	
+	public String[] jsReadFileArray(String fileName, String encoding) {
+		String[] retrn = null;
+		AppSettings appSettings = AppSettings.getAppSettings();
+		Guide guide = Guide.getGuide(); 
+		String fileSeparator = appSettings.getFileSeparator();
+		
+		String dataDirectory;
+		String prefix = "";
+		dataDirectory = appSettings.getDataDirectory();
+		if (dataDirectory.startsWith("/")) {
+			prefix = "/";
+		}
+		dataDirectory = prefix + fixSeparator(appSettings.getDataDirectory(), fileSeparator);
+		String mediaDirectory = fixSeparator(guide.getMediaDirectory(), fileSeparator);
+		dataDirectory = dataDirectory + fileSeparator + mediaDirectory;
+		
+		
+		String media = fixSeparator(fileName, fileSeparator);
+		logger.debug("CommonFunctions fileExists getMediaFullPath " + media);
+		int intSubDir = media.lastIndexOf(fileSeparator);
+		String strSubDir;
+		if (intSubDir > -1) {
+			strSubDir = fixSeparator(media.substring(0, intSubDir + 1), fileSeparator);
+			media = media.substring(intSubDir + 1);
+		} else {
+			strSubDir = "";
+		}
+		// String strSubDir
+		// no wildcard so just use the file name
+		if (strSubDir.equals("")) {
+			fileName = dataDirectory + fileSeparator + media;
+		} else {
+			fileName = dataDirectory + fileSeparator + strSubDir + fileSeparator + media;
+		}
+
+		Charset encodeSet;
+		switch (encoding) {
+		case "ISO_8859_1":
+			encodeSet = StandardCharsets.ISO_8859_1;
+			break;
+		case "US_ASCII":
+			encodeSet = StandardCharsets.US_ASCII;
+			break;
+		case "UTF_16":
+			encodeSet = StandardCharsets.UTF_16;
+			break;
+		case "UTF_16BE":
+			encodeSet = StandardCharsets.UTF_16BE;
+			break;
+		case "UTF_16LE":
+			encodeSet = StandardCharsets.UTF_16LE;
+			break;
+		default:
+			encodeSet = StandardCharsets.UTF_8;
+			break;
+
+		}
+		
+		try {
+			Path filePath = new File(fileName).toPath();
+			List<String> stringList = Files.readAllLines(filePath, encodeSet);
+			retrn = stringList.toArray(new String[]{});
+		} catch (Exception ex) {
+			logger.error(ex.getLocalizedMessage(),ex);
+		}		
+		return retrn;
+	}
+
+	public String[] jsReadFileArray(String fileName) {
+		return jsReadFileArray(fileName, "UTF-8");
+	}
+
+	
 	
 	
 	public String fixSeparator(String path, String fileSeparator) {

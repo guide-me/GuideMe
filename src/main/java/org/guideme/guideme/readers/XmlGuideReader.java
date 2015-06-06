@@ -116,6 +116,8 @@ public class XmlGuideReader {
 		Page page = null;
 		String strTmpTitle = "";
 		String strTmpAuthor = "";
+		String btnDis;
+		boolean disabled;
 
 		Page page404 = new Page("GuideMe404Error","", "", "", "", false, "", "");
 		chapter.getPages().put(page404.getId(), page404);
@@ -295,7 +297,16 @@ public class XmlGuideReader {
 							} catch (Exception ex) {
 								sortOrder = 1;
 							}
-							
+							btnDis = reader.getAttributeValue(null, "disabled");
+							if (btnDis == null) btnDis = "false";
+							try {
+								disabled = Boolean.valueOf(btnDis);
+							} catch (Exception ex) {
+								disabled = false;
+							}
+							String btnId;
+							btnId = reader.getAttributeValue(null, "id");
+							if (btnId == null) btnId = "";
 							
 							//reader.next();
 							String BtnText = "";
@@ -312,7 +323,7 @@ public class XmlGuideReader {
 							//} else {
 							//	BtnText = "";
 							//}
-							Button button = new Button(strTarget, BtnText, ifSet, ifNotSet, Set, UnSet, javascript, image, hotKey, fontName, fontHeight, fontColor, bgColor1, bgColor2, sortOrder, ifAfter, ifBefore);
+							Button button = new Button(strTarget, BtnText, ifSet, ifNotSet, Set, UnSet, javascript, image, hotKey, fontName, fontHeight, fontColor, bgColor1, bgColor2, sortOrder, ifAfter, ifBefore, disabled, btnId);
 							page.addButton(button);
 							logger.trace("loadXML " + PresName + " Button " + strTarget+ "|" + BtnText + "|" + ifSet+ "|" + ifNotSet+ "|" + Set+ "|" + UnSet + "|" + javascript);
 						} catch (Exception e1) {
@@ -437,10 +448,6 @@ public class XmlGuideReader {
 							if (strbpm == null) strbpm = "";
 							ifSet = reader.getAttributeValue(null, "if-set");
 							if (ifSet == null) ifSet = "";
-							ifNotSet = reader.getAttributeValue(null, "if-not-set"); 
-							if (ifNotSet == null) ifNotSet = "";
-							ifNotSet = reader.getAttributeValue(null, "if-not-set"); 
-							if (ifNotSet == null) ifNotSet = "";
 							ifNotSet = reader.getAttributeValue(null, "if-not-set"); 
 							if (ifNotSet == null) ifNotSet = "";
 							ifBefore = reader.getAttributeValue(null, "if-before");

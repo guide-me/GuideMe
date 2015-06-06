@@ -39,6 +39,8 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.nio.file.Path;
 
 import javax.imageio.ImageIO;
 
@@ -136,6 +138,7 @@ public class MainShell {
 	private Boolean multiMonitor = true;
 	private Boolean overlayTimer = false;
 	private HashMap<String, com.snapps.swt.SquareButton> hotKeys = new HashMap<String, com.snapps.swt.SquareButton>();
+	private HashMap<String, com.snapps.swt.SquareButton> buttons = new HashMap<String, com.snapps.swt.SquareButton>();
 	private shellKeyEventListener keyListener;
 	private shellMouseMoveListener mouseListen;
 	private Boolean showMenu = true;
@@ -144,6 +147,8 @@ public class MainShell {
 	private Rectangle clientArea;
 	private Rectangle clientArea2;
 	private boolean inPrefShell = false;
+	private String rightHTML;
+	private String leftHTML;
 
 	public Shell createShell(final Display display) {
 		logger.trace("Enter createShell");
@@ -313,10 +318,25 @@ public class MainShell {
 			mediaPanel.setBackground(colourBlack);
 			mediaPanel.addControlListener(new mediaPanelListener());
 
-			defaultStyle = "html { overflow-y: auto; } body { color: white; background-color: black; font-family: Tahoma; font-size:" + MintHtmlFontSize + "px } html, body, #wrapper { height:100%; width: 100%; margin: 0; padding: 0; border: 0; } #wrapper td { vertical-align: middle; text-align: center; }";
+			//defaultStyle
+	        URL url = MainShell.class.getClassLoader().getResource("defaultCSS.txt");
+	        Path resPath = java.nio.file.Paths.get(url.toURI());
+	        defaultStyle = new String(java.nio.file.Files.readAllBytes(resPath), "UTF8");
+	        defaultStyle = defaultStyle.replace("MintHtmlFontSize", String.valueOf(MintHtmlFontSize)); 
 			style = defaultStyle;
 			String appImage = appSettings.getUserDir() + appSettings.getFileSeparator() + "userSettings" + appSettings.getFileSeparator() + "GuidemeBeta.jpg"; 
-			String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style + "</style></head><body></body></html>";
+
+			//default HTML
+	        url = MainShell.class.getClassLoader().getResource("DefaultRightHtml.txt");
+	        resPath = java.nio.file.Paths.get(url.toURI());
+	        rightHTML = new String(java.nio.file.Files.readAllBytes(resPath), "UTF8");
+
+	        url = MainShell.class.getClassLoader().getResource("DefaultLeftHtml.txt");
+	        resPath = java.nio.file.Paths.get(url.toURI());
+	        leftHTML = new String(java.nio.file.Files.readAllBytes(resPath), "UTF8");
+			
+			String strHtml = rightHTML.replace("BodyContent", "");
+			strHtml = strHtml.replace("DefaultStyle", defaultStyle); 
 			String strHtml2 = "<!DOCTYPE HTML><html><head><meta http-equiv='Content-type' content='text/html;charset=UTF-8' /><title>Guideme - Explore Yourself</title><style type='text/css'> html { overflow-y: auto; } body { color: white; background-color: black; font-family: Tahoma; font-size:16px; overflow:hidden } html, body, #wrapper { height:100%; width: 100%; margin: 0; padding: 0; border: 0; } #wrapper { vertical-align: middle; text-align: center; } #bannerimg { width: 90%; border-top: 3px solid #cccccc; border-right: 3px solid #cccccc; border-bottom: 3px solid #666666; border-left: 3px solid #666666; }</style></head><body><div id='wrapper' ><div id='bannerimg'><img src='" + appImage + "' /></div><div><h2>Welcome to Guideme!</h2>To get started, click File/Load and select a guide.</div></div></body></html>";
 			imageLabel = new Browser(leftFrame, 0);
 			imageLabel.setText(strHtml2);
@@ -1022,7 +1042,8 @@ public class MainShell {
 						//String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
 						if (imgPath.endsWith(".gif")) {
 							tmpImagePath = imgPath;
-							strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + " body { overflow:hidden } </style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
+							strHtml = leftHTML.replace("DefaultStyle", defaultStyle + " body { overflow:hidden }");
+							strHtml = strHtml.replace("BodyContent", "<table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table>");
 						} else {
 							BufferedImage img = null;
 							try {
@@ -1038,7 +1059,8 @@ public class MainShell {
 							newImage.deleteOnExit();
 							tmpImagePath = newImage.getAbsolutePath();
 							ImageIO.write(imagenew, imgType, newImage);			
-							strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + " body { overflow:hidden } </style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" /></td></tr></table></body></html>";
+							strHtml = leftHTML.replace("DefaultStyle", defaultStyle + " body { overflow:hidden }");
+							strHtml = strHtml.replace("BodyContent", "<table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" /></td></tr></table>");
 						}
 						me.setText(strHtml, true);
 						//Image tmpImage = me.getImage();
@@ -1295,7 +1317,8 @@ public class MainShell {
 				memImage.dispose();
 				memImage = null;
 				tmpImagePath = imgPath;
-				strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + " body { overflow:hidden } " + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
+				strHtml = leftHTML.replace("DefaultStyle", defaultStyle + " body { overflow:hidden }");
+				strHtml = strHtml.replace("BodyContent", "<table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table>");
 			} else {
 				BufferedImage img = null;
 				try {
@@ -1320,7 +1343,8 @@ public class MainShell {
 				//if (tmpImage2 != null) {
 				//	tmpImage2.dispose();
 				//}
-				strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + " body { overflow:hidden } </style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" /></td></tr></table></body></html>";
+				strHtml = leftHTML.replace("DefaultStyle", defaultStyle + " body { overflow:hidden }");
+				strHtml = strHtml.replace("BodyContent", "<table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" /></td></tr></table>");
 			}
 			imageLabel.setText(strHtml, true);
 			logger.trace("Open: " + imgPath);
@@ -1416,7 +1440,7 @@ public class MainShell {
 	
 	public void clearImage() {
 		//imageLabel.setImage(null);
-		String strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style +  "</style></head><body></body></html>";
+		String strHTML = leftHTML.replace("DefaultStyle", defaultStyle + " body { overflow:hidden }");
 		imageLabel.setText(strHTML, true);
 	}
 
@@ -1444,7 +1468,8 @@ public class MainShell {
 		}
 		String strHTML;
 		try {
-			strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + overRideStyle +  "</style></head><body>" + brwsText + "</body></html>";
+			strHTML = rightHTML.replace("DefaultStyle", overRideStyle);
+			strHTML = strHTML.replace("BodyContent", brwsText);
 			this.brwsText.setText(strHTML);
 			if (appSettings.isToclipboard()) {
 				try {
@@ -1459,7 +1484,8 @@ public class MainShell {
 			}
 		} catch (Exception e1) {
 			logger.error("displayPage Text Exception " + e1.getLocalizedMessage(), e1);
-			strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + overRideStyle +  "</style></head><body></body></html>";
+			strHTML = rightHTML.replace("DefaultStyle", overRideStyle);
+			strHTML = strHTML.replace("BodyContent", "");
 			this.brwsText.setText(strHTML);
 		}
 	}
@@ -1471,7 +1497,8 @@ public class MainShell {
 		}
 		String strHTML;
 		try {
-			strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + overRideStyle +  "</style></head><body>" + brwsText + "</body></html>";
+			strHTML = leftHTML.replace("DefaultStyle", overRideStyle);
+			strHTML = strHTML.replace("BodyContent", brwsText);
 			this.imageLabel.setText(strHTML);
 			if (appSettings.isToclipboard()) {
 				try {
@@ -1486,7 +1513,8 @@ public class MainShell {
 			}
 		} catch (Exception e1) {
 			logger.error("displayPage Text Exception " + e1.getLocalizedMessage(), e1);
-			strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + overRideStyle +  "</style></head><body></body></html>";
+			strHTML = leftHTML.replace("DefaultStyle", overRideStyle);
+			strHTML = strHTML.replace("BodyContent", "");
 			this.imageLabel.setText(strHTML);
 		}
 	}
@@ -1629,8 +1657,14 @@ public class MainShell {
 				hotKeys.put(hotKey, btnDynamic);
 			}
 
+			String btnId = button.getId();
+			if (!btnId.equals("")) {
+				buttons.put(btnId, btnDynamic);
+			}
+
 			btnDynamic.setData("Target", strBtnTarget);
 			btnDynamic.addSelectionListener(new DynamicButtonListner());
+			btnDynamic.setEnabled(!button.getDisabled());
 		} catch (Exception e) {
 			logger.error("addButton " + e.getLocalizedMessage(), e);		
 		}
@@ -1771,6 +1805,22 @@ public class MainShell {
 	    }
 	    controls = null;
 	}
+	
+	public void enableButton (String id) {
+		com.snapps.swt.SquareButton button;
+		button = buttons.get(id);
+		if (button != null) {
+			button.setEnabled(true);
+		}
+	}
+
+	public void disableButton (String id) {
+		com.snapps.swt.SquareButton button;
+		button = buttons.get(id);
+		if (button != null) {
+			button.setEnabled(false);
+		}
+	}
 
 	public void setMetronomeBPM(int metronomeBPM, int loops, int resolution, String Rhythm) {
 		// run metronome on another thread
@@ -1861,6 +1911,12 @@ public class MainShell {
 		}
 		catch (Exception ex) {
 			logger.error(" stophotKeys " + ex.getLocalizedMessage(), ex);
+		}
+		try {
+			buttons = new HashMap<String, com.snapps.swt.SquareButton>();
+		}
+		catch (Exception ex) {
+			logger.error(" stopbuttons " + ex.getLocalizedMessage(), ex);
 		}
 		try {
 		stopDelay();
