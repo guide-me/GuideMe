@@ -39,8 +39,7 @@ import java.awt.datatransfer.StringSelection;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.net.URL;
-import java.nio.file.Path;
+import java.nio.charset.StandardCharsets;
 
 import javax.imageio.ImageIO;
 
@@ -319,21 +318,36 @@ public class MainShell {
 			mediaPanel.addControlListener(new mediaPanelListener());
 
 			//defaultStyle
-	        URL url = MainShell.class.getClassLoader().getResource("defaultCSS.txt");
-	        Path resPath = java.nio.file.Paths.get(url.toURI());
-	        defaultStyle = new String(java.nio.file.Files.readAllBytes(resPath), "UTF8");
-	        defaultStyle = defaultStyle.replace("MintHtmlFontSize", String.valueOf(MintHtmlFontSize)); 
+			try {
+		        defaultStyle = comonFunctions.readFile("defaultCSS.txt", StandardCharsets.UTF_8);
+		        defaultStyle = defaultStyle.replace("MintHtmlFontSize", String.valueOf(MintHtmlFontSize)); 
+			}
+			catch (Exception ex2) {
+				defaultStyle = "";
+				logger.error("Load defaultCSS.txt error:" + ex2.getLocalizedMessage(), ex2);
+			}
+	        
+	        
 			style = defaultStyle;
 			String appImage = appSettings.getUserDir() + appSettings.getFileSeparator() + "userSettings" + appSettings.getFileSeparator() + "GuidemeBeta.jpg"; 
 
 			//default HTML
-	        url = MainShell.class.getClassLoader().getResource("DefaultRightHtml.txt");
-	        resPath = java.nio.file.Paths.get(url.toURI());
-	        rightHTML = new String(java.nio.file.Files.readAllBytes(resPath), "UTF8");
-
-	        url = MainShell.class.getClassLoader().getResource("DefaultLeftHtml.txt");
-	        resPath = java.nio.file.Paths.get(url.toURI());
-	        leftHTML = new String(java.nio.file.Files.readAllBytes(resPath), "UTF8");
+			try {
+		        rightHTML = comonFunctions.readFile("DefaultRightHtml.txt", StandardCharsets.UTF_8);
+			}
+			catch (Exception ex2) {
+				rightHTML = "";
+				logger.error("Load DefaultRightHtml.txt error:" + ex2.getLocalizedMessage(), ex2);
+			}
+			
+			try {
+		        leftHTML = comonFunctions.readFile("DefaultLeftHtml.txt", StandardCharsets.UTF_8);
+			}
+			catch (Exception ex2) {
+				leftHTML = "";
+				logger.error("Load DefaultLeftHtml.txt error:" + ex2.getLocalizedMessage(), ex2);
+			}
+			
 			
 			String strHtml = rightHTML.replace("BodyContent", "");
 			strHtml = strHtml.replace("DefaultStyle", defaultStyle); 

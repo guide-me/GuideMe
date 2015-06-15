@@ -1104,7 +1104,6 @@ public class ComonFunctions{
 	    else
 	        return String.format("%s",prefNumber);
 	}	
-
 	
 	/*
 	public Object xmlFileToObject(String xmlFileName) { 

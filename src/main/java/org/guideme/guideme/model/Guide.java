@@ -2,6 +2,7 @@ package org.guideme.guideme.model;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -657,6 +658,24 @@ public class Guide {
 
 	public void disableButton(String id) {
 		mainshell.disableButton(id);
+	}
+
+	/**
+	 * Adds a timer to change various aspects of the screen / run a javascript function
+	 * 
+	 * @param delay time in seconds before the timer triggers
+	 * @param jScript javascript function to run when the timer triggers
+	 * @param imageId image to change to when the timer triggers
+	 * @param text html text to set the right html pane when the timer triggers
+	 * @param set flags to set when the timer triggers
+	 * @param unSet flags to clear when the timer triggers
+	 */
+	public void addTimer(String delay, String jScript, String imageId, String text, String set, String unSet) {
+		Timer timer = new Timer(delay, jScript, imageId, text, "", "", set, unSet, "", "");
+		Calendar timCountDown = Calendar.getInstance();
+		timCountDown.add(Calendar.SECOND, timer.getTimerSec());
+		timer.setTimerEnd(timCountDown);
+		mainshell.addTimer(timer);		
 	}
 
 }

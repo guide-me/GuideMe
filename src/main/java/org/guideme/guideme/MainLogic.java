@@ -274,6 +274,15 @@ public class MainLogic {
 			//if delay is zero don't bother with the page stuff
 			if (!(intDelSeconds == 0)) {
 				//add timers
+				if (overRide.timerCount() > 0) {
+					for (int i2 = 0; i2 < overRide.timerCount(); i2++) {
+						objTimer = overRide.getTimer(i2);
+						Calendar timCountDown = Calendar.getInstance();
+						timCountDown.add(Calendar.SECOND, objTimer.getTimerSec());
+						objTimer.setTimerEnd(timCountDown);
+						mainShell.addTimer(objTimer);
+					}
+				}
 				if (objCurrPage.getTimerCount() > 0) {
 					for (int i2 = 0; i2 < objCurrPage.getTimerCount(); i2++) {
 						objTimer = objCurrPage.getTimer(i2);

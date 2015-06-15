@@ -6,10 +6,13 @@ import org.guideme.guideme.model.Audio;
 import org.guideme.guideme.model.Button;
 import org.guideme.guideme.model.Delay;
 import org.guideme.guideme.model.Metronome;
+import org.guideme.guideme.model.Timer;
 import org.guideme.guideme.model.Video;
+
 
 public class OverRide {
 	private ArrayList<Button> button = new ArrayList<Button>();
+	private ArrayList<Timer> timer = new ArrayList<Timer>();
 	private Delay delay = null;
 	private Video video = null;
 	private Audio audio = null;
@@ -84,8 +87,33 @@ public class OverRide {
 		return button.size();
 	}
 	
+	
+	/**
+	 * Adds a timer to change various aspects of the screen / run a javascript function
+	 * 
+	 * @param delay time in seconds before the timer triggers
+	 * @param jScript javascript function to run when the timer triggers
+	 * @param imageId image to change to when the timer triggers
+	 * @param text html text to set the right html pane when the timer triggers
+	 * @param set flags to set when the timer triggers
+	 * @param unSet flags to clear when the timer triggers
+	 */
+	public void addTimer(String delay, String jScript, String imageId, String text, String set, String unSet) {
+		Timer timer = new Timer(delay, jScript, imageId, text, "", "", set, unSet, "", "");
+		this.timer.add(timer);
+	}
+
+	public Timer getTimer(int i) {
+		return timer.get(i);
+	}
+	
+	public int timerCount() {
+		return timer.size();
+	}
+		
 	public void clear() {
 		button = new ArrayList<Button>();
+		timer = new ArrayList<Timer>();
 		delay = null;
 		video = null;
 		audio = null;
