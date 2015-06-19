@@ -47,6 +47,7 @@ public class Jscript {
 
 	public static void jscriptLog(String strMessage) {
 		logger.info(JSCRIPT_MARKER, strMessage);
+		guide.updateJConsole(strMessage);
 	}
 
 	public void runScript(String javaScriptText, String javaFunction, boolean pageloading) {
@@ -117,13 +118,16 @@ public class Jscript {
 					fct.call(cntx, scope, scope, args);
 				} else {
 					logger.error(JSCRIPT_MARKER, " Couldn't find function " + javaFunction);
+					guide.updateJConsole("Couldn't find function " + javaFunction);
 				}
 			}
 			catch (EvaluatorException ex) {
 				logger.error(JSCRIPT_MARKER, "JavaScriptError line " + ex.lineNumber() + " column " + ex.columnNumber() + " Source " + ex.lineSource() + " error " + ex.getLocalizedMessage());
+				guide.updateJConsole("JavaScriptError line " + ex.lineNumber() + " column " + ex.columnNumber() + " Source " + ex.lineSource() + " error " + ex.getLocalizedMessage());
 			}
 			catch (Exception ex) {
 				logger.error(JSCRIPT_MARKER, " FileRunScript " + ex.getLocalizedMessage(), ex);
+				guide.updateJConsole("FileRunScript " + ex.getLocalizedMessage());
 				logger.error(" FileRunScript " + ex.getLocalizedMessage(), ex);
 			}
 			logger.info(JSCRIPT_MARKER, "Ending ScriptVariables: " + scriptVars);

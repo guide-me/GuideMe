@@ -18,13 +18,14 @@ public class Timer {
 	private String unSet;
 	private LocalTime ifBefore; //Time of day must be before this time
 	private LocalTime ifAfter; //Time of day must be after this time
+	private String id;
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	
 	public Timer(String delay, String jScript) {
-		this(delay, jScript, "", "", "", "", "", "", "", "");
+		this(delay, jScript, "", "", "", "", "", "", "", "", "");
 	}
 
-	public Timer(String delay, String jScript, String imageId, String text, String ifSet, String ifNotSet, String set, String unSet, String ifAfter, String ifBefore) {
+	public Timer(String delay, String jScript, String imageId, String text, String ifSet, String ifNotSet, String set, String unSet, String ifAfter, String ifBefore, String id) {
 		this.delay = delay;
 		this.jScript = jScript;
 		this.imageId = imageId;
@@ -42,6 +43,11 @@ public class Timer {
 			this.ifAfter = null;
 		} else {
 			this.ifAfter = LocalTime.parse(ifAfter);
+		}
+		if (id.equals("")) {
+			this.id = java.util.UUID.randomUUID().toString();
+		} else {
+			this.id = id;
 		}
 	}
 
@@ -117,6 +123,10 @@ public class Timer {
 		} else {
 			this.ifAfter = LocalTime.parse(ifAfter);
 		}
+	}
+
+	public String getId() {
+		return id;
 	}
 
 }

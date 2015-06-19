@@ -98,8 +98,8 @@ public class OverRide {
 	 * @param set flags to set when the timer triggers
 	 * @param unSet flags to clear when the timer triggers
 	 */
-	public void addTimer(String delay, String jScript, String imageId, String text, String set, String unSet) {
-		Timer timer = new Timer(delay, jScript, imageId, text, "", "", set, unSet, "", "");
+	public void addTimer(String delay, String jScript, String imageId, String text, String set, String unSet, String id) {
+		Timer timer = new Timer(delay, jScript, imageId, text, "", "", set, unSet, "", "", id);
 		this.timer.add(timer);
 	}
 

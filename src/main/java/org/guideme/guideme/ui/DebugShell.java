@@ -48,6 +48,7 @@ public class DebugShell {
 	private Guide guide;
 	private Text txtText;
 	private Text txtScript;
+	private Text txtScriptConsole;
 	private Text txtVarKey;
 	private Text txtVarValue;
 	private MainShell mainShell;
@@ -225,6 +226,20 @@ public class DebugShell {
 			varScrlComp.setExpandVertical(true);
 			tabVariables.setControl(varScrlComp);
 			
+			//Jscript console Tab
+			TabItem tabConsole = new TabItem(tabFolder, SWT.NONE);
+			tabConsole.setText("JavaScript Console");
+
+			txtScriptConsole = new Text(tabFolder, SWT.LEFT + SWT.MULTI + SWT.WRAP + SWT.READ_ONLY + SWT.V_SCROLL);
+			FormData txtScriptConsoleFormData = new FormData();
+			txtScriptConsoleFormData.top = new FormAttachment(0,0);
+			txtScriptConsoleFormData.left = new FormAttachment(0,0);
+			txtScriptConsoleFormData.right = new FormAttachment(100,0);
+			txtScriptConsoleFormData.bottom = new FormAttachment(100,0);
+			txtScriptConsole.setLayoutData(txtScriptConsoleFormData);
+
+			tabConsole.setControl(txtScriptConsole);
+
 			varComp.layout();
 			varScrlComp.layout();
 			tabFolder.layout();
@@ -719,6 +734,18 @@ public class DebugShell {
 		//varScrlComp.setMinHeight(temp.x);
 		//varScrlComp.setMinWidth(temp.y);
 
+	}
+	
+	public void updateJConsole(String logText) {
+		String conText = txtScriptConsole.getText();
+		String conDelim = txtScriptConsole.getLineDelimiter();
+		if (txtScriptConsole.getLineCount() > 100) {
+			int lastLine = conText.lastIndexOf(conDelim);
+			lastLine = conText.lastIndexOf(conDelim, lastLine - 1);
+			conText = conText.substring(0, lastLine);
+		}
+		conText = logText  + conDelim + conText;
+		txtScriptConsole.setText(conText);
 	}
 
 	public void removePageTables() {

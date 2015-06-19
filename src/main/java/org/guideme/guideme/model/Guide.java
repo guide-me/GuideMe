@@ -669,13 +669,27 @@ public class Guide {
 	 * @param text html text to set the right html pane when the timer triggers
 	 * @param set flags to set when the timer triggers
 	 * @param unSet flags to clear when the timer triggers
+	 * @param id identifier to manipulate the timer later 
 	 */
-	public void addTimer(String delay, String jScript, String imageId, String text, String set, String unSet) {
-		Timer timer = new Timer(delay, jScript, imageId, text, "", "", set, unSet, "", "");
+	public void addTimer(String delay, String jScript, String imageId, String text, String set, String unSet, String id) {
+		Timer timer = new Timer(delay, jScript, imageId, text, "", "", set, unSet, "", "", id);
 		Calendar timCountDown = Calendar.getInstance();
 		timCountDown.add(Calendar.SECOND, timer.getTimerSec());
 		timer.setTimerEnd(timCountDown);
 		mainshell.addTimer(timer);		
 	}
 
+	/**
+	 * Reset the count on a timer
+	 * 
+	 * @param id id used to create the timer
+	 * @param delay time in seconds before the timer triggers
+	 */
+	public void resetTimer(String id, String delay) {
+		mainshell.resetTimer(id, comonFunctions.getRandom(delay));
+	}
+	
+	public void updateJConsole(String logText) {
+		mainshell.updateJConsole(logText);
+	}
 }

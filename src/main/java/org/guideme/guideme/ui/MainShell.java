@@ -7,7 +7,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -142,7 +145,8 @@ public class MainShell {
 	private shellMouseMoveListener mouseListen;
 	private Boolean showMenu = true;
 	private Menu MenuBar;
-	private ArrayList<Timer> timer = new ArrayList<Timer>();
+	private HashMap<String, Timer> timer = new HashMap<String, Timer>();
+	//private ArrayList<Timer> timer = new ArrayList<Timer>();
 	private Rectangle clientArea;
 	private Rectangle clientArea2;
 	private boolean inPrefShell = false;
@@ -1180,13 +1184,18 @@ public class MainShell {
 					}
 					//check timers
 					if (getTimerCount() > 0) {
-						for (int i2 = 0; i2 < getTimerCount(); i2++) {
-							Calendar calTemp = getTimer(i2).getTimerEnd();
+					    Iterator<Entry<String, Timer>> it = timer.entrySet().iterator();
+					    while (it.hasNext()) {
+					        Map.Entry<String, Timer> pair = it.next();
+							Timer objTimer =  pair.getValue();
+							Calendar calTemp =  objTimer.getTimerEnd();
+							logger.debug("Timer: " + objTimer.getId() + " End: " + calTemp.getTime());
+							logger.debug("Timer: " + objTimer.getId() + " Now: " + cal.getTime());
 							if (cal.after(calTemp)) {
+								logger.debug("Timer: " + objTimer.getId() + " Triggered");
 								//add a year to the timer so we don't trigger it again
 								calTemp.add(Calendar.YEAR, 1);
-								getTimer(i2).setTimerEnd(calTemp);
-								Timer objTimer = getTimer(i2);
+								pair.getValue().setTimerEnd(calTemp);
 								comonFunctions.SetFlags(objTimer.getSet(), guide.getFlags());
 								comonFunctions.UnsetFlags(objTimer.getUnSet(), guide.getFlags());
 								String strImage = objTimer.getImageId();
@@ -1225,6 +1234,7 @@ public class MainShell {
 									mainShell.runJscript(javascript);
 								}
 							}
+					        //it.remove(); // avoids a ConcurrentModificationException
 						}
 					}
 					dateFormat = null;
@@ -1984,12 +1994,16 @@ public class MainShell {
 		return shell3;
 	}
 
-	public Timer getTimer(int timIndex) {
-		return timer.get(timIndex);
+	public Timer getTimer(String timKey) {
+		return timer.get(timKey);
 	}
 
 	public void addTimer(Timer timer) {
-		this.timer.add(timer);
+		String tmrId = timer.getId();
+		if (tmrId.equals("")) {
+			tmrId = java.util.UUID.randomUUID().toString();
+		}
+		this.timer.put(tmrId, timer);
 	}
 
 	public int getTimerCount() {
@@ -1997,7 +2011,17 @@ public class MainShell {
 	}
 	
 	private void timerReset() {
-		timer = new ArrayList<Timer>();
+		timer = new HashMap<String, Timer>();
 	}
 	
+	public void resetTimer(String id, int delay) {
+		Timer objTimer = timer.get(id);
+		Calendar timCountDown = Calendar.getInstance();
+		timCountDown.add(Calendar.SECOND, delay);
+		objTimer.setTimerEnd(timCountDown);		
+	}
+	
+	public void updateJConsole(String logText) {
+		debugShell.updateJConsole(logText);
+	}
 }

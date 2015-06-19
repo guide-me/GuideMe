@@ -369,6 +369,7 @@ public class XmlGuideReader {
 							String strSeconds;
 							String imageId;
 							String text = "";
+							String id;
 							strSeconds = reader.getAttributeValue(null, "seconds");
 							ifSet = reader.getAttributeValue(null, "if-set");
 							if (ifSet == null) ifSet = "";
@@ -384,6 +385,8 @@ public class XmlGuideReader {
 							if (UnSet == null) UnSet = "";
 							imageId = reader.getAttributeValue(null, "imageId");
 							if (imageId == null) imageId = "";
+							id = reader.getAttributeValue(null, "id");
+							if (id == null) id = "";
 							String javascript = reader.getAttributeValue(null, "onTriggered");
 							if (javascript == null) javascript = "";
 							if (reader.getName().getLocalPart().equals("Timer")) {
@@ -394,7 +397,7 @@ public class XmlGuideReader {
 									logger.error("loadXML " + PresName + " Timer Exception Text " + ex.getLocalizedMessage(), ex);
 								}
 							}
-							Timer timer = new Timer(strSeconds, javascript, imageId, text, ifSet, ifNotSet, Set, UnSet, ifAfter, ifBefore);
+							Timer timer = new Timer(strSeconds, javascript, imageId, text, ifSet, ifNotSet, Set, UnSet, ifAfter, ifBefore, id);
 							page.addTimer(timer);
 							logger.trace("loadXML " + PresName + " Timer " + strSeconds + "|" + javascript);
 						} catch (Exception e1) {
