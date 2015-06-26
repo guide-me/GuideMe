@@ -131,6 +131,7 @@ public class Jscript {
 				logger.error(" FileRunScript " + ex.getLocalizedMessage(), ex);
 			}
 			logger.info(JSCRIPT_MARKER, "Ending ScriptVariables: " + scriptVars);
+			guide.refreshVars();
 			logger.info(JSCRIPT_MARKER, "Ending Flags {" + guideSettings.getFlags() + "}");
 			Context.exit();
 			guideSettings.setFlags(comonFunctions.GetFlags(guide.getFlags()));

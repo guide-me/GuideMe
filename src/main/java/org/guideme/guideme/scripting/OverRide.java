@@ -23,6 +23,7 @@ public class OverRide {
 	private String leftHtml = "";
 	private String leftBody = "";
 	private String rightCss = "";
+	private String leftCss = "";
 	
 	/**
 	 * Adds a button to the page
@@ -316,9 +317,15 @@ public class OverRide {
 	 * This will function in exactly the same way as setting the right html
 	 * 
 	 * @param leftBody html to replace the contents of the body node
+	 * @param leftCSS
 	 */
-	public void setLeftBody(String leftBody) {
+	public void setLeftBody(String leftBody, String leftCSS) {
 		this.leftBody = leftBody;
+		this.leftCss = leftCSS;
+	}
+
+	public String getLeftCss() {
+		return leftCss;
 	}
 
 }

@@ -678,48 +678,7 @@ public class DebugShell {
 
 			//variables
 			if (refreshVars) {
-				try {
-					HashMap<String, Object> scriptVars;
-					scriptVars = guide.getSettings().getScriptVariables();
-					String flags = comonFuctions.GetFlags(guide.getFlags());
-
-					varTable.removeAll();
-
-					item = new TableItem (varTable, SWT.NONE);
-					item.setBackground(color);
-					item.setText (0, "Flags");
-					item.setText (1, flags);
-
-					for (Entry<String, Object> entry : scriptVars.entrySet()) {
-						try {
-							String key = entry.getKey();
-							String value;
-							Object objVal = entry.getValue();
-							if (objVal != null) {
-								value = comonFunctions.getVarAsString(objVal);
-							} else {
-								value = "null";
-							}
-							item = new TableItem (varTable, SWT.NONE);
-							item.setBackground(color);
-							item.setText (0, key);
-							item.setText (1, value);
-						}
-						catch (Exception ex) {
-							logger.error(ex.getLocalizedMessage(), ex);
-						}
-					}
-
-					for (int i=0; i<2; i++) {
-						varTable.getColumn (i).pack ();
-					}
-
-					prevWidget = varTable;
-				}
-				catch (Exception ex) {
-					logger.error(ex.getLocalizedMessage(), ex);
-				}
-
+				prevWidget = varTable;
 			}
 		}
 		catch (Exception ex) {
@@ -730,10 +689,6 @@ public class DebugShell {
 		tabFolder.update();
 		shell.layout();
 		varScrlComp.setMinSize(varComp.computeSize(SWT.DEFAULT, SWT.DEFAULT));
-		//Point temp = varComp.computeSize(SWT.DEFAULT, SWT.DEFAULT);
-		//varScrlComp.setMinHeight(temp.x);
-		//varScrlComp.setMinWidth(temp.y);
-
 	}
 	
 	public void updateJConsole(String logText) {
@@ -746,6 +701,54 @@ public class DebugShell {
 		}
 		conText = logText  + conDelim + conText;
 		txtScriptConsole.setText(conText);
+	}
+	
+	public void refreshVars() {
+		try {
+			HashMap<String, Object> scriptVars;
+			Color color = myDisplay.getSystemColor(SWT.COLOR_YELLOW);
+			scriptVars = guide.getSettings().getScriptVariables();
+			String flags = comonFuctions.GetFlags(guide.getFlags());
+
+			varTable.removeAll();
+
+			TableItem item = new TableItem (varTable, SWT.NONE);
+			item.setBackground(color);
+			item.setText (0, "Flags");
+			item.setText (1, flags);
+
+			for (Entry<String, Object> entry : scriptVars.entrySet()) {
+				try {
+					String key = entry.getKey();
+					String value;
+					Object objVal = entry.getValue();
+					if (objVal != null) {
+						value = comonFunctions.getVarAsString(objVal);
+					} else {
+						value = "null";
+					}
+					item = new TableItem (varTable, SWT.NONE);
+					item.setBackground(color);
+					item.setText (0, key);
+					item.setText (1, value);
+				}
+				catch (Exception ex) {
+					logger.error(ex.getLocalizedMessage(), ex);
+				}
+			}
+
+			for (int i=0; i<2; i++) {
+				varTable.getColumn (i).pack ();
+			}
+			tabFolder.layout();
+			tabFolder.pack();
+			tabFolder.update();
+			shell.layout();
+			varScrlComp.setMinSize(varComp.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		}
+		catch (Exception ex) {
+			logger.error(ex.getLocalizedMessage(), ex);
+		}
 	}
 
 	public void removePageTables() {

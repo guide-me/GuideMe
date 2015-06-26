@@ -1189,8 +1189,8 @@ public class MainShell {
 					        Map.Entry<String, Timer> pair = it.next();
 							Timer objTimer =  pair.getValue();
 							Calendar calTemp =  objTimer.getTimerEnd();
-							logger.debug("Timer: " + objTimer.getId() + " End: " + calTemp.getTime());
-							logger.debug("Timer: " + objTimer.getId() + " Now: " + cal.getTime());
+							//logger.debug("Timer: " + objTimer.getId() + " End: " + calTemp.getTime());
+							//logger.debug("Timer: " + objTimer.getId() + " Now: " + cal.getTime());
 							if (cal.after(calTemp)) {
 								logger.debug("Timer: " + objTimer.getId() + " Triggered");
 								//add a year to the timer so we don't trigger it again
@@ -1543,6 +1543,18 @@ public class MainShell {
 		}
 	}
 
+	public void setLeftHtml(String strHTML) {
+		//set HTML to be displayed in the browser control to the left of the screen
+		try {
+			this.imageLabel.setText(strHTML);
+		} catch (Exception e1) {
+			logger.error("setLeftHtml Text Exception " + e1.getLocalizedMessage(), e1);
+			strHTML = leftHTML.replace("DefaultStyle", style);
+			strHTML = strHTML.replace("BodyContent", "");
+			this.imageLabel.setText(strHTML);
+		}
+	}
+
 	public void removeButtons() {
 		//remove all the buttons displayed for the previous page
         try {
@@ -1726,9 +1738,10 @@ public class MainShell {
 
 	//run the javascript function passed 
 	public void runJscript(String function) {
+		getFormFields();
+		refreshVars();
 		if (function == null) function = "";
 		if (! function.equals("")) {
-			getFormFields();
 			Jscript jscript = new Jscript(guide, userSettings, appSettings, guide.getInPrefGuide(), mainShell);
 			Page objCurrPage = guide.getChapters().get(guideSettings.getChapter()).getPages().get(guideSettings.getPage());
 			String pageJavascript = objCurrPage.getjScript();
@@ -1771,18 +1784,22 @@ public class MainShell {
 				checked = values[3];
 				if (type.equals("checkbox")) {
 					guideSettings.setFormField(name, checked);
+					guideSettings.setScriptVar(name, checked);
 				}
 				if (type.equals("radio")) {
 					if (checked.equals("true")) {
 						guideSettings.setFormField(name, value);
+						guideSettings.setScriptVar(name, value);
 					}
 				}
 				if (type.equals("text")) {
 					guideSettings.setFormField(name, value);
+					guideSettings.setScriptVar(name, value);
 				}
 				
 				if (type.equals("select-one")) {
 					guideSettings.setFormField(name, value);
+					guideSettings.setScriptVar(name, value);
 				}
 
 				logger.trace(name + "|" + value +  "|" + type +  "|" + checked);
@@ -1799,18 +1816,22 @@ public class MainShell {
 				checked = values[3];
 				if (type.equals("checkbox")) {
 					guideSettings.setFormField(name, checked);
+					guideSettings.setScriptVar(name, checked);
 				}
 				if (type.equals("radio")) {
 					if (checked.equals("true")) {
 						guideSettings.setFormField(name, value);
+						guideSettings.setScriptVar(name, value);
 					}
 				}
 				if (type.equals("text")) {
 					guideSettings.setFormField(name, value);
+					guideSettings.setScriptVar(name, value);
 				}
 				
 				if (type.equals("select-one")) {
 					guideSettings.setFormField(name, value);
+					guideSettings.setScriptVar(name, value);
 				}
 
 				logger.trace(name + "|" + value +  "|" + type +  "|" + checked);
@@ -1859,6 +1880,7 @@ public class MainShell {
 	}
 
 	public void displayPage(String target) {
+		getFormFields();
 		mainLogic.displayPage(target, false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
 	}
 	
@@ -2023,5 +2045,9 @@ public class MainShell {
 	
 	public void updateJConsole(String logText) {
 		debugShell.updateJConsole(logText);
+	}
+
+	public void refreshVars() {
+		debugShell.refreshVars();
 	}
 }

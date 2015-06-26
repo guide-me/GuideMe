@@ -462,7 +462,7 @@ public class MainLogic {
 							
 							displayText = comonFunctions.substituteTextVars(displayText, guideSettings, userSettings);
 
-							mainShell.setLeftText(displayText, overRide.getRightCss());
+							mainShell.setLeftText(displayText, overRide.getLeftCss());
 						} catch (Exception e) {
 							logger.error("displayPage BrwsText Exception " + e.getLocalizedMessage(), e);
 							mainShell.setLeftText("", "");

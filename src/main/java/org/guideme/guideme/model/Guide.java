@@ -599,10 +599,19 @@ public class Guide {
 	/**
 	 * @param leftHtml
 	 */
-	public void setLeftHtml(String leftBody, String overRideStyle) {
-		mainshell.setLeftText(leftBody, overRideStyle);
+	public void setLeftHtml(String leftHtml) {
+		mainshell.setLeftHtml(leftHtml);
 	}
 	
+
+	/**
+	 * @param leftBody
+	 * @param overRideStyle
+	 */
+	public void setLeftBody(String leftBody, String overRideStyle) {
+		mainshell.setLeftText(leftBody, overRideStyle);
+	}
+
 	/**
 	 * 
 	 */
@@ -615,6 +624,14 @@ public class Guide {
 	 * @param overRideStyle
 	 */
 	public void setRightHtml(String brwsText, String overRideStyle) {
+		mainshell.setBrwsText(brwsText, overRideStyle);
+	}
+	
+	/**
+	 * @param brwsText
+	 * @param overRideStyle
+	 */
+	public void setRightBody(String brwsText, String overRideStyle) {
 		mainshell.setBrwsText(brwsText, overRideStyle);
 	}
 	
@@ -689,7 +706,18 @@ public class Guide {
 		mainshell.resetTimer(id, comonFunctions.getRandom(delay));
 	}
 	
+	/**
+	 * Write to the java script console in the debug window
+	 * 
+	 * This also gets called by the jscriptLog function which will write to the log and the console
+	 * @param logText
+	 */
 	public void updateJConsole(String logText) {
 		mainshell.updateJConsole(logText);
 	}
+	
+	public void refreshVars() {
+		mainshell.refreshVars();
+	}
+	
 }

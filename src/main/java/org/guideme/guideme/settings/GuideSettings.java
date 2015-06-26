@@ -621,5 +621,8 @@ public class GuideSettings{
 		this.globalScriptLogged = globalScriptLogged;
 	}
 
+	public void setScriptVar(String key, Object var) {
+		scriptVariables.put(key, var);
+	}
 }
 
