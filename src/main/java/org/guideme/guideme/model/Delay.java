@@ -18,8 +18,10 @@ public class Delay {
 	private LocalTime ifBefore; //Time of day must be before this time
 	private LocalTime ifAfter; //Time of day must be after this time
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
+	private String scriptVar;
 	
-	public Delay(String target, String delay, String ifSet, String ifNotSet, String startWith, String style, String set, String unSet, String jScript, String ifAfter, String ifBefore) {
+	
+	public Delay(String target, String delay, String ifSet, String ifNotSet, String startWith, String style, String set, String unSet, String jScript, String ifAfter, String ifBefore, String scriptVar) {
 		this.target = target;
 		this.delay = delay;
 		this.ifNotSet = ifNotSet;
@@ -39,6 +41,8 @@ public class Delay {
 		} else {
 			this.ifAfter = LocalTime.parse(ifAfter);
 		}
+		this.scriptVar = scriptVar;
+
 	}
 
 	public boolean canShow(ArrayList<String> setList) {
@@ -114,6 +118,11 @@ public class Delay {
 			this.ifAfter = LocalTime.parse(ifAfter);
 		}
 	}
+
+	public String getScriptVar() {
+		return scriptVar;
+	}
+
 
 
 }

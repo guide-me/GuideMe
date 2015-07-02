@@ -123,12 +123,12 @@ public class ComonFunctions{
     	boolean show = false;
     	LocalTime now = LocalTime.now();
     	if (ifBefore != null) {
-    		if (ifBefore.isAfter(now)) {
+    		if (ifBefore.isBefore(now)) {
     			before = false;
     		}
     	}
     	if (ifAfter != null) {
-    		if (ifAfter.isBefore(now)) {
+    		if (ifAfter.isAfter(now)) {
     			after = false;
     		}
     	}
@@ -1105,6 +1105,22 @@ public class ComonFunctions{
 	        return String.format("%s",prefNumber);
 	}	
 	
+	//Set script variables from the scriptVar node in the guide xml
+	public void processSrciptVars(String scriptVars, GuideSettings guidesettings) {
+		String[] vars = scriptVars.split(",");
+		for (String var : vars) {
+			String[] parts = var.split("=");
+			try {
+				if (!parts[0].equals("")) {
+					guidesettings.setScriptVar(parts[0], parts[1]);
+				}
+			} catch (Exception e) {
+				logger.error("scriptVar can't set " + var + " " + e.getLocalizedMessage(), e);
+			}
+		}
+	}
+	
+
 	/*
 	public Object xmlFileToObject(String xmlFileName) { 
 

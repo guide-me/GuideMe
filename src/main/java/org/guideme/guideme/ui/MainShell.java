@@ -96,6 +96,7 @@ public class MainShell {
 	private int videoStopAt = 0;
 	private String videoTarget = "";
 	private String videoJscript = "";
+	private String videoScriptVar = "";
 	private Boolean videoPlay = false;
 	private Guide guide = Guide.getGuide();
 	private GuideSettings guideSettings = guide.getSettings();
@@ -778,9 +779,16 @@ public class MainShell {
 			logger.debug("MediaListener finished");
 			super.finished(mediaPlayer);
 			try {
-				mediaPanel.setVisible(false);
-				imageLabel.setVisible(true);
-				leftFrame.layout(true);
+				//run on the main UI thread
+				myDisplay.syncExec(
+						new Runnable() {
+							public void run(){
+								mainShell.setLeftText("", "");
+								mediaPanel.setVisible(false);
+								imageLabel.setVisible(true);
+								leftFrame.layout(true);
+							}
+						});											
 			}
 			catch (Exception ex) {
 				logger.error(" MediaListener finished " + ex.getLocalizedMessage(), ex);
@@ -807,6 +815,7 @@ public class MainShell {
 										}
 									});											
 						}
+						comonFunctions.processSrciptVars(videoScriptVar, guideSettings);
 				}
 			} catch (Exception e) {
 				logger.error("mediaStateChanged " + e.getLocalizedMessage(), e);
@@ -1145,6 +1154,7 @@ public class MainShell {
 							lblRight.setText("");
 							comonFunctions.SetFlags(guide.getDelaySet(), guide.getFlags());
 							comonFunctions.UnsetFlags(guide.getDelayUnSet(), guide.getFlags());
+							comonFunctions.processSrciptVars(guide.getDelayScriptVar(), guideSettings);
 							javascript = guide.getDelayjScript();
 							if (!javascript.equals("")) {
 								mainShell.runJscript(javascript);
@@ -1396,7 +1406,7 @@ public class MainShell {
 		}
 	}
 	
-	public void playVideo(String video, int startAt, int stopAt, int loops, String target, String jscript) {
+	public void playVideo(String video, int startAt, int stopAt, int loops, String target, String jscript, String scriptVar) {
 		//plays a video in the area to the left of the screen
 		//sets the number of loops, start / stop time and any page to display if the video finishes
 		//starts the video using a non UI thread so VLC can't hang the application
@@ -1412,6 +1422,7 @@ public class MainShell {
 				videoStartAt = startAt;
 				videoStopAt = stopAt;
 				videoJscript = jscript;
+				videoScriptVar = scriptVar;
 				videoPlay = true;
 				String mrlVideo = "file:///" + video;
 				logger.debug("MainShell playVideo: " + mrlVideo + " videoLoops: " + videoLoops + " videoTarget: " + videoTarget + " videoPlay: " + videoPlay);
@@ -1470,14 +1481,14 @@ public class MainShell {
 
 	
 	
-	public void playAudio(String audio, int startAt, int stopAt, int loops, String target, String jscript) {
+	public void playAudio(String audio, int startAt, int stopAt, int loops, String target, String jscript, String scriptVar) {
 		// run audio on another thread
 		try {
 			if (audioPlayer != null) {
 				audioPlayer.audioStop();
 				logger.trace("playAudio audioStop");
 			}
-			audioPlayer = new AudioPlayer(audio, startAt, stopAt, loops, target, mainShell, jscript);
+			audioPlayer = new AudioPlayer(audio, startAt, stopAt, loops, target, mainShell, jscript, scriptVar);
 			threadAudioPlayer = new Thread(audioPlayer, "audioPlayer");
 			threadAudioPlayer.start();
 		} catch (Exception e) {
@@ -1590,6 +1601,7 @@ public class MainShell {
 				btnDynamic.setData("UnSet", "");
 			}
 			btnDynamic.setData("Target", guide.getDelTarget());
+			btnDynamic.setData("scriptVar", guide.getDelayScriptVar());
 			btnDynamic.setData("javascript", guide.getDelayjScript());
 			btnDynamic.addSelectionListener(new DynamicButtonListner());
 		} catch (Exception e) {
@@ -1685,6 +1697,7 @@ public class MainShell {
 			} else {
 				btnDynamic.setData("UnSet", "");
 			}
+			btnDynamic.setData("scriptVar", button.getScriptVar());
 			btnDynamic.setData("javascript", javascript);
 			logger.debug("displayPage Button Text " + strBtnText + " Target " + strBtnTarget + " Set " + strButtonSet + " UnSet " + strButtonUnSet);
 			
@@ -1724,6 +1737,8 @@ public class MainShell {
 				if (!strTag.equals("")) {
 					comonFunctions.UnsetFlags(strTag, guide.getFlags());
 				}
+				String scriptVar = (String) btnClicked.getData("scriptVar");
+				comonFunctions.processSrciptVars(scriptVar, guideSettings);
 				strTag = (String) btnClicked.getData("Target");
 				String javascript = (String) btnClicked.getData("javascript");
 				runJscript(javascript);
@@ -2050,4 +2065,10 @@ public class MainShell {
 	public void refreshVars() {
 		debugShell.refreshVars();
 	}
+	
+	public GuideSettings getGuideSettings() {
+		return guideSettings;
+		
+	}
+	
 }

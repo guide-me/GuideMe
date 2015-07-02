@@ -20,8 +20,9 @@ public class Video
 	private LocalTime ifBefore; //Time of day must be before this time
 	private LocalTime ifAfter; //Time of day must be after this time
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
+	private String scriptVar;
 
-	public Video(String id, String startAt, String stopAt, String target, String ifSet, String ifNotSet, String set, String unSet, String repeat, String jscript, String ifAfter, String ifBefore)
+	public Video(String id, String startAt, String stopAt, String target, String ifSet, String ifNotSet, String set, String unSet, String repeat, String jscript, String ifAfter, String ifBefore, String scriptVar)
 	{
 		this.id = id;
 		this.startAt = startAt;
@@ -43,6 +44,8 @@ public class Video
 		} else {
 			this.ifAfter = LocalTime.parse(ifAfter);
 		}
+		this.scriptVar = scriptVar;
+
 	}
 
 	public String getId() {
@@ -62,7 +65,11 @@ public class Video
 	}
 
 	public boolean canShow(ArrayList<String> setList) {
-		return comonFunctions.canShow(setList, this.ifSet, this.ifNotSet);
+		boolean retVal = comonFunctions.canShowTime(ifBefore, ifAfter);
+		if (retVal) {
+			retVal =  comonFunctions.canShow(setList, ifSet, ifNotSet);
+		}
+		return retVal;
 	}
 
 	public void setUnSet(ArrayList<String> setList) {
@@ -110,5 +117,11 @@ public class Video
 			this.ifAfter = LocalTime.parse(ifAfter);
 		}
 	}
+
+	public String getScriptVar() {
+		return scriptVar;
+	}
+
+
 
 }

@@ -76,7 +76,7 @@ public class OverRide {
 		} catch (Exception e) {
 			order = 1;
 		}
-		Button button = new Button(target, text, "", "", set, unSet, jScript, image, hotKey, "", "", "", "", "", order, "", "", disabled, id);
+		Button button = new Button(target, text, "", "", set, unSet, jScript, image, hotKey, "", "", "", "", "", order, "", "", disabled, id, "");
 		this.button.add(button);
 	}
 
@@ -148,7 +148,7 @@ public class OverRide {
 	 * @param jScript Java Script function to run if delay counts down to 0
 	 */
 	public void setDelay(String target, String delay, String startWith, String style, String set, String unSet, String jScript) {
-		this.delay = new Delay(target, delay, "", "", startWith, style, set, unSet, jScript, "", "");
+		this.delay = new Delay(target, delay, "", "", startWith, style, set, unSet, jScript, "", "", "");
 	}
 
 	public Video getVideo() {
@@ -173,7 +173,7 @@ public class OverRide {
 	 * @param jscript Java Script function to run when the video stops
 	 */
 	public void setVideo(String id, String startAt, String stopAt, String target, String set, String unSet, String repeat, String jscript) {
-		this.video = new Video(id, startAt, stopAt, target, "", "", set, unSet, repeat, jscript, "", "");
+		this.video = new Video(id, startAt, stopAt, target, "", "", set, unSet, repeat, jscript, "", "", "");
 	}
 
 	public Audio getAudio() {
@@ -198,7 +198,7 @@ public class OverRide {
 	 * @param jscript Java Script function to run when the audio stops
 	 */
 	public void setAudio(String id, String startAt, String stopAt, String target, String set, String unSet, String repeat, String jscript) {
-		this.audio = new Audio(id, startAt, stopAt, target, "", "", set, unSet, repeat, jscript, "", "");
+		this.audio = new Audio(id, startAt, stopAt, target, "", "", set, unSet, repeat, jscript, "", "", "");
 	}
 
 	public Metronome getMetronome() {

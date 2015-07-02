@@ -19,9 +19,10 @@ public class Audio {
 	private LocalTime ifBefore; //Time of day must be before this time
 	private LocalTime ifAfter; //Time of day must be after this time
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
+	private String scriptVar;
 	
 
-	public Audio(String id, String startAt, String stopAt, String target, String ifSet, String ifNotSet, String set, String unSet, String repeat, String jscript, String ifAfter, String ifBefore) {
+	public Audio(String id, String startAt, String stopAt, String target, String ifSet, String ifNotSet, String set, String unSet, String repeat, String jscript, String ifAfter, String ifBefore, String scriptVar) {
 		this.id = id;
 		this.startAt = startAt;
 		this.stopAt = stopAt;
@@ -42,6 +43,7 @@ public class Audio {
 		} else {
 			this.ifAfter = LocalTime.parse(ifAfter);
 		}
+		this.scriptVar = scriptVar;
 
 	}
 
@@ -117,5 +119,8 @@ public class Audio {
 	}
 
 	
-	
+	public String getScriptVar() {
+		return scriptVar;
+	}
+
 }

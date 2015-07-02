@@ -246,6 +246,7 @@ public class MainLogic {
 						guide.setDelStyle(objDelay.getstyle());
 						guide.setDelTarget(objDelay.getTarget());
 						guide.setDelayjScript(objDelay.getjScript());
+						guide.setDelayScriptVar(objDelay.getScriptVar());
 						strDelStartAt = objDelay.getStartWith();
 						intDelSeconds = objDelay.getDelaySec();
 						try {
@@ -349,7 +350,7 @@ public class MainLogic {
 							catch (NumberFormatException nfe) {
 							}
 							// Play video
-							mainShell.playVideo(imgPath, intStartAt, intStopAt, repeat, objVideo.getTarget(), objVideo.getJscript());
+							mainShell.playVideo(imgPath, intStartAt, intStopAt, repeat, objVideo.getTarget(), objVideo.getJscript(), objVideo.getScriptVar());
 						}
 					} catch (Exception e1) {
 						logger.trace("displayPage Video Exception " + e1.getLocalizedMessage());
@@ -632,7 +633,7 @@ public class MainLogic {
 
 							imgPath = comonFunctions.getMediaFullPath(strAudio, fileSeparator, appSettings, guide);
 							strAudioTarget = objAudio.getTarget();
-							mainShell.playAudio(imgPath,startAtSeconds, stopAtSeconds, intAudioLoops, strAudioTarget, objAudio.getJscript());
+							mainShell.playAudio(imgPath,startAtSeconds, stopAtSeconds, intAudioLoops, strAudioTarget, objAudio.getJscript(), objAudio.getScriptVar());
 							logger.debug("displayPage Audio target " + strAudioTarget);
 						}
 					} catch (Exception e) {

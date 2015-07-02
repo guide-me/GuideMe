@@ -43,6 +43,7 @@ public class Guide {
 	private String delaySet; //flags to set for currently running delay
 	private String delayUnSet; //flags to clear for currently running delay
 	private int delStartAtOffSet; //offset for currently running delay
+	private String delayScriptVar;
 	private String id; //name for current xml that is running
 	private GuideSettings settings = new GuideSettings("startup"); //state for the currently running xml
 	private String jScript;
@@ -718,6 +719,14 @@ public class Guide {
 	
 	public void refreshVars() {
 		mainshell.refreshVars();
+	}
+
+	public String getDelayScriptVar() {
+		return delayScriptVar;
+	}
+
+	public void setDelayScriptVar(String delayScriptVar) {
+		this.delayScriptVar = delayScriptVar;
 	}
 	
 }
