@@ -728,5 +728,32 @@ public class Guide {
 	public void setDelayScriptVar(String delayScriptVar) {
 		this.delayScriptVar = delayScriptVar;
 	}
+
+	/**
+	 * Checks to see if a page exists within a chapter
+	 * 
+	 * @param chapter
+	 * @param page
+	 * @return
+	 */
+	public boolean pageExists(String chapter, String page) {
+		try {
+			return chapters.get(chapter).getPages().containsKey(page);
+		}
+		catch (Exception ex) {
+			return false;
+		}		
+	}
+	
+	/**
+	 * Checks to see if the pages exists within the default chapter
+	 * 
+	 * @param page
+	 * @return
+	 */
+	public boolean pageExists(String page) {
+		return pageExists("default", page);
+	}
+	
 	
 }
