@@ -1137,7 +1137,7 @@ public class MainShell {
 									  Scalr.resize(img, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC,
 											  newWidth, newHeight, Scalr.OP_ANTIALIAS);
 							String imgType = imgPath.substring(imgPath.length() - 3);
-							String tmpPath = appSettings.getDataDirectory();
+							String tmpPath = appSettings.getTempDir();
 							File newImage = File.createTempFile("tmpImage", imgType, new File(tmpPath));
 							newImage.deleteOnExit();
 							tmpImagePath = newImage.getAbsolutePath();
@@ -1419,7 +1419,7 @@ public class MainShell {
 						Scalr.resize(img, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC,
 								newWidth, newHeight, Scalr.OP_ANTIALIAS);
 				String imgType = imgPath.substring(imgPath.length() - 3);
-				String tmpPath = appSettings.getDataDirectory();
+				String tmpPath = appSettings.getTempDir();
 				File newImage = File.createTempFile("tmpImage", imgType, new File(tmpPath));
 				newImage.deleteOnExit();
 				tmpImagePath = newImage.getAbsolutePath();

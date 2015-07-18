@@ -43,6 +43,7 @@ public class AppSettings {
 	private boolean clock = true;
 	private boolean metronome = true;
 	private String ComandLineGuide = "";
+	private String tempDir;
 
 	public static synchronized AppSettings getAppSettings() {
 		if (appSettings == null) {
@@ -64,6 +65,7 @@ public class AppSettings {
 			userName = String.valueOf(properties.get("user.name"));
 			fileSeparator = String.valueOf(properties.get("file.separator"));
 			settingsLocation = "data" + fileSeparator + "settings.properties";
+			tempDir = "data" + fileSeparator;
 			logger.debug("AppSettings userDir: " + userDir);
 			logger.debug("AppSettings userHome: " + userHome);
 			logger.debug("AppSettings userName: " + userName);
@@ -350,6 +352,10 @@ public class AppSettings {
 
 	public void setHideMenu(boolean hideMenu) {
 		this.hideMenu = hideMenu;
+	}
+
+	public String getTempDir() {
+		return tempDir;
 	}
 
 }

@@ -70,14 +70,14 @@ public class GuideSettings{
 		String order;
 		int sortOrder;
 		AppSettings appSettings = AppSettings.getAppSettings();
-		String dataDirectory = appSettings.getDataDirectory();
-		String prefix = "";
-		if (dataDirectory.startsWith("/")) {
-			prefix = "/";
-		}
+		String dataDirectory = appSettings.getTempDir();
+		//String prefix = "";
+		//if (dataDirectory.startsWith("/")) {
+		//	prefix = "/";
+		//}
 		ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
-		dataDirectory = prefix + comonFunctions.fixSeparator(dataDirectory, appSettings.getFileSeparator());
-		filename = dataDirectory + appSettings.getFileSeparator() + GuideId + ".state";
+		//dataDirectory = prefix + comonFunctions.fixSeparator(dataDirectory, appSettings.getFileSeparator());
+		filename = dataDirectory + GuideId + ".state";
 		Logger logger = LogManager.getLogger();
 		logger.debug("GuideSettings appSettings.getDataDirectory(): " + appSettings.getDataDirectory());
 		logger.debug("GuideSettings dataDirectory: " + dataDirectory);
