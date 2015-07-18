@@ -8,6 +8,7 @@ import java.util.Properties;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.DeviceData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -83,6 +84,9 @@ public class App
 
 			MainShell mainShell;
 			Shell shell;
+			DisplayKeyEventListener keylistener = new DisplayKeyEventListener();
+			display.addFilter(SWT.KeyDown, keylistener);
+
 			do {
 				appSettings.setMonitorChanging(false);
 				logger.trace("create main shell");
@@ -94,9 +98,8 @@ public class App
 				if (mainShell.getMultiMonitor()){
 					mainShell.getShell2().open();
 				}
-				mainShell.getShell3().open();
-				mainShell.getShell3().setVisible(false);
-
+				keylistener.setMainShell(mainShell);
+				
 				//loop round until the window is closed
 				while (!shell.isDisposed()) {
 					if (appSettings.isMonitorChanging()) {

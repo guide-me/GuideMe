@@ -113,7 +113,7 @@ public class MainShell {
 	private Calendar calCountDown = null;
 	private Shell shell;
 	private Shell shell2;
-	private Shell shell3;
+	//private Shell shell3;
 	private DebugShell debugShell;
 	private Display myDisplay;
 	private Font controlFont;
@@ -143,7 +143,7 @@ public class MainShell {
 	private HashMap<String, com.snapps.swt.SquareButton> hotKeys = new HashMap<String, com.snapps.swt.SquareButton>();
 	private HashMap<String, com.snapps.swt.SquareButton> buttons = new HashMap<String, com.snapps.swt.SquareButton>();
 	private shellKeyEventListener keyListener;
-	private shellMouseMoveListener mouseListen;
+	//private shellMouseMoveListener mouseListen;
 	private Boolean showMenu = true;
 	private Menu MenuBar;
 	private HashMap<String, Timer> timer = new HashMap<String, Timer>();
@@ -217,8 +217,8 @@ public class MainShell {
 			logger.trace("key filter");
 			keyListener = new shellKeyEventListener();
 			myDisplay.addFilter(SWT.KeyDown, keyListener);
-			mouseListen = new shellMouseMoveListener();
-			myDisplay.addFilter(SWT.MouseMove, mouseListen);
+			//mouseListen = new shellMouseMoveListener();
+			//myDisplay.addFilter(SWT.MouseMove, mouseListen);
 			int mainMonitor = appSettings.getMainMonitor();
 			
 			clientArea2 = null;
@@ -249,8 +249,9 @@ public class MainShell {
 			}
 			
 			//debug shell
-			debugShell = new DebugShell();
-			shell3 = debugShell.createShell(myDisplay, this);
+			debugShell = DebugShell.getDebugShell();
+			debugShell.createShell(myDisplay, this);
+			
 			
 			//get primary monitor and its size
 			clientArea = monitors[0].getClientArea();
@@ -591,6 +592,8 @@ public class MainShell {
 
 		@Override
 		public void handleEvent(Event e) {
+			Rectangle rect = shell.getBounds(); 
+			Rectangle rect2; 
 			if (appSettings.isHideMenu()  && !inPrefShell) {
 				if (e.widget instanceof Control) {
 					Point absolutePos = ((Control) e.widget).toDisplay(e.x, e.y);
@@ -599,14 +602,15 @@ public class MainShell {
 						if (!shell.isDisposed()) {
 							shell.setMenuBar(MenuBar);
 							shell.pack();
-							shell.setMaximized(true);
-							shell.setBounds(clientArea);
+							//shell.setMaximized(true);
+							shell.setBounds(rect);
 						}
 						if (multiMonitor) {
 							if (!shell2.isDisposed()) {
+								rect2 = shell2.getBounds();
 								shell2.pack();
-								shell2.setMaximized(true);
-								shell2.setBounds(clientArea2);
+								//shell2.setMaximized(true);
+								shell2.setBounds(rect2);
 							}
 						}
 						showMenu = true;
@@ -614,14 +618,15 @@ public class MainShell {
 						if (!shell.isDisposed()) {
 							shell.setMenuBar(null);
 							shell.pack();
-							shell.setMaximized(true);
-							shell.setBounds(clientArea);
+							//shell.setMaximized(true);
+							shell.setBounds(rect);
 						}
 						if (multiMonitor) {
 							if (!shell2.isDisposed()) {
+								rect2 = shell2.getBounds();
 								shell2.pack();
-								shell2.setMaximized(true);
-								shell2.setBounds(clientArea2);	        			}
+								//shell2.setMaximized(true);
+								shell2.setBounds(rect2);	        			}
 						}
 						showMenu = false;
 					}
@@ -633,14 +638,15 @@ public class MainShell {
 					if (!shell.isDisposed()) {
 						shell.setMenuBar(MenuBar);
 						shell.pack();
-						shell.setMaximized(true);
-						shell.setBounds(clientArea);
+						//shell.setMaximized(true);
+						shell.setBounds(rect);
 					}
 					if (multiMonitor) {
 						if (!shell2.isDisposed()) {
+							rect2 = shell2.getBounds();
 							shell2.pack();
-							shell2.setMaximized(true);
-							shell2.setBounds(clientArea2);
+							//shell2.setMaximized(true);
+							shell2.setBounds(rect2);
 						}
 					}
 					showMenu = true;
@@ -661,7 +667,7 @@ public class MainShell {
 				if (shell2 != null) {
 					shell2.close();
 				}
-				shell3.close();
+				debugShell.closeShell();
 				int[] intWeights;
 				if (!multiMonitor) {
 					intWeights = sashform.getWeights();
@@ -700,7 +706,56 @@ public class MainShell {
 		@Override
 		public void handleEvent(Event event) {
 			try {
-				if (((event.stateMask & SWT.ALT) == SWT.ALT) && (event.keyCode == 'd')) {
+				logger.trace(event.character + "|" + event.keyCode + "|" + event.keyLocation + "|" + event.stateMask);
+				if (((event.stateMask & SWT.ALT) == SWT.ALT)) {
+					switch (event.character) {
+					/*
+					case 'd' :
+						shell3.setVisible(!shell3.getVisible());
+						if (shell3.isVisible()) {
+							shell3.setActive();
+						}
+						break;
+						*/
+					case 'm' :
+						Rectangle rect = shell.getBounds(); 
+						Rectangle rect2; 
+						if (!showMenu) {
+							if (!shell.isDisposed()) {
+								shell.setMenuBar(MenuBar);
+								shell.pack();
+								//shell.setMaximized(true);
+								shell.setBounds(rect);
+							}
+							if (multiMonitor) {
+								if (!shell2.isDisposed()) {
+									rect2 = shell2.getBounds();
+									shell2.pack();
+									//shell2.setMaximized(true);
+									shell2.setBounds(rect2);
+								}
+							}
+							showMenu = true;
+						} else {
+							if (!shell.isDisposed()) {
+								shell.setMenuBar(null);
+								shell.pack();
+								//shell.setMaximized(true);
+								shell.setBounds(rect);
+							}
+							if (multiMonitor) {
+								if (!shell2.isDisposed()) {
+									rect2 = shell2.getBounds();
+									shell2.pack();
+									//shell2.setMaximized(true);
+									shell2.setBounds(rect2);	        			
+								}
+							}
+							showMenu = false;
+						}						
+						break;
+					}
+					/*
 					if (comonFunctions.onWindows() && event.character != "d".charAt(0)) {
 						//ignore
 					} else {
@@ -709,6 +764,7 @@ public class MainShell {
 							shell3.setActive();
 						}
 					}
+					*/
 				} else {
 					com.snapps.swt.SquareButton hotKeyButton;
 					String key = String.valueOf(event.character);
@@ -2027,10 +2083,6 @@ public class MainShell {
 		return multiMonitor;
 	}
 
-	public Shell getShell3() {
-		return shell3;
-	}
-
 	public Timer getTimer(String timKey) {
 		return timer.get(timKey);
 	}
@@ -2071,4 +2123,7 @@ public class MainShell {
 		
 	}
 	
+	public void showDebug() {
+		debugShell.showDebug();
+	}
 }

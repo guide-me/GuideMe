@@ -27,7 +27,7 @@ public class MainLogicTest {
 	private MainLogic mainLogic = MainLogic.getMainLogic();
 	private Guide guide = Guide.getGuide();
 	private MainShell mainShell = new MainShellMock(); 
-	private DebugShell debugShell = new DebugShell();
+	private DebugShell debugShell;
 	private AppSettings appSettings = AppSettingsMock.getAppSettings();
 	private UserSettings userSettings = UserSettings.getUserSettings();
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
@@ -44,6 +44,7 @@ public class MainLogicTest {
 		if (singlePage) {
 			String guideFileName = "\\A tribute to Jurgita Valts.xml";
 			String pageId = "page21";
+			debugShell = DebugShell.getDebugShell(); 
 			appSettings.setDataDirectory(dataDirectory);
 			xmlGuideReader.loadXML(dataDirectory + guideFileName, guide, appSettings, debugShell);
 			guideSettings = guide.getSettings();
@@ -59,6 +60,7 @@ public class MainLogicTest {
 			String guideId = "SWTPortTest";
 			String guideFileName = "\\" + guideId + ".xml";
 			guide.reset(guideId);
+			debugShell = DebugShell.getDebugShell(); 
 			xmlGuideReader.loadXML(dataDirectory + guideFileName, guide, appSettings, debugShell);
 			guideSettings = guide.getSettings();
 			Set<String> chapters = guide.getChapters().keySet();
@@ -78,6 +80,7 @@ public class MainLogicTest {
 	public void testDisplayPageStringStringBooleanGuideMainShellAppSettings() {
 		if (allGuides) {
 			appSettings.setDataDirectory(dataDirectory);
+			debugShell = DebugShell.getDebugShell(); 
 			File f = new File(dataDirectory);
 			// wildcard filter class handles the filtering
 			ComonFunctions.WildCardFileFilter WildCardfilter = comonFunctions.new WildCardFileFilter();
@@ -107,6 +110,7 @@ public class MainLogicTest {
 	@Test
 	public void scriptedTest() {
 		if (scriptedTest) {
+			debugShell = DebugShell.getDebugShell(); 
 			String script = "data\\pageScript.txt";
 			appSettings.setDataDirectory(dataDirectory);
 			 try {

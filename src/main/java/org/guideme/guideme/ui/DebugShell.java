@@ -19,6 +19,8 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -58,24 +60,41 @@ public class DebugShell {
 	private TabFolder  tabFolder;
 	private Table varTable;
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
+	private static DebugShell debugShell;
+	private Boolean keepShellOpen;
 
-	public DebugShell() {
+	public static synchronized DebugShell getDebugShell() {
+		if (debugShell == null) {
+			debugShell = new DebugShell();
+		}
+		return debugShell;
+	}
+	
+	protected  DebugShell() {
 		super();
 	}
 
-	public Shell createShell(final Display display, MainShell mainshell) {
+	public void createShell(final Display display, MainShell mainshell) {
 		logger.trace("Enter createShell");
 		try {
-
+			keepShellOpen = true;
 			comonFuctions = ComonFunctions.getComonFunctions();
 			
 			//Create the main UI elements
 			myDisplay = display;
 			//myUserSettings = userSettings;
-			shell = new Shell(myDisplay, SWT.MODELESS + SWT.RESIZE + SWT.TITLE);
+			//shell = new Shell(myDisplay, SWT.MODELESS + SWT.RESIZE + SWT.TITLE);
+			//shell = new Shell(myDisplay, SWT.RESIZE + SWT.TITLE);
 			
 			guide = Guide.getGuide();
 			mainShell = mainshell;
+			shell = new Shell(myDisplay);
+		    shell.addListener(SWT.Close, new Listener() {
+		        public void handleEvent(Event event) {
+		        	shell.setVisible(false);
+		        	event.doit = !keepShellOpen;
+		        }
+		      });			
 
 			FormLayout layout = new FormLayout();
 			shell.setLayout(layout);
@@ -244,13 +263,14 @@ public class DebugShell {
 			varScrlComp.layout();
 			tabFolder.layout();
 			shell.layout();
-
+			shell.open();
+			shell.setVisible(false);
 		}
 		catch (Exception ex) {
 			logger.error(ex.getLocalizedMessage(), ex);
 		}
 		logger.trace("Exit createShell");
-		return shell;
+		//return shell;
 	}
 
 	class varTableListener extends SelectionAdapter {
@@ -684,11 +704,16 @@ public class DebugShell {
 		catch (Exception ex) {
 			logger.error(ex.getLocalizedMessage(), ex);
 		}
-		tabFolder.layout();
-		tabFolder.pack();
-		tabFolder.update();
-		shell.layout();
-		varScrlComp.setMinSize(varComp.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		try {
+			tabFolder.layout();
+			tabFolder.pack();
+			tabFolder.update();
+			shell.layout();
+			varScrlComp.setMinSize(varComp.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		}
+		catch (Exception ex) {
+			logger.error(ex.getLocalizedMessage(), ex);
+		}
 	}
 	
 	public void updateJConsole(String logText) {
@@ -762,4 +787,33 @@ public class DebugShell {
 		}
 	}
 
+	public void closeShell() {
+		try {
+			keepShellOpen = false;
+			shell.close();
+		}
+		catch (Exception ex) {
+			logger.error("close shell " + ex.getLocalizedMessage(), ex);
+		}
+	}
+	
+	public void showDebug(){
+		try {
+			if (shell == null) {
+				createShell(myDisplay, mainShell);
+			} else {
+				shell.setVisible(!shell.getVisible());
+				if (shell.isVisible()) {
+					shell.setActive();
+				}
+			}
+		}
+		catch (Exception ex) {
+			logger.error("showDebug " + ex.getLocalizedMessage(), ex);
+		}
+	}
+
+	public void setKeepShellOpen(Boolean keepShellOpen) {
+		this.keepShellOpen = keepShellOpen;
+	}
 }
