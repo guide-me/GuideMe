@@ -138,14 +138,14 @@ public class PreferenceShell {
 			AddBooleanField(grpApp, "Copy text to clipboard (used with a TTS Reader)", appWidgets.get("AppPageSoundBlnCtrl"), appWidgets.get("AppPageSoundBlnCtrl"), myAppSettings.isToclipboard(), "AppToClipboard");			
 
 			//Auto Hide Menu
-			AddBooleanField(grpApp, "Auto hide the menu", appWidgets.get("AppToClipboardBlnCtrl"), appWidgets.get("AppToClipboardBlnCtrl"), myAppSettings.isHideMenu(), "AppHideMenu");			
+			//AddBooleanField(grpApp, "Auto hide the menu", appWidgets.get("AppToClipboardBlnCtrl"), appWidgets.get("AppToClipboardBlnCtrl"), myAppSettings.isHideMenu(), "AppHideMenu");			
 
 			//Data Directory
 			//AddTextField(grpApp, "Data Directory", appWidgets.get("AppPageSoundBlnCtrl"), appWidgets.get("AppPageSoundBlnCtrl"), myAppSettings.getDataDirectory(), "AppDataDir", false);
 
 			//midiInstrument
 			//AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppDataDirCtrl"), appWidgets.get("AppDataDirCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
-			AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppHideMenuBlnCtrl"), appWidgets.get("AppHideMenuBlnCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
+			AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppToClipboardBlnCtrl"), appWidgets.get("AppToClipboardBlnCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
 
 			//midiVolume
 			AddTextField(grpApp, "Midi Volume (0 - 127)", appWidgets.get("AppMidiInstrumentNumCtrl"), appWidgets.get("AppMidiInstrumentNumCtrl"), String.valueOf(myAppSettings.getMidiVolume()), "AppMidiVolume", true);
@@ -335,8 +335,8 @@ public class PreferenceShell {
 				btnTmp = (Button) appWidgets.get("AppToClipboardBlnCtrl");
 				myAppSettings.setToclipboard(btnTmp.getSelection());
 				
-				btnTmp = (Button) appWidgets.get("AppHideMenuBlnCtrl");
-				myAppSettings.setHideMenu(btnTmp.getSelection());
+				//btnTmp = (Button) appWidgets.get("AppHideMenuBlnCtrl");
+				//myAppSettings.setHideMenu(btnTmp.getSelection());
 				
 				//txtTmp = (Text) appWidgets.get("AppDataDirCtrl");
 				//myAppSettings.setDataDirectory((txtTmp.getText()));

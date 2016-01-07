@@ -1107,16 +1107,21 @@ public class ComonFunctions{
 	
 	//Set script variables from the scriptVar node in the guide xml
 	public void processSrciptVars(String scriptVars, GuideSettings guidesettings) {
-		String[] vars = scriptVars.split(",");
-		for (String var : vars) {
-			String[] parts = var.split("=");
-			try {
-				if (!parts[0].equals("")) {
-					guidesettings.setScriptVar(parts[0], parts[1]);
+		try {
+			String[] vars = scriptVars.split(",");
+			for (String var : vars) {
+				String[] parts = var.split("=");
+				try {
+					if (!parts[0].equals("")) {
+						guidesettings.setScriptVar(parts[0], parts[1]);
+					}
+				} catch (Exception e) {
+					logger.error("scriptVar can't set " + var + " " + e.getLocalizedMessage(), e);
 				}
-			} catch (Exception e) {
-				logger.error("scriptVar can't set " + var + " " + e.getLocalizedMessage(), e);
 			}
+		}
+		catch (Exception ex) {
+			logger.error("scriptVar processSrciptVars " + ex.getLocalizedMessage(), ex);
 		}
 	}
 	

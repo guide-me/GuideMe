@@ -17,46 +17,69 @@ import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.Scriptable;
 
-/**
- * @author James
- *
- */
-/**
- * @author James
- *
- */
+
 public class Guide {
+	/** @exclude */
 	private String title;
+	/** @exclude */
 	private String authorName;
+	/** @exclude */
 	private List<String> keywords = new ArrayList<String>();
+	/** @exclude */
 	private String description;
+	/** @exclude */
 	private String originalUrl;
+	/** @exclude */
 	private String authorUrl;
+	/** @exclude */
 	private Image thumbnail;
+	/** @exclude */
 	private HashMap<String, Chapter> chapters = new HashMap<String, Chapter>();
 	
+	/** @exclude */
 	private String mediaDirectory; //Media subdirectory for current xml file
+	/** @exclude */
 	private String delStyle; //style for currently running delay
+	/** @exclude */
 	private String delTarget; //target for currently running delay
+	/** @exclude */
 	private ArrayList<String> flags = new ArrayList<String>(); //current flags
+	/** @exclude */
 	private Boolean autoSetPage;
+	/** @exclude */
 	private String delaySet; //flags to set for currently running delay
+	/** @exclude */
 	private String delayUnSet; //flags to clear for currently running delay
+	/** @exclude */
 	private int delStartAtOffSet; //offset for currently running delay
+	/** @exclude */
 	private String delayScriptVar;
+	/** @exclude */
 	private String id; //name for current xml that is running
+	/** @exclude */
 	private GuideSettings settings = new GuideSettings("startup"); //state for the currently running xml
+	/** @exclude */
 	private String jScript;
+	/** @exclude */
 	private String delayjScript;
+	/** @exclude */
 	private String globaljScript;
+	/** @exclude */
 	private static Guide guide;
+	/** @exclude */
 	private String css; // css style sheet
+	/** @exclude */
 	private Boolean inPrefGuide;
+	/** @exclude */
 	private Scriptable scope;
+	/** @exclude */
 	private static Logger logger = LogManager.getLogger();
+	/** @exclude */
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
+	/** @exclude */
 	private MainShell mainshell;
 
+	/** @exclude */
 	private Guide() {
 		ContextFactory cntxFact = new ContextFactory();
 		Context cntx = cntxFact.enterContext();
@@ -64,6 +87,7 @@ public class Guide {
 
 	}
 
+	/** @exclude */
 	public static synchronized Guide getGuide() {
 		if (guide == null) {
 			AppSettings appSettings = AppSettings.getAppSettings();
@@ -99,40 +123,62 @@ public class Guide {
 		return guide;
 	}
 	
+	/** @exclude */
 	@Override
 	public Object clone() throws CloneNotSupportedException {
 		throw new CloneNotSupportedException();
 	}
 
+	/** @exclude */
 	public void setMainshell(MainShell mainshell) {
 		this.mainshell = mainshell;
 	}
 
+	/**
+	 * Gets the Title of the Guide
+	 * 
+	 * @return the Guide Title
+	 */
 	public String getTitle() {
 		return title;
 	}
+
+	/** @exclude */
 	public void setTitle(String title) {
 		this.title = title;
 	}
 	
+	/**
+	 * Gets the Author of the Guide
+	 * 
+	 * @return the Author's Name
+	 */
 	public String getAuthorName() {
 		return authorName;
 	}
+	
+	/** @exclude */
 	public void setAuthorName(String authorName) {
 		this.authorName = authorName;
 	}
 	
+	/** @exclude */
 	public Collection<String> getKeywords() {
 		return keywords;
 	}
+
+	/** @exclude */
 	public void setKeywords(Collection<String> keywords) {
 		this.keywords.clear();
 		this.keywords.addAll(keywords);
 	}
 	
+	/** @exclude */
 	public void setKeywords(String... keywords) {
 		setKeywords(Arrays.asList(keywords));
 	}
+
+	/** @exclude */
 	public void setKeywordsString(String keywords) {
 		this.keywords.clear();
 		String[] tmp = keywords.split(",");
@@ -140,121 +186,154 @@ public class Guide {
 			this.keywords.add(tmp[i].trim());
 		}
 	}
+
+	/** @exclude */
 	public String getKeywordsString() {
 		String tmp = this.keywords.toString();
 		return tmp.substring(1, tmp.length()-1);
 	}
 	
+	/** @exclude */
 	public String getDescription() {
 		return description;
 	}
+
+	/** @exclude */
 	public void setDescription(String description) {
 		this.description = description;
 	}
 	
+	/** @exclude */
 	public String getOriginalUrl() {
 		return originalUrl;
 	}
+
+	/** @exclude */
 	public void setOriginalUrl(String originalUrl) {
 		this.originalUrl = originalUrl;
 	}
 	
+	/** @exclude */
 	public String getAuthorUrl() {
 		return authorUrl;
 	}
+
+	/** @exclude */
 	public void setAuthorUrl(String authorUrl) {
 		this.authorUrl = authorUrl;
 	}
 	
+	/** @exclude */
 	public Image getThumbnail() {
 		return thumbnail;
 	}
+
+	/** @exclude */
 	public void setThumbnail(Image thumbnail) {
 		this.thumbnail = thumbnail;
 	}
 	
+	/** @exclude */
 	public HashMap<String, Chapter> getChapters() {
 		return chapters;
 	}
 	
+	/** @exclude */
 	public void setChapters(HashMap<String, Chapter> chapters) {
 		this.chapters = chapters;
 	}
 	
 	/**
-	 * Returns the media directory for the guide
+	 * Gets the media directory of the guide
 	 * 
-	 * @return Media Directory
+	 * @return the Media Directory
 	 */
 	public String getMediaDirectory() {
 		return mediaDirectory;
 	}
 
+	/** @exclude */
 	public void setMediaDirectory(String mediaDirectory) {
 		this.mediaDirectory = mediaDirectory;
 	}
 
+	/** @exclude */
 	public String getDelStyle() {
 		return delStyle;
 	}
 
+	/** @exclude */
 	public void setDelStyle(String delStyle) {
 		this.delStyle = delStyle;
 	}
 
+	/** @exclude */
 	public String getDelTarget() {
 		return delTarget;
 	}
 
+	/** @exclude */
 	public void setDelTarget(String delTarget) {
 		this.delTarget = delTarget;
 	}
 
+	/** @exclude */
 	public ArrayList<String> getFlags() {
 		return flags;
 	}
 
+	/** @exclude */
 	public void setFlags(ArrayList<String> flags) {
 		this.flags = flags;
 	}
 
+	/** @exclude */
 	public Boolean getAutoSetPage() {
 		return autoSetPage;
 	}
 
+	/** @exclude */
 	public void setAutoSetPage(Boolean autoSetPage) {
 		this.autoSetPage = autoSetPage;
 	}
 
+	/** @exclude */
 	public String getDelaySet() {
 		return delaySet;
 	}
 
+	/** @exclude */
 	public void setDelaySet(String delaySet) {
 		this.delaySet = delaySet;
 	}
 
+	/** @exclude */
 	public String getDelayUnSet() {
 		return delayUnSet;
 	}
 
+	/** @exclude */
 	public void setDelayUnSet(String delayUnSet) {
 		this.delayUnSet = delayUnSet;
 	}
 
+	/** @exclude */
 	public int getDelStartAtOffSet() {
 		return delStartAtOffSet;
 	}
 
+	/** @exclude */
 	public void setDelStartAtOffSet(int delStartAtOffSet) {
 		this.delStartAtOffSet = delStartAtOffSet;
 	}
 
+	/** @exclude */
 	public String getId() {
 		return id;
 	}
 
 	//we are loading a new xml so clear old settings
+	/** @exclude */
 	public void reset(String id) {
 		logger.trace("Guide reset id: " + id);
 		try {
@@ -279,34 +358,46 @@ public class Guide {
 		}
 	}
 
+	/** @exclude */
 	public GuideSettings getSettings() {
 		return settings;
 	}
 	
+	/** @exclude */
 	public String getjScript() {
 		return jScript;
 	}
 	
+	/** @exclude */
 	public void setjScript(String jScript) {
 		this.jScript = jScript;
 	}
 	
+	/** @exclude */
 	public void setSettings(GuideSettings settings) {
 		this.settings = settings;
 	}
 
+	/** @exclude */
 	public String getDelayjScript() {
 		return delayjScript;
 	}
 
+	/** @exclude */
 	public void setDelayjScript(String delayjScript) {
 		this.delayjScript = delayjScript;
 	}
 
+	/**
+	 * Gets the custom CSS for the Guide
+	 * 
+	 * @return the Guide CSS
+	 */
 	public String getCss() {
 		return css;
 	}
 
+	/** @exclude */
 	public void setCss(String css) {
 		String mediaPath;
 		AppSettings appSettings = AppSettings.getAppSettings();
@@ -317,22 +408,31 @@ public class Guide {
 		this.css = css;
 	}
 
+	/** @exclude */
 	public Boolean getInPrefGuide() {
 		return inPrefGuide;
 	}
 
+	/** @exclude */
 	public void setInPrefGuide(Boolean inPrefGuide) {
 		this.inPrefGuide = inPrefGuide;
 	}
 
+	/**
+	 * Gets the Global Java Script for the Guide
+	 * 
+	 * @return the Guide global Java Script
+	 */
 	public String getGlobaljScript() {
 		return globaljScript;
 	}
 
+	/** @exclude */
 	public void setGlobaljScript(String globaljScript) {
 		this.globaljScript = globaljScript;
 	}
 
+	/** @exclude */
 	public Scriptable getScope() {
 		return scope;
 	}
@@ -343,8 +443,8 @@ public class Guide {
 	/**
 	 * Gets a text guide preference  
 	 * 
-	 * @param key Name of the preference
-	 * @return value (Text)
+	 * @param key the name of the preference
+	 * @return the value currently stored
 	 */
 	public String getPref(String key) {
 		return settings.getPref(key);
@@ -353,7 +453,8 @@ public class Guide {
 	/**
 	 * Sets an existing text guide preference
 	 * 
-	 * @param key Name of the preference
+	 * @param key the name of the preference
+	 * @param value the value to store in that preference
 	 */
 	public void setPref(String key, String value) {
 		settings.setPref(key, value);
@@ -362,9 +463,9 @@ public class Guide {
 	/**
 	 * Adds a new text guide preference
 	 * 
-	 * @param key Name of the preference
-	 * @param value Default value (Text) 
-	 * @param screenDesc Text displayed on the screen
+	 * @param key the name of the preference
+	 * @param value the default value 
+	 * @param screenDesc the text displayed on the screen in guide preferences
 	 */
 	public void addPref(String key, String value, String screenDesc, int sortOrder) {
 		settings.addPref(key, value, screenDesc, sortOrder);
@@ -373,8 +474,8 @@ public class Guide {
 	/**
 	 * Gets a true / false guide preference  
 	 * 
-	 * @param key Name of the preference
-	 * @return value (true / false)
+	 * @param key the name of the preference
+	 * @return the value currently stored
 	 */
 	public Boolean isPref(String key) {
 		return settings.isPref(key);
@@ -383,8 +484,8 @@ public class Guide {
 	/**
 	 * Sets an existing true / false guide preference
 	 * 
-	 * @param key Name of the preference
-	 * @return value new value (true / false)
+	 * @param key the name of the preference
+	 * @return the new value to store
 	 */
 	public void setPref(String key, Boolean value) {
 		settings.setPref(key, value);
@@ -393,9 +494,9 @@ public class Guide {
 	/**
 	 * Adds a new true / false guide preference
 	 * 
-	 * @param key Name of the preference
-	 * @param value Default value (true / false) 
-	 * @param screenDesc Text displayed on the screen
+	 * @param key the name of the preference
+	 * @param value the default value 
+	 * @param screenDesc the text displayed on the screen in guide preferences
 	 */
 	public void addPref(String key, Boolean value, String screenDesc, int sortOrder) {
 		settings.addPref(key, value, screenDesc, sortOrder);
@@ -404,8 +505,8 @@ public class Guide {
 	/**
 	 * Gets a numeric guide preference  
 	 * 
-	 * @param key Name of the preference
-	 * @return value (Number)
+	 * @param key the name of the preference
+	 * @return the value currently stored
 	 */
 	public Double getPrefNumber(String key) {
 		return settings.getPrefNumber(key);
@@ -414,8 +515,8 @@ public class Guide {
 	/**
 	 * Sets an existing numeric guide preference
 	 * 
-	 * @param key Name of the preference
-	 * @return value new value (Number)
+	 * @param key the name of the preference
+	 * @return the new value to store
 	 */
 	public void setPref(String key, Double value) {
 		settings.setPref(key, value);
@@ -424,9 +525,9 @@ public class Guide {
 	/**
 	 * Adds a new numeric guide preference
 	 * 
-	 * @param key Name of the preference
-	 * @param value Default value (Number) 
-	 * @param screenDesc Text displayed on the screen
+	 * @param key the name of the preference
+	 * @param value the default value 
+	 * @param screenDesc the text displayed on the screen in guide preferences
 	 */
 	public void addPref(String key, Double value, String screenDesc, int sortOrder) {
 		settings.addPref(key, value, screenDesc, sortOrder);
@@ -435,26 +536,26 @@ public class Guide {
 	/**
 	 * Gets the value of an html form field from either the left or right pane
 	 * 
-	 * @param key Name of the html input field in the form
-	 * @return value entered in the field
+	 * @param key the value in the name attribute on the html input field in the form
+	 * @return the value the user entered in the field
 	 */
 	public String getFormField(String key) {
 		return settings.getFormField(key);
 	}
 	
 	/**
-	 * Returns the current page name
+	 * Gets the current page name
 	 * 
-	 * @return The name of the current page
+	 * @return the name of the current page
 	 */
 	public String getCurrPage() {
 		return settings.getCurrPage();
 	}
 	
 	/**
-	 * Returns the previous page name
+	 * Gets the previous page name
 	 * 
-	 * @return Then name of the page you just came from
+	 * @return the name of the page you just came from
 	 */
 	public String getPrevPage() {
 		return settings.getPrevPage();
@@ -462,113 +563,141 @@ public class Guide {
 	
 	// comonFunctions wrapper for javascript
 	/**
-	 * @param IifSet
-	 * @param IifNotSet
-	 * @return
+	 * Checks the current flags against a list of flags passed in
+	 * 
+	 * @param IifSet Flags in this list must have been set in the tease
+	 * @param IifNotSet Flags in this list must not be set
+	 * @return true if the set and unset flags match the current flags 
 	 */
 	public boolean canShow(String IifSet, String IifNotSet) {
 		return comonFunctions.canShow(flags, IifSet, IifNotSet);
 	}
 	
 	/**
-	 * @param flagNames
+	 * Sets a list of flags
+	 * 
+	 * @param flagNames comma separated list of flags to set
 	 */
 	public void setFlags(String flagNames) {
 		comonFunctions.SetFlags(flagNames, flags);
 	}
 	
 	/**
-	 * @param flagNames
+	 * Clears a list of flags
+	 * 
+	 * @param flagNames comma separated list of flags to clear
 	 */
 	public void unsetFlags(String flagNames) {
 		comonFunctions.UnsetFlags(flagNames, flags);
 	}
 	
 	/**
-	 * @param flagNames
-	 * @return
+	 * Checks if a list of flags is set
+	 * 
+	 * @param flagNames List of flags to check
+	 * @return true if all flags are set
 	 */
 	public boolean isSet(String flagNames) {
 		return comonFunctions.isSet(flagNames, flags);
 	}
 	
 	/**
-	 * @param flagNames
-	 * @return
+	 * Checks if a list of flags is not set 
+	 * 
+	 * @param flagNames List of flags to check
+	 * @return true if none of the flags is set
 	 */
 	public boolean isNotSet(String flagNames) {
 		return comonFunctions.isNotSet(flagNames, flags);
 	}
 	
 	/**
-	 * @param type
-	 * @param jsdate1
-	 * @param jsdate2
-	 * @return
+	 * Amount of time between 2 dates 
+	 * 
+	 * @param type d,h,m or s to return days, hours, minutes or seconds
+	 * @param jsdate1 (JavaScript date object) Date one (normally the earlier date)
+	 * @param jsdate2 (JavaScript date object) Date two
+	 * @return a whole number of the type chosen, between the two dates
 	 */
 	public long dateDifference(String type, Object jsdate1, Object jsdate2) {
 		return comonFunctions.dateDifference(type, jsdate1, jsdate2);
 	}
 	
 	/**
-	 * @param random
-	 * @return
+	 * Gets a random number
+	 * 
+	 * @param random (nn..nn) so for a number between 5 and 20 (5..20)
+	 * @return random a whole number between the two values (inclusive of the two values)
 	 */
 	public int getRandom(String random) {
 		return comonFunctions.getRandom(random);
 	}
 
 	/**
-	 * @param iTime
-	 * @return
+	 * Gets the number of milliseconds after midnight for a time.
+	 * 
+	 * @param iTime 00:00:00  (09:30:00 would give the number of milliseconds to 9:30am)
+	 * @return a whole number of milliseconds
 	 */
 	public int getMilisecFromTime(String iTime) {
 		return comonFunctions.getMilisecFromTime(iTime);
 	}
 	
 	/**
-	 * @return
+	 * Gets the version of GuideMe the user is running
+	 * 
+	 * @return the version in the format n.n.n
 	 */
 	public String getVersion() {
 		return ComonFunctions.getVersion();
 	}
 	
 	/**
-	 * @param FolderName
-	 * @return
+	 * Gets a comma separated list of files for a folder (directory)
+	 * 
+	 * @param FolderName name of the folder to find files in 
+	 * @return a list of the files
 	 */
 	public String listFiles(String FolderName) {
 		return comonFunctions.ListFiles(FolderName);
 	}
 
 	/**
-	 * @param FolderName
-	 * @return
+	 * Gets a comma separated list of sub folders for a folder
+	 * 
+	 * @param FolderName name of the folder to find sub folders in
+	 * @return a list of the folders
 	 */
 	public String listSubFolders(String FolderName) {
 		return comonFunctions.ListSubFolders(FolderName);
 	}
 
 	/**
-	 * @param wildcard
-	 * @param strSubDir
-	 * @return
+	 * Gets a random file
+	 * 
+	 * @param wildcard a file pattern (a*.jpg will return a file starting with a and ending in .jpg)
+	 * @param strSubDir sub folder to use if any
+	 * @return the path and name of the file
 	 */
 	public String getRandomFile(String wildcard, String strSubDir) {
 		return comonFunctions.GetRandomFile(wildcard, strSubDir);
 	}
 
 	/**
-	 * @param fileName
-	 * @return
+	 * Checks to see if a file exists
+	 * 
+	 * @param fileName name of file to check for
+	 * @return true if the file exists
 	 */
 	public Boolean fileExists(String fileName) {
 		return comonFunctions.fileExists(fileName);
 	}
 	
 	/**
-	 * @param fileName
-	 * @return
+	 * Checks if a folder exists
+	 * 
+	 * @param fileName folder to check for
+	 * @return true if the folder exists
 	 */
 	public Boolean directoryExists(String fileName) {
 		return comonFunctions.directoryExists(fileName);
@@ -577,28 +706,36 @@ public class Guide {
 	/* main shell functions to update screen directly from javascript */
 	
 	/**
-	 * @param lblLeft
+	 * Sets the text where the clock is displayed
+	 * 
+	 * @param lblLeft text to over write the clock with
 	 */
 	public void setClockText(String lblLeft) {
 		mainshell.setLblLeft(lblLeft);
 	}
 	
 	/**
-	 * @param lblCentre
+	 * Sets the text where the title / author are displayed
+	 * 
+	 * @param lblCentre text to over write the title
 	 */
 	public void setTitleText(String lblCentre) {
 		mainshell.setLblCentre(lblCentre);
 	}
 	
 	/**
-	 * @param lblRight
+	 * Sets the text where the timer is usually displayed
+	 * 
+	 * @param lblRight text to over write the timer with
 	 */
 	public void setTimerText(String lblRight) {
 		mainshell.setLblRight(lblRight);
 	}
 	
 	/**
-	 * @param leftHtml
+	 * Replaces the complete html in the left (Image) pane
+	 * 
+	 * @param leftHtml html to over write the current html
 	 */
 	public void setLeftHtml(String leftHtml) {
 		mainshell.setLeftHtml(leftHtml);
@@ -606,74 +743,88 @@ public class Guide {
 	
 
 	/**
-	 * @param leftBody
-	 * @param overRideStyle
+	 * Replaces the body section within the html on the left (Image) pane
+	 * 
+	 * @param leftBody html fragment to over write the current body contents
+	 * @param overRideStyle CSS to style the html (will use the default if this is blank)
 	 */
 	public void setLeftBody(String leftBody, String overRideStyle) {
 		mainshell.setLeftText(leftBody, overRideStyle);
 	}
 
 	/**
+	 * Clears the image in the left pane 
 	 * 
 	 */
 	public void clearImage() {
 		mainshell.clearImage();
 	}
-	
+
 	/**
-	 * @param brwsText
-	 * @param overRideStyle
+	 * Replaces the complete html in the right (text) pane
+	 * 
+	 * @param brwsText html to over write the current html
+	 * @param overRideStyle CSS to style the html (will use the default if this is blank)
 	 */
 	public void setRightHtml(String brwsText, String overRideStyle) {
 		mainshell.setBrwsText(brwsText, overRideStyle);
 	}
 	
 	/**
-	 * @param brwsText
-	 * @param overRideStyle
+	 * Replaces the body section within the html on the right (text) pane
+	 * 
+	 * @param brwsText html fragment to over write the current body contents
+	 * @param overRideStyle CSS to style the html (will use the default if this is blank)
 	 */
 	public void setRightBody(String brwsText, String overRideStyle) {
 		mainshell.setBrwsText(brwsText, overRideStyle);
 	}
 	
 	/**
-	 * @param path
-	 * @return
+	 * Reads the contents of a file into a string
+	 * 
+	 * @param path the path to the file
+	 * @return a string containing the contents of the file
 	 */
 	public String jsReadFile(String path) {
 		return comonFunctions.jsReadFile(path);
 	}
 	
-	/**
-	 * @param fileName
-	 * @param encoding
-	 * @return
-	 */
+	/** @exclude */
 	public String jsReadFile(String fileName, String encoding) {
 		return comonFunctions.jsReadFile(fileName, encoding);
 	}
 	
 	/**
-	 * @param fileName
-	 * @return
+	 * Reads the contents of a file into an array of strings
+	 * each line will be read into a new element into the array 
+	 * 
+	 * @param fileName the path to the file
+	 * @return a string array containing the lines from the file 
 	 */
 	public String[] jsReadFileArray(String fileName) {
 		return comonFunctions.jsReadFileArray(fileName);
 	}
 
-	/**
-	 * @param fileName
-	 * @param encoding
-	 * @return
-	 */
+	/** @exclude */
 	public String[] jsReadFileArray(String fileName, String encoding) {
 		return comonFunctions.jsReadFileArray(fileName, encoding);
 	}
 	
+	/**
+	 * Enables a button on the screen
+	 * 
+	 * @param id the id set when the button was defined
+	 */
 	public void enableButton(String id) {
 		mainshell.enableButton(id);
 	}
 
+	/**
+	 * Disables a button on the screen
+	 * 
+	 * @param id  the id set when the button was defined
+	 */
 	public void disableButton(String id) {
 		mainshell.disableButton(id);
 	}
@@ -681,13 +832,13 @@ public class Guide {
 	/**
 	 * Adds a timer to change various aspects of the screen / run a javascript function
 	 * 
-	 * @param delay time in seconds before the timer triggers
-	 * @param jScript javascript function to run when the timer triggers
-	 * @param imageId image to change to when the timer triggers
-	 * @param text html text to set the right html pane when the timer triggers
-	 * @param set flags to set when the timer triggers
-	 * @param unSet flags to clear when the timer triggers
-	 * @param id identifier to manipulate the timer later 
+	 * @param delay a time in seconds before the timer triggers
+	 * @param jScript a javascript function to run when the timer triggers
+	 * @param imageId the filename of the image to change to when the timer triggers
+	 * @param text the html text to set the right html pane to when the timer triggers
+	 * @param set the flags to set when the timer triggers
+	 * @param unSet the flags to clear when the timer triggers
+	 * @param id the identifier (name) of the new timer to manipulate the timer later 
 	 */
 	public void addTimer(String delay, String jScript, String imageId, String text, String set, String unSet, String id) {
 		Timer timer = new Timer(delay, jScript, imageId, text, "", "", set, unSet, "", "", id);
@@ -698,44 +849,41 @@ public class Guide {
 	}
 
 	/**
-	 * Reset the count on a timer
+	 * Resets the count on a timer
 	 * 
-	 * @param id id used to create the timer
-	 * @param delay time in seconds before the timer triggers
+	 * @param id the id set when the timer was created
+	 * @param delay the time in seconds (from now) before the timer triggers
 	 */
 	public void resetTimer(String id, String delay) {
 		mainshell.resetTimer(id, comonFunctions.getRandom(delay));
 	}
 	
 	/**
-	 * Write to the java script console in the debug window
+	 * Writes to the java script console in the debug window
 	 * 
 	 * This also gets called by the jscriptLog function which will write to the log and the console
-	 * @param logText
+	 * @param logText text to display in the debug window
 	 */
 	public void updateJConsole(String logText) {
 		mainshell.updateJConsole(logText);
 	}
 	
+	/** @exclude */
 	public void refreshVars() {
 		mainshell.refreshVars();
 	}
 
+	/** @exclude */
 	public String getDelayScriptVar() {
 		return delayScriptVar;
 	}
 
+	/** @exclude */
 	public void setDelayScriptVar(String delayScriptVar) {
 		this.delayScriptVar = delayScriptVar;
 	}
 
-	/**
-	 * Checks to see if a page exists within a chapter
-	 * 
-	 * @param chapter
-	 * @param page
-	 * @return
-	 */
+	/** @exclude */
 	public boolean pageExists(String chapter, String page) {
 		try {
 			return chapters.get(chapter).getPages().containsKey(page);
@@ -746,14 +894,36 @@ public class Guide {
 	}
 	
 	/**
-	 * Checks to see if the pages exists within the default chapter
+	 * Checks to see if a page exists
 	 * 
-	 * @param page
-	 * @return
+	 * @param page the page id to check for
+	 * @return true if the page exists
 	 */
 	public boolean pageExists(String page) {
 		return pageExists("default", page);
 	}
 	
+	/**
+	 * Corrects a path so it contains the correct directory separator
+	 * 
+	 * \ for Windows
+	 * / for Mac and Linux
+	 * 
+	 * @param pathIn the path to be corrected
+	 * @return the path with the correct separators 
+	 */
+	public String fixPath(String pathIn) {
+		AppSettings appSettings = AppSettings.getAppSettings();
+		String pathOut;
+		try {
+			pathOut = comonFunctions.fixSeparator(pathIn, appSettings.getFileSeparator());
+		}
+		catch (Exception ex) {
+			pathOut = pathIn;
+			logger.error("Guide.fixPath: " + ex.getLocalizedMessage(), ex);
+		}
+		logger.debug("Guide.fixPath: pathIn=" + pathIn + " return=" + pathOut);
+		return pathOut;
+	}
 	
 }

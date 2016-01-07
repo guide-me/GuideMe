@@ -718,6 +718,7 @@ public class MainShell {
 						break;
 						*/
 					case 'm' :
+					case 'M' :
 						Rectangle rect = shell.getBounds(); 
 						Rectangle rect2; 
 						if (!showMenu) {
@@ -800,14 +801,24 @@ public class MainShell {
 
 		@Override
 		public void run() {
-			mediaPlayerThread.release();
-			mediaPlayerFactoryThread.release();
-			logger.trace("VideoRelease Exit");
+			try {
+				mediaPlayerThread.release();
+				mediaPlayerFactoryThread.release();
+				logger.trace("VideoRelease Exit");
+			}
+			catch (Exception ex) {
+				logger.error("Video release " + ex.getLocalizedMessage(), ex);
+			}
 		}
 
 		public void setVideoRelease(EmbeddedMediaPlayer mediaPlayer, MediaPlayerFactory mediaPlayerFactory) {
+			try {
 			mediaPlayerFactoryThread = mediaPlayerFactory;
 			mediaPlayerThread = mediaPlayer;
+			}
+			catch (Exception ex) {
+				logger.error("Video release " + ex.getLocalizedMessage(), ex);
+			}
 		}
 		
 	}
@@ -818,8 +829,13 @@ public class MainShell {
 		public void controlResized(ControlEvent e) {
 			super.controlResized(e);
 			if (videoOn) {
-				Rectangle rect = mediaPanel.getClientArea();
-				videoFrame.setSize(rect.width, rect.height);
+				try {
+					Rectangle rect = mediaPanel.getClientArea();
+					videoFrame.setSize(rect.width, rect.height);
+				}
+				catch (Exception ex) {
+					logger.error("Video resize " + ex.getLocalizedMessage(), ex);
+				}
 			}
 		}
 
@@ -933,16 +949,26 @@ public class MainShell {
 	
 	//Load the tease
 	private void loadGuide(String fileToLoad) {
-		debugShell.clearPagesCombo();
-		String strPage = xmlGuideReader.loadXML(fileToLoad, guide, appSettings, debugShell);
-		guideSettings = guide.getSettings();
-		if (guide.getCss().equals("")) {
-			style = defaultStyle;
-		} else {
-			style = guide.getCss();
+		try {
+			debugShell.clearPagesCombo();
 		}
-		//display the first page
-		mainLogic.displayPage(strPage , false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
+		catch (Exception ex) {
+			logger.error("Clear debug pages " + ex.getLocalizedMessage(), ex);
+		}
+		try {
+			String strPage = xmlGuideReader.loadXML(fileToLoad, guide, appSettings, debugShell);
+			guideSettings = guide.getSettings();
+			if (guide.getCss().equals("")) {
+				style = defaultStyle;
+			} else {
+				style = guide.getCss();
+			}
+			//display the first page
+			mainLogic.displayPage(strPage , false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
+		}
+		catch (Exception ex) {
+			logger.error("Load Guide " + ex.getLocalizedMessage(), ex);
+		}
 	}
 
 	// Restart 
@@ -1206,102 +1232,123 @@ public class MainShell {
 					if (calCountDown != null) {
 						if (cal.after(calCountDown)){
 							//Delay has reached zero
-							calCountDown = null;
-							lblRight.setText("");
-							comonFunctions.SetFlags(guide.getDelaySet(), guide.getFlags());
-							comonFunctions.UnsetFlags(guide.getDelayUnSet(), guide.getFlags());
-							comonFunctions.processSrciptVars(guide.getDelayScriptVar(), guideSettings);
-							javascript = guide.getDelayjScript();
-							if (!javascript.equals("")) {
-								mainShell.runJscript(javascript);
-							}
-							mainLogic.displayPage(guide.getDelTarget(), false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
-						} else {
-							if (guide.getDelStyle().equals("hidden")) {
-								//a hidden one
+							try {
+								calCountDown = null;
 								lblRight.setText("");
-							} else if (guide.getDelStyle().equals("secret")) {
-								//secret timer so display ?? to show there is one but not how long
-								lblRight.setText("??:??");
-							} else {
-								//Normal delay so display seconds left 
-								//(plus any offset if you are being sneaky) 
-								diff = calCountDown.getTimeInMillis() - cal.getTimeInMillis();
-								diff = diff + (guide.getDelStartAtOffSet() * 1000);
-								intSeconds = (int) ((diff / 1000) + 1);
-								intMinutes = intSeconds / 60;
-								intSeconds = intSeconds - (intMinutes * 60);
-								strSeconds = String.valueOf(intSeconds);
-								strSeconds = "0" + strSeconds;
-								strSeconds = strSeconds.substring(strSeconds.length() - 2);
-								strMinutes = String.valueOf(intMinutes);
-								strMinutes = "0" + strMinutes;
-								strMinutes = strMinutes.substring(strMinutes.length() - 2);
-								strTimeLeft = strMinutes + ":" + strSeconds;
-								lblRight.setText(strTimeLeft);
+								comonFunctions.SetFlags(guide.getDelaySet(), guide.getFlags());
+								comonFunctions.UnsetFlags(guide.getDelayUnSet(), guide.getFlags());
+								comonFunctions.processSrciptVars(guide.getDelayScriptVar(), guideSettings);
+								javascript = guide.getDelayjScript();
+								if (!javascript.equals("")) {
+									mainShell.runJscript(javascript);
+								}
+								mainLogic.displayPage(guide.getDelTarget(), false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
+							}
+							catch (Exception ex) {
+								logger.error(" shellTimer Delay Zero " + ex.getLocalizedMessage(), ex);
+							}
+						} else {
+							try {
+								if (guide.getDelStyle().equals("hidden")) {
+									//a hidden one
+									lblRight.setText("");
+								} else if (guide.getDelStyle().equals("secret")) {
+									//secret timer so display ?? to show there is one but not how long
+									lblRight.setText("??:??");
+								} else {
+									//Normal delay so display seconds left 
+									//(plus any offset if you are being sneaky) 
+									diff = calCountDown.getTimeInMillis() - cal.getTimeInMillis();
+									diff = diff + (guide.getDelStartAtOffSet() * 1000);
+									intSeconds = (int) ((diff / 1000) + 1);
+									intMinutes = intSeconds / 60;
+									intSeconds = intSeconds - (intMinutes * 60);
+									strSeconds = String.valueOf(intSeconds);
+									strSeconds = "0" + strSeconds;
+									strSeconds = strSeconds.substring(strSeconds.length() - 2);
+									strMinutes = String.valueOf(intMinutes);
+									strMinutes = "0" + strMinutes;
+									strMinutes = strMinutes.substring(strMinutes.length() - 2);
+									strTimeLeft = strMinutes + ":" + strSeconds;
+									lblRight.setText(strTimeLeft);
+								}
+							}
+							catch (Exception ex) {
+								logger.error(" shellTimer Update Count Down " + ex.getLocalizedMessage(), ex);
 							}
 							
 						}
 					}
-					if (appSettings.isClock()) {
-						lblLeft.setText(dateFormat.format(cal.getTime()));
-					} else {
-						lblLeft.setText("");
-					}
-					//check timers
-					if (getTimerCount() > 0) {
-					    Iterator<Entry<String, Timer>> it = timer.entrySet().iterator();
-					    while (it.hasNext()) {
-					        Map.Entry<String, Timer> pair = it.next();
-							Timer objTimer =  pair.getValue();
-							Calendar calTemp =  objTimer.getTimerEnd();
-							//logger.debug("Timer: " + objTimer.getId() + " End: " + calTemp.getTime());
-							//logger.debug("Timer: " + objTimer.getId() + " Now: " + cal.getTime());
-							if (cal.after(calTemp)) {
-								logger.debug("Timer: " + objTimer.getId() + " Triggered");
-								//add a year to the timer so we don't trigger it again
-								calTemp.add(Calendar.YEAR, 1);
-								pair.getValue().setTimerEnd(calTemp);
-								comonFunctions.SetFlags(objTimer.getSet(), guide.getFlags());
-								comonFunctions.UnsetFlags(objTimer.getUnSet(), guide.getFlags());
-								String strImage = objTimer.getImageId();
-								if (!strImage.equals("")) {
-									String imgPath = comonFunctions.getMediaFullPath(strImage, appSettings.getFileSeparator(), appSettings, guide);
-									File flImage = new File(imgPath);
-									if (flImage.exists()){
-										try {
-											setImageLabel(imgPath, strImage);
-										} catch (Exception e1) {
-											logger.error("Timer Image Exception " + e1.getLocalizedMessage(), e1);
-										}								
-									}
-								} 
-								String displayText = objTimer.getText();
-								if (!displayText.equals("")) {
-									try {
-										// Media Directory
-										try {
-											String mediaPath;
-											mediaPath = comonFunctions.getMediaFullPath("", appSettings.getFileSeparator(), appSettings, guide);
-											displayText = displayText.replace("\\MediaDir\\", mediaPath);
-										} catch (Exception e) {
-											logger.error("displayPage BrwsText Media Directory Exception " + e.getLocalizedMessage(), e);
-										}
-										
-										displayText = comonFunctions.substituteTextVars(displayText, guideSettings, userSettings);
-	
-										setBrwsText(displayText, "");
-									} catch (Exception e) {
-										logger.error("Timer BrwsText Exception " + e.getLocalizedMessage(), e);
-									}
-								}
-								javascript = objTimer.getjScript();
-								if (!javascript.equals("")) {
-									mainShell.runJscript(javascript);
-								}
-							}
-					        //it.remove(); // avoids a ConcurrentModificationException
+					try {
+						if (appSettings.isClock()) {
+							lblLeft.setText(dateFormat.format(cal.getTime()));
+						} else {
+							lblLeft.setText("");
 						}
+					}
+					catch (Exception ex) {
+						logger.error(" shellTimer Update Clock " + ex.getLocalizedMessage(), ex);
+					}
+					
+					try {
+						//check timers
+						if (getTimerCount() > 0) {
+						    Iterator<Entry<String, Timer>> it = timer.entrySet().iterator();
+						    while (it.hasNext()) {
+						        Map.Entry<String, Timer> pair = it.next();
+								Timer objTimer =  pair.getValue();
+								Calendar calTemp =  objTimer.getTimerEnd();
+								//logger.debug("Timer: " + objTimer.getId() + " End: " + calTemp.getTime());
+								//logger.debug("Timer: " + objTimer.getId() + " Now: " + cal.getTime());
+								if (cal.after(calTemp)) {
+									logger.debug("Timer: " + objTimer.getId() + " Triggered");
+									//add a year to the timer so we don't trigger it again
+									calTemp.add(Calendar.YEAR, 1);
+									pair.getValue().setTimerEnd(calTemp);
+									comonFunctions.SetFlags(objTimer.getSet(), guide.getFlags());
+									comonFunctions.UnsetFlags(objTimer.getUnSet(), guide.getFlags());
+									String strImage = objTimer.getImageId();
+									if (!strImage.equals("")) {
+										String imgPath = comonFunctions.getMediaFullPath(strImage, appSettings.getFileSeparator(), appSettings, guide);
+										File flImage = new File(imgPath);
+										if (flImage.exists()){
+											try {
+												setImageLabel(imgPath, strImage);
+											} catch (Exception e1) {
+												logger.error("Timer Image Exception " + e1.getLocalizedMessage(), e1);
+											}								
+										}
+									} 
+									String displayText = objTimer.getText();
+									if (!displayText.equals("")) {
+										try {
+											// Media Directory
+											try {
+												String mediaPath;
+												mediaPath = comonFunctions.getMediaFullPath("", appSettings.getFileSeparator(), appSettings, guide);
+												displayText = displayText.replace("\\MediaDir\\", mediaPath);
+											} catch (Exception e) {
+												logger.error("displayPage BrwsText Media Directory Exception " + e.getLocalizedMessage(), e);
+											}
+											
+											displayText = comonFunctions.substituteTextVars(displayText, guideSettings, userSettings);
+		
+											setBrwsText(displayText, "");
+										} catch (Exception e) {
+											logger.error("Timer BrwsText Exception " + e.getLocalizedMessage(), e);
+										}
+									}
+									javascript = objTimer.getjScript();
+									if (!javascript.equals("")) {
+										mainShell.runJscript(javascript);
+									}
+								}
+						        //it.remove(); // avoids a ConcurrentModificationException
+							}
+						}
+					}
+					catch (Exception ex) {
+						logger.error(" shellTimer Timers " + ex.getLocalizedMessage(), ex);
 					}
 					dateFormat = null;
 					cal = null;
@@ -1809,132 +1856,157 @@ public class MainShell {
 
 	//run the javascript function passed 
 	public void runJscript(String function) {
-		getFormFields();
-		refreshVars();
-		if (function == null) function = "";
-		if (! function.equals("")) {
-			Jscript jscript = new Jscript(guide, userSettings, appSettings, guide.getInPrefGuide(), mainShell);
-			Page objCurrPage = guide.getChapters().get(guideSettings.getChapter()).getPages().get(guideSettings.getPage());
-			String pageJavascript = objCurrPage.getjScript();
-			jscript.runScript(pageJavascript, function, false);
+		try {
+			getFormFields();
+			refreshVars();
+			if (function == null) function = "";
+			if (! function.equals("")) {
+				Jscript jscript = new Jscript(guide, userSettings, appSettings, guide.getInPrefGuide(), mainShell);
+				Page objCurrPage = guide.getChapters().get(guideSettings.getChapter()).getPages().get(guideSettings.getPage());
+				String pageJavascript = objCurrPage.getjScript();
+				jscript.runScript(pageJavascript, function, false);
+			}
+		}
+		catch (Exception ex) {
+			logger.error(" run java script " + ex.getLocalizedMessage(), ex);
 		}
 	}
 
 	//get any fields from the html form and store them in guide settings for use in the next java script call.
 	private void getFormFields() {
-		String evaluateScript = "" +
-				"var vforms = document.forms;" +
-				"var vreturn = '';" +
-				"for (var formidx = 0; formidx < vforms.length; formidx++) {" +
+		try {
+			String evaluateScript = "" +
+					"var vforms = document.forms;" +
+					"var vreturn = '';" +
+					"for (var formidx = 0; formidx < vforms.length; formidx++) {" +
 					"var vform = vforms[formidx];" +
 					"for (var controlIdx = 0; controlIdx < vform.length; controlIdx++) {" +
-						"var control = vform.elements[controlIdx];" +
-						"if (control.type === \"select-one\") {" +
-							"var item = control.selectedIndex;" +
-							"var value = control.item(item).value;" +
-							"vreturn = vreturn + control.name + '¬' + value + '¬' + control.type + '¬' + control.checked + '|';" +
-						"} else {" +
-							"vreturn = vreturn + control.name + '¬' + control.value + '¬' + control.type + '¬' + control.checked + '|';" +
-						"}" +
+					"var control = vform.elements[controlIdx];" +
+					"if (control.type === \"select-one\") {" +
+					"var item = control.selectedIndex;" +
+					"var value = control.item(item).value;" +
+					"vreturn = vreturn + control.name + '¬' + value + '¬' + control.type + '¬' + control.checked + '|';" +
+					"} else {" +
+					"vreturn = vreturn + control.name + '¬' + control.value + '¬' + control.type + '¬' + control.checked + '|';" +
 					"}" +
-				"}" +
-				"return vreturn;";
-		String node = (String) brwsText.evaluate(evaluateScript);
-		String fields[] = node.split("\\|");
-		String values[]; 
-		String name;
-		String value;
-		String type;
-		String checked;
-		for (int i = 0; i < fields.length; i++) {
-			values = fields[i].split("¬");
-			if (!fields[i].equals("")) {
-				name = values[0];
-				value = values[1];
-				type = values[2];
-				checked = values[3];
-				if (type.equals("checkbox")) {
-					guideSettings.setFormField(name, checked);
-					guideSettings.setScriptVar(name, checked);
-				}
-				if (type.equals("radio")) {
-					if (checked.equals("true")) {
+					"}" +
+					"}" +
+					"return vreturn;";
+			String node = (String) brwsText.evaluate(evaluateScript);
+			String fields[] = node.split("\\|");
+			String values[]; 
+			String name;
+			String value;
+			String type;
+			String checked;
+			for (int i = 0; i < fields.length; i++) {
+				values = fields[i].split("¬");
+				if (!fields[i].equals("")) {
+					name = values[0];
+					value = values[1];
+					type = values[2];
+					checked = values[3];
+					if (type.equals("checkbox")) {
+						guideSettings.setFormField(name, checked);
+						guideSettings.setScriptVar(name, checked);
+					}
+					if (type.equals("radio")) {
+						if (checked.equals("true")) {
+							guideSettings.setFormField(name, value);
+							guideSettings.setScriptVar(name, value);
+						}
+					}
+					if (type.equals("text")) {
 						guideSettings.setFormField(name, value);
 						guideSettings.setScriptVar(name, value);
 					}
-				}
-				if (type.equals("text")) {
-					guideSettings.setFormField(name, value);
-					guideSettings.setScriptVar(name, value);
-				}
-				
-				if (type.equals("select-one")) {
-					guideSettings.setFormField(name, value);
-					guideSettings.setScriptVar(name, value);
-				}
 
-				logger.trace(name + "|" + value +  "|" + type +  "|" + checked);
+					if (type.equals("select-one")) {
+						guideSettings.setFormField(name, value);
+						guideSettings.setScriptVar(name, value);
+					}
+
+					logger.trace(name + "|" + value +  "|" + type +  "|" + checked);
+				}
+			}
+			String node2 = (String) imageLabel.evaluate(evaluateScript);
+			fields = node2.split("\\|");
+			for (int i = 0; i < fields.length; i++) {
+				values = fields[i].split("¬");
+				if (!fields[i].equals("")) {
+					name = values[0];
+					value = values[1];
+					type = values[2];
+					checked = values[3];
+					if (type.equals("checkbox")) {
+						guideSettings.setFormField(name, checked);
+						guideSettings.setScriptVar(name, checked);
+					}
+					if (type.equals("radio")) {
+						if (checked.equals("true")) {
+							guideSettings.setFormField(name, value);
+							guideSettings.setScriptVar(name, value);
+						}
+					}
+					if (type.equals("text")) {
+						guideSettings.setFormField(name, value);
+						guideSettings.setScriptVar(name, value);
+					}
+
+					if (type.equals("select-one")) {
+						guideSettings.setFormField(name, value);
+						guideSettings.setScriptVar(name, value);
+					}
+
+					logger.trace(name + "|" + value +  "|" + type +  "|" + checked);
+				}
 			}
 		}
-		String node2 = (String) imageLabel.evaluate(evaluateScript);
-		fields = node2.split("\\|");
-		for (int i = 0; i < fields.length; i++) {
-			values = fields[i].split("¬");
-			if (!fields[i].equals("")) {
-				name = values[0];
-				value = values[1];
-				type = values[2];
-				checked = values[3];
-				if (type.equals("checkbox")) {
-					guideSettings.setFormField(name, checked);
-					guideSettings.setScriptVar(name, checked);
-				}
-				if (type.equals("radio")) {
-					if (checked.equals("true")) {
-						guideSettings.setFormField(name, value);
-						guideSettings.setScriptVar(name, value);
-					}
-				}
-				if (type.equals("text")) {
-					guideSettings.setFormField(name, value);
-					guideSettings.setScriptVar(name, value);
-				}
-				
-				if (type.equals("select-one")) {
-					guideSettings.setFormField(name, value);
-					guideSettings.setScriptVar(name, value);
-				}
-
-				logger.trace(name + "|" + value +  "|" + type +  "|" + checked);
-			}
+		catch (Exception ex) {
+			logger.error(" get form fields " + ex.getLocalizedMessage(), ex);
 		}
 	}
-		
-		
+
+
 	//force a redisplay of the button are
 	//set focus to the last button
 	public void layoutButtons() {
-		btnComp.layout();
-	    Control[] controls = this.btnComp.getChildren();
-	    if (controls.length > 0) {
-	      controls[0].setFocus();
-	    }
-	    controls = null;
+		try {
+			btnComp.layout();
+			Control[] controls = this.btnComp.getChildren();
+			if (controls.length > 0) {
+				controls[0].setFocus();
+			}
+			controls = null;
+		}
+		catch (Exception ex) {
+			logger.error(" layoutButtons " + ex.getLocalizedMessage(), ex);
+		}
 	}
-	
+
 	public void enableButton (String id) {
-		com.snapps.swt.SquareButton button;
-		button = buttons.get(id);
-		if (button != null) {
-			button.setEnabled(true);
+		try {
+			com.snapps.swt.SquareButton button;
+			button = buttons.get(id);
+			if (button != null) {
+				button.setEnabled(true);
+			}
+		}
+		catch (Exception ex) {
+			logger.error(" enable Button " + ex.getLocalizedMessage(), ex);
 		}
 	}
 
 	public void disableButton (String id) {
-		com.snapps.swt.SquareButton button;
-		button = buttons.get(id);
-		if (button != null) {
-			button.setEnabled(false);
+		try {
+			com.snapps.swt.SquareButton button;
+			button = buttons.get(id);
+			if (button != null) {
+				button.setEnabled(false);
+			}
+		}
+		catch (Exception ex) {
+			logger.error(" disable Button " + ex.getLocalizedMessage(), ex);
 		}
 	}
 

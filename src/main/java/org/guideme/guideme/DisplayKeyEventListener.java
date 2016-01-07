@@ -28,6 +28,9 @@ public class DisplayKeyEventListener implements Listener {
 				case 'd' :
 					mainShell.showDebug();
 					break;
+				case 'D' :
+					mainShell.showDebug();
+					break;
 				}
 		}
 		}
