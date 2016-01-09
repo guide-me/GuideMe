@@ -48,8 +48,11 @@ public class AudioPlayer  implements Runnable {
 				mediaPlayer.stop();
 			}
 		}
-		isPlaying = false;
-		Thread.currentThread().interrupt();
+		synchronized(this){
+			isPlaying = false;
+			//Thread.currentThread().interrupt();
+			notifyAll();
+		}
 	}
 
 	public void run() {
@@ -74,9 +77,12 @@ public class AudioPlayer  implements Runnable {
 				}
 				mediaPlayer.playMedia(audioFile, vlcArgs.toArray(new String[vlcArgs.size()]));
 			}
-			while (isPlaying) {
-				// while the audio is still running carry on looping
-				Thread.sleep(5000);
+			synchronized(this) {
+				while (isPlaying) {
+					// while the audio is still running carry on looping
+					//Thread.sleep(5000);
+					wait();
+				}
 			}
 		} catch (Exception e) {
 			logger.error("AudioPlayer run ", e);

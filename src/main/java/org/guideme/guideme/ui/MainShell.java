@@ -1112,25 +1112,32 @@ public class MainShell {
 						logger.trace("Lable Width: " + RectImage.width);
 						
 						int maxImageScale = (int) imageLabel.getData("maxImageScale");
+						logger.trace("maxImageScale: " + maxImageScale);
 						int maxheight = (int) imageLabel.getData("maxheight");
+						logger.trace("maxheight: " + maxheight);
 						int maxwidth = (int) imageLabel.getData("maxwidth");
+						logger.trace("maxwidth: " + maxwidth);
 						
-						if (((RectImage.height >  maxheight) || (RectImage.width >  maxwidth)) && maxImageScale != 0) {
+						if (((RectImage.height >  maxheight) && (RectImage.width >  maxwidth)) && maxImageScale != 0) {
 							if (dblScreenRatio > imageRatio) {
+								logger.trace("Scale Choice: 1.1");
 								newHeight = (int) (((double) (maxwidth) * imageRatio) * imgOffSet);
 								newWidth = (int) ((double) (maxwidth) * imgOffSet);
 								logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
 							} else {
+								logger.trace("Scale Choice: 1.2");
 								newHeight = (int) ((double) (maxheight) * imgOffSet);
 								newWidth = (int) (((double) (maxheight) / imageRatio) * imgOffSet);
 								logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
 							}
 						} else {
 							if (dblScreenRatio > imageRatio) {
+								logger.trace("Scale Choice: 2.1");
 								newHeight = (int) (((double) RectImage.width * imageRatio) * imgOffSet);
 								newWidth = (int) ((double) RectImage.width * imgOffSet);
 								logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
 							} else {
+								logger.trace("Scale Choice: 2.2");
 								newHeight = (int) ((double) RectImage.height * imgOffSet);
 								newWidth = (int) (((double) RectImage.height / imageRatio) * imgOffSet);
 								logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
@@ -1429,7 +1436,7 @@ public class MainShell {
 			imageLabel.setData("maxheight", maxheight);
 			imageLabel.setData("maxwidth", maxwidth);
 			
-			if (((RectImage.height >  maxheight) || (RectImage.width >  maxwidth)) && (maxImageScale != 0)) {
+			if (((RectImage.height >  maxheight) && (RectImage.width >  maxwidth)) && (maxImageScale != 0)) {
 				if (dblScreenRatio > dblImageRatio) {
 					newHeight = (int) (((double) (maxwidth) * dblImageRatio) * imgOffSet);
 					newWidth = (int) ((double) (maxwidth) * imgOffSet);
