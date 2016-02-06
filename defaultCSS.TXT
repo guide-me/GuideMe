@@ -15,7 +15,7 @@ html, body, #wrapper {
 #wrapper td { 
 	vertical-align: middle; 
 	text-align: center; 
+	}
 html {
 	overflow: auto;
      }
-}
