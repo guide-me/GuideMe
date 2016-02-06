@@ -325,7 +325,7 @@ public class MainShell {
 
 			//defaultStyle
 			try {
-		        defaultStyle = comonFunctions.readFile("defaultCSS.txt", StandardCharsets.UTF_8);
+		        defaultStyle = comonFunctions.readFile("./defaultCSS.txt", StandardCharsets.UTF_8);
 		        defaultStyle = defaultStyle.replace("MintHtmlFontSize", String.valueOf(MintHtmlFontSize)); 
 			}
 			catch (Exception ex2) {

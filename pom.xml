@@ -102,6 +102,18 @@
 
 	<profiles>
 		<profile>
+			<id>Linux.i386</id>
+			<activation>
+				<os>
+					<family>Linux</family>
+					<arch>i386</arch>
+				</os>
+			</activation>
+			<properties>
+				<swt.artifactId>org.eclipse.swt.gtk.linux.x86</swt.artifactId>
+			</properties>
+		</profile>
+		<profile>
 			<id>mac.x86_64</id>
 			<activation>
 				<os>
