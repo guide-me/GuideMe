@@ -152,7 +152,12 @@ public class Page {
 	public boolean canShow(ArrayList<String> setList) {
 		boolean retVal = comonFunctions.canShowTime(ifBefore, ifAfter);
 		if (retVal) {
-			retVal =  comonFunctions.canShow(setList, ifSet, ifNotSet);
+			String ifNotSetPage = id;
+			if (ifNotSet.length() > 0)
+			{
+				ifNotSetPage = ifNotSetPage + "," + ifNotSet;
+			}
+			retVal =  comonFunctions.canShow(setList, ifSet, ifNotSetPage);
 		}
 		return retVal;
 	}
