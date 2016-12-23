@@ -2,6 +2,7 @@ package org.guideme.guideme.scripting;
 
 import java.util.HashMap;
 
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
@@ -19,8 +20,10 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.FunctionObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.tools.debugger.Main;
 
-public class Jscript {
+public class Jscript  implements Runnable
+{
 	private static Guide guide;
 	private static GuideSettings guideSettings;
 	private static UserSettings userSettings;
@@ -29,8 +32,13 @@ public class Jscript {
 	private static Logger logger = LogManager.getLogger();
 	private static final Marker JSCRIPT_MARKER = MarkerManager.getMarker("JSCRIPT");
 	private static Boolean inPrefGuide;
-
-	public Jscript(Guide Iguide, UserSettings IuserSettings, AppSettings IappSettings, Boolean IinPrefGuide, MainShell ImainShell) {
+	private String javaScriptText;
+	private String javaFunction;
+	private boolean pageloading;
+	private boolean running;
+	
+	public Jscript(Guide Iguide, UserSettings IuserSettings, AppSettings IappSettings, Boolean IinPrefGuide, MainShell ImainShell, OverRide IoverRide, String ijavaScriptText, String ijavaFunction, boolean ipageloading) 
+	{
 		super();
 		guide = Iguide;
 		guideSettings = Iguide.getSettings();
@@ -38,6 +46,11 @@ public class Jscript {
 		appSettings = IappSettings;
 		inPrefGuide = IinPrefGuide;
 		guide.setMainshell(ImainShell);
+		overRide = IoverRide;
+		javaScriptText = ijavaScriptText;
+		javaFunction = ijavaFunction;
+		pageloading = ipageloading;
+		running = true;
 	}
 
 
@@ -50,7 +63,7 @@ public class Jscript {
 		guide.updateJConsole(strMessage);
 	}
 
-	public void runScript(String javaScriptText, String javaFunction, boolean pageloading) {
+	public void run() {
 		try {
 			String javaScriptToRun = javaScriptText + guide.getGlobaljScript();
 			logger.info(JSCRIPT_MARKER, "Chapter: " + guideSettings.getChapter());
@@ -66,8 +79,15 @@ public class Jscript {
 			HashMap<String, Object> scriptVars;
 			scriptVars = guideSettings.getScriptVariables();
 			ContextFactory cntxFact = new ContextFactory();
+			Main dbg = null;
+			if (appSettings.getJsDebug())
+			{
+				dbg = new Main("GuideMe");
+				dbg.attachTo(cntxFact);
+			}
+			
 			Context cntx = cntxFact.enterContext();
-			Scriptable scope = guide.getScope();
+			Scriptable scope = cntx.initStandardObjects();
 			if (! inPrefGuide) {
 				UserSettings cloneUS = userSettings.clone();
 				ScriptableObject.putProperty(scope, "userSettings", cloneUS);
@@ -96,7 +116,18 @@ public class Jscript {
 			}
 			
 			try {
-				cntx.evaluateString(scope, javaScriptToRun, "script", 1, null);
+
+				if (appSettings.getJsDebug())
+				{
+				    dbg.setBreakOnEnter(true);
+				    dbg.setScope(scope);
+				    dbg.setSize(800, 600);
+				    dbg.setVisible(true);
+				    dbg.setExitAction(new DontExitOnClose());
+				}
+			    
+			    cntx.evaluateString(scope, javaScriptToRun, "script", 1, null);
+			    
 				int argStart;
 				int argEnd;
 				String argstring = "";
@@ -133,6 +164,13 @@ public class Jscript {
 			logger.info(JSCRIPT_MARKER, "Ending ScriptVariables: " + scriptVars);
 			logger.info(JSCRIPT_MARKER, "Ending Flags {" + guideSettings.getFlags() + "}");
 			Context.exit();
+
+			if (appSettings.getJsDebug())
+			{
+			    dbg.detach();
+			    dbg.dispose();
+			}		    
+
 			guideSettings.setFlags(comonFunctions.GetFlags(guide.getFlags()));
 			guideSettings.saveSettings();
 			if (inPrefGuide) {
@@ -144,12 +182,21 @@ public class Jscript {
 		catch (Exception ex) {
 			logger.error(" FileRunScript " + ex.getLocalizedMessage(), ex);
 		}
-		
+    	running = false;		
 	}
 
-
+	public boolean isRunning() {
+		return running;
+	}
+	
 	public void setOverRide(OverRide overRide) {
 		Jscript.overRide = overRide;
 	}
-
+	private static class DontExitOnClose implements Runnable {
+	@Override
+		public void run() {
+			//System.exit(0);
+		}
+	}	
 }
+

@@ -58,7 +58,7 @@ public class ComonFunctions{
 	private static Logger logger = LogManager.getLogger();
     private XPathFactory factory = XPathFactory.newInstance();
     private XPath xpath = factory.newXPath();
-    private static final String version = "0.1.6";
+    private static final String version = "0.2.1";
     private osFamily os;
     public static enum osFamily {Windows, Mac, Unix, Unknown};
 
@@ -306,6 +306,9 @@ public class ComonFunctions{
 	}
 	
 	//Get random number between x and y where Random is (x..y)
+	//if just a number is passed in it returns that number
+	//this is so we can just pass the parameter in for things like delays where 
+	//"15" would be a delay of 15 seconds but "(5..15)" would be a random delay between 5 and 15 seconds 
 	public int getRandom(String random) {
 		int intRandom = 0;
 		int intPos1;
@@ -341,6 +344,18 @@ public class ComonFunctions{
 		}
 		
 		return intRandom;
+	}
+	
+	//gets a random number between intMin and intMax inclusive
+	public int getRandom(int intMin, int intMax)
+	{
+		return mRandom.nextInt(intMax - intMin + 1) + intMin;
+	}
+	
+	//gets a random number between 1 and intMax inclusive
+	public int getRandom(int intMax)
+	{
+		return mRandom.nextInt(intMax - 1 + 1) + 1;
 	}
 	
 	public int getMilisecFromTime(String iTime) {
@@ -844,7 +859,7 @@ public class ComonFunctions{
 			// return a list of matching files
 			File[] children = f.listFiles(WildCardfilter);
 			// return a random image
-			int intFile = comonFunctions.getRandom("(0.." + (children.length - 1) + ")");
+			int intFile = comonFunctions.getRandom(0,(children.length - 1));
 			logger.debug("displayPage Random Media Index " + intFile);
 			if (strSubDir.equals("")) {
 				if (fullPath) {
@@ -877,6 +892,12 @@ public class ComonFunctions{
 
 		public boolean accept(File f) {
 			try {
+				//ignore hidden files and directories
+				if (f.isHidden() || f.isDirectory() || f.getName().toLowerCase().equals("thumbs.db"))
+				{
+					logger.debug("WildCardFileFilter No Match " + f.getName().toLowerCase());
+					return false;
+				}
 				//convert the regular patern to regex
 				String strPattern = strFilePatern.toLowerCase();
 				String text = f.getName().toLowerCase();
@@ -884,11 +905,11 @@ public class ComonFunctions{
 				strPattern = strPattern.replace("*", ".*");
 				//test for a match
 				if (!text.matches(strPattern)) {
-					logger.debug("WildCardFileFilter accept No Match " + strFile);
+					logger.debug("WildCardFileFilter No Match " + strFile);
 					return false;
 				}
 				
-				logger.debug("WildCardFileFilter accept Match " + strFile);
+				logger.debug("WildCardFileFilter Match " + strFile);
 				return true;
 			} catch (Exception e) {
 				logger.error("WildCardFileFilter.accept Exception ", e);

@@ -24,10 +24,14 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Preference;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.serialize.ScriptableInputStream;
 import org.mozilla.javascript.serialize.ScriptableOutputStream;
 import org.w3c.dom.Document;
@@ -69,15 +73,26 @@ public class GuideSettings{
 		String desc;
 		String order;
 		int sortOrder;
+		String dataDirectory;
 		AppSettings appSettings = AppSettings.getAppSettings();
-		String dataDirectory = appSettings.getTempDir();
-		//String prefix = "";
-		//if (dataDirectory.startsWith("/")) {
-		//	prefix = "/";
-		//}
 		ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
-		//dataDirectory = prefix + comonFunctions.fixSeparator(dataDirectory, appSettings.getFileSeparator());
-		filename = dataDirectory + GuideId + ".state";
+	    //ContextFactory factory = new ContextFactory();
+	    //context = factory.enterContext();			    
+		if (appSettings.isStateInDataDir())
+		{
+			dataDirectory = appSettings.getTempDir();
+			filename = dataDirectory + GuideId + ".state";
+		}
+		else
+		{
+			dataDirectory = appSettings.getDataDirectory();
+			String prefix = "";
+			if (dataDirectory.startsWith("/")) {
+				prefix = "/";
+			}
+			dataDirectory = prefix + comonFunctions.fixSeparator(dataDirectory, appSettings.getFileSeparator());
+			filename = dataDirectory + appSettings.getFileSeparator() + GuideId + ".state";
+		}
 		Logger logger = LogManager.getLogger();
 		logger.debug("GuideSettings appSettings.getDataDirectory(): " + appSettings.getDataDirectory());
 		logger.debug("GuideSettings dataDirectory: " + dataDirectory);
@@ -197,14 +212,17 @@ public class GuideSettings{
 		
 		returned = attribute;
 		
+		ContextFactory cntxFact = new ContextFactory();
+		Context context = cntxFact.enterContext();
 		if (strType.equals("org.mozilla.javascript.NativeArray")) {
 			try {
 				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
 				ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes);
-				ObjectInputStream oInputStream = new ScriptableInputStream(bis, Guide.getGuide().getScope());
-				NativeArray restored_array = (NativeArray) oInputStream.readObject();			
+				ScriptableObject scope = context.initStandardObjects();
+				ObjectInputStream oInputStream = new ScriptableInputStream(bis, scope);
+				NativeArray readObject = (NativeArray) oInputStream.readObject();
 				oInputStream.close();
-				returned = restored_array;
+				returned = readObject;
 			} catch (Exception ex ) {
 				logger.error(ex.getLocalizedMessage(),ex);
 			}
@@ -216,30 +234,32 @@ public class GuideSettings{
 			try {
 				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
 				ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes);
-				ObjectInputStream oInputStream = new ScriptableInputStream(bis, Guide.getGuide().getScope());
-				NativeObject restored_array = (NativeObject) oInputStream.readObject();			
+				ScriptableObject scope = context.initStandardObjects();
+				ObjectInputStream oInputStream = new ScriptableInputStream(bis, scope);
+				NativeObject readObject = (NativeObject) oInputStream.readObject();
 				oInputStream.close();
-				returned = restored_array;
+				returned = readObject;
 			} catch (Exception ex ) {
 				logger.error(ex.getLocalizedMessage(),ex);
 			}
-		    
+
 		}
 		
 		if (strType.equals("org.mozilla.javascript.NativeDate")) {
 			try {
 				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
 				ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes);
-				ObjectInputStream oInputStream = new ScriptableInputStream(bis, Guide.getGuide().getScope());
-				Object restored_array = oInputStream.readObject();			
+				ScriptableObject scope = context.initStandardObjects();
+				ObjectInputStream oInputStream = new ScriptableInputStream(bis, scope);
+				NativeDate readObject = (NativeDate) oInputStream.readObject();
 				oInputStream.close();
-				returned = restored_array;
+				returned = readObject;
 			} catch (Exception ex ) {
 				logger.error(ex.getLocalizedMessage(),ex);
 			}
-		    
+
 		}
-		
+
 		if (strType.equals("java.lang.Double")) {
 			Double restored_double = Double.parseDouble(attribute);
 			returned = restored_double;
@@ -259,23 +279,54 @@ public class GuideSettings{
 		returnVal = value.toString();
 		if (strType.equals("org.mozilla.javascript.NativeArray") || strType.equals("org.mozilla.javascript.NativeObject") || strType.equals("org.mozilla.javascript.NativeDate") ) {
 			try {
-			    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			    ScriptableOutputStream  os = new ScriptableOutputStream (bos, Guide.getGuide().getScope());
-			    os.writeObject(value);
-			    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
-			    String fromApacheBytes = new String(encodedBytes);
+				ContextFactory cntxFact = new ContextFactory();
+				cntxFact.enterContext();
+			    String fromApacheBytes = "";
+				if (strType.equals("org.mozilla.javascript.NativeArray"))
+				{
+					NativeArray nativeValue = (NativeArray) value;
+					Scriptable scope = nativeValue.getParentScope();
+				    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				    ScriptableOutputStream  os = new ScriptableOutputStream (bos, scope);
+				    os.writeObject(nativeValue);
+					
+				    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
+				    fromApacheBytes = new String(encodedBytes);
+				    os.close();
+				}
+				if (strType.equals("org.mozilla.javascript.NativeObject"))
+				{
+					NativeObject nativeValue = (NativeObject) value;
+					Scriptable scope = nativeValue.getParentScope();
+				    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				    ScriptableOutputStream  os = new ScriptableOutputStream (bos, scope);
+				    os.writeObject(nativeValue);
+					
+				    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
+				    fromApacheBytes = new String(encodedBytes);
+				    os.close();
+				}
+				if (strType.equals("org.mozilla.javascript.NativeDate"))
+				{
+					NativeDate nativeValue = (NativeDate) value;
+					Scriptable scope = nativeValue.getParentScope();
+				    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				    ScriptableOutputStream  os = new ScriptableOutputStream (bos, scope);
+				    os.writeObject(nativeValue);
+					
+				    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
+				    fromApacheBytes = new String(encodedBytes);
+				    os.close();
+				}
 			    returnVal = fromApacheBytes;
-			    os.close();
 			} catch (Exception ex ) {
 				logger.error(ex.getLocalizedMessage(),ex);
 			}
-		    
+			Context.exit();
 		}
-
 		
 		return returnVal;
 	}
-
 
 	public String getChapter() {
 		return chapter;

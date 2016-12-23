@@ -2,6 +2,7 @@ package org.guideme.guideme.scripting;
 
 import java.util.ArrayList;
 
+import org.eclipse.swt.widgets.Display;
 import org.guideme.guideme.model.Audio;
 import org.guideme.guideme.model.Button;
 import org.guideme.guideme.model.Delay;
@@ -27,6 +28,8 @@ public class OverRide {
 	private String image = "";
 	/** @exclude */
 	private String html = "";
+	/** @exclude */
+	private String rightHtml = "";
 	/** @exclude */
 	private String page = "";
 	/** @exclude */
@@ -64,10 +67,36 @@ public class OverRide {
 	 * @param hotKey the hot key assigned to the button
 	 */
 	public void addButton(String target, String text, String set, String unSet, String jScript, String image, String hotKey) {
-		Button button = new Button(target, text, "", "", set, unSet, jScript, image, hotKey);
-		this.button.add(button);
+		ButtonThread buttonThread = new ButtonThread();
+		buttonThread.overRide = this;
+		buttonThread.target = target;
+		buttonThread.text = text;
+		buttonThread.set = set;
+		buttonThread.unSet = unSet;
+		buttonThread.jScript = jScript;
+		buttonThread.image = image;
+		buttonThread.hotKey = hotKey;
+		Display.getDefault().syncExec(buttonThread);
 	}
 
+	private class ButtonThread implements Runnable
+	{
+		public OverRide overRide;
+		public String target;
+		public String text;
+		public String set;
+		public String unSet;
+		public String jScript;
+		public String image; 
+		public String hotKey;
+		
+		public void run()
+		{
+			Button button = new Button(target, text, "", "", set, unSet, jScript, image, hotKey);
+			overRide.button.add(button);
+		}
+	}
+			
 	/**
 	 * Adds a button to the page
 	 * 
@@ -89,10 +118,84 @@ public class OverRide {
 		} catch (Exception e) {
 			order = 1;
 		}
-		Button button = new Button(target, text, "", "", set, unSet, jScript, image, hotKey, "", "", "", "", "", order, "", "", disabled, id, "");
-		this.button.add(button);
+
+		ButtonThread2 buttonThread = new ButtonThread2();
+		buttonThread.overRide = this;
+		buttonThread.target = target;
+		buttonThread.text = text;
+		buttonThread.set = set;
+		buttonThread.unSet = unSet;
+		buttonThread.jScript = jScript;
+		buttonThread.image = image;
+		buttonThread.hotKey = hotKey;
+		buttonThread.order = order; 
+		buttonThread.disabled = disabled; 
+		buttonThread.id = id;
+		buttonThread.defaultBtn = false;
+		Display.getDefault().syncExec(buttonThread);		
 	}
 
+	/**
+	 * Adds a button to the page
+	 * 
+	 * @param target the page to go to
+	 * @param text the text displayed on the button
+	 * @param set the flags to set if the button is pressed
+	 * @param unSet the flags to clear if the button is pressed
+	 * @param jScript the Java Script function to run if the button is pressed
+	 * @param image the background image for the button
+	 * @param hotKey the hot key assigned to the button
+	 * @param sortOrder the sort order value (used to sort the buttons)
+	 * @param disabled the disabled state of the button (true to disable it)
+	 * @param id the id to use to manipulate the button from Java Script
+	 * @param defaultBtn default button activated when enter is pressed
+	 */
+	public void addButton(String target, String text, String set, String unSet, String jScript, String image, String hotKey, String sortOrder, boolean disabled, String id, boolean defaultBtn) {
+		int order;
+		try {
+			order = Integer.parseInt(sortOrder);
+		} catch (Exception e) {
+			order = 1;
+		}
+		
+		ButtonThread2 buttonThread = new ButtonThread2();
+		buttonThread.overRide = this;
+		buttonThread.target = target;
+		buttonThread.text = text;
+		buttonThread.set = set;
+		buttonThread.unSet = unSet;
+		buttonThread.jScript = jScript;
+		buttonThread.image = image;
+		buttonThread.hotKey = hotKey;
+		buttonThread.order = order; 
+		buttonThread.disabled = disabled; 
+		buttonThread.id = id;
+		buttonThread.defaultBtn = defaultBtn;
+		Display.getDefault().syncExec(buttonThread);	
+	}
+
+	private class ButtonThread2 implements Runnable
+	{
+		public OverRide overRide;
+		public String target;
+		public String text;
+		public String set;
+		public String unSet;
+		public String jScript;
+		public String image; 
+		public String hotKey;
+		public int order; 
+		public boolean disabled; 
+		public String id;
+		public boolean defaultBtn;
+		
+		public void run()
+		{
+			Button button = new Button(target, text, "", "", set, unSet, jScript, image, hotKey, "", "", "", "", "", order, "", "", disabled, id, "", defaultBtn);
+			overRide.button.add(button);
+		}
+	}
+	
 	/** @exclude */
 	public Button getButton(int i) {
 		return button.get(i);
@@ -373,6 +476,22 @@ public class OverRide {
 	/** @exclude */
 	public String getLeftCss() {
 		return leftCss;
+	}
+
+	/** @exclude */
+	public String getRightHtml() {
+		return rightHtml;
+	}
+
+	/**
+	 * Will set the right pane to the html provided
+	 * 
+	 * will replace the complete html in the right pane
+	 * 
+	 * @param rightHtml the Html to be displayed in the right pane
+	 */
+	public void setRightHtml(String rightHtml) {
+		this.rightHtml = rightHtml;
 	}
 
 }

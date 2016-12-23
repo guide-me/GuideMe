@@ -71,10 +71,11 @@
 			<artifactId>jface</artifactId>
 			<version>3.0.1</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.mozilla/rhino -->
 		<dependency>
-			<groupId>rhino</groupId>
-			<artifactId>js</artifactId>
-			<version>1.7R1</version>
+		    <groupId>org.mozilla</groupId>
+		    <artifactId>rhino</artifactId>
+		    <version>1.7R4</version>
 		</dependency>
 		<dependency>
 			<groupId>uk.co.caprica</groupId>

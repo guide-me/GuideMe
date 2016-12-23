@@ -56,9 +56,8 @@ public class JscriptTest {
 		guide.setSettings(guideSettings);
 		try {
 			String source = comonFunctions.readFile("test.js", Charset.defaultCharset());
-			Jscript jscript = new Jscript(guide, userSettings, appSettings, false, mainShell);
-			jscript.setOverRide(overRide);
-			jscript.runScript(source, "test", true);
+			Jscript jscript = new Jscript(guide, userSettings, appSettings, false, mainShell, overRide, source, "test", true);
+			new Thread(jscript).start();
 		} catch (Exception e) {
 			logger.error(" Run Script " + e.getLocalizedMessage(), e);
 		}				

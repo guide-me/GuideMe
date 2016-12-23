@@ -1,6 +1,7 @@
 package org.guideme.guideme;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.PrintStream;
 import java.util.Iterator;
 import java.util.Properties;
@@ -34,12 +35,28 @@ public class App
 			System.setProperty("org.eclipse.swt.browser.IEVersion", "11000");
 			
 			logger.trace("Enter main");
+			logger.error("GuideMe Version - " + ComonFunctions.getVersion());
 			//Sleak will help diagnose SWT memory leaks
 			//if you set this to true you will get an additional window
 			//that allows you to track resources that are created and not destroyed correctly
 			boolean loadSleak = false;
 
 			AppSettings appSettings = AppSettings.getAppSettings();
+			
+			File directory = new File(appSettings.getTempDir());
+			  
+			File[] toBeDeleted = directory.listFiles(new FileFilter() {
+				public boolean accept(File theFile) {
+				if (theFile.isFile()) {
+					return theFile.getName().startsWith("tmpImage");
+				}
+				return false;
+				}
+			});
+			  
+			for(File deletableFile:toBeDeleted){
+				deletableFile.delete();
+			}
 			
 			if (args.length > 1) {
 				appSettings.setDataDirectory(args[0]);
@@ -63,9 +80,6 @@ public class App
 					//so we can turn it on, on a users machine
 					logger.error(key + " - " + value);
 				}
-				String version;
-				version = ComonFunctions.getVersion();
-				logger.error("GuideMe Version - " + version);
 			}
 
 			if (loadSleak) {
@@ -108,7 +122,8 @@ public class App
 						}
 						catch (Exception ex) {
 							logger.error("Main shell close " + ex.getLocalizedMessage(), ex);
-						}					}
+						}					
+					}
 					if (!display.readAndDispatch())
 					{
 						display.sleep();

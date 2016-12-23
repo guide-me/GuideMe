@@ -26,7 +26,6 @@ import org.guideme.guideme.model.Metronome;
 import org.guideme.guideme.model.Page;
 import org.guideme.guideme.model.Video;
 import org.guideme.guideme.scripting.OverRide;
-import org.guideme.guideme.scripting.Jscript;
 import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
@@ -194,9 +193,7 @@ public class MainLogic {
 				String pageJavascript = objCurrPage.getjScript();
 				if (! pageJavascript.equals("")) {
 					if (pageJavascript.contains("pageLoad")) {
-						Jscript jscript = new Jscript(guide, userSettings, appSettings, guide.getInPrefGuide(), mainShell);
-						jscript.setOverRide(overRide);
-						jscript.runScript(pageJavascript, "pageLoad", true);
+						mainShell.runJscript("pageLoad", overRide, true);
 					}
 				}
 			} catch (Exception e) {
@@ -477,11 +474,13 @@ public class MainLogic {
 				//they are encoded #prefName# 
 				try {
 					String displayText = "";
-					if (overRide.getHtml().equals("")) {
+					if (overRide.getHtml().equals("") && overRide.getRightHtml().equals("")) {
 						displayText = objCurrPage.getText();
 					} else {
-						displayText = overRide.getHtml();
-						overRide.setHtml("");
+						if (!overRide.getHtml().equals("")) {
+							displayText = overRide.getHtml();
+							overRide.setHtml("");
+						}
 					}
 
 					// Media Directory
@@ -493,9 +492,12 @@ public class MainLogic {
 						logger.error("displayPage BrwsText Media Directory Exception " + e.getLocalizedMessage(), e);
 					}
 					
-					displayText = comonFunctions.substituteTextVars(displayText, guideSettings, userSettings);
-
-					mainShell.setBrwsText(displayText, overRide.getRightCss());
+					if (overRide.getRightHtml().equals("")) {
+						displayText = comonFunctions.substituteTextVars(displayText, guideSettings, userSettings);
+						mainShell.setBrwsText(displayText, overRide.getRightCss());
+					} else {
+						mainShell.setRightHtml(comonFunctions.substituteTextVars(overRide.getRightHtml(), guideSettings, userSettings));
+					}
 				} catch (Exception e) {
 					logger.error("displayPage BrwsText Exception " + e.getLocalizedMessage(), e);
 					mainShell.setBrwsText("", "");

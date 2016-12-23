@@ -116,7 +116,7 @@ public class AudioPlayer  implements Runnable {
 					display.syncExec(
 							new Runnable() {
 								public void run(){
-									mainShell.runJscript(jscript);
+									mainShell.runJscript(jscript, false);
 									mainShell.displayPage(target);
 								}
 							});											

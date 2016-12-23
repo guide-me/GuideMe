@@ -32,7 +32,7 @@ public class DisplayKeyEventListener implements Listener {
 					mainShell.showDebug();
 					break;
 				}
-		}
+			}
 		}
 		catch (Exception ex) {
 			logger.error(" DisplayKeyEventListener " + ex.getLocalizedMessage(), ex);

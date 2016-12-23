@@ -110,8 +110,11 @@ public class PreferenceShell {
 			//Debug
 			AddBooleanField(grpApp, "Debug", appWidgets.get("AppImageScaleNumCtrl"), appWidgets.get("AppImageScaleNumCtrl"), myAppSettings.getDebug(), "AppDebug");			
 
+			//Javascript Debug
+			AddBooleanField(grpApp, "Javascript Debug", appWidgets.get("AppDebugBlnCtrl"), appWidgets.get("AppDebugBlnCtrl"), myAppSettings.getJsDebug(), "AppJsDebug");			
+
 			//Video
-			AddBooleanField(grpApp, "Video", appWidgets.get("AppDebugBlnCtrl"), appWidgets.get("AppDebugBlnCtrl"), myAppSettings.getVideoOn(), "AppVideo");			
+			AddBooleanField(grpApp, "Video", appWidgets.get("AppJsDebugBlnCtrl"), appWidgets.get("AppJsDebugBlnCtrl"), myAppSettings.getVideoOn(), "AppVideo");			
 
 			//Main Monitor
 			AddTextField(grpApp, "Main Monitor", appWidgets.get("AppVideoBlnCtrl"), appWidgets.get("AppVideoBlnCtrl"), String.valueOf(myAppSettings.getMainMonitor()), "AppMainMonitor", true);
@@ -137,6 +140,9 @@ public class PreferenceShell {
 			//To Clipboard (used for TTS)
 			AddBooleanField(grpApp, "Copy text to clipboard (used with a TTS Reader)", appWidgets.get("AppPageSoundBlnCtrl"), appWidgets.get("AppPageSoundBlnCtrl"), myAppSettings.isToclipboard(), "AppToClipboard");			
 
+			//Store state in data directory
+			AddBooleanField(grpApp, "Store State files in data directory", appWidgets.get("AppToClipboardBlnCtrl"), appWidgets.get("AppToClipboardBlnCtrl"), myAppSettings.isStateInDataDir(), "AppStateInDataDir");			
+
 			//Auto Hide Menu
 			//AddBooleanField(grpApp, "Auto hide the menu", appWidgets.get("AppToClipboardBlnCtrl"), appWidgets.get("AppToClipboardBlnCtrl"), myAppSettings.isHideMenu(), "AppHideMenu");			
 
@@ -145,7 +151,7 @@ public class PreferenceShell {
 
 			//midiInstrument
 			//AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppDataDirCtrl"), appWidgets.get("AppDataDirCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
-			AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppToClipboardBlnCtrl"), appWidgets.get("AppToClipboardBlnCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
+			AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppStateInDataDirBlnCtrl"), appWidgets.get("AppStateInDataDirBlnCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
 
 			//midiVolume
 			AddTextField(grpApp, "Midi Volume (0 - 127)", appWidgets.get("AppMidiInstrumentNumCtrl"), appWidgets.get("AppMidiInstrumentNumCtrl"), String.valueOf(myAppSettings.getMidiVolume()), "AppMidiVolume", true);
@@ -302,6 +308,9 @@ public class PreferenceShell {
 				btnTmp = (Button) appWidgets.get("AppDebugBlnCtrl");
 				myAppSettings.setDebug(btnTmp.getSelection());
 				
+				btnTmp = (Button) appWidgets.get("AppJsDebugBlnCtrl");
+				myAppSettings.setJsDebug(btnTmp.getSelection());
+				
 				btnTmp = (Button) appWidgets.get("AppVideoBlnCtrl");
 				myAppSettings.setVideoOn(btnTmp.getSelection());
 				
@@ -334,6 +343,9 @@ public class PreferenceShell {
 				
 				btnTmp = (Button) appWidgets.get("AppToClipboardBlnCtrl");
 				myAppSettings.setToclipboard(btnTmp.getSelection());
+				
+				btnTmp = (Button) appWidgets.get("AppStateInDataDirBlnCtrl");
+				myAppSettings.setStateInDataDir(btnTmp.getSelection());
 				
 				//btnTmp = (Button) appWidgets.get("AppHideMenuBlnCtrl");
 				//myAppSettings.setHideMenu(btnTmp.getSelection());

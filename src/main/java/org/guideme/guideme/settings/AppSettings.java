@@ -23,6 +23,7 @@ public class AppSettings {
 	
 	
 	private boolean Debug = false;
+	private boolean JsDebug = false;
 	private boolean video = false;
 	private boolean hideMenu = false;
 	private String DataDirectory;
@@ -44,6 +45,7 @@ public class AppSettings {
 	private boolean metronome = true;
 	private String ComandLineGuide = "";
 	private String tempDir;
+	private boolean stateInDataDir;
 
 	public static synchronized AppSettings getAppSettings() {
 		if (appSettings == null) {
@@ -88,6 +90,7 @@ public class AppSettings {
 				musicVolume = Integer.parseInt(appSettingsProperties.getProperty("musicVolume", "400"));
 				videoVolume = Integer.parseInt(appSettingsProperties.getProperty("videoVolume", "400"));
 				Debug = Boolean.parseBoolean(appSettingsProperties.getProperty("Debug", "false"));
+				JsDebug = Boolean.parseBoolean(appSettingsProperties.getProperty("JsDebug", "false"));
 				video = Boolean.parseBoolean(appSettingsProperties.getProperty("Video", "true"));
 				mainMonitor = Integer.parseInt(appSettingsProperties.getProperty("mainMonitor", "1"));
 				fullScreen = Boolean.parseBoolean(appSettingsProperties.getProperty("fullScreen", "false"));
@@ -97,6 +100,7 @@ public class AppSettings {
 				pageSound = Boolean.parseBoolean(appSettingsProperties.getProperty("pageSound", "true"));
 				toclipboard = Boolean.parseBoolean(appSettingsProperties.getProperty("toclipboard", "false"));
 				DataDirectory = appSettingsProperties.getProperty("DataDirectory", userDir);
+				stateInDataDir = Boolean.parseBoolean(appSettingsProperties.getProperty("stateInDataDir", "true"));
 				sash1Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights0", "350"));
 				sash1Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights1", "350"));
 				sash2Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights0", "150"));
@@ -126,6 +130,14 @@ public class AppSettings {
 
 	public void setDebug(boolean debug) {
 		Debug = debug;
+	}
+
+	public boolean getJsDebug() {
+		return JsDebug;
+	}
+
+	public void setJsDebug(boolean jsdebug) {
+		JsDebug = jsdebug;
 	}
 
 	public String getDataDirectory() {
@@ -163,6 +175,7 @@ public class AppSettings {
 			appSettingsProperties.setProperty("musicVolume", String.valueOf(musicVolume));
 			appSettingsProperties.setProperty("videoVolume", String.valueOf(videoVolume));
 			appSettingsProperties.setProperty("Debug", String.valueOf(Debug));
+			appSettingsProperties.setProperty("JsDebug", String.valueOf(JsDebug));
 			appSettingsProperties.setProperty("Video", String.valueOf(video));
 			appSettingsProperties.setProperty("mainMonitor", String.valueOf(mainMonitor));
 			appSettingsProperties.setProperty("fullScreen", String.valueOf(fullScreen));
@@ -172,6 +185,7 @@ public class AppSettings {
 			appSettingsProperties.setProperty("pageSound", String.valueOf(pageSound));
 			appSettingsProperties.setProperty("toclipboard", String.valueOf(toclipboard));
 			appSettingsProperties.setProperty("DataDirectory", DataDirectory);
+			appSettingsProperties.setProperty("stateInDataDir", String.valueOf(stateInDataDir));
 			appSettingsProperties.setProperty("sash1Weights0", String.valueOf(sash1Weights[0]));
 			appSettingsProperties.setProperty("sash1Weights1", String.valueOf(sash1Weights[1]));
 			appSettingsProperties.setProperty("sash2Weights0", String.valueOf(sash2Weights[0]));
@@ -356,6 +370,14 @@ public class AppSettings {
 
 	public String getTempDir() {
 		return tempDir;
+	}
+
+	public boolean isStateInDataDir() {
+		return stateInDataDir;
+	}
+
+	public void setStateInDataDir(boolean stateInDataDir) {
+		this.stateInDataDir = stateInDataDir;
 	}
 
 }

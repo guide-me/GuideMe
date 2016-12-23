@@ -45,6 +45,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import javax.imageio.ImageIO;
+import javax.swing.SwingUtilities;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -64,11 +65,14 @@ import org.guideme.guideme.model.Page;
 import org.guideme.guideme.model.Timer;
 import org.guideme.guideme.readers.XmlGuideReader;
 import org.guideme.guideme.scripting.Jscript;
+import org.guideme.guideme.scripting.OverRide;
 import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
 import org.guideme.guideme.settings.UserSettings;
 import org.imgscalr.Scalr;
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.tools.debugger.Main;
 
 import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
@@ -153,6 +157,9 @@ public class MainShell {
 	private boolean inPrefShell = false;
 	private String rightHTML;
 	private String leftHTML;
+	private Main dbg;
+	private ContextFactory factory;
+	private File oldImage;
 
 	public Shell createShell(final Display display) {
 		logger.trace("Enter createShell");
@@ -251,7 +258,13 @@ public class MainShell {
 			//debug shell
 			debugShell = DebugShell.getDebugShell();
 			debugShell.createShell(myDisplay, this);
-			
+		    factory = new ContextFactory();
+			dbg = new Main("GuideMe");
+		    dbg.attachTo(factory);
+		    dbg.setBreakOnEnter(true);
+		    dbg.setSize(800, 600);
+		    dbg.setVisible(false);
+
 			
 			//get primary monitor and its size
 			clientArea = monitors[0].getClientArea();
@@ -541,6 +554,37 @@ public class MainShell {
 				}
 			});
 
+			if (appSettings.getDebug())
+			{
+				//Top Level Debug drop down
+				MenuItem debugItem = new MenuItem (MenuBar, SWT.CASCADE);
+				debugItem.setText ("Debu&g");
+	
+				//Sub Menu for Debug
+				Menu debugSubMenu = new Menu (shell, SWT.DROP_DOWN);
+				//Associate it with the top level File menu
+				debugItem.setMenu (debugSubMenu);
+				
+				//Debug Debug Menu Item
+			    final MenuItem debugCheck = new MenuItem(debugSubMenu, SWT.CHECK);
+			    debugCheck.setText("Debu&g");
+			    debugCheck.setSelection(appSettings.getDebug());
+			    debugCheck.addListener(SWT.Selection, new Listener() {
+			      public void handleEvent(Event event) {
+			        appSettings.setDebug(debugCheck.getSelection());
+			      }
+			    });			
+				
+			    //Debug Javascript Debug Menu Item
+			    final MenuItem jsdebugCheck = new MenuItem(debugSubMenu, SWT.CHECK);
+			    jsdebugCheck.setText("&Javascript Debug");
+			    jsdebugCheck.setSelection(appSettings.getJsDebug());
+			    jsdebugCheck.addListener(SWT.Selection, new Listener() {
+			      public void handleEvent(Event event) {
+			        appSettings.setJsDebug(jsdebugCheck.getSelection());
+			      }
+			    });			
+			}
 			// Add the menu bar to the shell
 			shell.setMenuBar (MenuBar);
 
@@ -707,6 +751,10 @@ public class MainShell {
 		public void handleEvent(Event event) {
 			try {
 				logger.trace(event.character + "|" + event.keyCode + "|" + event.keyLocation + "|" + event.stateMask);
+				if (event.keyCode == 13 && (event.widget.getClass().toString().equals("class org.eclipse.swt.browser.Browser")))
+					{
+						event.doit = false;
+					};
 				if (((event.stateMask & SWT.ALT) == SWT.ALT)) {
 					switch (event.character) {
 					/*
@@ -782,7 +830,7 @@ public class MainShell {
 						}
 						strTag = (String) hotKeyButton.getData("Target");
 						String javascript = (String) hotKeyButton.getData("javascript");
-						runJscript(javascript);
+						runJscript(javascript, false);
 						mainLogic.displayPage(strTag, false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
 					}
 				}
@@ -882,7 +930,7 @@ public class MainShell {
 									new Runnable() {
 										public void run(){
 											logger.debug("MediaListener Video Run: " + videoJscript + " videoTarget: " + videoTarget);
-											mainShell.runJscript(videoJscript);
+											mainShell.runJscript(videoJscript, false);
 											mainShell.displayPage(videoTarget);
 										}
 									});											
@@ -1247,7 +1295,7 @@ public class MainShell {
 								comonFunctions.processSrciptVars(guide.getDelayScriptVar(), guideSettings);
 								javascript = guide.getDelayjScript();
 								if (!javascript.equals("")) {
-									mainShell.runJscript(javascript);
+									mainShell.runJscript(javascript, false);
 								}
 								mainLogic.displayPage(guide.getDelTarget(), false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
 							}
@@ -1347,7 +1395,7 @@ public class MainShell {
 									}
 									javascript = objTimer.getjScript();
 									if (!javascript.equals("")) {
-										mainShell.runJscript(javascript);
+										mainShell.runJscript(javascript, false);
 									}
 								}
 						        //it.remove(); // avoids a ConcurrentModificationException
@@ -1403,6 +1451,13 @@ public class MainShell {
 	}
 
 	public void setImageLabel(String imgPath, String strImage) {
+		//delete old image if it exists
+		if (oldImage != null && oldImage.exists())
+		{
+			oldImage.delete();
+			oldImage = null;
+		}
+		
 		//display an image in the area to the left of the screen
 		int newWidth;
 		int newHeight;
@@ -1472,9 +1527,15 @@ public class MainShell {
 				BufferedImage imageNew =
 						Scalr.resize(img, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC,
 								newWidth, newHeight, Scalr.OP_ANTIALIAS);
-				String imgType = imgPath.substring(imgPath.length() - 3);
+				String imgType = "";
+				int pos = imgPath.lastIndexOf(".");
+				if (pos > -1)
+				{
+					imgType = imgPath.substring(pos + 1);
+				}
 				String tmpPath = appSettings.getTempDir();
-				File newImage = File.createTempFile("tmpImage", imgType, new File(tmpPath));
+				File newImage = File.createTempFile("tmpImage", "." + imgType, new File(tmpPath));
+				oldImage = newImage;
 				newImage.deleteOnExit();
 				tmpImagePath = newImage.getAbsolutePath();
 				ImageIO.write(imageNew, imgType, newImage);
@@ -1635,6 +1696,18 @@ public class MainShell {
 		}
 	}
 
+	public void setRightHtml(String strHTML) {
+		//set HTML to be displayed in the browser control to the left of the screen
+		try {
+			this.brwsText.setText(strHTML);
+		} catch (Exception e1) {
+			logger.error("displayPage Text Exception " + e1.getLocalizedMessage(), e1);
+			strHTML = rightHTML.replace("DefaultStyle", style);
+			strHTML = strHTML.replace("BodyContent", "");
+			this.brwsText.setText(strHTML);
+		}
+	}
+	
 	public void setLeftText(String brwsText, String overRideStyle) {
 		//set HTML to be displayed in the browser control to the left of the screen
 		if (overRideStyle.equals("")) {
@@ -1851,7 +1924,7 @@ public class MainShell {
 				comonFunctions.processSrciptVars(scriptVar, guideSettings);
 				strTag = (String) btnClicked.getData("Target");
 				String javascript = (String) btnClicked.getData("javascript");
-				runJscript(javascript);
+				runJscript(javascript, false);
 				mainLogic.displayPage(strTag, false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
 			}
 			catch (Exception ex) {
@@ -1861,17 +1934,25 @@ public class MainShell {
 		}
 	}
 
+	public void runJscript(String function, boolean pageLoading) {
+		runJscript(function, null, pageLoading);
+	}
+	
 	//run the javascript function passed 
-	public void runJscript(String function) {
+	public void runJscript(String function, OverRide overRide, boolean pageLoading ) {
 		try {
 			getFormFields();
 			refreshVars();
 			if (function == null) function = "";
 			if (! function.equals("")) {
-				Jscript jscript = new Jscript(guide, userSettings, appSettings, guide.getInPrefGuide(), mainShell);
 				Page objCurrPage = guide.getChapters().get(guideSettings.getChapter()).getPages().get(guideSettings.getPage());
 				String pageJavascript = objCurrPage.getjScript();
-				jscript.runScript(pageJavascript, function, false);
+				Jscript jscript = new Jscript(guide, userSettings, appSettings, guide.getInPrefGuide(), mainShell, overRide, pageJavascript, function, pageLoading);
+				SwingUtilities.invokeLater(jscript);
+				while (jscript.isRunning())
+				{
+					Display.getCurrent().readAndDispatch();
+				}
 			}
 		}
 		catch (Exception ex) {
@@ -2205,4 +2286,13 @@ public class MainShell {
 	public void showDebug() {
 		debugShell.showDebug();
 	}
+
+	public Main getDbg() {
+		return dbg;
+	}
+	
+	public ContextFactory getContextFactory() {
+		return factory;
+	}
+	
 }

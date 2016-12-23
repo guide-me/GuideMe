@@ -118,6 +118,8 @@ public class XmlGuideReader {
 		String strTmpAuthor = "";
 		String btnDis;
 		boolean disabled;
+		String btnDefault;
+		boolean defaultBtn;
 
 		Page page404 = new Page("GuideMe404Error","", "", "", "", false, "", "");
 		chapter.getPages().put(page404.getId(), page404);
@@ -311,6 +313,13 @@ public class XmlGuideReader {
 							} catch (Exception ex) {
 								disabled = false;
 							}
+							btnDefault = reader.getAttributeValue(null, "default");
+							if (btnDefault == null) btnDefault = "false";
+							try {
+								defaultBtn = Boolean.valueOf(btnDefault);
+							} catch (Exception ex) {
+								defaultBtn = false;
+							}
 							String btnId;
 							btnId = reader.getAttributeValue(null, "id");
 							if (btnId == null) btnId = "";
@@ -330,7 +339,7 @@ public class XmlGuideReader {
 							//} else {
 							//	BtnText = "";
 							//}
-							Button button = new Button(strTarget, BtnText, ifSet, ifNotSet, Set, UnSet, javascript, image, hotKey, fontName, fontHeight, fontColor, bgColor1, bgColor2, sortOrder, ifAfter, ifBefore, disabled, btnId, scriptVar);
+							Button button = new Button(strTarget, BtnText, ifSet, ifNotSet, Set, UnSet, javascript, image, hotKey, fontName, fontHeight, fontColor, bgColor1, bgColor2, sortOrder, ifAfter, ifBefore, disabled, btnId, scriptVar, defaultBtn);
 							page.addButton(button);
 							logger.trace("loadXML " + PresName + " Button " + strTarget+ "|" + BtnText + "|" + ifSet+ "|" + ifNotSet+ "|" + Set+ "|" + UnSet + "|" + javascript);
 						} catch (Exception e1) {

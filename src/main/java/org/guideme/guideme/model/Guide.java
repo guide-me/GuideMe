@@ -9,14 +9,11 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.eclipse.swt.widgets.Display;
 import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
 import org.guideme.guideme.ui.MainShell;
-import org.mozilla.javascript.Context;
-import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.Scriptable;
-
 
 public class Guide {
 	/** @exclude */
@@ -71,8 +68,6 @@ public class Guide {
 	/** @exclude */
 	private Boolean inPrefGuide;
 	/** @exclude */
-	private Scriptable scope;
-	/** @exclude */
 	private static Logger logger = LogManager.getLogger();
 	/** @exclude */
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
@@ -81,9 +76,6 @@ public class Guide {
 
 	/** @exclude */
 	private Guide() {
-		ContextFactory cntxFact = new ContextFactory();
-		Context cntx = cntxFact.enterContext();
-		scope = cntx.initStandardObjects();
 
 	}
 
@@ -432,11 +424,6 @@ public class Guide {
 		this.globaljScript = globaljScript;
 	}
 
-	/** @exclude */
-	public Scriptable getScope() {
-		return scope;
-	}
-
 	// Guide Setting Wrapper FOR JSCRIPT
 	
 	
@@ -634,6 +621,27 @@ public class Guide {
 	}
 
 	/**
+	 * Gets a random number
+	 * 
+	 * @param Min minimum value to be returned
+	 * @param Max maximum value to be returned
+	 * @return random a whole number between the two values (inclusive of the two values)
+	 */
+	public int getRandom(int intMin, int intMax) {
+		return comonFunctions.getRandom(intMin, intMax);
+	}
+
+	/**
+	 * Gets a random number
+	 * 
+	 * @param Max maximum value to be returned
+	 * @return random a whole number between one and the value passed in inclusive of the value passsed in
+	 */
+	public int getRandom(int intMax) {
+		return comonFunctions.getRandom(intMax);
+	}
+
+	/**
 	 * Gets the number of milliseconds after midnight for a time.
 	 * 
 	 * @param iTime 00:00:00  (09:30:00 would give the number of milliseconds to 9:30am)
@@ -669,7 +677,7 @@ public class Guide {
 	 * @return a list of the folders
 	 */
 	public String listSubFolders(String FolderName) {
-		return comonFunctions.ListSubFolders(FolderName);
+		return comonFunctions.ListSubFolders(FolderName, false);
 	}
 
 	/**
@@ -766,8 +774,8 @@ public class Guide {
 	 * @param brwsText html to over write the current html
 	 * @param overRideStyle CSS to style the html (will use the default if this is blank)
 	 */
-	public void setRightHtml(String brwsText, String overRideStyle) {
-		mainshell.setBrwsText(brwsText, overRideStyle);
+	public void setRightHtml(String rightHtml) {
+		mainshell.setRightHtml(rightHtml);
 	}
 	
 	/**
@@ -865,7 +873,20 @@ public class Guide {
 	 * @param logText text to display in the debug window
 	 */
 	public void updateJConsole(String logText) {
-		mainshell.updateJConsole(logText);
+		UpdateJSConsole updateJConsole = new UpdateJSConsole();
+		updateJConsole.mainshell = mainshell;
+		updateJConsole.logText = logText;
+		Display.getDefault().syncExec(updateJConsole);	
+	}
+	
+	private class UpdateJSConsole implements Runnable
+	{
+		public MainShell mainshell;
+		public String logText;
+		public void run()
+		{
+			mainshell.updateJConsole(logText);
+		}
 	}
 	
 	/** @exclude */

@@ -28,14 +28,15 @@ public class Button  implements Comparable<Button>
 	private org.eclipse.swt.graphics.Color fontColor;
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	private String scriptVar;
+	private boolean defaultBtn; //button activated by enter
 
 	public Button(String target, String text, String ifSet, String ifNotSet, String set, String unSet, String jScript, String image, String hotKey)
 	{
-		this(target, text, ifSet, ifNotSet, set, unSet, jScript, image, hotKey, "", "", "", "", "", 1, "", "", false, "", "");
+		this(target, text, ifSet, ifNotSet, set, unSet, jScript, image, hotKey, "", "", "", "", "", 1, "", "", false, "", "", false);
 	}
 
 	
-	public Button(String target, String text, String ifSet, String ifNotSet, String set, String unSet, String jScript, String image, String hotKey, String fontName, String fontHeight, String fontColor, String bgColor1, String bgColor2, int sortOrder, String ifAfter, String ifBefore, boolean disabled, String id, String scriptVar)
+	public Button(String target, String text, String ifSet, String ifNotSet, String set, String unSet, String jScript, String image, String hotKey, String fontName, String fontHeight, String fontColor, String bgColor1, String bgColor2, int sortOrder, String ifAfter, String ifBefore, boolean disabled, String id, String scriptVar, boolean defaultBtn)
 	{
 		this.target = target;
 		this.text = text;
@@ -77,6 +78,7 @@ public class Button  implements Comparable<Button>
 		this.disabled = disabled;
 		this.id = id;
 		this.scriptVar = scriptVar;
+		this.setDefaultBtn(defaultBtn);
 	}
 
 	
@@ -241,6 +243,16 @@ public class Button  implements Comparable<Button>
 
 	public String getScriptVar() {
 		return scriptVar;
+	}
+
+
+	public boolean isDefaultBtn() {
+		return defaultBtn;
+	}
+
+
+	public void setDefaultBtn(boolean defaultBtn) {
+		this.defaultBtn = defaultBtn;
 	}
 
 
