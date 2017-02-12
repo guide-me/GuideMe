@@ -36,6 +36,7 @@ import org.guideme.guideme.model.Image;
 import org.guideme.guideme.model.Metronome;
 import org.guideme.guideme.model.Page;
 import org.guideme.guideme.model.Video;
+import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
 
 import com.snapps.swt.SquareButton;
@@ -79,7 +80,7 @@ public class DebugShell {
 		try {
 			keepShellOpen = true;
 			comonFuctions = ComonFunctions.getComonFunctions();
-			
+			AppSettings appSettings = AppSettings.getAppSettings();
 			//Create the main UI elements
 			myDisplay = display;
 			//myUserSettings = userSettings;
@@ -89,6 +90,7 @@ public class DebugShell {
 			guide = Guide.getGuide();
 			mainShell = mainshell;
 			shell = new Shell(myDisplay);
+			shell.setSize(appSettings.getJsDebugWidth(), appSettings.getJsDebugHeight());
 		    shell.addListener(SWT.Close, new Listener() {
 		        public void handleEvent(Event event) {
 		        	shell.setVisible(false);

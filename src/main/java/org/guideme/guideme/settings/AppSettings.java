@@ -20,10 +20,15 @@ public class AppSettings {
 	private int videoVolume = 400;
 	private int mainMonitor = 1;
 	private int maxImageScale = 0;
+	private int jsDebugHeight = 600;
+	private int jsDebugWidth = 800;
 	
 	
 	private boolean Debug = false;
 	private boolean JsDebug = false;
+	private boolean JsDebugError = true;
+	private boolean JsDebugEnter = false;
+	private boolean JsDebugExit = false;
 	private boolean video = false;
 	private boolean hideMenu = false;
 	private String DataDirectory;
@@ -91,6 +96,8 @@ public class AppSettings {
 				videoVolume = Integer.parseInt(appSettingsProperties.getProperty("videoVolume", "400"));
 				Debug = Boolean.parseBoolean(appSettingsProperties.getProperty("Debug", "false"));
 				JsDebug = Boolean.parseBoolean(appSettingsProperties.getProperty("JsDebug", "false"));
+				jsDebugHeight = Integer.parseInt(appSettingsProperties.getProperty("jsDebugHeight", "600"));
+				jsDebugWidth = Integer.parseInt(appSettingsProperties.getProperty("jsDebugWidth", "800"));
 				video = Boolean.parseBoolean(appSettingsProperties.getProperty("Video", "true"));
 				mainMonitor = Integer.parseInt(appSettingsProperties.getProperty("mainMonitor", "1"));
 				fullScreen = Boolean.parseBoolean(appSettingsProperties.getProperty("fullScreen", "false"));
@@ -140,6 +147,46 @@ public class AppSettings {
 		JsDebug = jsdebug;
 	}
 
+	public boolean getJsDebugError() {
+		return JsDebugError;
+	}
+
+	public void setJsDebugError(boolean jsDebugError) {
+		JsDebugError = jsDebugError;
+	}
+
+	public boolean getJsDebugEnter() {
+		return JsDebugEnter;
+	}
+
+	public void setJsDebugEnter(boolean jsDebugEnter) {
+		JsDebugEnter = jsDebugEnter;
+	}
+
+	public boolean getJsDebugExit() {
+		return JsDebugExit;
+	}
+
+	public void setJsDebugExit(boolean jsDebugExit) {
+		JsDebugExit = jsDebugExit;
+	}
+
+	public int getJsDebugHeight() {
+		return jsDebugHeight;
+	}
+
+	public void setJsDebugHeight(int jsDebugHeight) {
+		this.jsDebugHeight = jsDebugHeight;
+	}
+
+	public int getJsDebugWidth() {
+		return jsDebugWidth;
+	}
+
+	public void setJsDebugWidth(int jsDebugWidth) {
+		this.jsDebugWidth = jsDebugWidth;
+	}
+
 	public String getDataDirectory() {
 		return DataDirectory;
 	}
@@ -176,6 +223,8 @@ public class AppSettings {
 			appSettingsProperties.setProperty("videoVolume", String.valueOf(videoVolume));
 			appSettingsProperties.setProperty("Debug", String.valueOf(Debug));
 			appSettingsProperties.setProperty("JsDebug", String.valueOf(JsDebug));
+			appSettingsProperties.setProperty("jsDebugHeight", String.valueOf(jsDebugHeight));
+			appSettingsProperties.setProperty("jsDebugWidth", String.valueOf(jsDebugWidth));
 			appSettingsProperties.setProperty("Video", String.valueOf(video));
 			appSettingsProperties.setProperty("mainMonitor", String.valueOf(mainMonitor));
 			appSettingsProperties.setProperty("fullScreen", String.valueOf(fullScreen));

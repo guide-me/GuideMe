@@ -1,7 +1,10 @@
 package org.guideme.guideme.scripting;
 
+import java.awt.GraphicsDevice;
+import java.awt.GraphicsEnvironment;
 import java.util.HashMap;
 
+import javax.swing.JFrame;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -87,6 +90,7 @@ public class Jscript  implements Runnable
 			}
 			
 			Context cntx = cntxFact.enterContext();
+			cntx.getWrapFactory().setJavaPrimitiveWrap(false);
 			Scriptable scope = cntx.initStandardObjects();
 			if (! inPrefGuide) {
 				UserSettings cloneUS = userSettings.clone();
@@ -119,10 +123,21 @@ public class Jscript  implements Runnable
 
 				if (appSettings.getJsDebug())
 				{
-				    dbg.setBreakOnEnter(true);
+				    dbg.setBreakOnExceptions(appSettings.getJsDebugError());
+				    dbg.setBreakOnEnter(appSettings.getJsDebugEnter());
+				    dbg.setBreakOnReturn(appSettings.getJsDebugExit());
 				    dbg.setScope(scope);
-				    dbg.setSize(800, 600);
+				    dbg.setSize(appSettings.getJsDebugWidth(), appSettings.getJsDebugHeight());
 				    dbg.setVisible(true);
+					JFrame jfWindow = dbg.getDebugFrame();
+					if (appSettings.getMainMonitor() == 1)
+					{
+						showOnScreen(1, jfWindow);
+					}
+					else
+					{
+						showOnScreen(0, jfWindow);
+					}
 				    dbg.setExitAction(new DontExitOnClose());
 				}
 			    
@@ -198,5 +213,17 @@ public class Jscript  implements Runnable
 			//System.exit(0);
 		}
 	}	
+
+	public static void showOnScreen( int screen, JFrame frame ) {
+	    GraphicsEnvironment ge = GraphicsEnvironment.getLocalGraphicsEnvironment();
+	    GraphicsDevice[] gd = ge.getScreenDevices();
+	    if( screen > -1 && screen < gd.length ) {
+	        frame.setLocation(gd[screen].getDefaultConfiguration().getBounds().x, frame.getY());
+	    } else if( gd.length > 0 ) {
+	        frame.setLocation(gd[0].getDefaultConfiguration().getBounds().x, frame.getY());
+	    } else {
+	        throw new RuntimeException( "No Screens Found" );
+	    }
+	}
 }
 

@@ -113,8 +113,14 @@ public class PreferenceShell {
 			//Javascript Debug
 			AddBooleanField(grpApp, "Javascript Debug", appWidgets.get("AppDebugBlnCtrl"), appWidgets.get("AppDebugBlnCtrl"), myAppSettings.getJsDebug(), "AppJsDebug");			
 
+			//Javascript window height
+			AddTextField(grpApp, "Javascript Height", appWidgets.get("AppJsDebugBlnCtrl"), appWidgets.get("AppJsDebugBlnCtrl"), String.valueOf(myAppSettings.getJsDebugHeight()), "AppJsDebugHeight", true);
+
+			//Javascript window width
+			AddTextField(grpApp, "Javascript Width", appWidgets.get("AppJsDebugHeightNumCtrl"), appWidgets.get("AppJsDebugHeightNumCtrl"), String.valueOf(myAppSettings.getJsDebugWidth()), "AppJsDebugWidth", true);
+
 			//Video
-			AddBooleanField(grpApp, "Video", appWidgets.get("AppJsDebugBlnCtrl"), appWidgets.get("AppJsDebugBlnCtrl"), myAppSettings.getVideoOn(), "AppVideo");			
+			AddBooleanField(grpApp, "Video", appWidgets.get("AppJsDebugWidthNumCtrl"), appWidgets.get("AppJsDebugWidthNumCtrl"), myAppSettings.getVideoOn(), "AppVideo");			
 
 			//Main Monitor
 			AddTextField(grpApp, "Main Monitor", appWidgets.get("AppVideoBlnCtrl"), appWidgets.get("AppVideoBlnCtrl"), String.valueOf(myAppSettings.getMainMonitor()), "AppMainMonitor", true);
@@ -310,6 +316,12 @@ public class PreferenceShell {
 				
 				btnTmp = (Button) appWidgets.get("AppJsDebugBlnCtrl");
 				myAppSettings.setJsDebug(btnTmp.getSelection());
+				
+				txtTmp = (Text) appWidgets.get("AppJsDebugHeightNumCtrl");
+				myAppSettings.setJsDebugHeight(Integer.parseInt(txtTmp.getText()));
+				
+				txtTmp = (Text) appWidgets.get("AppJsDebugWidthNumCtrl");
+				myAppSettings.setJsDebugWidth(Integer.parseInt(txtTmp.getText()));
 				
 				btnTmp = (Button) appWidgets.get("AppVideoBlnCtrl");
 				myAppSettings.setVideoOn(btnTmp.getSelection());

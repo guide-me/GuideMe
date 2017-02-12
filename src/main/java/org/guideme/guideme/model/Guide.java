@@ -947,4 +947,44 @@ public class Guide {
 		return pathOut;
 	}
 	
+	/**
+	 * Play an audio file
+	 * 
+	 * id :
+	 *   File must be in the media directory (or subdirectory)
+	 * 	 Wild cards can be used
+	 * 	 e.g. kate/home*.*  would select an audio file in the sub directory kate with a file name starting with home
+	 * 
+	 * startAt :  to start 90 seconds in 00:01:30
+	 * stopAt :  to stop at 95 seconds into the video 00:01:35
+	 * scriptVar: set script variables e.g. audio=finished,stage=5
+	 * 
+	 * 
+	 * @param id the file name for the audio
+	 * @param startAt the start time for the audio hh:mm:ss
+	 * @param stopAt the stop time for audio hh:mm:ss 
+	 * @param repeat the number of times to repeat the audio
+	 * @param target the page to go to when the audio stops
+	 * @param jscript the Java Script function to run when the audio stops
+	 * @param scriptVar set script variables 
+	 */	public void playAudio(String audio, String startAt, String stopAt, int loops, String target, String jscript, String scriptVar)
+	{
+		int startAtSeconds;
+		if (!startAt.equals("")) {
+			startAtSeconds = comonFunctions.getMilisecFromTime(startAt) / 1000;
+		} else {
+			startAtSeconds = 0;
+		}
+		int stopAtSeconds;
+		if (!stopAt.equals("")) {
+			stopAtSeconds = comonFunctions.getMilisecFromTime(stopAt) / 1000;
+		} else {
+			stopAtSeconds = 0;
+		}
+		
+		AppSettings appSettings = AppSettings.getAppSettings();
+		
+		String imgPath = comonFunctions.getMediaFullPath(audio, appSettings.getFileSeparator(), appSettings, guide);
+		mainshell.playAudio(imgPath, startAtSeconds, stopAtSeconds, loops, target, jscript, scriptVar);
+	}
 }

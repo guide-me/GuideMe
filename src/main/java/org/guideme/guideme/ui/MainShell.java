@@ -258,12 +258,15 @@ public class MainShell {
 			//debug shell
 			debugShell = DebugShell.getDebugShell();
 			debugShell.createShell(myDisplay, this);
+			/*
 		    factory = new ContextFactory();
 			dbg = new Main("GuideMe");
 		    dbg.attachTo(factory);
 		    dbg.setBreakOnEnter(true);
-		    dbg.setSize(800, 600);
+		    dbg.setSize(appSettings.getJsDebugWidth(), appSettings.getJsDebugWidth());
 		    dbg.setVisible(false);
+		    */
+
 
 			
 			//get primary monitor and its size
@@ -582,6 +585,33 @@ public class MainShell {
 			    jsdebugCheck.addListener(SWT.Selection, new Listener() {
 			      public void handleEvent(Event event) {
 			        appSettings.setJsDebug(jsdebugCheck.getSelection());
+			      }
+			    });			
+			    //Debug Javascript Debug Menu Error Item
+			    final MenuItem jsdebugErrorCheck = new MenuItem(debugSubMenu, SWT.CHECK);
+			    jsdebugErrorCheck.setText("&Javascript Break on exception");
+			    jsdebugErrorCheck.setSelection(appSettings.getJsDebugError());
+			    jsdebugErrorCheck.addListener(SWT.Selection, new Listener() {
+			      public void handleEvent(Event event) {
+			        appSettings.setJsDebugError(jsdebugErrorCheck.getSelection());
+			      }
+			    });			
+			    //Debug Javascript Debug Menu Enter Item
+			    final MenuItem jsdebugEnterCheck = new MenuItem(debugSubMenu, SWT.CHECK);
+			    jsdebugEnterCheck.setText("&Javascript Break on function enter");
+			    jsdebugEnterCheck.setSelection(appSettings.getJsDebugEnter());
+			    jsdebugEnterCheck.addListener(SWT.Selection, new Listener() {
+			      public void handleEvent(Event event) {
+			        appSettings.setJsDebugEnter(jsdebugEnterCheck.getSelection());
+			      }
+			    });			
+			    //Debug Javascript Debug Menu Exit Item
+			    final MenuItem jsdebugExitCheck = new MenuItem(debugSubMenu, SWT.CHECK);
+			    jsdebugExitCheck.setText("&Javascript Break on function return");
+			    jsdebugExitCheck.setSelection(appSettings.getJsDebugExit());
+			    jsdebugExitCheck.addListener(SWT.Selection, new Listener() {
+			      public void handleEvent(Event event) {
+			        appSettings.setJsDebugExit(jsdebugExitCheck.getSelection());
 			      }
 			    });			
 			}
@@ -1945,7 +1975,7 @@ public class MainShell {
 			refreshVars();
 			if (function == null) function = "";
 			if (! function.equals("")) {
-				Page objCurrPage = guide.getChapters().get(guideSettings.getChapter()).getPages().get(guideSettings.getPage());
+				Page objCurrPage = guide.getChapters().get(guideSettings.getChapter()).getPages().get(guideSettings.getCurrPage());
 				String pageJavascript = objCurrPage.getjScript();
 				Jscript jscript = new Jscript(guide, userSettings, appSettings, guide.getInPrefGuide(), mainShell, overRide, pageJavascript, function, pageLoading);
 				SwingUtilities.invokeLater(jscript);

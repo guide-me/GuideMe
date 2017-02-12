@@ -40,6 +40,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.CharacterData;
 import org.xml.sax.SAXException;
+
 import org.apache.commons.codec.binary.Base64;
 
 public class GuideSettings{
@@ -214,6 +215,7 @@ public class GuideSettings{
 		
 		ContextFactory cntxFact = new ContextFactory();
 		Context context = cntxFact.enterContext();
+		context.getWrapFactory().setJavaPrimitiveWrap(false);
 		if (strType.equals("org.mozilla.javascript.NativeArray")) {
 			try {
 				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
@@ -270,6 +272,7 @@ public class GuideSettings{
 			returned = restored_boolean;
 		}
 
+		Context.exit();
 		// TODO Auto-generated method stub
 		return returned;
 	}
@@ -280,7 +283,8 @@ public class GuideSettings{
 		if (strType.equals("org.mozilla.javascript.NativeArray") || strType.equals("org.mozilla.javascript.NativeObject") || strType.equals("org.mozilla.javascript.NativeDate") ) {
 			try {
 				ContextFactory cntxFact = new ContextFactory();
-				cntxFact.enterContext();
+				Context cntx = cntxFact.enterContext();
+				cntx.getWrapFactory().setJavaPrimitiveWrap(false);
 			    String fromApacheBytes = "";
 				if (strType.equals("org.mozilla.javascript.NativeArray"))
 				{
