@@ -168,6 +168,9 @@ public class PreferenceShell {
 			//HTML Font Size
 			AddTextField(grpApp, "Video volume (0 and 200)", appWidgets.get("AppMusicVolumeNumCtrl"), appWidgets.get("AppMusicVolumeNumCtrl"), String.valueOf(myAppSettings.getVideoVolume()), "AppVideoVolume", true);
 
+			//HTML Font Size
+			AddTextField(grpApp, "Thumbnail Size pixels ", appWidgets.get("AppVideoVolumeNumCtrl"), appWidgets.get("AppVideoVolumeNumCtrl"), String.valueOf(myAppSettings.getThumbnailSize()), "AppThumbnailSize", true);
+
 			/*
 			Group grpNames = new Group(composite, SWT.SHADOW_IN);
 			FormData grpNamesFormData = new FormData();
@@ -376,6 +379,9 @@ public class PreferenceShell {
 
 				txtTmp = (Text) appWidgets.get("AppVideoVolumeNumCtrl");
 				myAppSettings.setVideoVolume(Integer.parseInt(txtTmp.getText()));
+
+				txtTmp = (Text) appWidgets.get("AppThumbnailSizeNumCtrl");
+				myAppSettings.setThumbnailSize(Integer.parseInt(txtTmp.getText()));
 
 				/*
 				Set<String> set = myUserSettings.getStringKeys();
