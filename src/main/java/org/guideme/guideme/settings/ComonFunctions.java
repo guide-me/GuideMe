@@ -1,8 +1,18 @@
 package org.guideme.guideme.settings;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.ComponentColorModel;
+import java.awt.image.DirectColorModel;
+import java.awt.image.IndexColorModel;
+import java.awt.image.WritableRaster;
+import java.io.BufferedWriter;
 import java.io.File;
-//import java.io.FileInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.FilenameFilter;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -17,9 +27,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-//import javax.xml.stream.XMLInputFactory;
-//import javax.xml.stream.XMLStreamConstants;
-//import javax.xml.stream.XMLStreamReader;
+import javax.imageio.ImageIO;
+import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
@@ -28,20 +39,14 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.PaletteData;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
 import org.guideme.guideme.model.Guide;
-//import org.guideme.guideme.model.Audio;
-//import org.guideme.guideme.model.Button;
-//import org.guideme.guideme.model.Delay;
-//import org.guideme.guideme.model.Guide;
-//import org.guideme.guideme.model.Image;
-//import org.guideme.guideme.model.Metronome;
-//import org.guideme.guideme.model.Page;
-//import org.guideme.guideme.model.Video;
-//import org.guideme.guideme.readers.UnicodeBOMInputStream;
-//import org.guideme.guideme.readers.XmlGuideReader.TagName;
+import org.guideme.guideme.model.Library;
+import org.imgscalr.Scalr;
 import org.mozilla.javascript.Context;
-//import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.NativeArray;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
@@ -58,7 +63,7 @@ public class ComonFunctions{
 	private static Logger logger = LogManager.getLogger();
     private XPathFactory factory = XPathFactory.newInstance();
     private XPath xpath = factory.newXPath();
-    private static final String version = "0.3.0";
+    private static final String version = "0.3.0c";
     private osFamily os;
     public static enum osFamily {Windows, Mac, Unix, Unknown};
 
@@ -828,6 +833,270 @@ public class ComonFunctions{
 		return files;
 		
 	}
+
+	public ArrayList<Library> ListGuides() {
+		AppSettings appSettings = AppSettings.getAppSettings();
+		String fileSeparator = appSettings.getFileSeparator();
+		ArrayList<Library> guides = new ArrayList<Library>();
+		
+		String dataDirectory;
+		String prefix = "";
+		dataDirectory = appSettings.getDataDirectory();
+		if (dataDirectory.startsWith("/")) {
+			prefix = "/";
+		}
+		dataDirectory = prefix + fixSeparator(appSettings.getDataDirectory(), fileSeparator);
+		
+		String libraryDir = dataDirectory + appSettings.getFileSeparator() + "__GuideLibrary";
+		Path thumbsDir = Paths.get(libraryDir);
+		if (Files.notExists(thumbsDir))
+		{
+			try {
+				Files.createDirectories(thumbsDir);
+			} catch (IOException ex) {
+				logger.error(ex.getLocalizedMessage(),ex);
+			}
+		}
+		
+		logger.debug("CommonFunctions ListGuides " + dataDirectory);
+		File file = new File(dataDirectory);
+		String[] filesList = file.list(new FilenameFilter() {
+		  @Override
+		  public boolean accept(File current, String name) {
+			 boolean valid = new File(current, name).isFile() && name.endsWith(".xml");
+		    return valid;
+		  }
+		});
+		
+		for (int i = 0; i < filesList.length; i++)
+		{
+			String errorFile = filesList[i];
+			boolean addGuide = false;
+			String image = "";
+			String title = "";
+			String fileName = dataDirectory + fileSeparator + filesList[i];
+			String media = "";
+			String author = "";
+			boolean foundTitle = false;
+			boolean foundimage = false;
+			boolean foundmedia = false;
+			boolean foundAuthor = false;
+			String fileNameRoot = filesList[i].substring(0, filesList[i].length() - 4);
+			String tumbFileName = libraryDir + fileSeparator + fileNameRoot + ".jpg";
+			String titleFileName = libraryDir + fileSeparator + fileNameRoot + ".txt";
+			Path thumbf = Paths.get(tumbFileName);
+			Path titlef = Paths.get(titleFileName); 
+			
+			if (!Files.exists(thumbf) || !Files.exists(titlef))
+			{
+				try {
+			        XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+			        InputStream in = new FileInputStream(fileName);
+			        XMLStreamReader streamReader = inputFactory.createXMLStreamReader(in);
+			        while (streamReader.hasNext()) 
+			        {
+			        	if (streamReader.isStartElement()) 
+			        	{
+			                switch (streamReader.getLocalName()) {
+			                	case "Title":
+			                		title = streamReader.getElementText().trim();
+			                		foundTitle = true;
+				                    break;
+			                	case "Name":
+			                		author = streamReader.getElementText().trim();
+			                		foundAuthor = true;
+			                		break;
+			                	case "MediaDirectory":
+			                		media = streamReader.getElementText().trim();
+			                		foundmedia = true;
+				                    break;
+			                	case "Image":
+			                		image = streamReader.getAttributeValue(null, "id").trim();
+									if (image == null) image = "";		                		
+			                		if (!image.contains("*") && image.endsWith(".jpg"))
+			                		{
+			                			File fileCheck = new File(dataDirectory + fileSeparator + media + fileSeparator + image);
+			                			if (fileCheck.isFile() && fileCheck.length() > 10000)
+			                			{
+			                				foundimage = true;
+			                			}
+			                		}
+				                    break;
+			                }
+		                }
+			        	//if we have found everything exit the while
+			        	if (foundTitle && foundimage && foundmedia && foundAuthor) break;
+			            streamReader.next();
+			        }
+			        if (foundTitle && foundimage && foundmedia)
+			        {
+						BufferedImage img = null;
+						int thumb = appSettings.getThumbnailSize();
+						int oldHeight;
+						int oldWidth;
+						int newWidth = thumb;
+						int newHeight = thumb;
+						double factor;
+						image = dataDirectory + fileSeparator + media + fileSeparator + image;
+						try {
+							img = ImageIO.read(new File(image));
+							oldHeight = img.getHeight();
+							oldWidth = img.getWidth();
+							factor = (double) oldHeight / (double) oldWidth;
+							if (factor < 1)
+							{
+								factor = (double) oldWidth / (double) oldHeight;
+								newWidth = (int) ((double) thumb * factor);
+								newHeight = thumb;
+							}
+							else
+							{
+								newWidth = thumb;
+								newHeight = (int) ((double) thumb * factor);
+							}
+						
+							BufferedImage imageNew =
+									Scalr.resize(img, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC,
+											newWidth, newHeight, Scalr.OP_ANTIALIAS);
+							File outputfile = new File(tumbFileName);
+							ImageIO.write(imageNew, "jpg", outputfile);
+							image = tumbFileName;
+							String titleFile = title + "\r\n" + author;
+					        writeFile(titleFileName, titleFile);
+					        addGuide = true;
+						} catch (IOException ex) {
+							logger.error("Guide:" + errorFile + " " + ex.getLocalizedMessage(),ex);
+						}
+			        }
+			    } catch (FileNotFoundException ex) {
+					logger.error("Guide:" + errorFile + " " + ex.getLocalizedMessage(),ex);
+				} catch (XMLStreamException ex) {
+					logger.error("Guide:" + errorFile + " " + ex.getLocalizedMessage(),ex);
+				}
+			}
+			else
+			{
+				image = tumbFileName;
+				String titleFile = readFile(titleFileName, StandardCharsets.UTF_8);
+				String lines[] = titleFile.split("\\r?\\n");
+				if (lines.length > 0) title = lines[0];
+				if (lines.length > 1) author = lines[1];
+				addGuide = true;
+			}
+			if (addGuide)
+			{
+				Library guide = new Library(image, title, fileName, author);
+				guides.add(guide);
+			}
+		}
+		
+		logger.debug("CommonFunctions ListFiles returned " + filesList.toString());
+		return guides;
+		
+	}
+	
+	public static ImageData convertToSWT(BufferedImage bufferedImage) {
+	    if (bufferedImage.getColorModel() instanceof DirectColorModel) {
+	        /*
+	        DirectColorModel colorModel = (DirectColorModel)bufferedImage.getColorModel();
+	        PaletteData palette = new PaletteData(
+	                colorModel.getRedMask(),
+	                colorModel.getGreenMask(),
+	                colorModel.getBlueMask());
+	        ImageData data = new ImageData(bufferedImage.getWidth(), bufferedImage.getHeight(),
+	                colorModel.getPixelSize(), palette);
+	        WritableRaster raster = bufferedImage.getRaster();
+	        int[] pixelArray = new int[3];
+	        for (int y = 0; y < data.height; y++) {
+	            for (int x = 0; x < data.width; x++) {
+	                raster.getPixel(x, y, pixelArray);
+	                int pixel = palette.getPixel(new RGB(pixelArray[0], pixelArray[1], pixelArray[2]));
+	                data.setPixel(x, y, pixel);
+	            }
+	        }
+	        */
+	        DirectColorModel colorModel = (DirectColorModel)bufferedImage.getColorModel();
+	        PaletteData palette = new PaletteData(
+	                colorModel.getRedMask(),
+	                colorModel.getGreenMask(),
+	                colorModel.getBlueMask());
+	        ImageData data = new ImageData(bufferedImage.getWidth(), bufferedImage.getHeight(),
+	                colorModel.getPixelSize(), palette);
+	        for (int y = 0; y < data.height; y++) {
+	            for (int x = 0; x < data.width; x++) {
+	                int rgb = bufferedImage.getRGB(x, y);
+	                int pixel = palette.getPixel(new RGB((rgb >> 16) & 0xFF, (rgb >> 8) & 0xFF, rgb & 0xFF));
+	                data.setPixel(x, y, pixel);
+	                if (colorModel.hasAlpha()) {
+	                    data.setAlpha(x, y, (rgb >> 24) & 0xFF);
+	                }
+	            }
+	        }
+	        return data;
+	    }
+	    else if (bufferedImage.getColorModel() instanceof IndexColorModel) {
+	        IndexColorModel colorModel = (IndexColorModel)bufferedImage.getColorModel();
+	        int size = colorModel.getMapSize();
+	        byte[] reds = new byte[size];
+	        byte[] greens = new byte[size];
+	        byte[] blues = new byte[size];
+	        colorModel.getReds(reds);
+	        colorModel.getGreens(greens);
+	        colorModel.getBlues(blues);
+	        RGB[] rgbs = new RGB[size];
+	        for (int i = 0; i < rgbs.length; i++) {
+	            rgbs[i] = new RGB(reds[i] & 0xFF, greens[i] & 0xFF, blues[i] & 0xFF);
+	        }
+	        PaletteData palette = new PaletteData(rgbs);
+	        ImageData data = new ImageData(bufferedImage.getWidth(), bufferedImage.getHeight(),
+	                colorModel.getPixelSize(), palette);
+	        data.transparentPixel = colorModel.getTransparentPixel();
+	        WritableRaster raster = bufferedImage.getRaster();
+	        int[] pixelArray = new int[1];
+	        for (int y = 0; y < data.height; y++) {
+	            for (int x = 0; x < data.width; x++) {
+	                raster.getPixel(x, y, pixelArray);
+	                data.setPixel(x, y, pixelArray[0]);
+	            }
+	        }
+	        return data;
+	    }
+	    else if (bufferedImage.getColorModel() instanceof ComponentColorModel) {
+	        ComponentColorModel colorModel = (ComponentColorModel)bufferedImage.getColorModel();
+	        //ASSUMES: 3 BYTE BGR IMAGE TYPE
+	        PaletteData palette = new PaletteData(0x0000FF, 0x00FF00,0xFF0000);
+	        ImageData data = new ImageData(bufferedImage.getWidth(), bufferedImage.getHeight(),
+	                colorModel.getPixelSize(), palette);
+	        //This is valid because we are using a 3-byte Data model with no transparent pixels
+	        data.transparentPixel = -1;
+	        WritableRaster raster = bufferedImage.getRaster();
+	        int[] pixelArray = new int[3];
+	        for (int y = 0; y < data.height; y++) {
+	            for (int x = 0; x < data.width; x++) {
+	                raster.getPixel(x, y, pixelArray);
+	                int pixel = palette.getPixel(new RGB(pixelArray[0], pixelArray[1], pixelArray[2]));
+	                data.setPixel(x, y, pixel);
+	            }
+	        }
+	        return data;
+	    }
+	    return null;
+	}	
+	
+
+	
+	private void writeFile(String fileName, String contents)
+	{
+	    BufferedWriter out;
+		try {
+			out = new BufferedWriter(new FileWriter(fileName));
+		    out.write(contents);  //Replace with the string 
+		    out.close();
+		} catch (IOException ex) {
+			logger.error(ex.getLocalizedMessage(),ex);
+		}
+		
+	}
 	
 	public String GetRandomFile(String wildcard, String strSubDir) {
 		return GetRandomFile(wildcard, strSubDir, false);
@@ -902,6 +1171,7 @@ public class ComonFunctions{
 				String strPattern = strFilePatern.toLowerCase();
 				String text = f.getName().toLowerCase();
 				String strFile = text;
+				//.* in regex matches any number of characters
 				strPattern = strPattern.replace("*", ".*");
 				//test for a match
 				if (!text.matches(strPattern)) {
@@ -1147,7 +1417,42 @@ public class ComonFunctions{
 	}
 	
 
-	/*
+    public boolean searchGuide(String searchText, String path){
+    	String file = readFile(path, StandardCharsets.UTF_8);
+        return searchText(searchText, file);
+    }
+
+    public boolean searchText(String searchText, String text){
+    	String[] splitSearch = searchText.split(",");
+    	String lowerText = text.toLowerCase();
+    	int includeCount = 0;
+    	for (String test : splitSearch)
+    	{
+    		if (!test.startsWith("-") && !test.startsWith("+")) includeCount++;
+    	}
+    	boolean include = includeCount == 0;
+    	boolean exclude = false;
+    	for (String test : splitSearch)
+    	{
+    		if (test.startsWith("-"))
+    		{
+    			exclude = lowerText.contains(test.substring(1).toLowerCase());
+    			if (exclude) break;
+    		}
+    		else
+    		{
+    			if (test.startsWith("+"))
+    			{
+    				exclude = !lowerText.contains(test.substring(1).toLowerCase());
+    				if (exclude) break;
+    			}
+    			include = include || lowerText.contains(test.toLowerCase());
+    		}
+    	}
+        return include && !exclude;
+    }
+
+    /*
 	public Object xmlFileToObject(String xmlFileName) { 
 
 		String strTag;

@@ -433,7 +433,7 @@ public class SquareButton extends Canvas {
 	private void drawText (GC gc, int x, int y) {
 		gc.setFont(font);
 		gc.setForeground(currentFontColor);
-		gc.drawText(text, x, y, SWT.DRAW_TRANSPARENT);
+		gc.drawText(text, x, y, SWT.DRAW_TRANSPARENT + SWT.DRAW_DELIMITER);
 	}
 	
 	

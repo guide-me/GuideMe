@@ -22,6 +22,7 @@ public class AppSettings {
 	private int maxImageScale = 0;
 	private int jsDebugHeight = 600;
 	private int jsDebugWidth = 800;
+	private int thumbnailSize = 200;
 	
 	
 	private boolean Debug = false;
@@ -115,6 +116,7 @@ public class AppSettings {
 				sash2Weights[2] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights2", "150"));
 				maxImageScale = Integer.parseInt(appSettingsProperties.getProperty("maxImageScale", "0"));
 				hideMenu = Boolean.parseBoolean(appSettingsProperties.getProperty("hideMenu", "false"));
+				thumbnailSize = Integer.parseInt(appSettingsProperties.getProperty("thumbnailSize", "200"));
 			}
 			catch (Exception ex) {
 				logger.error(ex.getLocalizedMessage(), ex);
@@ -243,6 +245,7 @@ public class AppSettings {
 			appSettingsProperties.storeToXML(new FileOutputStream(settingsLocation), null);
 			appSettingsProperties.setProperty("maxImageScale", String.valueOf(maxImageScale));
 			appSettingsProperties.setProperty("hideMenu", String.valueOf(hideMenu));
+			appSettingsProperties.setProperty("thumbnailSize", String.valueOf(thumbnailSize));
 		}
 		catch (Exception e) {
 			logger.error(e.getLocalizedMessage(), e);
@@ -427,6 +430,14 @@ public class AppSettings {
 
 	public void setStateInDataDir(boolean stateInDataDir) {
 		this.stateInDataDir = stateInDataDir;
+	}
+
+	public int getThumbnailSize() {
+		return thumbnailSize;
+	}
+
+	public void setThumbnailSize(int thumbnailSize) {
+		this.thumbnailSize = thumbnailSize;
 	}
 
 }

@@ -40,12 +40,27 @@ import java.awt.Canvas;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.URLConnection;
+import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
+import javax.activation.MimetypesFileTypeMap;
 import javax.imageio.ImageIO;
+import javax.imageio.ImageReader;
+import javax.imageio.stream.ImageInputStream;
 import javax.swing.SwingUtilities;
+import javax.swing.filechooser.FileSystemView;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -160,6 +175,7 @@ public class MainShell {
 	private Main dbg;
 	private ContextFactory factory;
 	private File oldImage;
+	private File oldImage2;
 
 	public Shell createShell(final Display display) {
 		logger.trace("Enter createShell");
@@ -525,6 +541,11 @@ public class MainShell {
 			MenuItem fileLoadItem = new MenuItem (fileSubMenu, SWT.PUSH);
 			fileLoadItem.setText ("&Load");
 			fileLoadItem.addSelectionListener(new FileLoadListener());
+
+			//File Library menu item
+			MenuItem fileLibraryItem = new MenuItem (fileSubMenu, SWT.PUSH);
+			fileLibraryItem.setText ("&Library");
+			fileLibraryItem.addSelectionListener(new FileLibraryListener());
 
 			//File Restart menu item
 			MenuItem fileRestartItem = new MenuItem (fileSubMenu, SWT.PUSH);
@@ -933,7 +954,6 @@ public class MainShell {
 				myDisplay.syncExec(
 						new Runnable() {
 							public void run(){
-								mainShell.setLeftText("", "");
 								mediaPanel.setVisible(false);
 								imageLabel.setVisible(true);
 								leftFrame.layout(true);
@@ -1026,7 +1046,7 @@ public class MainShell {
 
 	
 	//Load the tease
-	private void loadGuide(String fileToLoad) {
+	public void loadGuide(String fileToLoad) {
 		try {
 			debugShell.clearPagesCombo();
 		}
@@ -1156,6 +1176,29 @@ public class MainShell {
 			}
 			catch (Exception ex) {
 				logger.error(" FileGuidePreferences " + ex.getLocalizedMessage());
+				inPrefShell = false;
+			}
+			super.widgetSelected(e);
+		}
+
+	}
+	
+	class FileLibraryListener  extends SelectionAdapter {
+		//File Library from menu
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			try {
+				logger.trace("Enter FileLibraryListener");
+				//Display a modal shell for the guide specific preferences
+				Shell libShell = new LibraryShell().createShell(myDisplay, appSettings, mainShell);
+				libShell.open();
+				while (!libShell.isDisposed()) {
+					if (!myDisplay.readAndDispatch())
+						myDisplay.sleep();
+				}
+			}
+			catch (Exception ex) {
+				logger.error(" FileLibraryListener " + ex.getLocalizedMessage());
 				inPrefShell = false;
 			}
 			super.widgetSelected(e);
@@ -1487,18 +1530,74 @@ public class MainShell {
 			oldImage.delete();
 			oldImage = null;
 		}
+		if (oldImage2 != null && oldImage2.exists())
+		{
+			oldImage2.delete();
+			oldImage2 = null;
+		}
 		
 		//display an image in the area to the left of the screen
 		int newWidth;
 		int newHeight;
 		imgOverRide = false;
-		//Image tmpImage = (Image) imageLabel.getData("image");
+		
+		
+		if (imgPath.lastIndexOf(".") == -1)
+		{
+			try {
+				boolean newFile = false;
+				String extension = "";
+				File tmpFile = new File(imgPath);
+				URLConnection con = tmpFile.toURI().toURL().openConnection();
+				String mimeType = con.getContentType();
+				con = null;
+
+				
+				switch (mimeType)
+				{
+				case "image/jpeg":
+					extension = ".jpg";
+					newFile = true;
+					break;
+				case "image/bmp":
+					extension = ".bmp";
+					newFile = true;
+					break;
+				case "image/gif":
+					extension = ".gif";
+					newFile = true;
+					break;
+				case "image/png":
+					extension = ".png";
+					newFile = true;
+					break;
+				case "image/tiff":
+					extension = ".tiff";
+					newFile = true;
+					break;
+				}
+				if (newFile)
+				{
+					String tmpPath = appSettings.getTempDir();
+					oldImage2 = File.createTempFile("TempImage2", extension, new File(tmpPath));
+					oldImage2.deleteOnExit();
+					FileInputStream strSrc = new FileInputStream(tmpFile);
+					FileChannel src = strSrc.getChannel();
+					FileOutputStream strDest = new FileOutputStream(oldImage2); 
+					FileChannel dest = strDest.getChannel();
+					dest.transferFrom(src, 0, src.size());
+					strSrc.close();
+					strDest.close();
+					src.close();
+					dest.close();
+					imgPath = oldImage2.getAbsolutePath();
+				}
+			} catch (IOException e1) {
+			}
+		}
+		
 		Image memImage = new Image(myDisplay, imgPath);
 		imageLabel.setData("imgPath", imgPath);
-		//imageLabel.setData("image", memImage);
-		//if (tmpImage != null) {
-		//	tmpImage.dispose();
-		//}
 		try {
 			String tmpImagePath;
 			String strHtml;
@@ -1613,6 +1712,7 @@ public class MainShell {
 		//starts the video using a non UI thread so VLC can't hang the application
 		if (videoOn) {
 			try {
+				mainShell.setLeftText("", "");
 				this.imageLabel.setVisible(false);
 				this.mediaPanel.setVisible(true);
 				leftFrame.layout(true);
