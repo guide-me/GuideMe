@@ -1471,6 +1471,10 @@ public class ComonFunctions{
 
     public Image cropImageWidth(Image originalImage, int width)
     {
+    	if (originalImage.getBounds().width <= width)
+    	{
+    		return originalImage;
+    	}
     	Image newImage = originalImage;
     	try
     	{

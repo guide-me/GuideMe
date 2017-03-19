@@ -56,7 +56,8 @@ public class LibraryShell {
 	private Text searchText;
 	private Combo searchFilter;
 	private AppSettings appSettings;
-
+	private int buttonCharacters;
+	
 	public enum SortBy {
 		TITLE {
 			public String toString() {
@@ -136,9 +137,11 @@ public class LibraryShell {
 			GC gc = new GC(shell);
 			gc.setFont(controlFont);
 			FontMetrics fm = gc.getFontMetrics();
+			int pixelWidth = (display.getPrimaryMonitor().getClientArea().width - 420) / 2;
+			buttonCharacters = pixelWidth / gc.getCharWidth('A');
 			RowData seachData = new RowData();
 			seachData.height = fm.getHeight();
-			seachData.width = fm.getAverageCharWidth() * 15;
+			seachData.width = gc.getCharWidth('A') * 15;
 			searchText.setLayoutData(seachData);
 			gc.dispose();
 
@@ -227,7 +230,7 @@ public class LibraryShell {
 				}
 				Library guide = (Library) guides.get(guidePosition);
 				SquareButton btnGuide = new SquareButton(composite, SWT.PUSH);
-				String title = comonFunctions.splitButtonText(guide.title, 25);
+				String title = comonFunctions.splitButtonText(guide.title, buttonCharacters);
 				if (guide.author.length() > 0) {
 					btnGuide.setText(title + "\n(" + guide.author + ")");
 				} else {
