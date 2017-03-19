@@ -1012,7 +1012,7 @@ public class MainShell {
 				String [] filterExtensions = new String [] {"*.xml"};
 				dialog.setFilterNames (filterNames);
 				dialog.setFilterExtensions (filterExtensions);
-				dialog.setFilterPath (strGuidePath);
+				dialog.setFilterPath (appSettings.getDataDirectory());
 				String strFileToLoad;
 				try {
 					strFileToLoad = dialog.open();

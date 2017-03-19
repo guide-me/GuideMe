@@ -26,9 +26,11 @@ import org.eclipse.swt.layout.RowLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Widget;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Library;
@@ -44,12 +46,16 @@ public class LibraryShell {
 	private int pageSize = 100;
 	private int originalPageSize = 100;
 	private int currentStart = 0;
+	private ArrayList<Library> originalGuides;
 	private ArrayList<Library> guides;
 	private Composite composite;
 	private ScrolledComposite sc;
 	private ComonFunctions comonFunctions;
 	private Label paging;
 	private Composite toolBar;
+	private Text searchText;
+	private Combo searchFilter;
+	private AppSettings appSettings;
 
 	public enum SortBy {
 		TITLE {
@@ -60,20 +66,35 @@ public class LibraryShell {
 
 		AUTHOR {
 			public String toString() {
-				return "Sort By Author, Title";
+				return "Sort By Author";
 			}
 		}
 	}
 
-	public Shell createShell(Display display, AppSettings appSettings, MainShell mainShell) {
+	public enum SearchBy {
+		TEXT {
+			public String toString() {
+				return "Search Content";
+			}
+		},
+
+		TITLE {
+			public String toString() {
+				return "Search Author/Title";
+			}
+		}
+	}
+
+	public Shell createShell(Display display, AppSettings pappSettings, MainShell mainShell) {
 		logger.trace("Enter createShell");
 		try {
 			comonFunctions = ComonFunctions.getComonFunctions();
+			appSettings = pappSettings;
 
 			myDisplay = display;
 			myMainShell = mainShell;
 
-			shell = new Shell(myDisplay, 67696);
+			shell = new Shell(myDisplay, SWT.APPLICATION_MODAL + SWT.CLOSE);
 
 			shell.setText("Guide Me Library");
 			FormLayout layout = new FormLayout();
@@ -104,17 +125,43 @@ public class LibraryShell {
 			paging = new Label(toolBar, SWT.NULL);
 			paging.setFont(controlFont);
 
-			Combo c = new Combo(toolBar, 8);
-			c.setFont(controlFont);
-			String[] items = { SortBy.TITLE.toString(), SortBy.AUTHOR.toString() };
-			c.setItems(items);
-			c.select(0);
-			c.addSelectionListener(new sortListener());
+			Combo sortFilter = new Combo(toolBar, SWT.READ_ONLY);
+			sortFilter.setFont(controlFont);
+			String[] sortTtems = { SortBy.TITLE.toString(), SortBy.AUTHOR.toString() };
+			sortFilter.setItems(sortTtems);
+			sortFilter.select(0);
+			sortFilter.addSelectionListener(new sortListener());
+			
+			searchText = new Text(toolBar, SWT.SINGLE);
+			GC gc = new GC(shell);
+			gc.setFont(controlFont);
+			FontMetrics fm = gc.getFontMetrics();
+			RowData seachData = new RowData();
+			seachData.height = fm.getHeight();
+			seachData.width = fm.getAverageCharWidth() * 15;
+			searchText.setLayoutData(seachData);
+			gc.dispose();
+
+			SquareButton btnSearch = new SquareButton(toolBar, SWT.PUSH);
+			btnSearch.setText("Go");
+			btnSearch.setFont(controlFont);
+			btnSearch.addSelectionListener(new SearchButtonListener());
+
+			searchFilter = new Combo(toolBar, SWT.READ_ONLY);
+			searchFilter.setFont(controlFont);
+			String[] SearchItems = { SearchBy.TEXT.toString(), SearchBy.TITLE.toString() };
+			searchFilter.setItems(SearchItems);
+			searchFilter.select(0);
 
 			btnGuide = new SquareButton(toolBar, SWT.PUSH);
 			btnGuide.setText("Random");
 			btnGuide.setFont(controlFont);
 			btnGuide.addSelectionListener(new RandomButtonListener());
+
+			SquareButton btnDir = new SquareButton(toolBar, SWT.PUSH);
+			btnDir.setText("Folder");
+			btnDir.setFont(controlFont);
+			btnDir.addSelectionListener(new FolderButtonListener());
 
 			sc = new ScrolledComposite(shell, SWT.V_SCROLL | SWT.BORDER);
 			FormData scFormData = new FormData();
@@ -127,7 +174,9 @@ public class LibraryShell {
 			composite = new Composite(sc, SWT.NONE);
 			composite.setLayout(new FormLayout());
 
-			guides = comonFunctions.ListGuides();
+			originalGuides = comonFunctions.ListGuides(); 
+			guides = originalGuides;
+			setPageSize();
 			sortTitle();
 			shell.setMaximized(true);
 			showGuides();
@@ -159,10 +208,11 @@ public class LibraryShell {
 			Control control = arrayOfControl[i];
 			control.dispose();
 		}
-		Control lastButton = composite;
+		Control lastLeftButton = composite;
+		Control lastRightButton = composite;
 		int pageEnd = currentStart + pageSize;
 		int end = pageEnd;
-		if (pageEnd >= guides.size())
+		if (pageEnd > guides.size())
 		{
 			end = pageEnd - guides.size();
 		}
@@ -177,21 +227,32 @@ public class LibraryShell {
 				}
 				Library guide = (Library) guides.get(guidePosition);
 				SquareButton btnGuide = new SquareButton(composite, SWT.PUSH);
+				String title = comonFunctions.splitButtonText(guide.title, 25);
 				if (guide.author.length() > 0) {
-					btnGuide.setText(guide.title + "\n(" + guide.author + ")");
+					btnGuide.setText(title + "\n(" + guide.author + ")");
 				} else {
-					btnGuide.setText(guide.title);
+					btnGuide.setText(title);
 				}
 				btnGuide.setFont(controlFont);
-				btnGuide.setImage(new Image(myDisplay, guide.image));
+				btnGuide.setImage(comonFunctions.cropImageWidth(new Image(myDisplay, guide.image),200));
 				FormData btnGuideFormData = new FormData();
-				btnGuideFormData.top = new FormAttachment(lastButton, 5);
-				btnGuideFormData.left = new FormAttachment(0, 5);
-				btnGuideFormData.right = new FormAttachment(100, -5);
+				if (i % 2 == 0)
+				{
+					btnGuideFormData.top = new FormAttachment(lastLeftButton, 5);
+					btnGuideFormData.left = new FormAttachment(0, 5);
+					btnGuideFormData.right = new FormAttachment(50, -5);
+					lastLeftButton = btnGuide;
+				}
+				else
+				{
+					btnGuideFormData.top = new FormAttachment(lastRightButton, 5);
+					btnGuideFormData.left = new FormAttachment(50, 5);
+					btnGuideFormData.right = new FormAttachment(100, -5);
+					lastRightButton = btnGuide;
+				}
 				btnGuide.setLayoutData(btnGuideFormData);
 				btnGuide.addSelectionListener(new GuideButtonListener());
 				btnGuide.setData("Guide", guide.file);
-				lastButton = btnGuide;
 			} catch (Exception localException1) {
 			}
 		}
@@ -323,4 +384,68 @@ public class LibraryShell {
 			}
 		}
 	}
+
+	class SearchButtonListener extends SelectionAdapter {
+		SearchButtonListener() {
+		}
+
+		public void widgetSelected(SelectionEvent event) {
+			try {
+				String selected = searchFilter.getText();
+				
+				logger.trace("Enter SearchButtonListener");
+				guides = new ArrayList<Library>();
+				for (Library guide : originalGuides){
+					if (selected.equals(SearchBy.TITLE.toString())) {
+						if (comonFunctions.searchText(searchText.getText(), guide.author + guide.title))
+						{
+							guides.add(guide);
+						}
+					}
+					if (selected.equals(SearchBy.TEXT.toString())) {
+						if (comonFunctions.searchGuide(searchText.getText(), guide.file))
+						{
+							guides.add(guide);
+						}
+					}
+				}
+				setPageSize();
+				showGuides();
+			} catch (Exception ex) {
+				logger.error(" SearchButtonListener " + ex.getLocalizedMessage());
+			}
+			logger.trace("Exit SearchButtonListener");
+		}
+
+	}
+
+	class FolderButtonListener extends SelectionAdapter {
+		FolderButtonListener() {
+		}
+
+		public void widgetSelected(SelectionEvent event) {
+			try {
+				String folder = appSettings.getDataDirectory();
+				DirectoryDialog dirDialog = new DirectoryDialog(shell);
+				dirDialog.setFilterPath(folder);
+				dirDialog.setMessage("Select a Folder to scan");
+				folder = dirDialog.open();
+				if (folder != null)
+				{
+					appSettings.setDataDirectory(folder);
+					appSettings.saveSettings();
+					originalGuides = comonFunctions.ListGuides(); 
+					guides = originalGuides;
+					setPageSize();
+					sortTitle();
+					showGuides();				
+				}
+			} catch (Exception ex) {
+				logger.error(" FolderButtonListener " + ex.getLocalizedMessage());
+			}
+			logger.trace("Exit FolderButtonListener");
+		}
+
+	}
+
 }

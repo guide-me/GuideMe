@@ -39,6 +39,8 @@ import javax.xml.xpath.XPathFactory;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.PaletteData;
 import org.eclipse.swt.graphics.RGB;
@@ -1418,40 +1420,117 @@ public class ComonFunctions{
 	
 
     public boolean searchGuide(String searchText, String path){
-    	String file = readFile(path, StandardCharsets.UTF_8);
-        return searchText(searchText, file);
+    	boolean found = false;
+    	try{
+	    	String file = readFile(path, StandardCharsets.UTF_8);
+	    	found = searchText(searchText, file);
+		}
+		catch (Exception ex) {
+			logger.error("searchGuide " + ex.getLocalizedMessage(), ex);
+		}
+        return found;
     }
 
     public boolean searchText(String searchText, String text){
-    	String[] splitSearch = searchText.split(",");
-    	String lowerText = text.toLowerCase();
-    	int includeCount = 0;
-    	for (String test : splitSearch)
-    	{
-    		if (!test.startsWith("-") && !test.startsWith("+")) includeCount++;
+    	boolean found = false;
+    	try{
+	    	String[] splitSearch = searchText.split(",");
+	    	String lowerText = text.toLowerCase();
+	    	int includeCount = 0;
+	    	for (String test : splitSearch)
+	    	{
+	    		if (!test.startsWith("-") && !test.startsWith("+")) includeCount++;
+	    	}
+	    	boolean include = includeCount == 0;
+	    	boolean exclude = false;
+	    	for (String test : splitSearch)
+	    	{
+	    		if (test.startsWith("-"))
+	    		{
+	    			exclude = lowerText.contains(test.substring(1).toLowerCase());
+	    			if (exclude) break;
+	    		}
+	    		else
+	    		{
+	    			if (test.startsWith("+"))
+	    			{
+	    				exclude = !lowerText.contains(test.substring(1).toLowerCase());
+	    				if (exclude) break;
+	    			}
+	    			include = include || lowerText.contains(test.toLowerCase());
+	    		}
+	    	}
+	    	found = include && !exclude;
     	}
-    	boolean include = includeCount == 0;
-    	boolean exclude = false;
-    	for (String test : splitSearch)
-    	{
-    		if (test.startsWith("-"))
-    		{
-    			exclude = lowerText.contains(test.substring(1).toLowerCase());
-    			if (exclude) break;
-    		}
-    		else
-    		{
-    			if (test.startsWith("+"))
-    			{
-    				exclude = !lowerText.contains(test.substring(1).toLowerCase());
-    				if (exclude) break;
-    			}
-    			include = include || lowerText.contains(test.toLowerCase());
-    		}
-    	}
-        return include && !exclude;
+		catch (Exception ex) {
+			logger.error("searchText " + ex.getLocalizedMessage(), ex);
+		}
+        return found;
     }
 
+
+    public Image cropImageWidth(Image originalImage, int width)
+    {
+    	Image newImage = originalImage;
+    	try
+    	{
+	    	int height = originalImage.getBounds().height;
+	    	newImage = new Image(null, width, height);
+	    	GC gc = new GC(newImage);
+	    	int cropWidth = originalImage.getBounds().width - width;
+	    	
+	    	gc.drawImage(originalImage, (cropWidth / 2), 0, originalImage.getBounds().width - cropWidth, originalImage.getBounds().height,0 , 0, width, height);
+	    	gc.dispose();
+    	}
+		catch (Exception ex) {
+			logger.error("cropImageWidth " + ex.getLocalizedMessage(), ex);
+		}
+    	return newImage;
+    }
+    
+    public String splitButtonText(String text, int width)
+    {
+    	String splitText = "";
+    	try
+    	{
+	    	String remainingText = text;
+	    	if (text.length() <= width)
+	    	{
+	    		return text;
+	    	}
+	    	while (remainingText.length() > 0)
+	    	{
+	    		if (splitText.length() > 0 )
+	    		{
+	    			splitText = splitText + "\n";
+	    		}
+	    		if (remainingText.length() > width)
+	    		{
+			    	int pos = remainingText.lastIndexOf(" ", width);
+			    	if (pos > 0)
+			    	{
+			    		splitText = splitText + remainingText.substring(0, pos);
+			    		remainingText = remainingText.substring(pos + 1);
+			    	}
+			    	else
+			    	{
+				    		splitText = splitText + remainingText.substring(0, width);
+				    		remainingText = remainingText.substring(width + 1);
+			    	}
+	    		}
+	    		else
+	    		{
+	    			splitText = splitText + remainingText;
+	    			remainingText = "";
+	    		}
+	    	}
+    	}
+		catch (Exception ex) {
+			logger.error("splitButtonText " + ex.getLocalizedMessage(), ex);
+		}
+    	return splitText;
+    }
+    
     /*
 	public Object xmlFileToObject(String xmlFileName) { 
 
