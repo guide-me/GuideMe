@@ -40,27 +40,16 @@ import java.awt.Canvas;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.image.BufferedImage;
-import java.io.BufferedInputStream;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.URLConnection;
 import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
-import javax.activation.MimetypesFileTypeMap;
 import javax.imageio.ImageIO;
-import javax.imageio.ImageReader;
-import javax.imageio.stream.ImageInputStream;
 import javax.swing.SwingUtilities;
-import javax.swing.filechooser.FileSystemView;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -75,6 +64,7 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Control;
 import org.guideme.guideme.MainLogic;
 import org.guideme.guideme.model.Button;
+import org.guideme.guideme.model.Chapter;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Page;
 import org.guideme.guideme.model.Timer;
@@ -680,6 +670,15 @@ public class MainShell {
 			loadGuide(appSettings.getDataDirectory() + appSettings.getComandLineGuide());
 		}
 		mainShell.displayPage(guideSettings.getCurrPage());
+		Chapter chapter = guide.getChapters().get("default");
+		if (chapter != null)
+		{
+			for (Page page : chapter.getPages().values())
+			{
+				debugShell.addPagesCombo(page.getId());
+			}
+			debugShell.setPage(guide.getCurrPage(), true);			
+		}
 		return shell;
 	}
 

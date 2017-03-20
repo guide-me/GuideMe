@@ -151,10 +151,10 @@ public class SquareButton extends Canvas {
 		});
 		this.addListener(SWT.MouseUp, new Listener() {
 			public void handleEvent(Event e) {
-				if (e.button == 1) {
+				if (e.button == 1 || e.button == 3) {
 					SquareButton.this.setHoverColor(e);
 					if ((e.count == 1) && enabled && (getClientArea().contains(e.x, e.y))) {
-						doButtonClicked();
+						doButtonClicked(e.button);
 					}
 				}
 			}
@@ -218,7 +218,7 @@ public class SquareButton extends Canvas {
 					case '\n':
 						SquareButton.this.setClickedColor(e);
 						redraw();
-						doButtonClicked();
+						doButtonClicked(1);
 						break;
 				}
 			}
@@ -251,11 +251,12 @@ public class SquareButton extends Canvas {
 	}
 	
 	
-	protected void doButtonClicked () {
+	protected void doButtonClicked (int button) {
 		Event e = new Event();
 		e.item = this;
 		e.widget = this;
 		e.type = SWT.Selection;
+		e.data = button;
 		notifyListeners(SWT.Selection, e);
 	}
 	

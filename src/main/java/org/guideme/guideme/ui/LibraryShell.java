@@ -2,7 +2,9 @@ package org.guideme.guideme.ui;
 
 import com.snapps.swt.SquareButton;
 
+import java.awt.Desktop;
 import java.awt.Graphics;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -57,6 +59,7 @@ public class LibraryShell {
 	private Combo searchFilter;
 	private AppSettings appSettings;
 	private int buttonCharacters;
+	private String authorUrl = "https://milovana.com/webteases/#author=";
 	
 	public enum SortBy {
 		TITLE {
@@ -256,6 +259,7 @@ public class LibraryShell {
 				btnGuide.setLayoutData(btnGuideFormData);
 				btnGuide.addSelectionListener(new GuideButtonListener());
 				btnGuide.setData("Guide", guide.file);
+				btnGuide.setData("Author", guide.author);
 			} catch (Exception localException1) {
 			}
 		}
@@ -342,10 +346,22 @@ public class LibraryShell {
 		public void widgetSelected(SelectionEvent event) {
 			try {
 				logger.trace("Enter GuideButtonListener");
-				String guideFile = (String) event.widget.getData("Guide");
-				logger.trace("Guide File:" + guideFile);
-				myMainShell.loadGuide(guideFile);
-				shell.close();
+				if ((int) event.data == 1)
+				{
+					String guideFile = (String) event.widget.getData("Guide");
+					logger.trace("Guide File:" + guideFile);
+					myMainShell.loadGuide(guideFile);
+					shell.close();
+				}
+				else
+				{
+					String author = (String) event.widget.getData("Author");
+					author = authorUrl + author;
+					if(Desktop.isDesktopSupported())
+					{
+					  Desktop.getDesktop().browse(new URI(author));
+					}
+				}
 			} catch (Exception ex) {
 				logger.error(" GuideButtonListener " + ex.getLocalizedMessage());
 			}
