@@ -7,6 +7,7 @@ import java.util.Map.Entry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
@@ -18,6 +19,8 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
@@ -33,6 +36,7 @@ import org.guideme.guideme.model.Image;
 import org.guideme.guideme.model.Metronome;
 import org.guideme.guideme.model.Page;
 import org.guideme.guideme.model.Video;
+import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
 
 import com.snapps.swt.SquareButton;
@@ -47,32 +51,52 @@ public class DebugShell {
 	private Guide guide;
 	private Text txtText;
 	private Text txtScript;
+	private Text txtScriptConsole;
 	private Text txtVarKey;
 	private Text txtVarValue;
 	private MainShell mainShell;
 	private Composite tableComp;
 	private Composite varComp;
+	private ScrolledComposite varScrlComp;
 	private TabFolder  tabFolder;
 	private Table varTable;
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
+	private static DebugShell debugShell;
+	private Boolean keepShellOpen;
 
-	public DebugShell() {
+	public static synchronized DebugShell getDebugShell() {
+		if (debugShell == null) {
+			debugShell = new DebugShell();
+		}
+		return debugShell;
+	}
+	
+	protected  DebugShell() {
 		super();
 	}
 
-	public Shell createShell(final Display display, MainShell mainshell) {
+	public void createShell(final Display display, MainShell mainshell) {
 		logger.trace("Enter createShell");
 		try {
-
+			keepShellOpen = true;
 			comonFuctions = ComonFunctions.getComonFunctions();
-			
+			AppSettings appSettings = AppSettings.getAppSettings();
 			//Create the main UI elements
 			myDisplay = display;
 			//myUserSettings = userSettings;
-			shell = new Shell(myDisplay, SWT.MODELESS + SWT.RESIZE + SWT.TITLE);
+			//shell = new Shell(myDisplay, SWT.MODELESS + SWT.RESIZE + SWT.TITLE);
+			//shell = new Shell(myDisplay, SWT.RESIZE + SWT.TITLE);
 			
 			guide = Guide.getGuide();
 			mainShell = mainshell;
+			shell = new Shell(myDisplay);
+			shell.setSize(appSettings.getJsDebugWidth(), appSettings.getJsDebugHeight());
+		    shell.addListener(SWT.Close, new Listener() {
+		        public void handleEvent(Event event) {
+		        	shell.setVisible(false);
+		        	event.doit = !keepShellOpen;
+		        }
+		      });			
 
 			FormLayout layout = new FormLayout();
 			shell.setLayout(layout);
@@ -162,8 +186,10 @@ public class DebugShell {
 			//Variables Tab
 			TabItem tabVariables = new TabItem(tabFolder, SWT.NONE);
 			tabVariables.setText("Variables");
-
-			varComp = new Composite(tabFolder, SWT.SHADOW_NONE);
+			
+			varScrlComp = new ScrolledComposite(tabFolder, SWT.V_SCROLL);
+		    
+			varComp = new Composite(varScrlComp, SWT.NONE);
 			FormLayout varlayout = new FormLayout();
 			varComp.setLayout(varlayout);
 			FormData varCompFormData = new FormData();
@@ -173,7 +199,8 @@ public class DebugShell {
 			varCompFormData.bottom = new FormAttachment(100,0);
 			varComp.setLayoutData(varCompFormData);
 			
-			varTable = new Table(varComp, SWT.NO_SCROLL + SWT.V_SCROLL);
+			
+			varTable = new Table(varComp, SWT.NONE);
 			varTable.setLinesVisible (true);
 			varTable.setHeaderVisible (true);
 			GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -213,21 +240,39 @@ public class DebugShell {
 			btnSetFormData.left = new FormAttachment(90, 0);
 			btnSet.setLayoutData(btnSetFormData);
 			btnSet.addSelectionListener(new SetButtonListener());
+			
+			varScrlComp.setContent(varComp);
+			varScrlComp.setAlwaysShowScrollBars(true);
+			varScrlComp.setExpandHorizontal(true);
+			varScrlComp.setExpandVertical(true);
+			tabVariables.setControl(varScrlComp);
+			
+			//Jscript console Tab
+			TabItem tabConsole = new TabItem(tabFolder, SWT.NONE);
+			tabConsole.setText("JavaScript Console");
 
-			
-			
-			tabVariables.setControl(varComp);
-			
+			txtScriptConsole = new Text(tabFolder, SWT.LEFT + SWT.MULTI + SWT.WRAP + SWT.READ_ONLY + SWT.V_SCROLL);
+			FormData txtScriptConsoleFormData = new FormData();
+			txtScriptConsoleFormData.top = new FormAttachment(0,0);
+			txtScriptConsoleFormData.left = new FormAttachment(0,0);
+			txtScriptConsoleFormData.right = new FormAttachment(100,0);
+			txtScriptConsoleFormData.bottom = new FormAttachment(100,0);
+			txtScriptConsole.setLayoutData(txtScriptConsoleFormData);
+
+			tabConsole.setControl(txtScriptConsole);
+
 			varComp.layout();
+			varScrlComp.layout();
 			tabFolder.layout();
 			shell.layout();
-
+			shell.open();
+			shell.setVisible(false);
 		}
 		catch (Exception ex) {
 			logger.error(ex.getLocalizedMessage(), ex);
 		}
 		logger.trace("Exit createShell");
-		return shell;
+		//return shell;
 	}
 
 	class varTableListener extends SelectionAdapter {
@@ -655,57 +700,82 @@ public class DebugShell {
 
 			//variables
 			if (refreshVars) {
-				try {
-					HashMap<String, Object> scriptVars;
-					scriptVars = guide.getSettings().getScriptVariables();
-					String flags = comonFuctions.GetFlags(guide.getFlags());
-
-					varTable.removeAll();
-
-					item = new TableItem (varTable, SWT.NONE);
-					item.setBackground(color);
-					item.setText (0, "Flags");
-					item.setText (1, flags);
-
-					for (Entry<String, Object> entry : scriptVars.entrySet()) {
-						try {
-							String key = entry.getKey();
-							String value;
-							Object objVal = entry.getValue();
-							if (objVal != null) {
-								value = comonFunctions.getVarAsString(objVal);
-							} else {
-								value = "null";
-							}
-							item = new TableItem (varTable, SWT.NONE);
-							item.setBackground(color);
-							item.setText (0, key);
-							item.setText (1, value);
-						}
-						catch (Exception ex) {
-							logger.error(ex.getLocalizedMessage(), ex);
-						}
-					}
-
-					for (int i=0; i<2; i++) {
-						varTable.getColumn (i).pack ();
-					}
-
-					prevWidget = varTable;
-				}
-				catch (Exception ex) {
-					logger.error(ex.getLocalizedMessage(), ex);
-				}
-
+				prevWidget = varTable;
 			}
 		}
 		catch (Exception ex) {
 			logger.error(ex.getLocalizedMessage(), ex);
 		}
-		tabFolder.layout();
-		tabFolder.pack();
-		tabFolder.update();
-		shell.layout();
+		try {
+			tabFolder.layout();
+			tabFolder.pack();
+			tabFolder.update();
+			shell.layout();
+			varScrlComp.setMinSize(varComp.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		}
+		catch (Exception ex) {
+			logger.error(ex.getLocalizedMessage(), ex);
+		}
+	}
+	
+	public void updateJConsole(String logText) {
+		String conText = txtScriptConsole.getText();
+		String conDelim = txtScriptConsole.getLineDelimiter();
+		if (txtScriptConsole.getLineCount() > 100) {
+			int lastLine = conText.lastIndexOf(conDelim);
+			lastLine = conText.lastIndexOf(conDelim, lastLine - 1);
+			conText = conText.substring(0, lastLine);
+		}
+		conText = logText  + conDelim + conText;
+		txtScriptConsole.setText(conText);
+	}
+	
+	public void refreshVars() {
+		try {
+			HashMap<String, Object> scriptVars;
+			Color color = myDisplay.getSystemColor(SWT.COLOR_YELLOW);
+			scriptVars = guide.getSettings().getScriptVariables();
+			String flags = comonFuctions.GetFlags(guide.getFlags());
+
+			varTable.removeAll();
+
+			TableItem item = new TableItem (varTable, SWT.NONE);
+			item.setBackground(color);
+			item.setText (0, "Flags");
+			item.setText (1, flags);
+
+			for (Entry<String, Object> entry : scriptVars.entrySet()) {
+				try {
+					String key = entry.getKey();
+					String value;
+					Object objVal = entry.getValue();
+					if (objVal != null) {
+						value = comonFunctions.getVarAsString(objVal);
+					} else {
+						value = "null";
+					}
+					item = new TableItem (varTable, SWT.NONE);
+					item.setBackground(color);
+					item.setText (0, key);
+					item.setText (1, value);
+				}
+				catch (Exception ex) {
+					logger.error(ex.getLocalizedMessage(), ex);
+				}
+			}
+
+			for (int i=0; i<2; i++) {
+				varTable.getColumn (i).pack ();
+			}
+			tabFolder.layout();
+			tabFolder.pack();
+			tabFolder.update();
+			shell.layout();
+			varScrlComp.setMinSize(varComp.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		}
+		catch (Exception ex) {
+			logger.error(ex.getLocalizedMessage(), ex);
+		}
 	}
 
 	public void removePageTables() {
@@ -719,4 +789,33 @@ public class DebugShell {
 		}
 	}
 
+	public void closeShell() {
+		try {
+			keepShellOpen = false;
+			shell.close();
+		}
+		catch (Exception ex) {
+			logger.error("close shell " + ex.getLocalizedMessage(), ex);
+		}
+	}
+	
+	public void showDebug(){
+		try {
+			if (shell == null) {
+				createShell(myDisplay, mainShell);
+			} else {
+				shell.setVisible(!shell.getVisible());
+				if (shell.isVisible()) {
+					shell.setActive();
+				}
+			}
+		}
+		catch (Exception ex) {
+			logger.error("showDebug " + ex.getLocalizedMessage(), ex);
+		}
+	}
+
+	public void setKeepShellOpen(Boolean keepShellOpen) {
+		this.keepShellOpen = keepShellOpen;
+	}
 }

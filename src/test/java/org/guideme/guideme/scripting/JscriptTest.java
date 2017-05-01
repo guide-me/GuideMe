@@ -26,10 +26,12 @@ import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
 import org.guideme.guideme.settings.UserSettings;
+import org.guideme.guideme.ui.MainShell;
 
 public class JscriptTest {
 	private static Logger logger = LogManager.getLogger();
 	private static Shell shell;
+	private static MainShell mainShell;
 	private static Font controlFont;
 	private static HashMap<String, FormData> appFormdata = new HashMap<String, FormData>();
 	private static HashMap<String, Control> appWidgets = new HashMap<String, Control>();
@@ -54,9 +56,8 @@ public class JscriptTest {
 		guide.setSettings(guideSettings);
 		try {
 			String source = comonFunctions.readFile("test.js", Charset.defaultCharset());
-			Jscript jscript = new Jscript(guide, userSettings, appSettings, false);
-			jscript.setOverRide(overRide);
-			jscript.runScript(source, "test", true);
+			Jscript jscript = new Jscript(guide, userSettings, appSettings, false, mainShell, overRide, source, "test", true);
+			new Thread(jscript).start();
 		} catch (Exception e) {
 			logger.error(" Run Script " + e.getLocalizedMessage(), e);
 		}				

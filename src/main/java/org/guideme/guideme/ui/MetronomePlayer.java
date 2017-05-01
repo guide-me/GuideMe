@@ -45,9 +45,11 @@ public class MetronomePlayer  implements Runnable {
 	}
 
 	public void metronomeStop() {
-		//stop the sequencer 
-		sequencer.stop();
-		logger.trace("MetronomePlayer Stop ");
+		//stop the sequencer, only needed in case it exists and is running to prevent unnecessary errors
+		if(sequencer != null && sequencer.isRunning()) {
+			sequencer.stop();
+		}
+		logger.trace("MetronomePlayer Stop ");	
 	}
 
 	public void metronomeKill() {

@@ -19,10 +19,19 @@ public class AppSettings {
 	private int musicVolume = 400;
 	private int videoVolume = 400;
 	private int mainMonitor = 1;
+	private int maxImageScale = 0;
+	private int jsDebugHeight = 600;
+	private int jsDebugWidth = 800;
+	private int thumbnailSize = 200;
 	
 	
 	private boolean Debug = false;
+	private boolean JsDebug = false;
+	private boolean JsDebugError = true;
+	private boolean JsDebugEnter = false;
+	private boolean JsDebugExit = false;
 	private boolean video = false;
+	private boolean hideMenu = false;
 	private String DataDirectory;
 	private int[] sash1Weights = new int[2];
 	private int[] sash2Weights = new int[3];
@@ -40,6 +49,9 @@ public class AppSettings {
 	private boolean monitorChanging = false;
 	private boolean clock = true;
 	private boolean metronome = true;
+	private String ComandLineGuide = "";
+	private String tempDir;
+	private boolean stateInDataDir;
 
 	public static synchronized AppSettings getAppSettings() {
 		if (appSettings == null) {
@@ -61,6 +73,7 @@ public class AppSettings {
 			userName = String.valueOf(properties.get("user.name"));
 			fileSeparator = String.valueOf(properties.get("file.separator"));
 			settingsLocation = "data" + fileSeparator + "settings.properties";
+			tempDir = "data" + fileSeparator;
 			logger.debug("AppSettings userDir: " + userDir);
 			logger.debug("AppSettings userHome: " + userHome);
 			logger.debug("AppSettings userName: " + userName);
@@ -83,6 +96,9 @@ public class AppSettings {
 				musicVolume = Integer.parseInt(appSettingsProperties.getProperty("musicVolume", "400"));
 				videoVolume = Integer.parseInt(appSettingsProperties.getProperty("videoVolume", "400"));
 				Debug = Boolean.parseBoolean(appSettingsProperties.getProperty("Debug", "false"));
+				JsDebug = Boolean.parseBoolean(appSettingsProperties.getProperty("JsDebug", "false"));
+				jsDebugHeight = Integer.parseInt(appSettingsProperties.getProperty("jsDebugHeight", "600"));
+				jsDebugWidth = Integer.parseInt(appSettingsProperties.getProperty("jsDebugWidth", "800"));
 				video = Boolean.parseBoolean(appSettingsProperties.getProperty("Video", "true"));
 				mainMonitor = Integer.parseInt(appSettingsProperties.getProperty("mainMonitor", "1"));
 				fullScreen = Boolean.parseBoolean(appSettingsProperties.getProperty("fullScreen", "false"));
@@ -92,11 +108,15 @@ public class AppSettings {
 				pageSound = Boolean.parseBoolean(appSettingsProperties.getProperty("pageSound", "true"));
 				toclipboard = Boolean.parseBoolean(appSettingsProperties.getProperty("toclipboard", "false"));
 				DataDirectory = appSettingsProperties.getProperty("DataDirectory", userDir);
+				stateInDataDir = Boolean.parseBoolean(appSettingsProperties.getProperty("stateInDataDir", "true"));
 				sash1Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights0", "350"));
 				sash1Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash1Weights1", "350"));
 				sash2Weights[0] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights0", "150"));
 				sash2Weights[1] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights1", "700"));
 				sash2Weights[2] = Integer.parseInt(appSettingsProperties.getProperty("sash2Weights2", "150"));
+				maxImageScale = Integer.parseInt(appSettingsProperties.getProperty("maxImageScale", "0"));
+				hideMenu = Boolean.parseBoolean(appSettingsProperties.getProperty("hideMenu", "false"));
+				thumbnailSize = Integer.parseInt(appSettingsProperties.getProperty("thumbnailSize", "200"));
 			}
 			catch (Exception ex) {
 				logger.error(ex.getLocalizedMessage(), ex);
@@ -119,6 +139,54 @@ public class AppSettings {
 
 	public void setDebug(boolean debug) {
 		Debug = debug;
+	}
+
+	public boolean getJsDebug() {
+		return JsDebug;
+	}
+
+	public void setJsDebug(boolean jsdebug) {
+		JsDebug = jsdebug;
+	}
+
+	public boolean getJsDebugError() {
+		return JsDebugError;
+	}
+
+	public void setJsDebugError(boolean jsDebugError) {
+		JsDebugError = jsDebugError;
+	}
+
+	public boolean getJsDebugEnter() {
+		return JsDebugEnter;
+	}
+
+	public void setJsDebugEnter(boolean jsDebugEnter) {
+		JsDebugEnter = jsDebugEnter;
+	}
+
+	public boolean getJsDebugExit() {
+		return JsDebugExit;
+	}
+
+	public void setJsDebugExit(boolean jsDebugExit) {
+		JsDebugExit = jsDebugExit;
+	}
+
+	public int getJsDebugHeight() {
+		return jsDebugHeight;
+	}
+
+	public void setJsDebugHeight(int jsDebugHeight) {
+		this.jsDebugHeight = jsDebugHeight;
+	}
+
+	public int getJsDebugWidth() {
+		return jsDebugWidth;
+	}
+
+	public void setJsDebugWidth(int jsDebugWidth) {
+		this.jsDebugWidth = jsDebugWidth;
 	}
 
 	public String getDataDirectory() {
@@ -156,6 +224,9 @@ public class AppSettings {
 			appSettingsProperties.setProperty("musicVolume", String.valueOf(musicVolume));
 			appSettingsProperties.setProperty("videoVolume", String.valueOf(videoVolume));
 			appSettingsProperties.setProperty("Debug", String.valueOf(Debug));
+			appSettingsProperties.setProperty("JsDebug", String.valueOf(JsDebug));
+			appSettingsProperties.setProperty("jsDebugHeight", String.valueOf(jsDebugHeight));
+			appSettingsProperties.setProperty("jsDebugWidth", String.valueOf(jsDebugWidth));
 			appSettingsProperties.setProperty("Video", String.valueOf(video));
 			appSettingsProperties.setProperty("mainMonitor", String.valueOf(mainMonitor));
 			appSettingsProperties.setProperty("fullScreen", String.valueOf(fullScreen));
@@ -165,12 +236,16 @@ public class AppSettings {
 			appSettingsProperties.setProperty("pageSound", String.valueOf(pageSound));
 			appSettingsProperties.setProperty("toclipboard", String.valueOf(toclipboard));
 			appSettingsProperties.setProperty("DataDirectory", DataDirectory);
+			appSettingsProperties.setProperty("stateInDataDir", String.valueOf(stateInDataDir));
 			appSettingsProperties.setProperty("sash1Weights0", String.valueOf(sash1Weights[0]));
 			appSettingsProperties.setProperty("sash1Weights1", String.valueOf(sash1Weights[1]));
 			appSettingsProperties.setProperty("sash2Weights0", String.valueOf(sash2Weights[0]));
 			appSettingsProperties.setProperty("sash2Weights1", String.valueOf(sash2Weights[1]));
 			appSettingsProperties.setProperty("sash2Weights2", String.valueOf(sash2Weights[2]));
 			appSettingsProperties.storeToXML(new FileOutputStream(settingsLocation), null);
+			appSettingsProperties.setProperty("maxImageScale", String.valueOf(maxImageScale));
+			appSettingsProperties.setProperty("hideMenu", String.valueOf(hideMenu));
+			appSettingsProperties.setProperty("thumbnailSize", String.valueOf(thumbnailSize));
 		}
 		catch (Exception e) {
 			logger.error(e.getLocalizedMessage(), e);
@@ -319,6 +394,50 @@ public class AppSettings {
 
 	public void setMetronome(boolean metronome) {
 		this.metronome = metronome;
+	}
+
+	public int getMaxImageScale() {
+		return maxImageScale;
+	}
+
+	public void setMaxImageScale(int maxImageScale) {
+		this.maxImageScale = maxImageScale;
+	}
+
+	public String getComandLineGuide() {
+		return ComandLineGuide;
+	}
+
+	public void setComandLineGuide(String ComandLineGuide) {
+		this.ComandLineGuide = ComandLineGuide;
+	}
+
+	public boolean isHideMenu() {
+		return hideMenu;
+	}
+
+	public void setHideMenu(boolean hideMenu) {
+		this.hideMenu = hideMenu;
+	}
+
+	public String getTempDir() {
+		return tempDir;
+	}
+
+	public boolean isStateInDataDir() {
+		return stateInDataDir;
+	}
+
+	public void setStateInDataDir(boolean stateInDataDir) {
+		this.stateInDataDir = stateInDataDir;
+	}
+
+	public int getThumbnailSize() {
+		return thumbnailSize;
+	}
+
+	public void setThumbnailSize(int thumbnailSize) {
+		this.thumbnailSize = thumbnailSize;
 	}
 
 }

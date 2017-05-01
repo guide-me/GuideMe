@@ -1,5 +1,6 @@
 package org.guideme.guideme.model;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 
 import org.guideme.guideme.settings.ComonFunctions;
@@ -14,9 +15,13 @@ public class Delay {
 	private String startWith;
 	private String style;
 	private String jScript;
+	private LocalTime ifBefore; //Time of day must be before this time
+	private LocalTime ifAfter; //Time of day must be after this time
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
+	private String scriptVar;
 	
-	public Delay(String target, String delay, String ifSet, String ifNotSet, String startWith, String style, String set, String unSet, String jScript) {
+	
+	public Delay(String target, String delay, String ifSet, String ifNotSet, String startWith, String style, String set, String unSet, String jScript, String ifAfter, String ifBefore, String scriptVar) {
 		this.target = target;
 		this.delay = delay;
 		this.ifNotSet = ifNotSet;
@@ -26,10 +31,26 @@ public class Delay {
 		this.set = set;
 		this.unSet = unSet;
 		this.jScript = jScript;
+		if (ifBefore.equals("")) {
+			this.ifBefore = null;
+		} else {
+			this.ifBefore = LocalTime.parse(ifBefore);
+		}
+		if (ifAfter.equals("")) {
+			this.ifAfter = null;
+		} else {
+			this.ifAfter = LocalTime.parse(ifAfter);
+		}
+		this.scriptVar = scriptVar;
+
 	}
 
 	public boolean canShow(ArrayList<String> setList) {
-		return comonFunctions.canShow(setList, ifSet, ifNotSet);
+		boolean retVal = comonFunctions.canShowTime(ifBefore, ifAfter);
+		if (retVal) {
+			retVal =  comonFunctions.canShow(setList, ifSet, ifNotSet);
+		}
+		return retVal;
 	}
 
 	public int getDelaySec() {
@@ -73,5 +94,35 @@ public class Delay {
 	public String getIfNotSet() {
 		return ifNotSet;
 	}
+	
+	public LocalTime getIfBefore() {
+		return ifBefore;
+	}
+
+	public void setIfBefore(String ifBefore) {
+		if (ifBefore.equals("")) {
+			this.ifBefore = null;
+		} else {
+			this.ifBefore = LocalTime.parse(ifBefore);
+		}
+	}
+
+	public LocalTime getIfAfter() {
+		return ifAfter;
+	}
+
+	public void setIfAfter(String ifAfter) {
+		if (ifAfter.equals("")) {
+			this.ifAfter = null;
+		} else {
+			this.ifAfter = LocalTime.parse(ifAfter);
+		}
+	}
+
+	public String getScriptVar() {
+		return scriptVar;
+	}
+
+
 
 }

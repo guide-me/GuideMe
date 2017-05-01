@@ -7,7 +7,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,6 +20,8 @@ import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.ShellAdapter;
@@ -25,6 +30,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
@@ -35,9 +41,15 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.net.URLConnection;
+import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 
 import javax.imageio.ImageIO;
+import javax.swing.SwingUtilities;
 
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -52,15 +64,20 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Control;
 import org.guideme.guideme.MainLogic;
 import org.guideme.guideme.model.Button;
+import org.guideme.guideme.model.Chapter;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Page;
+import org.guideme.guideme.model.Timer;
 import org.guideme.guideme.readers.XmlGuideReader;
 import org.guideme.guideme.scripting.Jscript;
+import org.guideme.guideme.scripting.OverRide;
 import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
 import org.guideme.guideme.settings.UserSettings;
 import org.imgscalr.Scalr;
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.tools.debugger.Main;
 
 import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
@@ -88,6 +105,7 @@ public class MainShell {
 	private int videoStopAt = 0;
 	private String videoTarget = "";
 	private String videoJscript = "";
+	private String videoScriptVar = "";
 	private Boolean videoPlay = false;
 	private Guide guide = Guide.getGuide();
 	private GuideSettings guideSettings = guide.getSettings();
@@ -104,7 +122,7 @@ public class MainShell {
 	private Calendar calCountDown = null;
 	private Shell shell;
 	private Shell shell2;
-	private Shell shell3;
+	//private Shell shell3;
 	private DebugShell debugShell;
 	private Display myDisplay;
 	private Font controlFont;
@@ -132,10 +150,26 @@ public class MainShell {
 	private Boolean multiMonitor = true;
 	private Boolean overlayTimer = false;
 	private HashMap<String, com.snapps.swt.SquareButton> hotKeys = new HashMap<String, com.snapps.swt.SquareButton>();
+	private HashMap<String, com.snapps.swt.SquareButton> buttons = new HashMap<String, com.snapps.swt.SquareButton>();
 	private shellKeyEventListener keyListener;
+	//private shellMouseMoveListener mouseListen;
+	private Boolean showMenu = true;
+	private Menu MenuBar;
+	private HashMap<String, Timer> timer = new HashMap<String, Timer>();
+	//private ArrayList<Timer> timer = new ArrayList<Timer>();
+	private Rectangle clientArea;
+	private Rectangle clientArea2;
+	private boolean inPrefShell = false;
+	private String rightHTML;
+	private String leftHTML;
+	private Main dbg;
+	private ContextFactory factory;
+	private File oldImage;
+	private File oldImage2;
 
 	public Shell createShell(final Display display) {
 		logger.trace("Enter createShell");
+		comonFunctions.setDisplay(display);
 		// Initialise variable
 		int[] intWeights1 = new int[2];
 		int[] intWeights2 = new int[2];
@@ -196,9 +230,11 @@ public class MainShell {
 			logger.trace("key filter");
 			keyListener = new shellKeyEventListener();
 			myDisplay.addFilter(SWT.KeyDown, keyListener);
+			//mouseListen = new shellMouseMoveListener();
+			//myDisplay.addFilter(SWT.MouseMove, mouseListen);
 			int mainMonitor = appSettings.getMainMonitor();
 			
-			Rectangle clientArea2 = null;
+			clientArea2 = null;
 			multiMonitor = appSettings.isMultiMonitor();
 			Monitor monitors[] = display.getMonitors();
 			if (multiMonitor) {
@@ -226,11 +262,21 @@ public class MainShell {
 			}
 			
 			//debug shell
-			debugShell = new DebugShell();
-			shell3 = debugShell.createShell(myDisplay, this);
+			debugShell = DebugShell.getDebugShell();
+			debugShell.createShell(myDisplay, this);
+			/*
+		    factory = new ContextFactory();
+			dbg = new Main("GuideMe");
+		    dbg.attachTo(factory);
+		    dbg.setBreakOnEnter(true);
+		    dbg.setSize(appSettings.getJsDebugWidth(), appSettings.getJsDebugWidth());
+		    dbg.setVisible(false);
+		    */
+
+
 			
 			//get primary monitor and its size
-			Rectangle clientArea = monitors[0].getClientArea();
+			clientArea = monitors[0].getClientArea();
 			if (mainMonitor == 1) {
 				if (appSettings.isFullScreen()) {
 					clientArea = monitors[0].getBounds();
@@ -299,11 +345,43 @@ public class MainShell {
 			mediaPanel.setBackground(colourBlack);
 			mediaPanel.addControlListener(new mediaPanelListener());
 
-			defaultStyle = "html { overflow-y: auto; } body { color: white; background-color: black; font-family: Tahoma; font-size:" + MintHtmlFontSize + "px } html, body, #wrapper { height:100%; width: 100%; margin: 0; padding: 0; border: 0; } #wrapper td { vertical-align: middle; text-align: center; }";
+			//defaultStyle
+			try {
+		        defaultStyle = comonFunctions.readFile("./defaultCSS.txt", StandardCharsets.UTF_8);
+		        defaultStyle = defaultStyle.replace("MintHtmlFontSize", String.valueOf(MintHtmlFontSize)); 
+			}
+			catch (Exception ex2) {
+				defaultStyle = "";
+				logger.error("Load defaultCSS.txt error:" + ex2.getLocalizedMessage(), ex2);
+			}
+	        
+	        
 			style = defaultStyle;
-			String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style + "</style></head><body></body></html>";
+			String appImage = appSettings.getUserDir() + appSettings.getFileSeparator() + "userSettings" + appSettings.getFileSeparator() + "GuidemeBeta.jpg"; 
+
+			//default HTML
+			try {
+		        rightHTML = comonFunctions.readFile("DefaultRightHtml.txt", StandardCharsets.UTF_8);
+			}
+			catch (Exception ex2) {
+				rightHTML = "";
+				logger.error("Load DefaultRightHtml.txt error:" + ex2.getLocalizedMessage(), ex2);
+			}
+			
+			try {
+		        leftHTML = comonFunctions.readFile("DefaultLeftHtml.txt", StandardCharsets.UTF_8);
+			}
+			catch (Exception ex2) {
+				leftHTML = "";
+				logger.error("Load DefaultLeftHtml.txt error:" + ex2.getLocalizedMessage(), ex2);
+			}
+			
+			
+			String strHtml = rightHTML.replace("BodyContent", "");
+			strHtml = strHtml.replace("DefaultStyle", defaultStyle); 
+			String strHtml2 = "<!DOCTYPE HTML><html><head><meta http-equiv='Content-type' content='text/html;charset=UTF-8' /><title>Guideme - Explore Yourself</title><style type='text/css'> html { overflow-y: auto; } body { color: white; background-color: black; font-family: Tahoma; font-size:16px; overflow:hidden } html, body, #wrapper { height:100%; width: 100%; margin: 0; padding: 0; border: 0; } #wrapper { vertical-align: middle; text-align: center; } #bannerimg { width: 90%; border-top: 3px solid #cccccc; border-right: 3px solid #cccccc; border-bottom: 3px solid #666666; border-left: 3px solid #666666; }</style></head><body><div id='wrapper' ><div id='bannerimg'><img src='" + appImage + "' /></div><div><h2>Welcome to Guideme!</h2>To get started, click File/Load and select a guide.</div></div></body></html>";
 			imageLabel = new Browser(leftFrame, 0);
-			imageLabel.setText(strHtml);
+			imageLabel.setText(strHtml2);
 			imageLabel.setBackground(colourBlack);
 			//imageLabel.setAlignment(SWT.CENTER);
 
@@ -328,7 +406,9 @@ public class MainShell {
 			lblRight.setFont(timerFont);
 			lblRight.setAlignment(SWT.CENTER);
 
-			brwsText = new Browser(sashform2, 0);
+			//brwsText = new Browser(sashform2, SWT.MOZILLA);
+			brwsText = new Browser(sashform2, SWT.NONE);
+			//brwsText = new Browser(sashform2, SWT.WEBKIT);
 			brwsText.setText(strHtml);
 			brwsText.setBackground(colourBlack);
 
@@ -436,7 +516,7 @@ public class MainShell {
 			imageLabel.setLayoutData(imageLabelFormData);
 			
 			//Menu Bar
-			Menu MenuBar = new Menu (shell, SWT.BAR);
+			MenuBar = new Menu (shell, SWT.BAR);
 
 			//Top Level File drop down
 			MenuItem fileItem = new MenuItem (MenuBar, SWT.CASCADE);
@@ -451,6 +531,11 @@ public class MainShell {
 			MenuItem fileLoadItem = new MenuItem (fileSubMenu, SWT.PUSH);
 			fileLoadItem.setText ("&Load");
 			fileLoadItem.addSelectionListener(new FileLoadListener());
+
+			//File Library menu item
+			MenuItem fileLibraryItem = new MenuItem (fileSubMenu, SWT.PUSH);
+			fileLibraryItem.setText ("&Library");
+			fileLibraryItem.addSelectionListener(new FileLibraryListener());
 
 			//File Restart menu item
 			MenuItem fileRestartItem = new MenuItem (fileSubMenu, SWT.PUSH);
@@ -483,6 +568,64 @@ public class MainShell {
 				}
 			});
 
+			if (appSettings.getDebug())
+			{
+				//Top Level Debug drop down
+				MenuItem debugItem = new MenuItem (MenuBar, SWT.CASCADE);
+				debugItem.setText ("Debu&g");
+	
+				//Sub Menu for Debug
+				Menu debugSubMenu = new Menu (shell, SWT.DROP_DOWN);
+				//Associate it with the top level File menu
+				debugItem.setMenu (debugSubMenu);
+				
+				//Debug Debug Menu Item
+			    final MenuItem debugCheck = new MenuItem(debugSubMenu, SWT.CHECK);
+			    debugCheck.setText("Debu&g");
+			    debugCheck.setSelection(appSettings.getDebug());
+			    debugCheck.addListener(SWT.Selection, new Listener() {
+			      public void handleEvent(Event event) {
+			        appSettings.setDebug(debugCheck.getSelection());
+			      }
+			    });			
+				
+			    //Debug Javascript Debug Menu Item
+			    final MenuItem jsdebugCheck = new MenuItem(debugSubMenu, SWT.CHECK);
+			    jsdebugCheck.setText("&Javascript Debug");
+			    jsdebugCheck.setSelection(appSettings.getJsDebug());
+			    jsdebugCheck.addListener(SWT.Selection, new Listener() {
+			      public void handleEvent(Event event) {
+			        appSettings.setJsDebug(jsdebugCheck.getSelection());
+			      }
+			    });			
+			    //Debug Javascript Debug Menu Error Item
+			    final MenuItem jsdebugErrorCheck = new MenuItem(debugSubMenu, SWT.CHECK);
+			    jsdebugErrorCheck.setText("&Javascript Break on exception");
+			    jsdebugErrorCheck.setSelection(appSettings.getJsDebugError());
+			    jsdebugErrorCheck.addListener(SWT.Selection, new Listener() {
+			      public void handleEvent(Event event) {
+			        appSettings.setJsDebugError(jsdebugErrorCheck.getSelection());
+			      }
+			    });			
+			    //Debug Javascript Debug Menu Enter Item
+			    final MenuItem jsdebugEnterCheck = new MenuItem(debugSubMenu, SWT.CHECK);
+			    jsdebugEnterCheck.setText("&Javascript Break on function enter");
+			    jsdebugEnterCheck.setSelection(appSettings.getJsDebugEnter());
+			    jsdebugEnterCheck.addListener(SWT.Selection, new Listener() {
+			      public void handleEvent(Event event) {
+			        appSettings.setJsDebugEnter(jsdebugEnterCheck.getSelection());
+			      }
+			    });			
+			    //Debug Javascript Debug Menu Exit Item
+			    final MenuItem jsdebugExitCheck = new MenuItem(debugSubMenu, SWT.CHECK);
+			    jsdebugExitCheck.setText("&Javascript Break on function return");
+			    jsdebugExitCheck.setSelection(appSettings.getJsDebugExit());
+			    jsdebugExitCheck.addListener(SWT.Selection, new Listener() {
+			      public void handleEvent(Event event) {
+			        appSettings.setJsDebugExit(jsdebugExitCheck.getSelection());
+			      }
+			    });			
+			}
 			// Add the menu bar to the shell
 			shell.setMenuBar (MenuBar);
 
@@ -523,10 +666,91 @@ public class MainShell {
 		}
 		logger.trace("Exit createShell");
 		mainShell = this;
+		if (!appSettings.getComandLineGuide().equals("")) {
+			loadGuide(appSettings.getDataDirectory() + appSettings.getComandLineGuide());
+		}
 		mainShell.displayPage(guideSettings.getCurrPage());
+		Chapter chapter = guide.getChapters().get("default");
+		if (chapter != null)
+		{
+			for (Page page : chapter.getPages().values())
+			{
+				debugShell.addPagesCombo(page.getId());
+			}
+			debugShell.setPage(guide.getCurrPage(), true);			
+		}
 		return shell;
 	}
 
+	class shellMouseMoveListener implements Listener {
+
+		@Override
+		public void handleEvent(Event e) {
+			Rectangle rect = shell.getBounds(); 
+			Rectangle rect2; 
+			if (appSettings.isHideMenu()  && !inPrefShell) {
+				if (e.widget instanceof Control) {
+					Point absolutePos = ((Control) e.widget).toDisplay(e.x, e.y);
+					//String coord;
+					if (absolutePos.y <= 40 && !showMenu) {
+						if (!shell.isDisposed()) {
+							shell.setMenuBar(MenuBar);
+							shell.pack();
+							//shell.setMaximized(true);
+							shell.setBounds(rect);
+						}
+						if (multiMonitor) {
+							if (!shell2.isDisposed()) {
+								rect2 = shell2.getBounds();
+								shell2.pack();
+								//shell2.setMaximized(true);
+								shell2.setBounds(rect2);
+							}
+						}
+						showMenu = true;
+					} else if (absolutePos.y > 100 && showMenu) {
+						if (!shell.isDisposed()) {
+							shell.setMenuBar(null);
+							shell.pack();
+							//shell.setMaximized(true);
+							shell.setBounds(rect);
+						}
+						if (multiMonitor) {
+							if (!shell2.isDisposed()) {
+								rect2 = shell2.getBounds();
+								shell2.pack();
+								//shell2.setMaximized(true);
+								shell2.setBounds(rect2);	        			}
+						}
+						showMenu = false;
+					}
+					//coord = "show " + showMenu.toString() + " "  + absolutePos.x + " , " + absolutePos.y;
+					//mainShell.setLblRight(coord);
+				}
+			} else {
+				if (!showMenu) {
+					if (!shell.isDisposed()) {
+						shell.setMenuBar(MenuBar);
+						shell.pack();
+						//shell.setMaximized(true);
+						shell.setBounds(rect);
+					}
+					if (multiMonitor) {
+						if (!shell2.isDisposed()) {
+							rect2 = shell2.getBounds();
+							shell2.pack();
+							//shell2.setMaximized(true);
+							shell2.setBounds(rect2);
+						}
+					}
+					showMenu = true;
+				}
+			}
+		} 
+
+	}
+	
+	
 	class shellCloseListen  extends ShellAdapter {
 		// Clean up stuff when the application closes
 		@Override
@@ -537,7 +761,7 @@ public class MainShell {
 				if (shell2 != null) {
 					shell2.close();
 				}
-				shell3.close();
+				debugShell.closeShell();
 				int[] intWeights;
 				if (!multiMonitor) {
 					intWeights = sashform.getWeights();
@@ -576,7 +800,61 @@ public class MainShell {
 		@Override
 		public void handleEvent(Event event) {
 			try {
-				if (((event.stateMask & SWT.ALT) == SWT.ALT) && (event.keyCode == 'd')) {
+				logger.trace(event.character + "|" + event.keyCode + "|" + event.keyLocation + "|" + event.stateMask);
+				if (event.keyCode == 13 && (event.widget.getClass().toString().equals("class org.eclipse.swt.browser.Browser")))
+					{
+						event.doit = false;
+					};
+				if (((event.stateMask & SWT.ALT) == SWT.ALT)) {
+					switch (event.character) {
+					/*
+					case 'd' :
+						shell3.setVisible(!shell3.getVisible());
+						if (shell3.isVisible()) {
+							shell3.setActive();
+						}
+						break;
+						*/
+					case 'm' :
+					case 'M' :
+						Rectangle rect = shell.getBounds(); 
+						Rectangle rect2; 
+						if (!showMenu) {
+							if (!shell.isDisposed()) {
+								shell.setMenuBar(MenuBar);
+								shell.pack();
+								//shell.setMaximized(true);
+								shell.setBounds(rect);
+							}
+							if (multiMonitor) {
+								if (!shell2.isDisposed()) {
+									rect2 = shell2.getBounds();
+									shell2.pack();
+									//shell2.setMaximized(true);
+									shell2.setBounds(rect2);
+								}
+							}
+							showMenu = true;
+						} else {
+							if (!shell.isDisposed()) {
+								shell.setMenuBar(null);
+								shell.pack();
+								//shell.setMaximized(true);
+								shell.setBounds(rect);
+							}
+							if (multiMonitor) {
+								if (!shell2.isDisposed()) {
+									rect2 = shell2.getBounds();
+									shell2.pack();
+									//shell2.setMaximized(true);
+									shell2.setBounds(rect2);	        			
+								}
+							}
+							showMenu = false;
+						}						
+						break;
+					}
+					/*
 					if (comonFunctions.onWindows() && event.character != "d".charAt(0)) {
 						//ignore
 					} else {
@@ -585,6 +863,7 @@ public class MainShell {
 							shell3.setActive();
 						}
 					}
+					*/
 				} else {
 					com.snapps.swt.SquareButton hotKeyButton;
 					String key = String.valueOf(event.character);
@@ -601,7 +880,7 @@ public class MainShell {
 						}
 						strTag = (String) hotKeyButton.getData("Target");
 						String javascript = (String) hotKeyButton.getData("javascript");
-						runJscript(javascript);
+						runJscript(javascript, false);
 						mainLogic.displayPage(strTag, false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
 					}
 				}
@@ -620,14 +899,24 @@ public class MainShell {
 
 		@Override
 		public void run() {
-			mediaPlayerThread.release();
-			mediaPlayerFactoryThread.release();
-			logger.trace("VideoRelease Exit");
+			try {
+				mediaPlayerThread.release();
+				mediaPlayerFactoryThread.release();
+				logger.trace("VideoRelease Exit");
+			}
+			catch (Exception ex) {
+				logger.error("Video release " + ex.getLocalizedMessage(), ex);
+			}
 		}
 
 		public void setVideoRelease(EmbeddedMediaPlayer mediaPlayer, MediaPlayerFactory mediaPlayerFactory) {
+			try {
 			mediaPlayerFactoryThread = mediaPlayerFactory;
 			mediaPlayerThread = mediaPlayer;
+			}
+			catch (Exception ex) {
+				logger.error("Video release " + ex.getLocalizedMessage(), ex);
+			}
 		}
 		
 	}
@@ -638,8 +927,13 @@ public class MainShell {
 		public void controlResized(ControlEvent e) {
 			super.controlResized(e);
 			if (videoOn) {
-				Rectangle rect = mediaPanel.getClientArea();
-				videoFrame.setSize(rect.width, rect.height);
+				try {
+					Rectangle rect = mediaPanel.getClientArea();
+					videoFrame.setSize(rect.width, rect.height);
+				}
+				catch (Exception ex) {
+					logger.error("Video resize " + ex.getLocalizedMessage(), ex);
+				}
 			}
 		}
 
@@ -655,9 +949,15 @@ public class MainShell {
 			logger.debug("MediaListener finished");
 			super.finished(mediaPlayer);
 			try {
-				mediaPanel.setVisible(false);
-				imageLabel.setVisible(true);
-				leftFrame.layout(true);
+				//run on the main UI thread
+				myDisplay.syncExec(
+						new Runnable() {
+							public void run(){
+								mediaPanel.setVisible(false);
+								imageLabel.setVisible(true);
+								leftFrame.layout(true);
+							}
+						});											
 			}
 			catch (Exception ex) {
 				logger.error(" MediaListener finished " + ex.getLocalizedMessage(), ex);
@@ -679,11 +979,12 @@ public class MainShell {
 									new Runnable() {
 										public void run(){
 											logger.debug("MediaListener Video Run: " + videoJscript + " videoTarget: " + videoTarget);
-											mainShell.runJscript(videoJscript);
+											mainShell.runJscript(videoJscript, false);
 											mainShell.displayPage(videoTarget);
 										}
 									});											
 						}
+						comonFunctions.processSrciptVars(videoScriptVar, guideSettings);
 				}
 			} catch (Exception e) {
 				logger.error("mediaStateChanged " + e.getLocalizedMessage(), e);
@@ -710,7 +1011,7 @@ public class MainShell {
 				String [] filterExtensions = new String [] {"*.xml"};
 				dialog.setFilterNames (filterNames);
 				dialog.setFilterExtensions (filterExtensions);
-				dialog.setFilterPath (strGuidePath);
+				dialog.setFilterPath (appSettings.getDataDirectory());
 				String strFileToLoad;
 				try {
 					strFileToLoad = dialog.open();
@@ -722,16 +1023,7 @@ public class MainShell {
 							appSettings.setDataDirectory(strGuidePath);
 							//load the file it will return the start page and populate the guide object
 							//TODO Need to change this here to implement the new html format
-							debugShell.clearPagesCombo();
-							String strPage = xmlGuideReader.loadXML(strFileToLoad, guide, appSettings, debugShell);
-							guideSettings = guide.getSettings();
-							if (guide.getCss().equals("")) {
-								style = defaultStyle;
-							} else {
-								style = guide.getCss();
-							}
-							//display the first page
-							mainLogic.displayPage(strPage , false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
+							loadGuide(strFileToLoad);
 						}
 					}
 					catch (Exception ex5) {
@@ -749,6 +1041,31 @@ public class MainShell {
 			super.widgetSelected(e);
 		}
 
+	}
+
+	
+	//Load the tease
+	public void loadGuide(String fileToLoad) {
+		try {
+			debugShell.clearPagesCombo();
+		}
+		catch (Exception ex) {
+			logger.error("Clear debug pages " + ex.getLocalizedMessage(), ex);
+		}
+		try {
+			String strPage = xmlGuideReader.loadXML(fileToLoad, guide, appSettings, debugShell);
+			guideSettings = guide.getSettings();
+			if (guide.getCss().equals("")) {
+				style = defaultStyle;
+			} else {
+				style = guide.getCss();
+			}
+			//display the first page
+			mainLogic.displayPage(strPage , false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
+		}
+		catch (Exception ex) {
+			logger.error("Load Guide " + ex.getLocalizedMessage(), ex);
+		}
 	}
 
 	// Restart 
@@ -821,15 +1138,18 @@ public class MainShell {
 			try {
 				logger.trace("Enter FilePreferences");
 				//display a modal shell to change the preferences
+				inPrefShell = true;
 				Shell prefShell = new PreferenceShell().createShell(myDisplay, userSettings, appSettings);
 				prefShell.open();
 				while (!prefShell.isDisposed()) {
 					if (!myDisplay.readAndDispatch())
 						myDisplay.sleep();
 				}
+				inPrefShell = false;
 			}
 			catch (Exception ex) {
 				logger.error(" FilePreferences " + ex.getLocalizedMessage());
+				inPrefShell = false;
 			}
 			super.widgetSelected(e);
 		}
@@ -844,15 +1164,41 @@ public class MainShell {
 				logger.trace("Enter FileGuidePreferences");
 				//Display a modal shell for the guide specific preferences
 				guideSettings = guide.getSettings();
+				inPrefShell = true;
 				Shell prefShell = new GuidePreferenceShell().createShell(myDisplay, guideSettings, appSettings);
 				prefShell.open();
 				while (!prefShell.isDisposed()) {
 					if (!myDisplay.readAndDispatch())
 						myDisplay.sleep();
 				}
+				inPrefShell = false;
 			}
 			catch (Exception ex) {
 				logger.error(" FileGuidePreferences " + ex.getLocalizedMessage());
+				inPrefShell = false;
+			}
+			super.widgetSelected(e);
+		}
+
+	}
+	
+	class FileLibraryListener  extends SelectionAdapter {
+		//File Library from menu
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			try {
+				logger.trace("Enter FileLibraryListener");
+				//Display a modal shell for the guide specific preferences
+				Shell libShell = new LibraryShell().createShell(myDisplay, appSettings, mainShell);
+				libShell.open();
+				while (!libShell.isDisposed()) {
+					if (!myDisplay.readAndDispatch())
+						myDisplay.sleep();
+				}
+			}
+			catch (Exception ex) {
+				logger.error(" FileLibraryListener " + ex.getLocalizedMessage());
+				inPrefShell = false;
 			}
 			super.widgetSelected(e);
 		}
@@ -884,7 +1230,41 @@ public class MainShell {
 						logger.trace("dblImageRatio: " + imageRatio);
 						logger.trace("Lable Height: " + RectImage.height);
 						logger.trace("Lable Width: " + RectImage.width);
-
+						
+						int maxImageScale = (int) imageLabel.getData("maxImageScale");
+						logger.trace("maxImageScale: " + maxImageScale);
+						int maxheight = (int) imageLabel.getData("maxheight");
+						logger.trace("maxheight: " + maxheight);
+						int maxwidth = (int) imageLabel.getData("maxwidth");
+						logger.trace("maxwidth: " + maxwidth);
+						
+						if (((RectImage.height >  maxheight) && (RectImage.width >  maxwidth)) && maxImageScale != 0) {
+							if (dblScreenRatio > imageRatio) {
+								logger.trace("Scale Choice: 1.1");
+								newHeight = (int) (((double) (maxwidth) * imageRatio) * imgOffSet);
+								newWidth = (int) ((double) (maxwidth) * imgOffSet);
+								logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
+							} else {
+								logger.trace("Scale Choice: 1.2");
+								newHeight = (int) ((double) (maxheight) * imgOffSet);
+								newWidth = (int) (((double) (maxheight) / imageRatio) * imgOffSet);
+								logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
+							}
+						} else {
+							if (dblScreenRatio > imageRatio) {
+								logger.trace("Scale Choice: 2.1");
+								newHeight = (int) (((double) RectImage.width * imageRatio) * imgOffSet);
+								newWidth = (int) ((double) RectImage.width * imgOffSet);
+								logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
+							} else {
+								logger.trace("Scale Choice: 2.2");
+								newHeight = (int) ((double) RectImage.height * imgOffSet);
+								newWidth = (int) (((double) RectImage.height / imageRatio) * imgOffSet);
+								logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
+							}
+						}
+						
+						/*
 						if (dblScreenRatio > imageRatio) {
 							newHeight = (int) (((double) RectImage.width * imageRatio) * imgOffSet);
 							newWidth = (int) ((double) RectImage.width * imgOffSet);
@@ -894,10 +1274,12 @@ public class MainShell {
 							newWidth = (int) (((double) RectImage.height / imageRatio) * imgOffSet);
 							logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
 						}
+						*/
 						//String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
 						if (imgPath.endsWith(".gif")) {
 							tmpImagePath = imgPath;
-							strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
+							strHtml = leftHTML.replace("DefaultStyle", defaultStyle + " body { overflow:hidden }");
+							strHtml = strHtml.replace("BodyContent", "<table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table>");
 						} else {
 							BufferedImage img = null;
 							try {
@@ -908,9 +1290,13 @@ public class MainShell {
 									  Scalr.resize(img, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC,
 											  newWidth, newHeight, Scalr.OP_ANTIALIAS);
 							String imgType = imgPath.substring(imgPath.length() - 3);
-							tmpImagePath = System.getProperty("user.dir") + File.pathSeparator + "tmpImage." + imgType;
-							ImageIO.write(imagenew, imgType, new File(tmpImagePath));			
-							strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" /></td></tr></table></body></html>";
+							String tmpPath = appSettings.getTempDir();
+							File newImage = File.createTempFile("tmpImage", imgType, new File(tmpPath));
+							newImage.deleteOnExit();
+							tmpImagePath = newImage.getAbsolutePath();
+							ImageIO.write(imagenew, imgType, newImage);			
+							strHtml = leftHTML.replace("DefaultStyle", defaultStyle + " body { overflow:hidden }");
+							strHtml = strHtml.replace("BodyContent", "<table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" /></td></tr></table>");
 						}
 						me.setText(strHtml, true);
 						//Image tmpImage = me.getImage();
@@ -973,44 +1359,123 @@ public class MainShell {
 					if (calCountDown != null) {
 						if (cal.after(calCountDown)){
 							//Delay has reached zero
-							calCountDown = null;
-							lblRight.setText("");
-							comonFunctions.SetFlags(guide.getDelaySet(), guide.getFlags());
-							comonFunctions.UnsetFlags(guide.getDelayUnSet(), guide.getFlags());
-							javascript = guide.getDelayjScript();
-							mainShell.runJscript(javascript);
-							mainLogic.displayPage(guide.getDelTarget(), false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
-						} else {
-							if (guide.getDelStyle().equals("hidden")) {
-								//a hidden one
+							try {
+								calCountDown = null;
 								lblRight.setText("");
-							} else if (guide.getDelStyle().equals("secret")) {
-								//secret timer so display ?? to show there is one but not how long
-								lblRight.setText("??:??");
-							} else {
-								//Normal delay so display seconds left 
-								//(plus any offset if you are being sneaky) 
-								diff = calCountDown.getTimeInMillis() - cal.getTimeInMillis();
-								diff = diff + (guide.getDelStartAtOffSet() * 1000);
-								intSeconds = (int) ((diff / 1000) + 1);
-								intMinutes = intSeconds / 60;
-								intSeconds = intSeconds - (intMinutes * 60);
-								strSeconds = String.valueOf(intSeconds);
-								strSeconds = "0" + strSeconds;
-								strSeconds = strSeconds.substring(strSeconds.length() - 2);
-								strMinutes = String.valueOf(intMinutes);
-								strMinutes = "0" + strMinutes;
-								strMinutes = strMinutes.substring(strMinutes.length() - 2);
-								strTimeLeft = strMinutes + ":" + strSeconds;
-								lblRight.setText(strTimeLeft);
+								comonFunctions.SetFlags(guide.getDelaySet(), guide.getFlags());
+								comonFunctions.UnsetFlags(guide.getDelayUnSet(), guide.getFlags());
+								comonFunctions.processSrciptVars(guide.getDelayScriptVar(), guideSettings);
+								javascript = guide.getDelayjScript();
+								if (!javascript.equals("")) {
+									mainShell.runJscript(javascript, false);
+								}
+								mainLogic.displayPage(guide.getDelTarget(), false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
+							}
+							catch (Exception ex) {
+								logger.error(" shellTimer Delay Zero " + ex.getLocalizedMessage(), ex);
+							}
+						} else {
+							try {
+								if (guide.getDelStyle().equals("hidden")) {
+									//a hidden one
+									lblRight.setText("");
+								} else if (guide.getDelStyle().equals("secret")) {
+									//secret timer so display ?? to show there is one but not how long
+									lblRight.setText("??:??");
+								} else {
+									//Normal delay so display seconds left 
+									//(plus any offset if you are being sneaky) 
+									diff = calCountDown.getTimeInMillis() - cal.getTimeInMillis();
+									diff = diff + (guide.getDelStartAtOffSet() * 1000);
+									intSeconds = (int) ((diff / 1000) + 1);
+									intMinutes = intSeconds / 60;
+									intSeconds = intSeconds - (intMinutes * 60);
+									strSeconds = String.valueOf(intSeconds);
+									strSeconds = "0" + strSeconds;
+									strSeconds = strSeconds.substring(strSeconds.length() - 2);
+									strMinutes = String.valueOf(intMinutes);
+									strMinutes = "0" + strMinutes;
+									strMinutes = strMinutes.substring(strMinutes.length() - 2);
+									strTimeLeft = strMinutes + ":" + strSeconds;
+									lblRight.setText(strTimeLeft);
+								}
+							}
+							catch (Exception ex) {
+								logger.error(" shellTimer Update Count Down " + ex.getLocalizedMessage(), ex);
 							}
 							
 						}
 					}
-					if (appSettings.isClock()) {
-						lblLeft.setText(dateFormat.format(cal.getTime()));
-					} else {
-						lblLeft.setText("");
+					try {
+						if (appSettings.isClock()) {
+							lblLeft.setText(dateFormat.format(cal.getTime()));
+						} else {
+							lblLeft.setText("");
+						}
+					}
+					catch (Exception ex) {
+						logger.error(" shellTimer Update Clock " + ex.getLocalizedMessage(), ex);
+					}
+					
+					try {
+						//check timers
+						if (getTimerCount() > 0) {
+						    Iterator<Entry<String, Timer>> it = timer.entrySet().iterator();
+						    while (it.hasNext()) {
+						        Map.Entry<String, Timer> pair = it.next();
+								Timer objTimer =  pair.getValue();
+								Calendar calTemp =  objTimer.getTimerEnd();
+								//logger.debug("Timer: " + objTimer.getId() + " End: " + calTemp.getTime());
+								//logger.debug("Timer: " + objTimer.getId() + " Now: " + cal.getTime());
+								if (cal.after(calTemp)) {
+									logger.debug("Timer: " + objTimer.getId() + " Triggered");
+									//add a year to the timer so we don't trigger it again
+									calTemp.add(Calendar.YEAR, 1);
+									pair.getValue().setTimerEnd(calTemp);
+									comonFunctions.SetFlags(objTimer.getSet(), guide.getFlags());
+									comonFunctions.UnsetFlags(objTimer.getUnSet(), guide.getFlags());
+									String strImage = objTimer.getImageId();
+									if (!strImage.equals("")) {
+										String imgPath = comonFunctions.getMediaFullPath(strImage, appSettings.getFileSeparator(), appSettings, guide);
+										File flImage = new File(imgPath);
+										if (flImage.exists()){
+											try {
+												setImageLabel(imgPath, strImage);
+											} catch (Exception e1) {
+												logger.error("Timer Image Exception " + e1.getLocalizedMessage(), e1);
+											}								
+										}
+									} 
+									String displayText = objTimer.getText();
+									if (!displayText.equals("")) {
+										try {
+											// Media Directory
+											try {
+												String mediaPath;
+												mediaPath = comonFunctions.getMediaFullPath("", appSettings.getFileSeparator(), appSettings, guide);
+												displayText = displayText.replace("\\MediaDir\\", mediaPath);
+											} catch (Exception e) {
+												logger.error("displayPage BrwsText Media Directory Exception " + e.getLocalizedMessage(), e);
+											}
+											
+											displayText = comonFunctions.substituteTextVars(displayText, guideSettings, userSettings);
+		
+											setBrwsText(displayText, "");
+										} catch (Exception e) {
+											logger.error("Timer BrwsText Exception " + e.getLocalizedMessage(), e);
+										}
+									}
+									javascript = objTimer.getjScript();
+									if (!javascript.equals("")) {
+										mainShell.runJscript(javascript, false);
+									}
+								}
+						        //it.remove(); // avoids a ConcurrentModificationException
+							}
+						}
+					}
+					catch (Exception ex) {
+						logger.error(" shellTimer Timers " + ex.getLocalizedMessage(), ex);
 					}
 					dateFormat = null;
 					cal = null;
@@ -1058,17 +1523,80 @@ public class MainShell {
 	}
 
 	public void setImageLabel(String imgPath, String strImage) {
+		//delete old image if it exists
+		if (oldImage != null && oldImage.exists())
+		{
+			oldImage.delete();
+			oldImage = null;
+		}
+		if (oldImage2 != null && oldImage2.exists())
+		{
+			oldImage2.delete();
+			oldImage2 = null;
+		}
+		
 		//display an image in the area to the left of the screen
 		int newWidth;
 		int newHeight;
 		imgOverRide = false;
-		//Image tmpImage = (Image) imageLabel.getData("image");
+		
+		
+		if (imgPath.lastIndexOf(".") == -1)
+		{
+			try {
+				boolean newFile = false;
+				String extension = "";
+				File tmpFile = new File(imgPath);
+				URLConnection con = tmpFile.toURI().toURL().openConnection();
+				String mimeType = con.getContentType();
+				con = null;
+
+				
+				switch (mimeType)
+				{
+				case "image/jpeg":
+					extension = ".jpg";
+					newFile = true;
+					break;
+				case "image/bmp":
+					extension = ".bmp";
+					newFile = true;
+					break;
+				case "image/gif":
+					extension = ".gif";
+					newFile = true;
+					break;
+				case "image/png":
+					extension = ".png";
+					newFile = true;
+					break;
+				case "image/tiff":
+					extension = ".tiff";
+					newFile = true;
+					break;
+				}
+				if (newFile)
+				{
+					String tmpPath = appSettings.getTempDir();
+					oldImage2 = File.createTempFile("TempImage2", extension, new File(tmpPath));
+					oldImage2.deleteOnExit();
+					FileInputStream strSrc = new FileInputStream(tmpFile);
+					FileChannel src = strSrc.getChannel();
+					FileOutputStream strDest = new FileOutputStream(oldImage2); 
+					FileChannel dest = strDest.getChannel();
+					dest.transferFrom(src, 0, src.size());
+					strSrc.close();
+					strDest.close();
+					src.close();
+					dest.close();
+					imgPath = oldImage2.getAbsolutePath();
+				}
+			} catch (IOException e1) {
+			}
+		}
+		
 		Image memImage = new Image(myDisplay, imgPath);
 		imageLabel.setData("imgPath", imgPath);
-		//imageLabel.setData("image", memImage);
-		//if (tmpImage != null) {
-		//	tmpImage.dispose();
-		//}
 		try {
 			String tmpImagePath;
 			String strHtml;
@@ -1082,33 +1610,65 @@ public class MainShell {
 			logger.trace("Lable Width: " + RectImage.width);
 			logger.trace("Image Height: " + imgData.height);
 			logger.trace("Image Width: " + imgData.width);
-
-			if (dblScreenRatio > dblImageRatio) {
-				newHeight = (int) (((double) RectImage.width * dblImageRatio) * imgOffSet);
-				newWidth = (int) ((double) RectImage.width * imgOffSet);
-				logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
+			
+			int maxImageScale = appSettings.getMaxImageScale();
+			int maxheight = (int) (imgData.height * ( (double) (maxImageScale / 100)));
+			int maxwidth = (int) (imgData.width * ((double) (maxImageScale / 100)));
+			
+			imageLabel.setData("maxImageScale", maxImageScale);
+			imageLabel.setData("maxheight", maxheight);
+			imageLabel.setData("maxwidth", maxwidth);
+			
+			if (((RectImage.height >  maxheight) && (RectImage.width >  maxwidth)) && (maxImageScale != 0)) {
+				if (dblScreenRatio > dblImageRatio) {
+					newHeight = (int) (((double) (maxwidth) * dblImageRatio) * imgOffSet);
+					newWidth = (int) ((double) (maxwidth) * imgOffSet);
+					logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
+				} else {
+					newHeight = (int) ((double) (maxheight) * imgOffSet);
+					newWidth = (int) (((double) (maxheight) / dblImageRatio) * imgOffSet);
+					logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
+				}
 			} else {
-				newHeight = (int) ((double) RectImage.height * imgOffSet);
-				newWidth = (int) (((double) RectImage.height / dblImageRatio) * imgOffSet);
-				logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
+				if (dblScreenRatio > dblImageRatio) {
+					newHeight = (int) (((double) RectImage.width * dblImageRatio) * imgOffSet);
+					newWidth = (int) ((double) RectImage.width * imgOffSet);
+					logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
+				} else {
+					newHeight = (int) ((double) RectImage.height * imgOffSet);
+					newWidth = (int) (((double) RectImage.height / dblImageRatio) * imgOffSet);
+					logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
+				}
 			}
 			if (imgPath.endsWith(".gif")) {
 				memImage.dispose();
 				memImage = null;
 				tmpImagePath = imgPath;
-				strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
+				strHtml = leftHTML.replace("DefaultStyle", defaultStyle + " body { overflow:hidden }");
+				strHtml = strHtml.replace("BodyContent", "<table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table>");
 			} else {
 				BufferedImage img = null;
 				try {
 					img = ImageIO.read(new File(imgPath));
 				} catch (IOException e) {
 				}
-				BufferedImage imagenew =
+				BufferedImage imageNew =
 						Scalr.resize(img, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC,
 								newWidth, newHeight, Scalr.OP_ANTIALIAS);
-				String imgType = imgPath.substring(imgPath.length() - 3);
-				tmpImagePath = System.getProperty("user.dir") + File.pathSeparator + "tmpImage." + imgType;
-				ImageIO.write(imagenew, imgType, new File(tmpImagePath));			
+				String imgType = "";
+				int pos = imgPath.lastIndexOf(".");
+				if (pos > -1)
+				{
+					imgType = imgPath.substring(pos + 1);
+				}
+				String tmpPath = appSettings.getTempDir();
+				File newImage = File.createTempFile("tmpImage", "." + imgType, new File(tmpPath));
+				oldImage = newImage;
+				newImage.deleteOnExit();
+				tmpImagePath = newImage.getAbsolutePath();
+				ImageIO.write(imageNew, imgType, newImage);
+				//tmpImagePath = System.getProperty("user.dir") + File.pathSeparator + "tmpImage." + imgType;
+				//ImageIO.write(imagenew, imgType, new File(tmpImagePath));			
 				//Image tmpImage2 = imageLabel.getImage();
 				//imageLabel.setImage(resize(memImage, newWidth, newHeight));
 				memImage.dispose();
@@ -1116,7 +1676,8 @@ public class MainShell {
 				//if (tmpImage2 != null) {
 				//	tmpImage2.dispose();
 				//}
-				strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" /></td></tr></table></body></html>";
+				strHtml = leftHTML.replace("DefaultStyle", defaultStyle + " body { overflow:hidden }");
+				strHtml = strHtml.replace("BodyContent", "<table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" /></td></tr></table>");
 			}
 			imageLabel.setText(strHtml, true);
 			logger.trace("Open: " + imgPath);
@@ -1127,6 +1688,10 @@ public class MainShell {
 		mediaPanel.setVisible(false);
 		this.imageLabel.setVisible(true);
 		leftFrame.layout(true);
+	}
+
+	public String getStyle() {
+		return style;
 	}
 
 	public void setImageHtml(String leftHtml) {
@@ -1140,12 +1705,13 @@ public class MainShell {
 		}
 	}
 	
-	public void playVideo(String video, int startAt, int stopAt, int loops, String target, String jscript) {
+	public void playVideo(String video, int startAt, int stopAt, int loops, String target, String jscript, String scriptVar) {
 		//plays a video in the area to the left of the screen
 		//sets the number of loops, start / stop time and any page to display if the video finishes
 		//starts the video using a non UI thread so VLC can't hang the application
 		if (videoOn) {
 			try {
+				mainShell.setLeftText("", "");
 				this.imageLabel.setVisible(false);
 				this.mediaPanel.setVisible(true);
 				leftFrame.layout(true);
@@ -1156,6 +1722,7 @@ public class MainShell {
 				videoStartAt = startAt;
 				videoStopAt = stopAt;
 				videoJscript = jscript;
+				videoScriptVar = scriptVar;
 				videoPlay = true;
 				String mrlVideo = "file:///" + video;
 				logger.debug("MainShell playVideo: " + mrlVideo + " videoLoops: " + videoLoops + " videoTarget: " + videoTarget + " videoPlay: " + videoPlay);
@@ -1208,20 +1775,20 @@ public class MainShell {
 	
 	public void clearImage() {
 		//imageLabel.setImage(null);
-		String strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + style +  "</style></head><body></body></html>";
+		String strHTML = leftHTML.replace("DefaultStyle", defaultStyle + " body { overflow:hidden }");
 		imageLabel.setText(strHTML, true);
 	}
 
 	
 	
-	public void playAudio(String audio, int startAt, int stopAt, int loops, String target, String jscript) {
+	public void playAudio(String audio, int startAt, int stopAt, int loops, String target, String jscript, String scriptVar) {
 		// run audio on another thread
 		try {
 			if (audioPlayer != null) {
 				audioPlayer.audioStop();
 				logger.trace("playAudio audioStop");
 			}
-			audioPlayer = new AudioPlayer(audio, startAt, stopAt, loops, target, mainShell, jscript);
+			audioPlayer = new AudioPlayer(audio, startAt, stopAt, loops, target, mainShell, jscript, scriptVar);
 			threadAudioPlayer = new Thread(audioPlayer, "audioPlayer");
 			threadAudioPlayer.start();
 		} catch (Exception e) {
@@ -1236,7 +1803,8 @@ public class MainShell {
 		}
 		String strHTML;
 		try {
-			strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + overRideStyle +  "</style></head><body>" + brwsText + "</body></html>";
+			strHTML = rightHTML.replace("DefaultStyle", overRideStyle);
+			strHTML = strHTML.replace("BodyContent", brwsText);
 			this.brwsText.setText(strHTML);
 			if (appSettings.isToclipboard()) {
 				try {
@@ -1251,8 +1819,62 @@ public class MainShell {
 			}
 		} catch (Exception e1) {
 			logger.error("displayPage Text Exception " + e1.getLocalizedMessage(), e1);
-			strHTML = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + overRideStyle +  "</style></head><body></body></html>";
+			strHTML = rightHTML.replace("DefaultStyle", overRideStyle);
+			strHTML = strHTML.replace("BodyContent", "");
 			this.brwsText.setText(strHTML);
+		}
+	}
+
+	public void setRightHtml(String strHTML) {
+		//set HTML to be displayed in the browser control to the left of the screen
+		try {
+			this.brwsText.setText(strHTML);
+		} catch (Exception e1) {
+			logger.error("displayPage Text Exception " + e1.getLocalizedMessage(), e1);
+			strHTML = rightHTML.replace("DefaultStyle", style);
+			strHTML = strHTML.replace("BodyContent", "");
+			this.brwsText.setText(strHTML);
+		}
+	}
+	
+	public void setLeftText(String brwsText, String overRideStyle) {
+		//set HTML to be displayed in the browser control to the left of the screen
+		if (overRideStyle.equals("")) {
+			overRideStyle = style;
+		}
+		String strHTML;
+		try {
+			strHTML = leftHTML.replace("DefaultStyle", overRideStyle);
+			strHTML = strHTML.replace("BodyContent", brwsText);
+			this.imageLabel.setText(strHTML);
+			if (appSettings.isToclipboard()) {
+				try {
+					//copy text to clip board for use in TTS
+					String htmlString = brwsText.replaceAll("\\<.*?\\>", " ");
+				    StringSelection stringSelection = new StringSelection(htmlString);
+				    Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+				    clipboard.setContents(stringSelection, stringSelection);
+				} catch (Exception e2) {
+					logger.error("copy to clip board " + e2.getLocalizedMessage(), e2);		
+				}
+			}
+		} catch (Exception e1) {
+			logger.error("displayPage Text Exception " + e1.getLocalizedMessage(), e1);
+			strHTML = leftHTML.replace("DefaultStyle", overRideStyle);
+			strHTML = strHTML.replace("BodyContent", "");
+			this.imageLabel.setText(strHTML);
+		}
+	}
+
+	public void setLeftHtml(String strHTML) {
+		//set HTML to be displayed in the browser control to the left of the screen
+		try {
+			this.imageLabel.setText(strHTML);
+		} catch (Exception e1) {
+			logger.error("setLeftHtml Text Exception " + e1.getLocalizedMessage(), e1);
+			strHTML = leftHTML.replace("DefaultStyle", style);
+			strHTML = strHTML.replace("BodyContent", "");
+			this.imageLabel.setText(strHTML);
 		}
 	}
 
@@ -1291,6 +1913,7 @@ public class MainShell {
 				btnDynamic.setData("UnSet", "");
 			}
 			btnDynamic.setData("Target", guide.getDelTarget());
+			btnDynamic.setData("scriptVar", guide.getDelayScriptVar());
 			btnDynamic.setData("javascript", guide.getDelayjScript());
 			btnDynamic.addSelectionListener(new DynamicButtonListner());
 		} catch (Exception e) {
@@ -1308,7 +1931,7 @@ public class MainShell {
 			strBtnText = button.getText();
 			strBtnImage = button.getImage();
 			if (!strBtnImage.equals("")){
-				String imgPath = mainLogic.getMediaFullPath(strBtnImage, appSettings.getFileSeparator(), appSettings, guide);
+				String imgPath = comonFunctions.getMediaFullPath(strBtnImage, appSettings.getFileSeparator(), appSettings, guide);
 				File flImage = new File(imgPath);
 				if (flImage.exists()){
 					strBtnImage = imgPath;
@@ -1317,7 +1940,54 @@ public class MainShell {
 				}
 			}
 			com.snapps.swt.SquareButton btnDynamic = new com.snapps.swt.SquareButton(btnComp, SWT.PUSH );
-			btnDynamic.setFont(buttonFont);
+			
+			int fntHeight = 0;
+			try {
+				fntHeight = Integer.parseInt(button.getFontHeight());
+			}
+			catch (Exception e) {
+				fntHeight = 0;
+			}
+			try {
+				if (button.getFontName() == "" && fntHeight == 0) {
+					btnDynamic.setFont(buttonFont);
+				} else {
+					FontData[] fontData = buttonFont.getFontData();
+					if (fntHeight > 0) {
+						fontData[0].setHeight(fntHeight);
+					}
+					if (button.getFontName() != "") {
+						fontData[0].setName(button.getFontName());
+					}
+					
+					final Font newFont = new Font(myDisplay, fontData);
+					btnDynamic.setFont(newFont);
+	
+					// Since you created the font, you must dispose it
+					btnDynamic.addDisposeListener(new DisposeListener() {
+						@Override
+						public void widgetDisposed(DisposeEvent e) {
+							newFont.dispose();
+						}
+					});
+				}
+			}
+			catch (Exception e) {
+				logger.error("addButton set font" + e.getLocalizedMessage(), e);
+			}
+			
+			try {
+				org.eclipse.swt.graphics.Color bgColor1 = button.getbgColor1();
+				org.eclipse.swt.graphics.Color bgColor2 = button.getbgColor2();
+				org.eclipse.swt.graphics.Color fontColor = button.getfontColor();
+				
+				btnDynamic.setDefaultColors(bgColor1, bgColor2, btnDynamic.getBackground(), fontColor);
+			}
+			catch (Exception e) {
+				logger.error("addButton set colors" + e.getLocalizedMessage(), e);
+			}
+
+			
 			btnDynamic.setText(strBtnText);
 			if (!strBtnImage.equals("")){
 				btnDynamic.setBackgroundImage(new Image(myDisplay, strBtnImage));
@@ -1339,6 +2009,7 @@ public class MainShell {
 			} else {
 				btnDynamic.setData("UnSet", "");
 			}
+			btnDynamic.setData("scriptVar", button.getScriptVar());
 			btnDynamic.setData("javascript", javascript);
 			logger.debug("displayPage Button Text " + strBtnText + " Target " + strBtnTarget + " Set " + strButtonSet + " UnSet " + strButtonUnSet);
 			
@@ -1347,8 +2018,14 @@ public class MainShell {
 				hotKeys.put(hotKey, btnDynamic);
 			}
 
+			String btnId = button.getId();
+			if (!btnId.equals("")) {
+				buttons.put(btnId, btnDynamic);
+			}
+
 			btnDynamic.setData("Target", strBtnTarget);
 			btnDynamic.addSelectionListener(new DynamicButtonListner());
+			btnDynamic.setEnabled(!button.getDisabled());
 		} catch (Exception e) {
 			logger.error("addButton " + e.getLocalizedMessage(), e);		
 		}
@@ -1372,9 +2049,11 @@ public class MainShell {
 				if (!strTag.equals("")) {
 					comonFunctions.UnsetFlags(strTag, guide.getFlags());
 				}
+				String scriptVar = (String) btnClicked.getData("scriptVar");
+				comonFunctions.processSrciptVars(scriptVar, guideSettings);
 				strTag = (String) btnClicked.getData("Target");
 				String javascript = (String) btnClicked.getData("javascript");
-				runJscript(javascript);
+				runJscript(javascript, false);
 				mainLogic.displayPage(strTag, false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
 			}
 			catch (Exception ex) {
@@ -1384,82 +2063,168 @@ public class MainShell {
 		}
 	}
 
+	public void runJscript(String function, boolean pageLoading) {
+		runJscript(function, null, pageLoading);
+	}
+	
 	//run the javascript function passed 
-	public void runJscript(String function) {
-		if (function == null) function = "";
-		if (! function.equals("")) {
+	public void runJscript(String function, OverRide overRide, boolean pageLoading ) {
+		try {
 			getFormFields();
-			Jscript jscript = new Jscript(guide, userSettings, appSettings, guide.getInPrefGuide());
-			Page objCurrPage = guide.getChapters().get(guideSettings.getChapter()).getPages().get(guideSettings.getPage());
-			String pageJavascript = objCurrPage.getjScript();
-			jscript.runScript(pageJavascript, function, false);
+			refreshVars();
+			if (function == null) function = "";
+			if (! function.equals("")) {
+				Page objCurrPage = guide.getChapters().get(guideSettings.getChapter()).getPages().get(guideSettings.getCurrPage());
+				String pageJavascript = objCurrPage.getjScript();
+				Jscript jscript = new Jscript(guide, userSettings, appSettings, guide.getInPrefGuide(), mainShell, overRide, pageJavascript, function, pageLoading);
+				SwingUtilities.invokeLater(jscript);
+				while (jscript.isRunning())
+				{
+					Display.getCurrent().readAndDispatch();
+				}
+			}
+		}
+		catch (Exception ex) {
+			logger.error(" run java script " + ex.getLocalizedMessage(), ex);
 		}
 	}
 
 	//get any fields from the html form and store them in guide settings for use in the next java script call.
 	private void getFormFields() {
-		String evaluateScript = "" +
-				"var vforms = document.forms;" +
-				"var vreturn = '';" +
-				"for (var formidx = 0; formidx < vforms.length; formidx++) {" +
+		try {
+			String evaluateScript = "" +
+					"var vforms = document.forms;" +
+					"var vreturn = '';" +
+					"for (var formidx = 0; formidx < vforms.length; formidx++) {" +
 					"var vform = vforms[formidx];" +
 					"for (var controlIdx = 0; controlIdx < vform.length; controlIdx++) {" +
-						"var control = vform.elements[controlIdx];" +
-						"if (control.type === \"select-one\") {" +
-							"var item = control.selectedIndex;" +
-							"var value = control.item(item).value;" +
-							"vreturn = vreturn + control.name + '¬' + value + '¬' + control.type + '¬' + control.checked + '|';" +
-						"} else {" +
-							"vreturn = vreturn + control.name + '¬' + control.value + '¬' + control.type + '¬' + control.checked + '|';" +
-						"}" +
+					"var control = vform.elements[controlIdx];" +
+					"if (control.type === \"select-one\") {" +
+					"var item = control.selectedIndex;" +
+					"var value = control.item(item).value;" +
+					"vreturn = vreturn + control.name + '¬' + value + '¬' + control.type + '¬' + control.checked + '|';" +
+					"} else {" +
+					"vreturn = vreturn + control.name + '¬' + control.value + '¬' + control.type + '¬' + control.checked + '|';" +
 					"}" +
-				"}" +
-				"return vreturn;";
-		String node = (String) brwsText.evaluate(evaluateScript);
-		String fields[] = node.split("\\|");
-		String values[]; 
-		String name;
-		String value;
-		String type;
-		String checked;
-		for (int i = 0; i < fields.length; i++) {
-			values = fields[i].split("¬");
-			if (!fields[i].equals("")) {
-				name = values[0];
-				value = values[1];
-				type = values[2];
-				checked = values[3];
-				if (type.equals("checkbox")) {
-					guideSettings.setFormField(name, checked);
-				}
-				if (type.equals("radio")) {
-					if (checked.equals("true")) {
-						guideSettings.setFormField(name, value);
+					"}" +
+					"}" +
+					"return vreturn;";
+			String node = (String) brwsText.evaluate(evaluateScript);
+			String fields[] = node.split("\\|");
+			String values[]; 
+			String name;
+			String value;
+			String type;
+			String checked;
+			for (int i = 0; i < fields.length; i++) {
+				values = fields[i].split("¬");
+				if (!fields[i].equals("")) {
+					name = values[0];
+					value = values[1];
+					type = values[2];
+					checked = values[3];
+					if (type.equals("checkbox")) {
+						guideSettings.setFormField(name, checked);
+						guideSettings.setScriptVar(name, checked);
 					}
-				}
-				if (type.equals("text")) {
-					guideSettings.setFormField(name, value);
-				}
-				
-				if (type.equals("select-one")) {
-					guideSettings.setFormField(name, value);
-				}
+					if (type.equals("radio")) {
+						if (checked.equals("true")) {
+							guideSettings.setFormField(name, value);
+							guideSettings.setScriptVar(name, value);
+						}
+					}
+					if (type.equals("text")) {
+						guideSettings.setFormField(name, value);
+						guideSettings.setScriptVar(name, value);
+					}
 
-				logger.trace(name + "|" + value +  "|" + type +  "|" + checked);
+					if (type.equals("select-one")) {
+						guideSettings.setFormField(name, value);
+						guideSettings.setScriptVar(name, value);
+					}
+
+					logger.trace(name + "|" + value +  "|" + type +  "|" + checked);
+				}
+			}
+			String node2 = (String) imageLabel.evaluate(evaluateScript);
+			fields = node2.split("\\|");
+			for (int i = 0; i < fields.length; i++) {
+				values = fields[i].split("¬");
+				if (!fields[i].equals("")) {
+					name = values[0];
+					value = values[1];
+					type = values[2];
+					checked = values[3];
+					if (type.equals("checkbox")) {
+						guideSettings.setFormField(name, checked);
+						guideSettings.setScriptVar(name, checked);
+					}
+					if (type.equals("radio")) {
+						if (checked.equals("true")) {
+							guideSettings.setFormField(name, value);
+							guideSettings.setScriptVar(name, value);
+						}
+					}
+					if (type.equals("text")) {
+						guideSettings.setFormField(name, value);
+						guideSettings.setScriptVar(name, value);
+					}
+
+					if (type.equals("select-one")) {
+						guideSettings.setFormField(name, value);
+						guideSettings.setScriptVar(name, value);
+					}
+
+					logger.trace(name + "|" + value +  "|" + type +  "|" + checked);
+				}
 			}
 		}
+		catch (Exception ex) {
+			logger.error(" get form fields " + ex.getLocalizedMessage(), ex);
+		}
 	}
-		
-		
+
+
 	//force a redisplay of the button are
 	//set focus to the last button
 	public void layoutButtons() {
-		btnComp.layout();
-	    Control[] controls = this.btnComp.getChildren();
-	    if (controls.length > 0) {
-	      controls[0].setFocus();
-	    }
-	    controls = null;
+		try {
+			btnComp.layout();
+			Control[] controls = this.btnComp.getChildren();
+			if (controls.length > 0) {
+				controls[0].setFocus();
+			}
+			controls = null;
+		}
+		catch (Exception ex) {
+			logger.error(" layoutButtons " + ex.getLocalizedMessage(), ex);
+		}
+	}
+
+	public void enableButton (String id) {
+		try {
+			com.snapps.swt.SquareButton button;
+			button = buttons.get(id);
+			if (button != null) {
+				button.setEnabled(true);
+			}
+		}
+		catch (Exception ex) {
+			logger.error(" enable Button " + ex.getLocalizedMessage(), ex);
+		}
+	}
+
+	public void disableButton (String id) {
+		try {
+			com.snapps.swt.SquareButton button;
+			button = buttons.get(id);
+			if (button != null) {
+				button.setEnabled(false);
+			}
+		}
+		catch (Exception ex) {
+			logger.error(" disable Button " + ex.getLocalizedMessage(), ex);
+		}
 	}
 
 	public void setMetronomeBPM(int metronomeBPM, int loops, int resolution, String Rhythm) {
@@ -1475,6 +2240,7 @@ public class MainShell {
 	}
 
 	public void displayPage(String target) {
+		getFormFields();
 		mainLogic.displayPage(target, false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
 	}
 	
@@ -1521,15 +2287,28 @@ public class MainShell {
 
 		@Override
 		public void run() {
-			logger.debug("MainShell VideoStop run: " + mediaPlayer.mrl());
-			mediaPlayer.stop();
+			try {
+				if (mediaPlayer != null && mediaPlayer.isPlayable()) {
+					logger.debug("MainShell VideoStop run: Stopping media player " + mediaPlayer.mrl());
+					mediaPlayer.stop();
+				}
+			} catch (Exception e) {
+				logger.error(" MainShell VideoStop run: " + e.getLocalizedMessage(), e);
+			}
 		}
 		
 	}
 	
 	public void stopDelay() {
-		calCountDown = null;
-		lblRight.setText("");
+		try {
+			calCountDown = null;
+			if (!lblRight.isDisposed()) {
+				lblRight.setText("");
+			}
+		}
+		catch (Exception ex) {
+			logger.error(" stopDelay " + ex.getLocalizedMessage(), ex);
+		}
 	}
 
 	public void stopAll() {
@@ -1538,6 +2317,12 @@ public class MainShell {
 		}
 		catch (Exception ex) {
 			logger.error(" stophotKeys " + ex.getLocalizedMessage(), ex);
+		}
+		try {
+			buttons = new HashMap<String, com.snapps.swt.SquareButton>();
+		}
+		catch (Exception ex) {
+			logger.error(" stopbuttons " + ex.getLocalizedMessage(), ex);
 		}
 		try {
 		stopDelay();
@@ -1563,6 +2348,12 @@ public class MainShell {
 		catch (Exception ex) {
 			logger.error(" stopVideo " + ex.getLocalizedMessage(), ex);
 		}
+		try {
+			timerReset();
+		}
+		catch (Exception ex) {
+			logger.error(" timerReset " + ex.getLocalizedMessage(), ex);
+		}
 	}
 
 	public void setStyle(String style) {
@@ -1581,8 +2372,56 @@ public class MainShell {
 		return multiMonitor;
 	}
 
-	public Shell getShell3() {
-		return shell3;
+	public Timer getTimer(String timKey) {
+		return timer.get(timKey);
 	}
 
+	public void addTimer(Timer timer) {
+		String tmrId = timer.getId();
+		if (tmrId.equals("")) {
+			tmrId = java.util.UUID.randomUUID().toString();
+		}
+		this.timer.put(tmrId, timer);
+	}
+
+	public int getTimerCount() {
+		return timer.size();
+	}
+	
+	private void timerReset() {
+		timer = new HashMap<String, Timer>();
+	}
+	
+	public void resetTimer(String id, int delay) {
+		Timer objTimer = timer.get(id);
+		Calendar timCountDown = Calendar.getInstance();
+		timCountDown.add(Calendar.SECOND, delay);
+		objTimer.setTimerEnd(timCountDown);		
+	}
+	
+	public void updateJConsole(String logText) {
+		debugShell.updateJConsole(logText);
+	}
+
+	public void refreshVars() {
+		debugShell.refreshVars();
+	}
+	
+	public GuideSettings getGuideSettings() {
+		return guideSettings;
+		
+	}
+	
+	public void showDebug() {
+		debugShell.showDebug();
+	}
+
+	public Main getDbg() {
+		return dbg;
+	}
+	
+	public ContextFactory getContextFactory() {
+		return factory;
+	}
+	
 }

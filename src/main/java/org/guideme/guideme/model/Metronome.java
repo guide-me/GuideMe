@@ -1,5 +1,6 @@
 package org.guideme.guideme.model;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 
 import org.guideme.guideme.settings.ComonFunctions;
@@ -7,6 +8,8 @@ import org.guideme.guideme.settings.ComonFunctions;
 public class Metronome {
 	private String ifSet;
 	private String ifNotSet;
+	private LocalTime ifBefore; //Time of day must be before this time
+	private LocalTime ifAfter; //Time of day must be after this time
 	private String bpm; //beats per minute
 	private int resolution = 4; //ticks per beat
 	private int loops = -1;//number of loops, -1 infinite, 0 play once, 1 repeat once
@@ -20,20 +23,34 @@ public class Metronome {
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 
 	public Metronome(String bpm, String ifSet, String ifNotSet) {
-		this(bpm, ifSet, ifNotSet, 4, -1, "");
+		this(bpm, ifSet, ifNotSet, 4, -1, "", "", "");
 	}
 	
-	public Metronome(String bpm, String ifSet, String ifNotSet, int resolution,	int loops, String rhythm) {
+	public Metronome(String bpm, String ifSet, String ifNotSet, int resolution,	int loops, String rhythm, String ifAfter, String ifBefore) {
 		this.bpm = bpm;
 		this.ifSet = ifSet;
 		this.ifNotSet = ifNotSet;
 		this.resolution = resolution;
 		this.loops = loops;
 		this.rhythm = rhythm;
+		if (ifBefore.equals("")) {
+			this.ifBefore = null;
+		} else {
+			this.ifBefore = LocalTime.parse(ifBefore);
+		}
+		if (ifAfter.equals("")) {
+			this.ifAfter = null;
+		} else {
+			this.ifAfter = LocalTime.parse(ifAfter);
+		}
 	}
 
 	public boolean canShow(ArrayList<String> setList) {
-		return comonFunctions.canShow(setList, ifSet, ifNotSet);
+		boolean retVal = comonFunctions.canShowTime(ifBefore, ifAfter);
+		if (retVal) {
+			retVal =  comonFunctions.canShow(setList, ifSet, ifNotSet);
+		}
+		return retVal;
 	}
 
 	public int getbpm() {
@@ -60,6 +77,30 @@ public class Metronome {
 
 	public String getIfNotSet() {
 		return ifNotSet;
+	}
+
+	public LocalTime getIfBefore() {
+		return ifBefore;
+	}
+
+	public void setIfBefore(String ifBefore) {
+		if (ifBefore.equals("")) {
+			this.ifBefore = null;
+		} else {
+			this.ifBefore = LocalTime.parse(ifBefore);
+		}
+	}
+
+	public LocalTime getIfAfter() {
+		return ifAfter;
+	}
+
+	public void setIfAfter(String ifAfter) {
+		if (ifAfter.equals("")) {
+			this.ifAfter = null;
+		} else {
+			this.ifAfter = LocalTime.parse(ifAfter);
+		}
 	}
 
 }

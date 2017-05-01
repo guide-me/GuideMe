@@ -104,11 +104,23 @@ public class PreferenceShell {
 			//Button Font Size
 			AddTextField(grpApp, "Button Font Size", appWidgets.get("AppTimerFontSizeNumCtrl"), appWidgets.get("AppTimerFontSizeNumCtrl"), String.valueOf(myAppSettings.getButtonFontSize()), "AppButtonFontSize", true);
 
+			//Image Scale
+			AddTextField(grpApp, "Maximum Image scaling % (0 unlimited)", appWidgets.get("AppButtonFontSizeNumCtrl"), appWidgets.get("AppButtonFontSizeNumCtrl"), String.valueOf(myAppSettings.getMaxImageScale()), "AppImageScale", true);
+			
 			//Debug
-			AddBooleanField(grpApp, "Debug", appWidgets.get("AppButtonFontSizeNumCtrl"), appWidgets.get("AppButtonFontSizeNumCtrl"), myAppSettings.getDebug(), "AppDebug");			
+			AddBooleanField(grpApp, "Debug", appWidgets.get("AppImageScaleNumCtrl"), appWidgets.get("AppImageScaleNumCtrl"), myAppSettings.getDebug(), "AppDebug");			
+
+			//Javascript Debug
+			AddBooleanField(grpApp, "Javascript Debug", appWidgets.get("AppDebugBlnCtrl"), appWidgets.get("AppDebugBlnCtrl"), myAppSettings.getJsDebug(), "AppJsDebug");			
+
+			//Javascript window height
+			AddTextField(grpApp, "Javascript Height", appWidgets.get("AppJsDebugBlnCtrl"), appWidgets.get("AppJsDebugBlnCtrl"), String.valueOf(myAppSettings.getJsDebugHeight()), "AppJsDebugHeight", true);
+
+			//Javascript window width
+			AddTextField(grpApp, "Javascript Width", appWidgets.get("AppJsDebugHeightNumCtrl"), appWidgets.get("AppJsDebugHeightNumCtrl"), String.valueOf(myAppSettings.getJsDebugWidth()), "AppJsDebugWidth", true);
 
 			//Video
-			AddBooleanField(grpApp, "Video", appWidgets.get("AppDebugBlnCtrl"), appWidgets.get("AppDebugBlnCtrl"), myAppSettings.getVideoOn(), "AppVideo");			
+			AddBooleanField(grpApp, "Video", appWidgets.get("AppJsDebugWidthNumCtrl"), appWidgets.get("AppJsDebugWidthNumCtrl"), myAppSettings.getVideoOn(), "AppVideo");			
 
 			//Main Monitor
 			AddTextField(grpApp, "Main Monitor", appWidgets.get("AppVideoBlnCtrl"), appWidgets.get("AppVideoBlnCtrl"), String.valueOf(myAppSettings.getMainMonitor()), "AppMainMonitor", true);
@@ -134,12 +146,18 @@ public class PreferenceShell {
 			//To Clipboard (used for TTS)
 			AddBooleanField(grpApp, "Copy text to clipboard (used with a TTS Reader)", appWidgets.get("AppPageSoundBlnCtrl"), appWidgets.get("AppPageSoundBlnCtrl"), myAppSettings.isToclipboard(), "AppToClipboard");			
 
+			//Store state in data directory
+			AddBooleanField(grpApp, "Store State files in data directory", appWidgets.get("AppToClipboardBlnCtrl"), appWidgets.get("AppToClipboardBlnCtrl"), myAppSettings.isStateInDataDir(), "AppStateInDataDir");			
+
+			//Auto Hide Menu
+			//AddBooleanField(grpApp, "Auto hide the menu", appWidgets.get("AppToClipboardBlnCtrl"), appWidgets.get("AppToClipboardBlnCtrl"), myAppSettings.isHideMenu(), "AppHideMenu");			
+
 			//Data Directory
 			//AddTextField(grpApp, "Data Directory", appWidgets.get("AppPageSoundBlnCtrl"), appWidgets.get("AppPageSoundBlnCtrl"), myAppSettings.getDataDirectory(), "AppDataDir", false);
 
 			//midiInstrument
 			//AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppDataDirCtrl"), appWidgets.get("AppDataDirCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
-			AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppToClipboardBlnCtrl"), appWidgets.get("AppToClipboardBlnCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
+			AddTextField(grpApp, "Midi Instrument (35 - 81)", appWidgets.get("AppStateInDataDirBlnCtrl"), appWidgets.get("AppStateInDataDirBlnCtrl"), String.valueOf(myAppSettings.getMidiInstrument()), "AppMidiInstrument", true);
 
 			//midiVolume
 			AddTextField(grpApp, "Midi Volume (0 - 127)", appWidgets.get("AppMidiInstrumentNumCtrl"), appWidgets.get("AppMidiInstrumentNumCtrl"), String.valueOf(myAppSettings.getMidiVolume()), "AppMidiVolume", true);
@@ -149,6 +167,9 @@ public class PreferenceShell {
 
 			//HTML Font Size
 			AddTextField(grpApp, "Video volume (0 and 200)", appWidgets.get("AppMusicVolumeNumCtrl"), appWidgets.get("AppMusicVolumeNumCtrl"), String.valueOf(myAppSettings.getVideoVolume()), "AppVideoVolume", true);
+
+			//HTML Font Size
+			AddTextField(grpApp, "Thumbnail Size pixels ", appWidgets.get("AppVideoVolumeNumCtrl"), appWidgets.get("AppVideoVolumeNumCtrl"), String.valueOf(myAppSettings.getThumbnailSize()), "AppThumbnailSize", true);
 
 			/*
 			Group grpNames = new Group(composite, SWT.SHADOW_IN);
@@ -290,8 +311,20 @@ public class PreferenceShell {
 				txtTmp = (Text) appWidgets.get("AppButtonFontSizeNumCtrl");
 				myAppSettings.setButtonFontSize(Integer.parseInt(txtTmp.getText()));
 
+				txtTmp = (Text) appWidgets.get("AppImageScaleNumCtrl");
+				myAppSettings.setMaxImageScale(Integer.parseInt(txtTmp.getText()));
+				
 				btnTmp = (Button) appWidgets.get("AppDebugBlnCtrl");
 				myAppSettings.setDebug(btnTmp.getSelection());
+				
+				btnTmp = (Button) appWidgets.get("AppJsDebugBlnCtrl");
+				myAppSettings.setJsDebug(btnTmp.getSelection());
+				
+				txtTmp = (Text) appWidgets.get("AppJsDebugHeightNumCtrl");
+				myAppSettings.setJsDebugHeight(Integer.parseInt(txtTmp.getText()));
+				
+				txtTmp = (Text) appWidgets.get("AppJsDebugWidthNumCtrl");
+				myAppSettings.setJsDebugWidth(Integer.parseInt(txtTmp.getText()));
 				
 				btnTmp = (Button) appWidgets.get("AppVideoBlnCtrl");
 				myAppSettings.setVideoOn(btnTmp.getSelection());
@@ -326,6 +359,12 @@ public class PreferenceShell {
 				btnTmp = (Button) appWidgets.get("AppToClipboardBlnCtrl");
 				myAppSettings.setToclipboard(btnTmp.getSelection());
 				
+				btnTmp = (Button) appWidgets.get("AppStateInDataDirBlnCtrl");
+				myAppSettings.setStateInDataDir(btnTmp.getSelection());
+				
+				//btnTmp = (Button) appWidgets.get("AppHideMenuBlnCtrl");
+				//myAppSettings.setHideMenu(btnTmp.getSelection());
+				
 				//txtTmp = (Text) appWidgets.get("AppDataDirCtrl");
 				//myAppSettings.setDataDirectory((txtTmp.getText()));
 
@@ -340,6 +379,9 @@ public class PreferenceShell {
 
 				txtTmp = (Text) appWidgets.get("AppVideoVolumeNumCtrl");
 				myAppSettings.setVideoVolume(Integer.parseInt(txtTmp.getText()));
+
+				txtTmp = (Text) appWidgets.get("AppThumbnailSizeNumCtrl");
+				myAppSettings.setThumbnailSize(Integer.parseInt(txtTmp.getText()));
 
 				/*
 				Set<String> set = myUserSettings.getStringKeys();

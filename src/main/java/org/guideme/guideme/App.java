@@ -1,6 +1,7 @@
 package org.guideme.guideme;
 
 import java.io.File;
+import java.io.FileFilter;
 import java.io.PrintStream;
 import java.util.Iterator;
 import java.util.Properties;
@@ -8,10 +9,12 @@ import java.util.Properties;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.DeviceData;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.guideme.guideme.settings.AppSettings;
+import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.ui.MainShell;
 
 import uk.co.caprica.vlcj.discovery.NativeDiscovery;
@@ -28,13 +31,38 @@ public class App
 	public static void main(String[] args)
 	{
 		try {
+			
+			System.setProperty("org.eclipse.swt.browser.IEVersion", "11000");
+			
 			logger.trace("Enter main");
+			logger.error("GuideMe Version - " + ComonFunctions.getVersion());
 			//Sleak will help diagnose SWT memory leaks
 			//if you set this to true you will get an additional window
 			//that allows you to track resources that are created and not destroyed correctly
 			boolean loadSleak = false;
 
 			AppSettings appSettings = AppSettings.getAppSettings();
+			
+			File directory = new File(appSettings.getTempDir());
+			  
+			File[] toBeDeleted = directory.listFiles(new FileFilter() {
+				public boolean accept(File theFile) {
+				if (theFile.isFile()) {
+					return theFile.getName().startsWith("tmpImage");
+				}
+				return false;
+				}
+			});
+			  
+			for(File deletableFile:toBeDeleted){
+				deletableFile.delete();
+			}
+			
+			if (args.length > 1) {
+				appSettings.setDataDirectory(args[0]);
+				appSettings.setComandLineGuide(args[1]);
+			}
+			
 			Display display;
 			//user debug setting
 			if (appSettings.getDebug()) {
@@ -70,6 +98,9 @@ public class App
 
 			MainShell mainShell;
 			Shell shell;
+			DisplayKeyEventListener keylistener = new DisplayKeyEventListener();
+			display.addFilter(SWT.KeyDown, keylistener);
+
 			do {
 				appSettings.setMonitorChanging(false);
 				logger.trace("create main shell");
@@ -81,13 +112,17 @@ public class App
 				if (mainShell.getMultiMonitor()){
 					mainShell.getShell2().open();
 				}
-				mainShell.getShell3().open();
-				mainShell.getShell3().setVisible(false);
-
+				keylistener.setMainShell(mainShell);
+				
 				//loop round until the window is closed
 				while (!shell.isDisposed()) {
 					if (appSettings.isMonitorChanging()) {
-						shell.close();
+						try {
+							shell.close();
+						}
+						catch (Exception ex) {
+							logger.error("Main shell close " + ex.getLocalizedMessage(), ex);
+						}					
 					}
 					if (!display.readAndDispatch())
 					{

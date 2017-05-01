@@ -1,7 +1,7 @@
 package org.guideme.guideme.ui;
 
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,6 +24,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.swt.widgets.Button;
+import org.guideme.guideme.model.Preference;
 import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.GuideSettings;
 
@@ -81,62 +82,39 @@ public class GuidePreferenceShell {
 			grpNamesFormData.left = new FormAttachment(0,5);
 			grpNamesFormData.right = new FormAttachment(100,-5);
 			grpNames.setLayoutData(grpNamesFormData);
-			grpNames.setText("Strings");
+			grpNames.setText("Settings");
 			FormLayout layout2 = new FormLayout();
 			grpNames.setLayout(layout2);
 
 			tmpWidget = grpNames;
 			tmpWidget2 = grpNames;
-			Set<String> set = myGuideSettings.getStringKeys();
-			for (String s : set) {
-				AddTextField(grpNames, myGuideSettings.getScreenDesc(s, "String"), tmpWidget, tmpWidget2, myGuideSettings.getPref(s), s, false);
-				tmpWidget = appWidgets.get(s + "Lbl");
-				tmpWidget2 = appWidgets.get(s + "Ctrl");
+			ArrayList<Preference> prefs = myGuideSettings.getPrefArray();
+
+			Preference pref;
+			for (int i1 = 0; i1 < prefs.size(); i1++) {
+				pref = prefs.get(i1);
+				if (pref.getType().equals("String")) {
+					AddTextField(grpNames, pref.getScreenDesc(), tmpWidget, tmpWidget2, pref.getstrValue(), pref.getKey(), false);
+					tmpWidget = appWidgets.get(pref.getKey() + "Lbl");
+					tmpWidget2 = appWidgets.get(pref.getKey() + "Ctrl");
+				}
+				if (pref.getType().equals("Boolean")) {
+					AddBooleanField(grpNames, pref.getScreenDesc(), tmpWidget, tmpWidget2, pref.getBlnValue(), pref.getKey());
+					tmpWidget = appWidgets.get(pref.getKey() + "BlnLbl");
+					tmpWidget2 = appWidgets.get(pref.getKey() + "BlnCtrl");				
+				}
+				if (pref.getType().equals("Number")) {
+					AddTextField(grpNames, pref.getScreenDesc(), tmpWidget, tmpWidget2, String.valueOf(pref.getDblValue()), pref.getKey(), true);
+					tmpWidget = appWidgets.get(pref.getKey() + "NumLbl");
+					tmpWidget2 = appWidgets.get(pref.getKey() + "NumCtrl");				}
 			}
 			
-			Group grpPrefs = new Group(composite, SWT.SHADOW_IN);
-			FormData grpPrefsFormData = new FormData();
-			grpPrefsFormData.top = new FormAttachment(grpNames,5);
-			grpPrefsFormData.left = new FormAttachment(0,5);
-			grpPrefsFormData.right = new FormAttachment(100,-5);
-			grpPrefs.setLayoutData(grpPrefsFormData);
-			grpPrefs.setText("Preferences");
-			FormLayout layout3 = new FormLayout();
-			grpPrefs.setLayout(layout3);
-
-			tmpWidget = grpPrefs;
-			tmpWidget2 = grpPrefs;
-			Set<String> set2 = myGuideSettings.getBooleanKeys();
-			for (String s : set2) {
-				AddBooleanField(grpPrefs, myGuideSettings.getScreenDesc(s, "Boolean"), tmpWidget, tmpWidget2, myGuideSettings.isPref(s), s);
-				tmpWidget = appWidgets.get(s + "BlnLbl");
-				tmpWidget2 = appWidgets.get(s + "BlnCtrl");
-			}
-
-			Group grpDoubles = new Group(composite, SWT.SHADOW_IN);
-			FormData grpDoublesFormData = new FormData();
-			grpDoublesFormData.top = new FormAttachment(grpPrefs,5);
-			grpDoublesFormData.left = new FormAttachment(0,5);
-			grpDoublesFormData.right = new FormAttachment(100,-5);
-			grpDoubles.setLayoutData(grpDoublesFormData);
-			grpDoubles.setText("Numbers");
-			FormLayout layout4 = new FormLayout();
-			grpDoubles.setLayout(layout4);
-
-			tmpWidget = grpDoubles;
-			tmpWidget2 = grpDoubles;
-			Set<String> set3 = myGuideSettings.getNumberKeys();
-			for (String s : set3) {
-				AddTextField(grpDoubles, myGuideSettings.getScreenDesc(s, "Number"), tmpWidget, tmpWidget2, String.valueOf(myGuideSettings.getPrefNumber(s)), s, true);
-				tmpWidget = appWidgets.get(s + "NumLbl");
-				tmpWidget2 = appWidgets.get(s + "NumCtrl");
-			}
 
 			SquareButton btnCancel = new SquareButton(composite, SWT.PUSH);
 			btnCancel.setText("Cancel");
 			btnCancel.setFont(controlFont);
 			FormData btnCancelFormData = new FormData();
-			btnCancelFormData.top = new FormAttachment(grpDoubles,5);
+			btnCancelFormData.top = new FormAttachment(grpNames,5);
 			//btnCancelFormData.bottom = new FormAttachment(100,-5);
 			btnCancelFormData.right = new FormAttachment(100,-5);
 			btnCancel.setLayoutData(btnCancelFormData);
@@ -146,7 +124,7 @@ public class GuidePreferenceShell {
 			btnSave.setText("Save");
 			btnSave.setFont(controlFont);
 			FormData btnSaveFormData = new FormData();
-			btnSaveFormData.top = new FormAttachment(grpDoubles,5);
+			btnSaveFormData.top = new FormAttachment(grpNames,5);
 			//btnSaveFormData.bottom = new FormAttachment(100,-5);
 			btnSaveFormData.right = new FormAttachment(btnCancel,-5);
 			btnSave.setLayoutData(btnSaveFormData);
@@ -201,22 +179,25 @@ public class GuidePreferenceShell {
 				Text txtTmp;
 				Button btnTmp;
 
-				Set<String> set = myGuideSettings.getStringKeys();
-				for (String s : set) {
-					txtTmp = (Text) appWidgets.get(s + "Ctrl");
-					myGuideSettings.setPref(s, txtTmp.getText());
-				}
+				ArrayList<Preference> prefs = myGuideSettings.getPrefArray();
+
+				Preference pref;
+				for (int i1 = 0; i1 < prefs.size(); i1++) {
+					pref = prefs.get(i1);
+					if (pref.getType().equals("String")) {
+						txtTmp = (Text) appWidgets.get(pref.getKey() + "Ctrl");
+						myGuideSettings.setPref(pref.getKey(), txtTmp.getText());
+					}
+					if (pref.getType().equals("Boolean")) {
+						btnTmp = (Button) appWidgets.get(pref.getKey() + "BlnCtrl");
+						myGuideSettings.setPref(pref.getKey(), btnTmp.getSelection());
+					}
+					if (pref.getType().equals("Number")) {
+						txtTmp = (Text) appWidgets.get(pref.getKey() + "NumCtrl");
+						myGuideSettings.setPref(pref.getKey(), Double.parseDouble(txtTmp.getText()));
+					}
+				}				
 				
-				Set<String> set2 = myGuideSettings.getBooleanKeys();
-				for (String s : set2) {
-					btnTmp = (Button) appWidgets.get(s + "BlnCtrl");
-					myGuideSettings.setPref(s, btnTmp.getSelection());
-				}
-				Set<String> set3 = myGuideSettings.getNumberKeys();
-				for (String s : set3) {
-					txtTmp = (Text) appWidgets.get(s + "NumCtrl");
-					myGuideSettings.setPref(s, Double.parseDouble(txtTmp.getText()));
-				}
 				myGuideSettings.saveSettings();
 				shell.close();
 			}

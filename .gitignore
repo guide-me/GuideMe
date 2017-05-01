@@ -8,3 +8,5 @@ data/
 *.jar
 *.war
 *.ear
+/doc/
+/logs/

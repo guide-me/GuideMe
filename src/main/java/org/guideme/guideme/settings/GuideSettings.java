@@ -5,9 +5,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
+import java.util.Set;
+//import java.util.LinkedHashSet;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -21,9 +24,14 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.guideme.guideme.model.Guide;
+import org.guideme.guideme.model.Preference;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 import org.mozilla.javascript.serialize.ScriptableInputStream;
 import org.mozilla.javascript.serialize.ScriptableOutputStream;
 import org.w3c.dom.Document;
@@ -32,6 +40,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.CharacterData;
 import org.xml.sax.SAXException;
+
 import org.apache.commons.codec.binary.Base64;
 
 public class GuideSettings{
@@ -48,16 +57,10 @@ public class GuideSettings{
 	private String name; //GuideId for these settings
 	private HashMap<String, String> formFields = new HashMap<String, String>(); 
 	private HashMap<String, Object> scriptVariables = new HashMap<String, Object>(); //variables used by javascript
-	private HashMap<String, String> userStringPrefs = new HashMap<String, String>(); 
-	private HashMap<String, String> userStringDesc = new HashMap<String, String>(); 
-	private LinkedHashSet<String> userStringKeys = new LinkedHashSet<String>(); 
-	private HashMap<String, Boolean> userBooleanPrefs = new HashMap<String, Boolean>(); 
-	private HashMap<String, String> userBooleanDesc = new HashMap<String, String>(); 
-	private LinkedHashSet<String> userBooleanKeys = new LinkedHashSet<String>(); 
-	private HashMap<String, Double> userNumericPrefs = new HashMap<String, Double>(); 
-	private HashMap<String, String> userNumericDesc = new HashMap<String, String>();
-	private LinkedHashSet<String> userNumericKeys = new LinkedHashSet<String>(); 
+	private HashMap<String, Preference> Prefs = new HashMap<String, Preference>(); 
 	private boolean pageSound = true;
+	private boolean forceStartPage = false;
+	private boolean globalScriptLogged = false;
 	private static Logger logger = LogManager.getLogger();
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 
@@ -69,15 +72,28 @@ public class GuideSettings{
 		String value;
 		String type;
 		String desc;
+		String order;
+		int sortOrder;
+		String dataDirectory;
 		AppSettings appSettings = AppSettings.getAppSettings();
-		String dataDirectory = appSettings.getDataDirectory();
-		String prefix = "";
-		if (dataDirectory.startsWith("/")) {
-			prefix = "/";
-		}
 		ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
-		dataDirectory = prefix + comonFunctions.fixSeparator(dataDirectory, appSettings.getFileSeparator());
-		filename = dataDirectory + appSettings.getFileSeparator() + GuideId + ".state";
+	    //ContextFactory factory = new ContextFactory();
+	    //context = factory.enterContext();			    
+		if (appSettings.isStateInDataDir())
+		{
+			dataDirectory = appSettings.getTempDir();
+			filename = dataDirectory + GuideId + ".state";
+		}
+		else
+		{
+			dataDirectory = appSettings.getDataDirectory();
+			String prefix = "";
+			if (dataDirectory.startsWith("/")) {
+				prefix = "/";
+			}
+			dataDirectory = prefix + comonFunctions.fixSeparator(dataDirectory, appSettings.getFileSeparator());
+			filename = dataDirectory + appSettings.getFileSeparator() + GuideId + ".state";
+		}
 		Logger logger = LogManager.getLogger();
 		logger.debug("GuideSettings appSettings.getDataDirectory(): " + appSettings.getDataDirectory());
 		logger.debug("GuideSettings dataDirectory: " + dataDirectory);
@@ -155,20 +171,24 @@ public class GuideSettings{
 							value = elProp.getAttribute("value");
 							type = elProp.getAttribute("type");
 							desc = elProp.getAttribute("screen");
+							order = elProp.getAttribute("sortOrder");
+							try {
+								sortOrder = Integer.parseInt(order);
+							}
+							catch (Exception ex) {
+								sortOrder = 0;
+							}
 							if (type.equals("String")) {
-								userStringPrefs.put(key, value);
-								userStringDesc.put(key, desc);
-								userStringKeys.add(key);
+								Preference pref = new Preference(key, type, sortOrder, desc, null, null, value);
+								Prefs.put(key, pref);
 							}
 							if (type.equals("Boolean")) {
-								userBooleanPrefs.put(key, Boolean.parseBoolean(value));
-								userBooleanDesc.put(key, desc);
-								userBooleanKeys.add(key);
+								Preference pref = new Preference(key, type, sortOrder, desc, Boolean.parseBoolean(value), null, null);
+								Prefs.put(key, pref);
 							}
 							if (type.equals("Number")) {
-								userNumericPrefs.put(key, Double.parseDouble(value));
-								userNumericDesc.put(key, desc);
-								userNumericKeys.add(key);
+								Preference pref = new Preference(key, type, sortOrder, desc, null, Double.parseDouble(value), null);
+								Prefs.put(key, pref);
 							}
 						}
 					    Node nextChild = childNode.getNextSibling();
@@ -193,14 +213,18 @@ public class GuideSettings{
 		
 		returned = attribute;
 		
+		ContextFactory cntxFact = new ContextFactory();
+		Context context = cntxFact.enterContext();
+		context.getWrapFactory().setJavaPrimitiveWrap(false);
 		if (strType.equals("org.mozilla.javascript.NativeArray")) {
 			try {
 				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
 				ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes);
-				ObjectInputStream oInputStream = new ScriptableInputStream(bis, Guide.getGuide().getScope());
-				NativeArray restored_array = (NativeArray) oInputStream.readObject();			
+				ScriptableObject scope = context.initStandardObjects();
+				ObjectInputStream oInputStream = new ScriptableInputStream(bis, scope);
+				NativeArray readObject = (NativeArray) oInputStream.readObject();
 				oInputStream.close();
-				returned = restored_array;
+				returned = readObject;
 			} catch (Exception ex ) {
 				logger.error(ex.getLocalizedMessage(),ex);
 			}
@@ -212,30 +236,32 @@ public class GuideSettings{
 			try {
 				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
 				ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes);
-				ObjectInputStream oInputStream = new ScriptableInputStream(bis, Guide.getGuide().getScope());
-				NativeObject restored_array = (NativeObject) oInputStream.readObject();			
+				ScriptableObject scope = context.initStandardObjects();
+				ObjectInputStream oInputStream = new ScriptableInputStream(bis, scope);
+				NativeObject readObject = (NativeObject) oInputStream.readObject();
 				oInputStream.close();
-				returned = restored_array;
+				returned = readObject;
 			} catch (Exception ex ) {
 				logger.error(ex.getLocalizedMessage(),ex);
 			}
-		    
+
 		}
 		
 		if (strType.equals("org.mozilla.javascript.NativeDate")) {
 			try {
 				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
 				ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes);
-				ObjectInputStream oInputStream = new ScriptableInputStream(bis, Guide.getGuide().getScope());
-				Object restored_array = oInputStream.readObject();			
+				ScriptableObject scope = context.initStandardObjects();
+				ObjectInputStream oInputStream = new ScriptableInputStream(bis, scope);
+				NativeDate readObject = (NativeDate) oInputStream.readObject();
 				oInputStream.close();
-				returned = restored_array;
+				returned = readObject;
 			} catch (Exception ex ) {
 				logger.error(ex.getLocalizedMessage(),ex);
 			}
-		    
+
 		}
-		
+
 		if (strType.equals("java.lang.Double")) {
 			Double restored_double = Double.parseDouble(attribute);
 			returned = restored_double;
@@ -246,6 +272,7 @@ public class GuideSettings{
 			returned = restored_boolean;
 		}
 
+		Context.exit();
 		// TODO Auto-generated method stub
 		return returned;
 	}
@@ -255,23 +282,55 @@ public class GuideSettings{
 		returnVal = value.toString();
 		if (strType.equals("org.mozilla.javascript.NativeArray") || strType.equals("org.mozilla.javascript.NativeObject") || strType.equals("org.mozilla.javascript.NativeDate") ) {
 			try {
-			    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-			    ScriptableOutputStream  os = new ScriptableOutputStream (bos, Guide.getGuide().getScope());
-			    os.writeObject(value);
-			    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
-			    String fromApacheBytes = new String(encodedBytes);
+				ContextFactory cntxFact = new ContextFactory();
+				Context cntx = cntxFact.enterContext();
+				cntx.getWrapFactory().setJavaPrimitiveWrap(false);
+			    String fromApacheBytes = "";
+				if (strType.equals("org.mozilla.javascript.NativeArray"))
+				{
+					NativeArray nativeValue = (NativeArray) value;
+					Scriptable scope = nativeValue.getParentScope();
+				    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				    ScriptableOutputStream  os = new ScriptableOutputStream (bos, scope);
+				    os.writeObject(nativeValue);
+					
+				    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
+				    fromApacheBytes = new String(encodedBytes);
+				    os.close();
+				}
+				if (strType.equals("org.mozilla.javascript.NativeObject"))
+				{
+					NativeObject nativeValue = (NativeObject) value;
+					Scriptable scope = nativeValue.getParentScope();
+				    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				    ScriptableOutputStream  os = new ScriptableOutputStream (bos, scope);
+				    os.writeObject(nativeValue);
+					
+				    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
+				    fromApacheBytes = new String(encodedBytes);
+				    os.close();
+				}
+				if (strType.equals("org.mozilla.javascript.NativeDate"))
+				{
+					NativeDate nativeValue = (NativeDate) value;
+					Scriptable scope = nativeValue.getParentScope();
+				    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+				    ScriptableOutputStream  os = new ScriptableOutputStream (bos, scope);
+				    os.writeObject(nativeValue);
+					
+				    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
+				    fromApacheBytes = new String(encodedBytes);
+				    os.close();
+				}
 			    returnVal = fromApacheBytes;
-			    os.close();
 			} catch (Exception ex ) {
 				logger.error(ex.getLocalizedMessage(),ex);
 			}
-		    
+			Context.exit();
 		}
-
 		
 		return returnVal;
 	}
-
 
 	public String getChapter() {
 		return chapter;
@@ -304,6 +363,12 @@ public class GuideSettings{
 	public void setScriptVariables(HashMap<String, Object> scriptVariables) {
 		this.scriptVariables = scriptVariables;
 	}
+	
+	public Set<String> getKeys() {
+		return Prefs.keySet();
+	}
+	
+	/*
 	public LinkedHashSet<String> getStringKeys() {
 		return userStringKeys;
 	}
@@ -317,100 +382,128 @@ public class GuideSettings{
 	public LinkedHashSet<String> getBooleanKeys() {
 		return userBooleanKeys;
 	}
+	*/
 	
+	
+	public String getPrefType(String key) {
+		String value = "";
+		if (Prefs.containsKey(key)) {
+			value = Prefs.get(key).getType();
+		}
+		return value;
+	}
 	
 	public String getPref(String key) {
-		String value;
-		if (userStringPrefs.containsKey(key)) {
-			value = userStringPrefs.get(key);
-		} else {
-			value = "";
+		String value = "";
+		if (Prefs.containsKey(key)) {
+			Preference pref = Prefs.get(key);
+			if (pref.getType().equals("String")) {
+				value = pref.getstrValue();
+			}
 		}
 		return value;
 	}
 
 	public Double getPrefNumber(String key) {
-		Double value;
-		if (userNumericPrefs.containsKey(key)) {
-			value = userNumericPrefs.get(key);
-		} else {
-			value = (double) 0;
+		Double value = (double) 0;
+		if (Prefs.containsKey(key)) {
+			Preference pref = Prefs.get(key);
+			if (pref.getType().equals("Number")) {
+				value = pref.getDblValue();
+			}
+		}
+		return value;
+	}
+
+	public Boolean isPref(String key) {
+		Boolean value = false;
+		if (Prefs.containsKey(key)) {
+			Preference pref = Prefs.get(key);
+			if (pref.getType().equals("Boolean")) {
+				value = pref.getBlnValue();
+			}
 		}
 		return value;
 	}
 
 	public void setPref(String key, String value) {
-		if (userStringPrefs.containsKey(key)) {
-			value = userStringPrefs.put(key, value);
+		if (Prefs.containsKey(key)) {
+			Preference pref = Prefs.get(key);
+			if (pref.getType().equals("String")) {
+				pref.setstrValue(value);
+			}
 		}
-	}
-
-	public Boolean isPref(String key) {
-		Boolean value;
-		if (userBooleanPrefs.containsKey(key)) {
-			value = userBooleanPrefs.get(key);
-		} else {
-			value = false;
-		}
-		return value;
 	}
 
 	public void setPref(String key, Boolean value) {
-		if (userBooleanPrefs.containsKey(key)) {
-			userBooleanPrefs.put(key, value);
+		if (Prefs.containsKey(key)) {
+			Preference pref = Prefs.get(key);
+			if (pref.getType().equals("Boolean")) {
+				pref.setBlnValue(value);
+			}
 		}
 	}
 
 	public void setPref(String key, Double value) {
-		if (userNumericPrefs.containsKey(key)) {
-			userNumericPrefs.put(key, value);
+		if (Prefs.containsKey(key)) {
+			Preference pref = Prefs.get(key);
+			if (pref.getType().equals("Number")) {
+				pref.setDblValue(value);
+			}
 		}
 	}
 	
-	public void addPref(String key, String value, String screenDesc) {
-		userStringPrefs.put(key, value);
-		userStringDesc.put(key, screenDesc);
-		userStringKeys.add(key);
+	public void setPrefOrder(String key, Integer value) {
+		if (Prefs.containsKey(key)) {
+			Preference pref = Prefs.get(key);
+			pref.setSortOrder(value);
+		}
 	}
 	
-	public void addPref(String key, Boolean value, String screenDesc) {
-		userBooleanPrefs.put(key, value);
-		userBooleanDesc.put(key, screenDesc);
-		userBooleanKeys.add(key);
+	public void addPref(String key, String value, String screenDesc, int sortOrder) {
+		Preference pref = new Preference(key, "String", sortOrder, screenDesc, null, null, value);
+		Prefs.put(key, pref);
 	}
 	
-	public void addPref(String key, Double value, String screenDesc) {
-		userNumericPrefs.put(key, value);
-		userNumericDesc.put(key, screenDesc);
-		userNumericKeys.add(key);
+	public void addPref(String key, Boolean value, String screenDesc, int sortOrder) {
+		Preference pref = new Preference(key, "Boolean", sortOrder, screenDesc, value, null, null);
+		Prefs.put(key, pref);
 	}
 	
-	public String getScreenDesc(String key, String type) {
+	public void addPref(String key, Double value, String screenDesc, int sortOrder) {
+		Preference pref = new Preference(key, "Number", sortOrder, screenDesc, null, value, null);
+		Prefs.put(key, pref);
+	}
+	
+	public String getScreenDesc(String key) {
 		String desc = "";
-		if (type.equals("String")) {
-			desc = userStringDesc.get(key);
-		}
-		if (type.equals("Boolean")) {
-			desc = userBooleanDesc.get(key);
-		}
-		if (type.equals("Number")) {
-			desc = userNumericDesc.get(key);
+		if (Prefs.containsKey(key)) {
+			Preference pref = Prefs.get(key);
+			desc = pref.getScreenDesc();
 		}
 		return desc;
 	}
 	
+	public ArrayList<Preference> getPrefArray() {
+		ArrayList<Preference> prefs = new ArrayList<Preference>();
+		Preference pref;
+		Set<String> keys = Prefs.keySet();
+		for (String s : keys) {
+			pref = Prefs.get(s);
+			prefs.add(pref);
+		}
+		Collections.sort(prefs);
+		return prefs;
+	}
 	
 	public Boolean keyExists(String key, String type) {
 		//comment
 		Boolean exists = false;
-		if (type.equals("String")) {
-			exists = userStringKeys.contains(key);
-		}
-		if (type.equals("Boolean")) {
-			exists = userBooleanKeys.contains(key);
-		}
-		if (type.equals("Number")) {
-			exists = userNumericKeys.contains(key);
+		if (Prefs.containsKey(key)) {
+			Preference pref = Prefs.get(key);
+			if (pref.getType().equals(type)) {
+				exists = true;
+			}
 		}
 		return exists;
 	}
@@ -485,43 +578,29 @@ public class GuideSettings{
 		    }		    
 
 		    
-			String keyVal;
-			String desc;
 		    Element elscriptPreferences = comonFunctions.getElement("//scriptPreferences", rootElement);
 		    if (elscriptPreferences != null) {
 		    	rootElement.removeChild(elscriptPreferences);
 		    }
 		    elscriptPreferences = comonFunctions.addElement("scriptPreferences", rootElement, doc);
-			for (Map.Entry<String, String> entry : userStringPrefs.entrySet()) {
-				keyVal = entry.getKey();
-				desc = userStringDesc.get(keyVal);
+			for (Map.Entry<String, Preference> entry : Prefs.entrySet()) {
+				Preference pref = entry.getValue();
 			    Element elPref = comonFunctions.addElement("pref", elscriptPreferences, doc);
-			    elPref.setAttribute("key",  keyVal);
-			    elPref.setAttribute("screen",  desc);
-			    elPref.setAttribute("type",  "String");
-			    elPref.setAttribute("value",  entry.getValue());
+			    elPref.setAttribute("key",  pref.getKey());
+			    elPref.setAttribute("screen",  pref.getScreenDesc());
+			    elPref.setAttribute("type",  pref.getType());
+			    elPref.setAttribute("sortOrder",  String.valueOf(pref.getSortOrder()));
+			    if (pref.getType().equals("String")) {
+				    elPref.setAttribute("value",  pref.getstrValue());
+			    }
+			    if (pref.getType().equals("Boolean")) {
+				    elPref.setAttribute("value",  String.valueOf(pref.getBlnValue()));
+			    }
+			    if (pref.getType().equals("Number")) {
+				    elPref.setAttribute("value",  String.valueOf(pref.getDblValue()));
+			    }
 			}
 
-			for (Map.Entry<String, Boolean> entry : userBooleanPrefs.entrySet()) {
-				keyVal = entry.getKey();
-				desc = userBooleanDesc.get(keyVal);
-			    Element elPref = comonFunctions.addElement("pref", elscriptPreferences, doc);
-			    elPref.setAttribute("key",  keyVal);
-			    elPref.setAttribute("screen",  desc);
-			    elPref.setAttribute("type",  "Boolean");
-			    elPref.setAttribute("value",  String.valueOf(entry.getValue()));
-			}
-
-			for (Map.Entry<String, Double> entry : userNumericPrefs.entrySet()) {
-				keyVal = entry.getKey();
-				desc = userNumericDesc.get(keyVal);
-			    Element elPref = comonFunctions.addElement("pref", elscriptPreferences, doc);
-			    elPref.setAttribute("key",  keyVal);
-			    elPref.setAttribute("screen",  desc);
-			    elPref.setAttribute("type",  "Number");
-			    elPref.setAttribute("value",  String.valueOf(entry.getValue()));
-			}
-		    
 			// write the content into xml file
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
 			Transformer transformer = transformerFactory.newTransformer();
@@ -581,6 +660,24 @@ public class GuideSettings{
 		return filename;
 	}
 
-	
+	public boolean isForceStartPage() {
+		return forceStartPage;
+	}
+
+	public void setForceStartPage(boolean forceStartPage) {
+		this.forceStartPage = forceStartPage;
+	}
+
+	public boolean isGlobalScriptLogged() {
+		return globalScriptLogged;
+	}
+
+	public void setGlobalScriptLogged(boolean globalScriptLogged) {
+		this.globalScriptLogged = globalScriptLogged;
+	}
+
+	public void setScriptVar(String key, Object var) {
+		scriptVariables.put(key, var);
+	}
 }
 

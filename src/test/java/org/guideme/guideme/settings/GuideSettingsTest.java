@@ -115,12 +115,12 @@ public class GuideSettingsTest {
 
 	@Test 
 	public void testAddPrefernces() {
-		guideSettings.addPref("favpet", "Daisy", "Favourite pet's name");
-		guideSettings.addPref("shop", "New Look", "Favourite clothes shop");
-		guideSettings.addPref("soccer", false, "Do you like soccer");
-		guideSettings.addPref("clean", true, "Do you enjoy cleaning");
-		guideSettings.addPref("doughnuts", 0.0, "How many doughnuts have you eaten this week");
-		guideSettings.addPref("pegs", 25.0, "How many clothes pegs do you own");
+		guideSettings.addPref("favpet", "Daisy", "Favourite pet's name", 1);
+		guideSettings.addPref("shop", "New Look", "Favourite clothes shop", 2);
+		guideSettings.addPref("soccer", false, "Do you like soccer", 3);
+		guideSettings.addPref("clean", true, "Do you enjoy cleaning", 4);
+		guideSettings.addPref("doughnuts", 0.0, "How many doughnuts have you eaten this week", 5);
+		guideSettings.addPref("pegs", 25.0, "How many clothes pegs do you own", 6);
 	}
 	
 	

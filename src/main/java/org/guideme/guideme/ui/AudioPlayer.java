@@ -7,6 +7,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.widgets.Display;
 import org.guideme.guideme.settings.AppSettings;
+import org.guideme.guideme.settings.ComonFunctions;
 
 import uk.co.caprica.vlcj.component.AudioMediaPlayerComponent;
 import uk.co.caprica.vlcj.player.MediaPlayer;
@@ -26,8 +27,9 @@ public class AudioPlayer  implements Runnable {
 	private String target;
 	private MainShell mainShell;
 	private String jscript;
+	private String scriptVar;
 
-	public AudioPlayer(String audioFile, int startAt, int stopAt, int loops, String target, MainShell mainShell, String jscript) {
+	public AudioPlayer(String audioFile, int startAt, int stopAt, int loops, String target, MainShell mainShell, String jscript, String scriptVar) {
 		//function to allow us to pass stuff to the new thread
 		this.audioFile = audioFile;
 		this.loops = loops;
@@ -36,6 +38,7 @@ public class AudioPlayer  implements Runnable {
 		this.jscript = jscript;
 		this.startAt = startAt;
 		this.stopAt = stopAt;
+		this.scriptVar = scriptVar;
 	}
 
 	public void audioStop() {
@@ -45,8 +48,11 @@ public class AudioPlayer  implements Runnable {
 				mediaPlayer.stop();
 			}
 		}
-		isPlaying = false;
-		Thread.currentThread().interrupt();
+		synchronized(this){
+			isPlaying = false;
+			//Thread.currentThread().interrupt();
+			notifyAll();
+		}
 	}
 
 	public void run() {
@@ -71,9 +77,12 @@ public class AudioPlayer  implements Runnable {
 				}
 				mediaPlayer.playMedia(audioFile, vlcArgs.toArray(new String[vlcArgs.size()]));
 			}
-			while (isPlaying) {
-				// while the audio is still running carry on looping
-				Thread.sleep(5000);
+			synchronized(this) {
+				while (isPlaying) {
+					// while the audio is still running carry on looping
+					//Thread.sleep(5000);
+					wait();
+				}
 			}
 		} catch (Exception e) {
 			logger.error("AudioPlayer run ", e);
@@ -107,11 +116,13 @@ public class AudioPlayer  implements Runnable {
 					display.syncExec(
 							new Runnable() {
 								public void run(){
-									mainShell.runJscript(jscript);
+									mainShell.runJscript(jscript, false);
 									mainShell.displayPage(target);
 								}
 							});											
 				}
+				ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
+				comonFunctions.processSrciptVars(scriptVar, mainShell.getGuideSettings());
 				isPlaying = false;
 			}
 			display = null;

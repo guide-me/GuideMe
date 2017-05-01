@@ -78,7 +78,7 @@ public class HtmlGuideWriterReaderTest {
 	
 	@Test
 	public void thumbnail() {
-		originalGuide.setThumbnail(new Image("http://url.to/thumbnail.jpg", "", ""));
+		originalGuide.setThumbnail(new Image("http://url.to/thumbnail.jpg", "", "", "", ""));
 		
 		Guide guide = reader.loadFromString(writer.Write(originalGuide));
 		
@@ -103,8 +103,8 @@ public class HtmlGuideWriterReaderTest {
 	@Test
 	public void pages() {
 		Chapter first = new Chapter("c-1");
-		first.getPages().put("start", new Page("start", "", "", "", "", false));
-		first.getPages().put("p-2", new Page("p-2", "", "", "", "", false));
+		first.getPages().put("start", new Page("start", "", "", "", "", false, "", ""));
+		first.getPages().put("p-2", new Page("p-2", "", "", "", "", false, "", ""));
 		originalGuide.getChapters().put("first", first);
 		
 		Guide guide = reader.loadFromString(writer.Write(originalGuide));
