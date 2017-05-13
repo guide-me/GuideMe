@@ -14,6 +14,10 @@ import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
 import org.guideme.guideme.ui.MainShell;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
 
 public class Guide {
 	/** @exclude */
@@ -70,7 +74,7 @@ public class Guide {
 	/** @exclude */
 	private static Logger logger = LogManager.getLogger();
 	/** @exclude */
-	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
+	private static ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	/** @exclude */
 	private MainShell mainshell;
 
@@ -719,7 +723,12 @@ public class Guide {
 	 * @param lblLeft text to over write the clock with
 	 */
 	public void setClockText(String lblLeft) {
-		mainshell.setLblLeft(lblLeft);
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				mainshell.setLblLeft(lblLeft);
+			}
+			});		
 	}
 	
 	/**
@@ -728,7 +737,12 @@ public class Guide {
 	 * @param lblCentre text to over write the title
 	 */
 	public void setTitleText(String lblCentre) {
-		mainshell.setLblCentre(lblCentre);
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				mainshell.setLblCentre(lblCentre);
+			}
+			});		
 	}
 	
 	/**
@@ -737,7 +751,12 @@ public class Guide {
 	 * @param lblRight text to over write the timer with
 	 */
 	public void setTimerText(String lblRight) {
-		mainshell.setLblRight(lblRight);
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				mainshell.setLblRight(lblRight);
+			}
+			});		
 	}
 	
 	/**
@@ -746,7 +765,12 @@ public class Guide {
 	 * @param leftHtml html to over write the current html
 	 */
 	public void setLeftHtml(String leftHtml) {
-		mainshell.setLeftHtml(leftHtml);
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				mainshell.setLeftHtml(leftHtml);
+			}
+			});		
 	}
 	
 
@@ -757,7 +781,12 @@ public class Guide {
 	 * @param overRideStyle CSS to style the html (will use the default if this is blank)
 	 */
 	public void setLeftBody(String leftBody, String overRideStyle) {
-		mainshell.setLeftText(leftBody, overRideStyle);
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				mainshell.setLeftText(leftBody, overRideStyle);
+			}
+			});		
 	}
 
 	/**
@@ -765,7 +794,12 @@ public class Guide {
 	 * 
 	 */
 	public void clearImage() {
-		mainshell.clearImage();
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				mainshell.clearImage();
+			}
+			});		
 	}
 
 	/**
@@ -775,7 +809,12 @@ public class Guide {
 	 * @param overRideStyle CSS to style the html (will use the default if this is blank)
 	 */
 	public void setRightHtml(String rightHtml) {
-		mainshell.setRightHtml(rightHtml);
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				mainshell.setRightHtml(rightHtml);
+			}
+			});		
 	}
 	
 	/**
@@ -785,7 +824,12 @@ public class Guide {
 	 * @param overRideStyle CSS to style the html (will use the default if this is blank)
 	 */
 	public void setRightBody(String brwsText, String overRideStyle) {
-		mainshell.setBrwsText(brwsText, overRideStyle);
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				mainshell.setBrwsText(brwsText, overRideStyle);
+			}
+			});		
 	}
 	
 	/**
@@ -797,6 +841,17 @@ public class Guide {
 	public String jsReadFile(String path) {
 		return comonFunctions.jsReadFile(path);
 	}
+
+	/**
+	 * Writes a string to a file
+	 * 
+	 * @param path the path to the file
+	 * @param contents a string containing the contents of the file
+	 */
+	public void jsWriteFile(String path, String contents) {
+		comonFunctions.jsWriteFile(path, contents);
+	}
+	
 	
 	/** @exclude */
 	public String jsReadFile(String fileName, String encoding) {
@@ -814,6 +869,17 @@ public class Guide {
 		return comonFunctions.jsReadFileArray(fileName);
 	}
 
+	/**
+	 * Reads the contents of a file into an array of strings
+	 * each line will be read into a new element into the array 
+	 * 
+	 * @param fileName the path to the file
+	 * @param contents a string array containing the lines for the file 
+	 */
+	public void jsWriteFileArray(String path, String[] contents) {
+		comonFunctions.jsWriteFileArray(path, contents);
+	}
+
 	/** @exclude */
 	public String[] jsReadFileArray(String fileName, String encoding) {
 		return comonFunctions.jsReadFileArray(fileName, encoding);
@@ -825,7 +891,12 @@ public class Guide {
 	 * @param id the id set when the button was defined
 	 */
 	public void enableButton(String id) {
-		mainshell.enableButton(id);
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				mainshell.enableButton(id);
+			}
+			});		
 	}
 
 	/**
@@ -834,7 +905,12 @@ public class Guide {
 	 * @param id  the id set when the button was defined
 	 */
 	public void disableButton(String id) {
-		mainshell.disableButton(id);
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				mainshell.disableButton(id);
+			}
+			});		
 	}
 
 	/**
@@ -888,6 +964,28 @@ public class Guide {
 			mainshell.updateJConsole(logText);
 		}
 	}
+
+	/**
+	 * Clears the java script console in the debug window
+	 * 
+	 */
+	public void clearJConsole() {
+		ClearJSConsole clearJSConsole = new ClearJSConsole();
+		clearJSConsole.mainshell = mainshell;
+		Display.getDefault().syncExec(clearJSConsole);	
+	}
+	
+	private class ClearJSConsole implements Runnable
+	{
+		public MainShell mainshell;
+		public void run()
+		{
+			mainshell.clearJConsole();
+		}
+		
+	}
+	
+	
 	
 	/** @exclude */
 	public void refreshVars() {
@@ -987,4 +1085,13 @@ public class Guide {
 		String imgPath = comonFunctions.getMediaFullPath(audio, appSettings.getFileSeparator(), appSettings, guide);
 		mainshell.playAudio(imgPath, startAtSeconds, stopAtSeconds, loops, target, jscript, scriptVar);
 	}
+
+	/**
+	 * Gets the absolute path to the current tease directory 
+	 * 
+	 */
+	public String getDataDirectory() {
+		return AppSettings.getAppSettings().getDataDirectory();
+	}
+
 }

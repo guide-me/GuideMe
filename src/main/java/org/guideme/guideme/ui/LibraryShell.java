@@ -57,6 +57,7 @@ public class LibraryShell {
 	private Composite toolBar;
 	private Text searchText;
 	private Combo searchFilter;
+	private Combo sortFilter; 
 	private AppSettings appSettings;
 	private int buttonCharacters;
 	private String authorUrl = "https://milovana.com/webteases/#author=";
@@ -71,6 +72,12 @@ public class LibraryShell {
 		AUTHOR {
 			public String toString() {
 				return "Sort By Author";
+			}
+		},
+
+		DATE {
+			public String toString() {
+				return "Sort By Date";
 			}
 		}
 	}
@@ -129,9 +136,9 @@ public class LibraryShell {
 			paging = new Label(toolBar, SWT.NULL);
 			paging.setFont(controlFont);
 
-			Combo sortFilter = new Combo(toolBar, SWT.READ_ONLY);
+			sortFilter = new Combo(toolBar, SWT.READ_ONLY);
 			sortFilter.setFont(controlFont);
-			String[] sortTtems = { SortBy.TITLE.toString(), SortBy.AUTHOR.toString() };
+			String[] sortTtems = { SortBy.TITLE.toString(), SortBy.AUTHOR.toString(), SortBy.DATE.toString() };
 			sortFilter.setItems(sortTtems);
 			sortFilter.select(0);
 			sortFilter.addSelectionListener(new sortListener());
@@ -207,6 +214,12 @@ public class LibraryShell {
 		showGuides();
 	}
 
+	private void sortDate() {
+		Comparator<Library> comparator = Comparator.comparing(guide -> guide.date);
+		guides.sort(comparator.reversed());
+		showGuides();
+	}
+
 	private void showGuides() {
 		Control[] arrayOfControl;
 		int j = (arrayOfControl = composite.getChildren()).length;
@@ -240,7 +253,12 @@ public class LibraryShell {
 					btnGuide.setText(title);
 				}
 				btnGuide.setFont(controlFont);
-				btnGuide.setImage(comonFunctions.cropImageWidth(new Image(myDisplay, guide.image),200));
+				try
+				{
+					btnGuide.setImage(comonFunctions.cropImageWidth(new Image(myDisplay, guide.image),200));
+				} catch (Exception ex) {
+					logger.error(" showGuides setImage " + ex.getLocalizedMessage());
+				}
 				FormData btnGuideFormData = new FormData();
 				if (i % 2 == 0)
 				{
@@ -260,7 +278,8 @@ public class LibraryShell {
 				btnGuide.addSelectionListener(new GuideButtonListener());
 				btnGuide.setData("Guide", guide.file);
 				btnGuide.setData("Author", guide.author);
-			} catch (Exception localException1) {
+			} catch (Exception ex) {
+				logger.error(" showGuides " + ex.getLocalizedMessage());
 			}
 		}
 		sc.setContent(composite);
@@ -286,6 +305,20 @@ public class LibraryShell {
 		}
 	}
 
+	private void sortGuides()
+	{
+		String selected = sortFilter.getText();
+		if (selected.equals(SortBy.TITLE.toString())) {
+			sortTitle();
+		}
+		if (selected.equals(SortBy.AUTHOR.toString())) {
+			sortAuthor();
+		}
+		if (selected.equals(SortBy.DATE.toString())) {
+			sortDate();
+		}		
+	}
+	
 	class CancelButtonListener extends SelectionAdapter {
 		CancelButtonListener() {
 		}
@@ -393,14 +426,7 @@ public class LibraryShell {
 		}
 
 		public void widgetSelected(SelectionEvent event) {
-			Combo c = (Combo) event.widget;
-			String selected = c.getText();
-			if (selected.equals(SortBy.TITLE.toString())) {
-				sortTitle();
-			}
-			if (selected.equals(SortBy.AUTHOR.toString())) {
-				sortAuthor();
-			}
+			sortGuides();
 		}
 	}
 
@@ -456,7 +482,7 @@ public class LibraryShell {
 					originalGuides = comonFunctions.ListGuides(); 
 					guides = originalGuides;
 					setPageSize();
-					sortTitle();
+					sortGuides();
 					showGuides();				
 				}
 			} catch (Exception ex) {

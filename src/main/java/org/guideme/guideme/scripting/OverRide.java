@@ -246,6 +246,7 @@ public class OverRide {
 		leftHtml = "";
 		leftBody = "";
 		rightCss = "";
+		rightHtml = "";
 	}
 
 	/** @exclude */

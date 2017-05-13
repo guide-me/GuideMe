@@ -534,7 +534,7 @@ public class MainShell {
 
 			//File Library menu item
 			MenuItem fileLibraryItem = new MenuItem (fileSubMenu, SWT.PUSH);
-			fileLibraryItem.setText ("&Library");
+			fileLibraryItem.setText ("Li&brary");
 			fileLibraryItem.addSelectionListener(new FileLibraryListener());
 
 			//File Restart menu item
@@ -568,6 +568,30 @@ public class MainShell {
 				}
 			});
 
+			//Top Level Tools drop down
+			MenuItem toolsItem = new MenuItem (MenuBar, SWT.CASCADE);
+			toolsItem.setText ("&Tools");
+
+			//Sub Menu for Tools
+			Menu toolsSubMenu = new Menu (shell, SWT.DROP_DOWN);
+			//Associate it with the top level File menu
+			toolsItem.setMenu (toolsSubMenu);
+			
+			//Tools Compress menu item
+			MenuItem CompressGuideItem = new MenuItem (toolsSubMenu, SWT.PUSH);
+			CompressGuideItem.setText ("&Compress Guide");
+			CompressGuideItem.addSelectionListener(new CompressGuideListener());
+
+			//Tools UnCompress menu item
+			MenuItem UnCompressGuideItem = new MenuItem (toolsSubMenu, SWT.PUSH);
+			UnCompressGuideItem.setText ("&UnCompress Guide");
+			UnCompressGuideItem.addSelectionListener(new UnCompressGuideListener());
+
+			//Tools Resize menu item
+			MenuItem ResizeGuideItem = new MenuItem (toolsSubMenu, SWT.PUSH);
+			ResizeGuideItem.setText ("&Resize Guide Images");
+			ResizeGuideItem.addSelectionListener(new ResizeGuideListener());
+			
 			if (appSettings.getDebug())
 			{
 				//Top Level Debug drop down
@@ -770,7 +794,7 @@ public class MainShell {
 					intWeights2 = sashform2.getWeights();
 					appSettings.setSash2Weights(intWeights2);
 				}
-				appSettings.setDataDirectory(strGuidePath);
+				//appSettings.setDataDirectory(strGuidePath);
 				appSettings.saveSettings();
 				controlFont.dispose();
 				timerFont.dispose();
@@ -1024,6 +1048,51 @@ public class MainShell {
 							//load the file it will return the start page and populate the guide object
 							//TODO Need to change this here to implement the new html format
 							loadGuide(strFileToLoad);
+							debugShell.clearJConsole();
+						}
+					}
+					catch (Exception ex5) {
+						logger.error("Load Guide " + ex5.getLocalizedMessage(), ex5);
+					}
+				}
+				catch (Exception ex4) {
+					logger.error("Load Guide Dialogue error " + ex4.getLocalizedMessage(), ex4);
+				}
+			}
+			catch (Exception ex3) {
+				logger.error("Load Guide error " + ex3.getLocalizedMessage(), ex3);
+			}
+			logger.trace("Exit Menu Load");
+			super.widgetSelected(e);
+		}
+
+	}
+
+
+	class CompressGuideListener  extends SelectionAdapter {
+		//File CompressGuide from the menu
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			try {
+				logger.trace("Enter Menu CompressGuide");
+				//display a dialog to ask for a guide file to play
+				FileDialog dialog = new FileDialog (shell, SWT.OPEN);
+				String [] filterNames = new String [] {"XML Files"};
+				String [] filterExtensions = new String [] {"*.xml"};
+				dialog.setFilterNames (filterNames);
+				dialog.setFilterExtensions (filterExtensions);
+				dialog.setFilterPath (appSettings.getDataDirectory());
+				String strFileToLoad;
+				try {
+					strFileToLoad = dialog.open();
+					try {
+						if (strFileToLoad != null) {
+							//if a guide file has been chosen load it 
+							//default the initial directory for future loads to the current one
+							strGuidePath = dialog.getFilterPath() + appSettings.getFileSeparator();
+							appSettings.setDataDirectory(strGuidePath);
+							//load the file it will return the start page and populate the guide object
+							comonFunctions.CompressGuide(strFileToLoad);
 						}
 					}
 					catch (Exception ex5) {
@@ -1037,12 +1106,99 @@ public class MainShell {
 			catch (Exception ex3) {
 				logger.error("Load Image error " + ex3.getLocalizedMessage(), ex3);
 			}
-			logger.trace("Exit Menu Load");
+			logger.trace("Exit Menu CompressGuide");
 			super.widgetSelected(e);
 		}
 
 	}
 
+	class UnCompressGuideListener  extends SelectionAdapter {
+		//File UnCompressGuide from the menu
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			try {
+				logger.trace("Enter Menu UnCompressGuide");
+				//display a dialog to ask for a guide file to play
+				FileDialog dialog = new FileDialog (shell, SWT.OPEN);
+				String [] filterNames = new String [] {"ZIP Files"};
+				String [] filterExtensions = new String [] {"*.zip"};
+				dialog.setFilterNames (filterNames);
+				dialog.setFilterExtensions (filterExtensions);
+				dialog.setFilterPath (appSettings.getDataDirectory());
+				String strFileToLoad;
+				try {
+					strFileToLoad = dialog.open();
+					try {
+						if (strFileToLoad != null) {
+							//if a guide file has been chosen load it 
+							//default the initial directory for future loads to the current one
+							strGuidePath = dialog.getFilterPath() + appSettings.getFileSeparator();
+							appSettings.setDataDirectory(strGuidePath);
+							//load the file it will return the start page and populate the guide object
+							comonFunctions.UnCompressGuide(strFileToLoad);
+						}
+					}
+					catch (Exception ex5) {
+						logger.error("Process Image error " + ex5.getLocalizedMessage(), ex5);
+					}
+				}
+				catch (Exception ex4) {
+					logger.error("Load Image Dialogue error " + ex4.getLocalizedMessage(), ex4);
+				}
+			}
+			catch (Exception ex3) {
+				logger.error("Load Image error " + ex3.getLocalizedMessage(), ex3);
+			}
+			logger.trace("Exit Menu UnCompressGuide");
+			super.widgetSelected(e);
+		}
+
+	}
+	
+	class ResizeGuideListener  extends SelectionAdapter {
+		//File CompressGuide from the menu
+		@Override
+		public void widgetSelected(SelectionEvent e) {
+			try {
+				logger.trace("Enter Menu CompressGuide");
+				//display a dialog to ask for a guide file to play
+				FileDialog dialog = new FileDialog (shell, SWT.OPEN);
+				String [] filterNames = new String [] {"XML Files"};
+				String [] filterExtensions = new String [] {"*.xml"};
+				dialog.setFilterNames (filterNames);
+				dialog.setFilterExtensions (filterExtensions);
+				dialog.setFilterPath (appSettings.getDataDirectory());
+				String strFileToLoad;
+				try {
+					strFileToLoad = dialog.open();
+					try {
+						if (strFileToLoad != null) {
+							//if a guide file has been chosen load it 
+							//default the initial directory for future loads to the current one
+							strGuidePath = dialog.getFilterPath() + appSettings.getFileSeparator();
+							appSettings.setDataDirectory(strGuidePath);
+							//load the file it will return the start page and populate the guide object
+							comonFunctions.ResizeGuideImages(strFileToLoad);
+						}
+					}
+					catch (Exception ex5) {
+						logger.error("Process Image error " + ex5.getLocalizedMessage(), ex5);
+					}
+				}
+				catch (Exception ex4) {
+					logger.error("Load Image Dialogue error " + ex4.getLocalizedMessage(), ex4);
+				}
+			}
+			catch (Exception ex3) {
+				logger.error("Load Image error " + ex3.getLocalizedMessage(), ex3);
+			}
+			logger.trace("Exit Menu CompressGuide");
+			super.widgetSelected(e);
+		}
+
+	}
+
+	
 	
 	//Load the tease
 	public void loadGuide(String fileToLoad) {
@@ -1081,10 +1237,13 @@ public class MainShell {
 		        guide.getFlags().clear();
 		        guide.getSettings().setPage("start");
 		        guide.getSettings().setFlags(comonFunctions.GetFlags(guide.getFlags()));
+		        //guide.getSettings().setScope(null);
 				HashMap<String, Object> scriptVariables = new HashMap<String, Object>();
 				guide.getSettings().setScriptVariables(scriptVariables);
+				guide.getSettings().setScope(null);
 				guide.getSettings().saveSettings();
 				guideSettings = guide.getSettings();
+				debugShell.clearJConsole();
 				mainLogic.displayPage("start", false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
 			}
 			catch (Exception ex) {
@@ -1283,8 +1442,12 @@ public class MainShell {
 						} else {
 							BufferedImage img = null;
 							try {
+								ImageIO.setUseCache(false);
 							    img = ImageIO.read(new File(imgPath));
 							} catch (IOException e1) {
+							}
+							if (img.getColorModel().hasAlpha()) {
+								img = comonFunctions.dropAlphaChannel(img);
 							}
 							BufferedImage imagenew =
 									  Scalr.resize(img, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC,
@@ -1641,7 +1804,7 @@ public class MainShell {
 				}
 			}
 			if (imgPath.endsWith(".gif")) {
-				memImage.dispose();
+				//memImage.dispose();
 				memImage = null;
 				tmpImagePath = imgPath;
 				strHtml = leftHTML.replace("DefaultStyle", defaultStyle + " body { overflow:hidden }");
@@ -1649,8 +1812,12 @@ public class MainShell {
 			} else {
 				BufferedImage img = null;
 				try {
+					ImageIO.setUseCache(false);
 					img = ImageIO.read(new File(imgPath));
 				} catch (IOException e) {
+				}
+				if (img.getColorModel().hasAlpha()) {
+					img = comonFunctions.dropAlphaChannel(img);
 				}
 				BufferedImage imageNew =
 						Scalr.resize(img, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC,
@@ -1666,12 +1833,12 @@ public class MainShell {
 				oldImage = newImage;
 				newImage.deleteOnExit();
 				tmpImagePath = newImage.getAbsolutePath();
-				ImageIO.write(imageNew, imgType, newImage);
+				ImageIO.write(imageNew, imgType.toLowerCase(), newImage);
 				//tmpImagePath = System.getProperty("user.dir") + File.pathSeparator + "tmpImage." + imgType;
 				//ImageIO.write(imagenew, imgType, new File(tmpImagePath));			
 				//Image tmpImage2 = imageLabel.getImage();
 				//imageLabel.setImage(resize(memImage, newWidth, newHeight));
-				memImage.dispose();
+				//memImage.dispose();
 				memImage = null;
 				//if (tmpImage2 != null) {
 				//	tmpImage2.dispose();
@@ -2401,6 +2568,10 @@ public class MainShell {
 	
 	public void updateJConsole(String logText) {
 		debugShell.updateJConsole(logText);
+	}
+
+	public void clearJConsole() {
+		debugShell.clearJConsole();
 	}
 
 	public void refreshVars() {

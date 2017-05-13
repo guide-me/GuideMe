@@ -23,6 +23,7 @@ import org.mozilla.javascript.Function;
 import org.mozilla.javascript.FunctionObject;
 import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.ast.Scope;
 import org.mozilla.javascript.tools.debugger.Main;
 
 public class Jscript  implements Runnable
@@ -68,7 +69,7 @@ public class Jscript  implements Runnable
 
 	public void run() {
 		try {
-			String javaScriptToRun = javaScriptText + guide.getGlobaljScript();
+			String javaScriptToRun = javaScriptText;
 			logger.info(JSCRIPT_MARKER, "Chapter: " + guideSettings.getChapter());
 			logger.info(JSCRIPT_MARKER, "Page: " + guideSettings.getCurrPage());
 			logger.info(JSCRIPT_MARKER, "javaFunction: " + javaFunction);
@@ -90,28 +91,60 @@ public class Jscript  implements Runnable
 			}
 			
 			Context cntx = cntxFact.enterContext();
+			cntx.setOptimizationLevel(-1);
 			cntx.getWrapFactory().setJavaPrimitiveWrap(false);
-			Scriptable scope = cntx.initStandardObjects();
+
+			Scriptable globalScope = guideSettings.getGlobalScope();
+			if (globalScope.get("GuideObjects", globalScope) != "true")
+			{
+				ScriptableObject.putProperty(globalScope, "GuideObjects", "true");
+				ScriptableObject.putProperty(globalScope, "comonFunctions", comonFunctions);
+				ScriptableObject.putProperty(globalScope, "fileSeparator", java.lang.System.getProperty("file.separator"));
+				ScriptableObject.putProperty(globalScope, "guide", guide);
+			}
+			
+			Scriptable parentScope = guideSettings.getScope();
+			if (parentScope == null)
+			{
+				//parentScope = cntx.initStandardObjects();;
+				parentScope = cntx.newObject(globalScope);
+				parentScope.setParentScope(globalScope);
+			    cntx.evaluateString(parentScope, guide.getGlobaljScript(), "script", 1, null);
+			    guideSettings.setScope(parentScope);
+			}
+
+			//Scriptable scope = cntx.initStandardObjects();
+			//scope.setParentScope(parentScope);;
+			Scriptable scope = cntx.newObject(parentScope);
+			//scope.setPrototype(parentScope);
+			scope.setParentScope(parentScope);
+			
 			if (! inPrefGuide) {
 				UserSettings cloneUS = userSettings.clone();
 				ScriptableObject.putProperty(scope, "userSettings", cloneUS);
 			} else {
 				ScriptableObject.putProperty(scope, "userSettings", userSettings);
 			}
+			//Deprecated should use guide now
+			ScriptableObject.putProperty(scope, "comonFunctions", comonFunctions);
+			ScriptableObject.putProperty(scope, "fileSeparator", java.lang.System.getProperty("file.separator"));
+			ScriptableObject.putProperty(scope, "scriptVars", scriptVars);
+			ScriptableObject.putProperty(scope, "guide", guide);
+			ScriptableObject.putProperty(scope, "mediaDir", appSettings.getDataDirectory());
+			//Deprecated should use guide now
+			ScriptableObject.putProperty(scope, "guideSettings", guideSettings);
+
 			@SuppressWarnings("rawtypes")
 			Class[] cArg = new Class[1];
 			cArg[0] = String.class;
 			java.lang.reflect.Method tjlog = Jscript.class.getMethod("jscriptLog", cArg);
 			FunctionObject jlog = new FunctionObject("jscriptLog", tjlog, scope);
-			//Deprecated should use guide now
-			ScriptableObject.putProperty(scope, "guideSettings", guideSettings);
-			//Deprecated should use guide now
-			ScriptableObject.putProperty(scope, "comonFunctions", comonFunctions);
+			ScriptableObject.putProperty(scope, "jscriptLog", jlog);
+
 			ScriptableObject.putProperty(scope, "scriptVars", scriptVars);
 			ScriptableObject.putProperty(scope, "guide", guide);
-			ScriptableObject.putProperty(scope, "mediaDir", appSettings.getDataDirectory());
-			ScriptableObject.putProperty(scope, "fileSeparator", java.lang.System.getProperty("file.separator"));
-			ScriptableObject.putProperty(scope, "jscriptLog", jlog);
+			//Deprecated should use guide now
+			ScriptableObject.putProperty(scope, "guideSettings", guideSettings);
 			logger.info(JSCRIPT_MARKER, "Starting ScriptVariables: " + scriptVars);
 			logger.info(JSCRIPT_MARKER, "Starting Flags {" + guideSettings.getFlags() + "}");
 			

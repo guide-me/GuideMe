@@ -2,7 +2,9 @@ package org.guideme.guideme.ui;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -730,11 +732,15 @@ public class DebugShell {
 		txtScriptConsole.setText(conText);
 	}
 	
+	public void clearJConsole() {
+		txtScriptConsole.setText("");
+	}
+	
 	public void refreshVars() {
 		try {
-			HashMap<String, Object> scriptVars;
+			//HashMap<String, Object> scriptVars;
 			Color color = myDisplay.getSystemColor(SWT.COLOR_YELLOW);
-			scriptVars = guide.getSettings().getScriptVariables();
+			Map<String, Object> treeMap = new TreeMap<String, Object>(guide.getSettings().getScriptVariables());
 			String flags = comonFuctions.GetFlags(guide.getFlags());
 
 			varTable.removeAll();
@@ -744,7 +750,7 @@ public class DebugShell {
 			item.setText (0, "Flags");
 			item.setText (1, flags);
 
-			for (Entry<String, Object> entry : scriptVars.entrySet()) {
+			for (Entry<String, Object> entry : treeMap.entrySet()) {
 				try {
 					String key = entry.getKey();
 					String value;
