@@ -77,7 +77,6 @@ import org.guideme.guideme.settings.GuideSettings;
 import org.guideme.guideme.settings.UserSettings;
 import org.imgscalr.Scalr;
 import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.tools.debugger.Main;
 
 import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
@@ -162,7 +161,6 @@ public class MainShell {
 	private boolean inPrefShell = false;
 	private String rightHTML;
 	private String leftHTML;
-	private Main dbg;
 	private ContextFactory factory;
 	private File oldImage;
 	private File oldImage2;
@@ -970,7 +968,7 @@ public class MainShell {
 		//Video has finished
 		@Override
 		public void finished(MediaPlayer mediaPlayer) {
-			logger.debug("MediaListener finished");
+			logger.debug("MediaListener finished " + mediaPlayer.mrl());
 			super.finished(mediaPlayer);
 			try {
 				//run on the main UI thread
@@ -994,12 +992,12 @@ public class MainShell {
 		@Override
 		public void mediaStateChanged(MediaPlayer lmediaPlayer, int newState) {
 			super.mediaStateChanged(lmediaPlayer, newState);
-			logger.debug("MediaListener newState: " + newState + " videoPlay: " + videoPlay +  " VideoTarget: " + videoTarget);
+			logger.debug("MediaListener newState: " + newState + " videoPlay: " + videoPlay +  " VideoTarget: " + videoTarget + " file:" + lmediaPlayer.mrl());
 			try {
 				if ((newState==5 || newState==6) && videoPlay){
 						if (!videoTarget.equals(""))  {
 							//run on the main UI thread
-							myDisplay.syncExec(
+							myDisplay.asyncExec(
 									new Runnable() {
 										public void run(){
 											logger.debug("MediaListener Video Run: " + videoJscript + " videoTarget: " + videoTarget);
@@ -1911,6 +1909,7 @@ public class MainShell {
 		@Override
 		public void run() {
 			try {
+				logger.debug("MainShell VideoPlay new Thread " + video);
 				mediaPlayer.setVolume(appSettings.getVideoVolume());
 				mediaPlayer.setPlaySubItems(true);
 				if (videoStartAt == 0 && videoStopAt == 0 && videoLoops == 0) {
@@ -1926,7 +1925,16 @@ public class MainShell {
 					 if (videoLoops > 0) {
 						 vlcArgs.add("input-repeat=" + videoLoops);
 					 }
+					myDisplay.syncExec(
+							new Runnable() {
+								public void run(){
+									mediaPanel.setVisible(true);
+									imageLabel.setVisible(false);
+									leftFrame.layout(true);
+								}
+							});											
 					 mediaPlayer.playMedia(video, vlcArgs.toArray(new String[vlcArgs.size()]));
+						//run on the main UI thread
 				}
 			} catch (Exception e) {
 				logger.error("VideoPlay run " + e.getLocalizedMessage(), e);		
@@ -2430,7 +2438,7 @@ public class MainShell {
 					videoLoops = 0;
 					videoTarget = "";
 					videoPlay = false;
-					logger.debug("MainShell stopVideo ");
+					logger.debug("MainShell stopVideo " + mediaPlayer.mrl());
 					VideoStop videoStop = new VideoStop();
 					videoStop.setMediaPlayer(mediaPlayer);
 					Thread videoStopThread = new Thread(videoStop, "videoStop");
@@ -2587,10 +2595,6 @@ public class MainShell {
 		debugShell.showDebug();
 	}
 
-	public Main getDbg() {
-		return dbg;
-	}
-	
 	public ContextFactory getContextFactory() {
 		return factory;
 	}
