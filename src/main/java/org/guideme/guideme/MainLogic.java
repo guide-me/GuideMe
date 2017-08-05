@@ -1,8 +1,10 @@
 package org.guideme.guideme;
 
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
+import javax.sound.sampled.DataLine;
 import javax.sound.sampled.FloatControl;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
@@ -48,15 +50,18 @@ public class MainLogic {
 	public static synchronized MainLogic getMainLogic() {
 		if (mainLogic == null) {
 			mainLogic = new MainLogic();
-			songPath =  MainLogic.class.getClassLoader().getResource("tick.wav");
+			songPath =  MainLogic.class.getResource("/tick.wav");
 			logger.info("MainLogic getMainLogic songPath " + songPath);
 			AudioInputStream audioIn;
 			try {
 				audioIn = AudioSystem.getAudioInputStream(songPath);
+				AudioFormat format = audioIn.getFormat();
 				song = AudioSystem.getClip();
+				DataLine.Info info = new DataLine.Info(Clip.class, format);
+				song = (Clip) AudioSystem.getLine(info);
 				song.open(audioIn);
-				FloatControl gainControl = (FloatControl) song.getControl(FloatControl.Type.MASTER_GAIN);
-				gainControl.setValue(-35.0f);			
+				//FloatControl gainControl = (FloatControl) song.getControl(FloatControl.Type.MASTER_GAIN);		//This does'nt work under Linux
+				//gainControl.setValue(-35.0f);			
 	        } catch (UnsupportedAudioFileException e) {
 				logger.error("audio clip Exception ", e);
 			} catch (IOException e) {
