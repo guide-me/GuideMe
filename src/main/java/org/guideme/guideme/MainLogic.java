@@ -50,7 +50,7 @@ public class MainLogic {
 	public static synchronized MainLogic getMainLogic() {
 		if (mainLogic == null) {
 			mainLogic = new MainLogic();
-			songPath =  MainLogic.class.getClassLoader().getResource("tick.wav");
+			songPath =  MainLogic.class.getResource("/tick.wav");
 			logger.info("MainLogic getMainLogic songPath " + songPath);
 			AudioInputStream audioIn;
 			try {
