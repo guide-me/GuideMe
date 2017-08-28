@@ -1,9 +1,10 @@
 package org.guideme.guideme;
 
+import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
 import javax.sound.sampled.AudioSystem;
 import javax.sound.sampled.Clip;
-import javax.sound.sampled.FloatControl;
+import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
 
@@ -53,10 +54,13 @@ public class MainLogic {
 			AudioInputStream audioIn;
 			try {
 				audioIn = AudioSystem.getAudioInputStream(songPath);
+				AudioFormat format = audioIn.getFormat();
 				song = AudioSystem.getClip();
+				DataLine.Info info = new DataLine.Info(Clip.class, format);
+				song = (Clip) AudioSystem.getLine(info);
 				song.open(audioIn);
-				FloatControl gainControl = (FloatControl) song.getControl(FloatControl.Type.MASTER_GAIN);
-				gainControl.setValue(-35.0f);			
+				//FloatControl gainControl = (FloatControl) song.getControl(FloatControl.Type.MASTER_GAIN);
+				//gainControl.setValue(-35.0f);			
 	        } catch (UnsupportedAudioFileException e) {
 				logger.error("audio clip Exception ", e);
 			} catch (IOException e) {
@@ -117,7 +121,7 @@ public class MainLogic {
 
 		try {
 			//Display display = Display.getDefault();
-			mainShell.stopAll();
+			mainShell.stopAll(false);
 			overRide.clear();
 			guideSettings.setChapter(chapterName);
 			// handle random page
@@ -519,6 +523,7 @@ public class MainLogic {
  					objButton = overRide.getButton(i1);
 					if (objButton.canShow(guide.getFlags())) {
 						button.add(objButton);
+						debugShell.addOverrideButton(objButton);
 					}
  				}
 				Collections.sort(button);

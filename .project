@@ -21,4 +21,42 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.eclipse.m2e.core.maven2Nature</nature>
 	</natures>
+	<filteredResources>
+		<filter>
+			<id>1502016745125</id>
+			<name>src/main/java</name>
+			<type>6</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-*.txt</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1502016700805</id>
+			<name>src/main/resources</name>
+			<type>6</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-*.vm</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1502016701623</id>
+			<name>src/main/resources</name>
+			<type>6</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-log4j2.xml</arguments>
+			</matcher>
+		</filter>
+		<filter>
+			<id>1502016701632</id>
+			<name>src/main/resources</name>
+			<type>6</type>
+			<matcher>
+				<id>org.eclipse.ui.ide.multiFilter</id>
+				<arguments>1.0-name-matches-false-false-tick.wav</arguments>
+			</matcher>
+		</filter>
+	</filteredResources>
 </projectDescription>

@@ -102,6 +102,8 @@ public class Jscript  implements Runnable
 				ScriptableObject.putProperty(globalScope, "comonFunctions", comonFunctions);
 				ScriptableObject.putProperty(globalScope, "fileSeparator", java.lang.System.getProperty("file.separator"));
 				ScriptableObject.putProperty(globalScope, "guide", guide);
+				ScriptableObject.putProperty(globalScope, "guideSettings", guideSettings);
+				ScriptableObject.putProperty(globalScope, "mediaDir", appSettings.getDataDirectory());
 				@SuppressWarnings("rawtypes")
 				Class[] cArg = new Class[1];
 				cArg[0] = String.class;
@@ -121,7 +123,28 @@ public class Jscript  implements Runnable
 				parentScope = cntx.newObject(globalScope);
 			}
 			parentScope.setParentScope(globalScope);
-		    cntx.evaluateString(parentScope, guide.getGlobaljScript(), "globalScript", 1, null);
+
+			if (appSettings.getJsDebug())
+			{
+			    dbg.setBreakOnExceptions(appSettings.getJsDebugError());
+			    dbg.setBreakOnEnter(appSettings.getJsDebugEnter());
+			    dbg.setBreakOnReturn(appSettings.getJsDebugExit());
+			    dbg.setScope(parentScope);
+			    dbg.setSize(appSettings.getJsDebugWidth(), appSettings.getJsDebugHeight());
+			    dbg.setVisible(true);
+				JFrame jfWindow = dbg.getDebugFrame();
+				if (appSettings.getMainMonitor() == 1)
+				{
+					showOnScreen(1, jfWindow);
+				}
+				else
+				{
+					showOnScreen(0, jfWindow);
+				}
+			    dbg.setExitAction(new DontExitOnClose());
+			}
+
+			cntx.evaluateString(parentScope, guide.getGlobaljScript(), "globalScript", 1, null);
 		    guideSettings.setScope(parentScope);
 
 			//Scriptable scope = cntx.initStandardObjects();
@@ -152,30 +175,11 @@ public class Jscript  implements Runnable
 			logger.info(JSCRIPT_MARKER, "Starting Flags {" + guideSettings.getFlags() + "}");
 			
 			if (pageloading) {
-				ScriptableObject.putProperty(scope, "overRide", overRide);
+				ScriptableObject.putProperty(globalScope, "overRide", overRide);
 			}
 			
 			try {
 
-				if (appSettings.getJsDebug())
-				{
-				    dbg.setBreakOnExceptions(appSettings.getJsDebugError());
-				    dbg.setBreakOnEnter(appSettings.getJsDebugEnter());
-				    dbg.setBreakOnReturn(appSettings.getJsDebugExit());
-				    dbg.setScope(parentScope);
-				    dbg.setSize(appSettings.getJsDebugWidth(), appSettings.getJsDebugHeight());
-				    dbg.setVisible(true);
-					JFrame jfWindow = dbg.getDebugFrame();
-					if (appSettings.getMainMonitor() == 1)
-					{
-						showOnScreen(1, jfWindow);
-					}
-					else
-					{
-						showOnScreen(0, jfWindow);
-					}
-				    dbg.setExitAction(new DontExitOnClose());
-				}
 			    
 			    cntx.evaluateString(scope, javaScriptToRun, "pageScript", 1, null);
 			    
@@ -190,6 +194,9 @@ public class Jscript  implements Runnable
 					javaFunction = javaFunction.substring(0, argStart);
 				}
 				Object fObj = scope.get(javaFunction, scope);
+				if (!(fObj instanceof Function)) {
+					fObj = parentScope.get(javaFunction, parentScope);
+				}
 				if ((fObj instanceof Function)) {
 					Object args[] = { "" };
 					if (argstring.length() > 0) {

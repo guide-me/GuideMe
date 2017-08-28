@@ -65,7 +65,8 @@ public class DebugShell {
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	private static DebugShell debugShell;
 	private Boolean keepShellOpen;
-
+	private Table btnTable;
+	
 	public static synchronized DebugShell getDebugShell() {
 		if (debugShell == null) {
 			debugShell = new DebugShell();
@@ -449,9 +450,8 @@ public class DebugShell {
 			prevWidget = pgeTable;
 
 			//Buttons
-			if (dispPage.getButtonCount() > 0) {
-				try {
-					Table btnTable = new Table(tableComp, SWT.HIDE_SELECTION + SWT.NO_SCROLL + SWT.V_SCROLL);
+			try {
+					btnTable = new Table(tableComp, SWT.HIDE_SELECTION + SWT.NO_SCROLL + SWT.V_SCROLL);
 					btnTable.setLinesVisible (true);
 					btnTable.setHeaderVisible (true);
 					data = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -462,19 +462,21 @@ public class DebugShell {
 						TableColumn column = new TableColumn (btnTable, SWT.NONE);
 						column.setText (titles [i]);
 					}	
-					for (int i=0; i<dispPage.getButtonCount(); i++) {
-						Button button = dispPage.getButton(i);
-						item = new TableItem (btnTable, SWT.NONE);
-						item.setBackground(color);
-						item.setText (0, button.getText());
-						item.setText (1, button.getTarget());
-						item.setText (2, button.getjScript());
-						item.setText (3, button.getSet());
-						item.setText (4, button.getUnSet());
-						item.setText (5, button.getIfSet());
-						item.setText (6, button.getIfNotSet());
-						item.setText (7, button.getImage());
-						item.setText (8, button.getHotKey());
+					if (dispPage.getButtonCount() > 0) {
+						for (int i=0; i<dispPage.getButtonCount(); i++) {
+							Button button = dispPage.getButton(i);
+							item = new TableItem (btnTable, SWT.NONE);
+							item.setBackground(color);
+							item.setText (0, button.getText());
+							item.setText (1, button.getTarget());
+							item.setText (2, button.getjScript());
+							item.setText (3, button.getSet());
+							item.setText (4, button.getUnSet());
+							item.setText (5, button.getIfSet());
+							item.setText (6, button.getIfNotSet());
+							item.setText (7, button.getImage());
+							item.setText (8, button.getHotKey());
+						}
 					}
 					for (int i=0; i<titles.length; i++) {
 						btnTable.getColumn (i).pack ();
@@ -485,11 +487,9 @@ public class DebugShell {
 					btnTableFormData.right = new FormAttachment(100,0);
 					btnTable.setLayoutData(btnTableFormData);
 					prevWidget = btnTable;
-				}
-				catch (Exception ex) {
-					logger.error(ex.getLocalizedMessage(), ex);
-				}
-
+			}
+			catch (Exception ex) {
+				logger.error(ex.getLocalizedMessage(), ex);
 			}
 			//Delays
 			if (dispPage.getDelayCount() > 0) {
@@ -823,5 +823,32 @@ public class DebugShell {
 
 	public void setKeepShellOpen(Boolean keepShellOpen) {
 		this.keepShellOpen = keepShellOpen;
+	}
+	
+	public void addOverrideButton(Button button)
+	{
+		Color color = myDisplay.getSystemColor(SWT.COLOR_YELLOW);
+		TableItem item = new TableItem (btnTable, SWT.NONE);
+		item.setBackground(color);
+		item.setText (0, button.getText());
+		item.setText (1, button.getTarget());
+		item.setText (2, button.getjScript());
+		item.setText (3, button.getSet());
+		item.setText (4, button.getUnSet());
+		item.setText (5, button.getIfSet());
+		item.setText (6, button.getIfNotSet());
+		item.setText (7, button.getImage());
+		item.setText (8, button.getHotKey());
+		try {
+			tabFolder.layout();
+			tabFolder.pack();
+			tabFolder.update();
+			shell.layout();
+			varScrlComp.setMinSize(varComp.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		}
+		catch (Exception ex) {
+			logger.error(ex.getLocalizedMessage(), ex);
+		}
+
 	}
 }

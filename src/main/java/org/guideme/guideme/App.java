@@ -2,7 +2,7 @@ package org.guideme.guideme;
 
 import java.io.File;
 import java.io.FileFilter;
-import java.io.PrintStream;
+//import java.io.PrintStream;
 import java.util.Iterator;
 import java.util.Properties;
 
@@ -67,9 +67,9 @@ public class App
 			//user debug setting
 			if (appSettings.getDebug()) {
 				//debug level logging for video lan (VLC)
-				System.setProperty("vlcj.log", "DEBUG");
-				PrintStream stdOutStrm = new PrintStream(new File("logs/vlc.log"));
-				System.setOut(stdOutStrm);
+				//System.setProperty("vlcj.log", "DEBUG");
+				//PrintStream stdOutStrm = new PrintStream(new File("logs/vlc.log"));
+				//System.setOut(stdOutStrm);
 				Properties properties = java.lang.System.getProperties();
 				Iterator<Object> it = properties.keySet().iterator();
 				//display all the jvm properties in the log file
@@ -130,6 +130,7 @@ public class App
 					}
 				}
 			} while (appSettings.isMonitorChanging());
+			display.dispose();
 		}
 		catch (Exception ex) {
 			logger.error("Main error " + ex.getLocalizedMessage(), ex);

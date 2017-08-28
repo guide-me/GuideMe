@@ -109,6 +109,7 @@ public class Guide {
 			guide.inPrefGuide = false;
 			guide.css = "";
 			guide.autoSetPage = false;
+			guide.title = "";
 			chapter.getPages().put(start.getId(), start);
 			guide.setMediaDirectory(appSettings.getUserDir() + appSettings.getFileSeparator() + "userSettings" + appSettings.getFileSeparator());
 		}

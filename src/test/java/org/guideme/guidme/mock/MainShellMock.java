@@ -138,7 +138,7 @@ public class MainShellMock extends MainShell {
 	}
 
 	@Override
-	public void stopVideo() {
+	public void stopVideo(boolean shellClosing) {
 		logger.debug("MainShellMock stopVideo");
 	}
 
@@ -148,7 +148,7 @@ public class MainShellMock extends MainShell {
 	}
 
 	@Override
-	public void stopAll() {
+	public void stopAll(boolean shellClosing) {
 		logger.debug("MainShellMock stopAll");
 	}
 

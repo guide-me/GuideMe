@@ -24,7 +24,6 @@ import javax.xml.transform.stream.StreamResult;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Preference;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
@@ -747,7 +746,7 @@ public class GuideSettings{
 		{
 		    ContextFactory factory = new ContextFactory();
 		    Context context = factory.enterContext();
-		    globalScope = context.initSafeStandardObjects();
+		    globalScope = context.initStandardObjects();
 		    Context.exit();
 		}
 		return globalScope;

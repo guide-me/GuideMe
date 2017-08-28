@@ -1,6 +1,5 @@
 package org.guideme.guideme.ui;
 
-import java.awt.Frame;
 import java.awt.Toolkit;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -15,7 +14,6 @@ import java.util.Map.Entry;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ControlAdapter;
@@ -36,7 +34,6 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.layout.RowLayout;
-import java.awt.Canvas;
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.StringSelection;
 import java.awt.image.BufferedImage;
@@ -78,11 +75,17 @@ import org.guideme.guideme.settings.UserSettings;
 import org.imgscalr.Scalr;
 import org.mozilla.javascript.ContextFactory;
 
+import uk.co.caprica.vlcj.binding.LibVlc;
+import uk.co.caprica.vlcj.binding.internal.libvlc_instance_t;
 import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
 import uk.co.caprica.vlcj.player.MediaPlayerFactory;
 import uk.co.caprica.vlcj.player.embedded.EmbeddedMediaPlayer;
-import uk.co.caprica.vlcj.player.embedded.videosurface.CanvasVideoSurface;
+import uk.co.caprica.vlcj.player.embedded.videosurface.VideoSurfaceAdapter;
+import uk.co.caprica.vlcj.player.embedded.videosurface.linux.LinuxVideoSurfaceAdapter;
+import uk.co.caprica.vlcj.player.embedded.videosurface.mac.MacVideoSurfaceAdapter;
+import uk.co.caprica.vlcj.player.embedded.videosurface.windows.WindowsVideoSurfaceAdapter;
+import uk.co.caprica.vlcj.runtime.RuntimeUtil;
 
 public class MainShell {
 	/*
@@ -128,11 +131,11 @@ public class MainShell {
 	private Font buttonFont;
 	private Font timerFont;
 	private Composite mediaPanel;
-	private MediaPlayerFactory mediaPlayerFactory;
-	private EmbeddedMediaPlayer mediaPlayer;
-	private Frame videoFrame;
-	private Canvas videoSurfaceCanvas;
-	private CanvasVideoSurface videoSurface;
+	//private MediaPlayerFactory mediaPlayerFactory;
+	private SwtEmbeddedMediaPlayer mediaPlayer;
+	//private Frame videoFrame;
+	//private Canvas videoSurfaceCanvas;
+	//private CanvasVideoSurface videoSurface;
 	private MainShell mainShell;
 	private MainLogic mainLogic = MainLogic.getMainLogic();
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
@@ -164,6 +167,8 @@ public class MainShell {
 	private ContextFactory factory;
 	private File oldImage;
 	private File oldImage2;
+	private boolean videoPlayed = false;
+	//private boolean exitTriggered = false;
 
 	public Shell createShell(final Display display) {
 		logger.trace("Enter createShell");
@@ -262,16 +267,6 @@ public class MainShell {
 			//debug shell
 			debugShell = DebugShell.getDebugShell();
 			debugShell.createShell(myDisplay, this);
-			/*
-		    factory = new ContextFactory();
-			dbg = new Main("GuideMe");
-		    dbg.attachTo(factory);
-		    dbg.setBreakOnEnter(true);
-		    dbg.setSize(appSettings.getJsDebugWidth(), appSettings.getJsDebugWidth());
-		    dbg.setVisible(false);
-		    */
-
-
 			
 			//get primary monitor and its size
 			clientArea = monitors[0].getClientArea();
@@ -345,7 +340,7 @@ public class MainShell {
 
 			//defaultStyle
 			try {
-		        defaultStyle = comonFunctions.readFile("./defaultCSS.txt", StandardCharsets.UTF_8);
+		        defaultStyle = comonFunctions.readFile("./defaultCSS.TXT", StandardCharsets.UTF_8);
 		        defaultStyle = defaultStyle.replace("MintHtmlFontSize", String.valueOf(MintHtmlFontSize)); 
 			}
 			catch (Exception ex2) {
@@ -418,6 +413,7 @@ public class MainShell {
 			if (videoOn) {
 				logger.trace("Video Enter");
 				try {
+					/*
 					videoFrame = SWT_AWT.new_Frame(mediaPanel);         
 					videoSurfaceCanvas = new Canvas();
 		
@@ -432,6 +428,15 @@ public class MainShell {
 					mediaPlayer.setVideoSurface(videoSurface);
 	
 					mediaPlayer.addMediaPlayerEventListener(new MediaListener());
+					*/
+					
+					LibVlc libvlc = LibVlc.INSTANCE;
+					libvlc_instance_t instance = libvlc.libvlc_new(0, null);
+					
+					mediaPlayer = new SwtEmbeddedMediaPlayer(libvlc, instance);
+					mediaPlayer.setVideoSurface(new CompositeVideoSurface(mediaPanel, getVideoSurfaceAdapter()));
+					mediaPlayer.addMediaPlayerEventListener(new MediaListener());
+					
 				}
 				catch (Exception vlcex) {
 					logger.error("VLC intialisation error " + vlcex.getLocalizedMessage(), vlcex);
@@ -681,6 +686,7 @@ public class MainShell {
 			myDisplay.timerExec(2000, new shellTimer());
 			metronome = new MetronomePlayer();
 			threadMetronome = new Thread(metronome, "metronome");
+			threadMetronome.setName("threadMetronome");
 			threadMetronome.start();
 		}
 		catch (Exception ex) {
@@ -778,6 +784,7 @@ public class MainShell {
 		@Override
 		public void shellClosed(ShellEvent e) {
 			try {
+				//exitTriggered = true;
 				myDisplay.removeFilter(SWT.KeyDown, keyListener);
 				keyListener = null;
 				if (shell2 != null) {
@@ -797,14 +804,8 @@ public class MainShell {
 				controlFont.dispose();
 				timerFont.dispose();
 				buttonFont.dispose();
-				stopAll();
+				stopAll(true);
 				metronome.metronomeKill();
-				if (videoOn) {
-					VideoRelease videoRelease = new VideoRelease();
-					videoRelease.setVideoRelease(mediaPlayer, mediaPlayerFactory);
-					Thread videoReleaseThread = new Thread(videoRelease, "videoRelease");
-					videoReleaseThread.start();
-				}
 			}
 			catch (Exception ex) {
 				logger.error("shellCloseListen ", ex);
@@ -922,6 +923,7 @@ public class MainShell {
 		@Override
 		public void run() {
 			try {
+				mediaPlayerThread.stop();
 				mediaPlayerThread.release();
 				mediaPlayerFactoryThread.release();
 				logger.trace("VideoRelease Exit");
@@ -950,8 +952,8 @@ public class MainShell {
 			super.controlResized(e);
 			if (videoOn) {
 				try {
-					Rectangle rect = mediaPanel.getClientArea();
-					videoFrame.setSize(rect.width, rect.height);
+					//Rectangle rect = mediaPanel.getClientArea();
+					//videoFrame.setSize(rect.width, rect.height);
 				}
 				catch (Exception ex) {
 					logger.error("Video resize " + ex.getLocalizedMessage(), ex);
@@ -971,6 +973,22 @@ public class MainShell {
 			logger.debug("MediaListener finished " + mediaPlayer.mrl());
 			super.finished(mediaPlayer);
 			try {
+				if (!videoTarget.equals(""))  {
+					//run on the main UI thread
+					myDisplay.asyncExec(
+							new Runnable() {
+								public void run(){
+									mediaPanel.setVisible(false);
+									imageLabel.setVisible(true);
+									leftFrame.layout(true);
+									logger.debug("MediaListener Video Run: " + videoJscript + " videoTarget: " + videoTarget);
+									mainShell.runJscript(videoJscript, false);
+									mainShell.displayPage(videoTarget);
+								}
+							});											
+				}
+				comonFunctions.processSrciptVars(videoScriptVar, guideSettings);
+				/*
 				//run on the main UI thread
 				myDisplay.syncExec(
 						new Runnable() {
@@ -979,13 +997,15 @@ public class MainShell {
 								imageLabel.setVisible(true);
 								leftFrame.layout(true);
 							}
-						});											
+						});
+				*/											
 			}
 			catch (Exception ex) {
 				logger.error(" MediaListener finished " + ex.getLocalizedMessage(), ex);
 			}
 		}
 
+		/*
 		//newState 5 indicates the video has finished
 		//videoPlay can be set to false outside the code to tell it to stop
 		//if the video finishes loop round again if a number of repeats has been set
@@ -1012,6 +1032,7 @@ public class MainShell {
 				logger.error("mediaStateChanged " + e.getLocalizedMessage(), e);
 			}
 		}
+		*/
 
 		@Override
 		public void error(MediaPlayer mediaPlayer) {
@@ -1231,7 +1252,7 @@ public class MainShell {
 			try {
 				logger.trace("Enter Menu Restart");
 				//stop all activity for the current page to prevent timers jumping to a different page
-				stopAll();
+				stopAll(false);
 		        guide.getFlags().clear();
 		        guide.getSettings().setPage("start");
 		        guide.getSettings().setFlags(comonFunctions.GetFlags(guide.getFlags()));
@@ -1880,8 +1901,6 @@ public class MainShell {
 				this.imageLabel.setVisible(false);
 				this.mediaPanel.setVisible(true);
 				leftFrame.layout(true);
-				Rectangle rect = mediaPanel.getClientArea();
-				videoFrame.setSize(rect.width, rect.height);
 				videoLoops = loops;
 				videoTarget = target;
 				videoStartAt = startAt;
@@ -1894,7 +1913,9 @@ public class MainShell {
 				VideoPlay videoPlay = new VideoPlay();
 				videoPlay.setVideoPlay(mediaPlayer, mrlVideo);
 				Thread videoPlayThread = new Thread(videoPlay, "videoPlay");
+				videoPlayThread.setName("videoPlayThread");
 				videoPlayThread.start();
+				videoPlayed = true;
 			} catch (Exception e) {
 				logger.error("playVideo " + e.getLocalizedMessage(), e);		
 			}
@@ -1903,7 +1924,7 @@ public class MainShell {
 
 	class VideoPlay implements Runnable {
 		//code to start the video on a separate thread
-		private EmbeddedMediaPlayer mediaPlayer;
+		private SwtEmbeddedMediaPlayer mediaPlayer;
 		private String video;
 		
 		@Override
@@ -1941,7 +1962,7 @@ public class MainShell {
 			}
 		}
 
-		public void setVideoPlay(EmbeddedMediaPlayer mediaPlayer, String video) {
+		public void setVideoPlay(SwtEmbeddedMediaPlayer mediaPlayer, String video) {
 			this.mediaPlayer = mediaPlayer;
 			this.video = video;
 		}
@@ -1965,6 +1986,7 @@ public class MainShell {
 			}
 			audioPlayer = new AudioPlayer(audio, startAt, stopAt, loops, target, mainShell, jscript, scriptVar);
 			threadAudioPlayer = new Thread(audioPlayer, "audioPlayer");
+			threadAudioPlayer.setName("threadAudioPlayer");
 			threadAudioPlayer.start();
 		} catch (Exception e) {
 			logger.error("playAudio " + e.getLocalizedMessage(), e);		
@@ -2276,7 +2298,11 @@ public class MainShell {
 					"var control = vform.elements[controlIdx];" +
 					"if (control.type === \"select-one\") {" +
 					"var item = control.selectedIndex;" +
-					"var value = control.item(item).value;" +
+					"var value = \"\";" +
+					"if (item > -1)" +
+					"{" +
+					"	value = control.item(item).value;" +
+					"}" +
 					"vreturn = vreturn + control.name + '¬' + value + '¬' + control.type + '¬' + control.checked + '|';" +
 					"} else {" +
 					"vreturn = vreturn + control.name + '¬' + control.value + '¬' + control.type + '¬' + control.checked + '|';" +
@@ -2431,7 +2457,7 @@ public class MainShell {
 		threadAudioPlayer = null;
 	}
 
-	public void stopVideo() {
+	public void stopVideo(boolean shellClosing) {
 		if (videoOn) {
 			try {
 				if (mediaPlayer != null) {
@@ -2439,13 +2465,17 @@ public class MainShell {
 					videoTarget = "";
 					videoPlay = false;
 					logger.debug("MainShell stopVideo " + mediaPlayer.mrl());
-					VideoStop videoStop = new VideoStop();
-					videoStop.setMediaPlayer(mediaPlayer);
-					Thread videoStopThread = new Thread(videoStop, "videoStop");
-					mediaPanel.setVisible(false);
-					imageLabel.setVisible(true);
-					leftFrame.layout(true);
-					videoStopThread.start();
+					if (mediaPlayer.mrl() != null && videoPlayed)
+					{
+						VideoStop videoStop = new VideoStop();
+						videoStop.setMediaPlayer(mediaPlayer, shellClosing);
+						Thread videoStopThread = new Thread(videoStop, "videoStop");
+						videoStopThread.setName("videoStopThread");
+						mediaPanel.setVisible(false);
+						imageLabel.setVisible(true);
+						leftFrame.layout(true);
+						videoStopThread.start();
+					}
 				}
 			} catch (Exception e) {
 				logger.error(" stopVideo " + e.getLocalizedMessage(), e);
@@ -2454,10 +2484,12 @@ public class MainShell {
 	}
 	
 	class VideoStop implements Runnable {
-		private EmbeddedMediaPlayer mediaPlayer;
+		private SwtEmbeddedMediaPlayer mediaPlayer;
+		private boolean shellClosing;
 
-		public void setMediaPlayer(EmbeddedMediaPlayer mediaPlayer) {
+		public void setMediaPlayer(SwtEmbeddedMediaPlayer mediaPlayer, boolean shellClosing) {
 			this.mediaPlayer = mediaPlayer;
+			this.shellClosing = shellClosing;
 		}
 
 		@Override
@@ -2466,6 +2498,10 @@ public class MainShell {
 				if (mediaPlayer != null && mediaPlayer.isPlayable()) {
 					logger.debug("MainShell VideoStop run: Stopping media player " + mediaPlayer.mrl());
 					mediaPlayer.stop();
+					if (shellClosing)
+					{
+						mediaPlayer.release();
+					}
 				}
 			} catch (Exception e) {
 				logger.error(" MainShell VideoStop run: " + e.getLocalizedMessage(), e);
@@ -2486,7 +2522,7 @@ public class MainShell {
 		}
 	}
 
-	public void stopAll() {
+	public void stopAll(boolean shellClosing) {
 		try {
 			hotKeys = new HashMap<String, com.snapps.swt.SquareButton>();
 		}
@@ -2518,7 +2554,7 @@ public class MainShell {
 			logger.error(" stopAudio " + ex.getLocalizedMessage(), ex);
 		}
 		try {
-		stopVideo();
+			stopVideo(shellClosing);
 		}
 		catch (Exception ex) {
 			logger.error(" stopVideo " + ex.getLocalizedMessage(), ex);
@@ -2598,5 +2634,23 @@ public class MainShell {
 	public ContextFactory getContextFactory() {
 		return factory;
 	}
+
+
+    private static VideoSurfaceAdapter getVideoSurfaceAdapter() {
+        VideoSurfaceAdapter videoSurfaceAdapter;
+        if(RuntimeUtil.isNix()) {
+            videoSurfaceAdapter = new LinuxVideoSurfaceAdapter();
+        }
+        else if(RuntimeUtil.isWindows()) {
+            videoSurfaceAdapter = new WindowsVideoSurfaceAdapter();
+        }
+        else if(RuntimeUtil.isMac()) {
+            videoSurfaceAdapter = new MacVideoSurfaceAdapter();
+        }
+        else {
+            throw new RuntimeException("Unable to create a media player - failed to detect a supported operating system");
+        }
+        return videoSurfaceAdapter;
+    }	
 	
 }
