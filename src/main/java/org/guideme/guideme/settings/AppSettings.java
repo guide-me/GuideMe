@@ -14,10 +14,10 @@ public class AppSettings {
 	private int HtmlFontSize = 20;
 	private int timerFontSize = 20;
 	private int buttonFontSize = 20;
-	private int midiVolume = 0;
+	private int midiVolume = 100;
 	private int midiInstrument = 76;
-	private int musicVolume = 400;
-	private int videoVolume = 400;
+	private int musicVolume = 100;
+	private int videoVolume = 100;
 	private int mainMonitor = 1;
 	private int maxImageScale = 0;
 	private int jsDebugHeight = 600;
@@ -93,8 +93,8 @@ public class AppSettings {
 				buttonFontSize = Integer.parseInt(appSettingsProperties.getProperty("buttonFontSize", "20"));
 				midiInstrument = Integer.parseInt(appSettingsProperties.getProperty("midiInstrument", "76"));
 				midiVolume = Integer.parseInt(appSettingsProperties.getProperty("midiVolume", "100"));
-				musicVolume = Integer.parseInt(appSettingsProperties.getProperty("musicVolume", "400"));
-				videoVolume = Integer.parseInt(appSettingsProperties.getProperty("videoVolume", "400"));
+				musicVolume = Integer.parseInt(appSettingsProperties.getProperty("musicVolume", "100"));
+				videoVolume = Integer.parseInt(appSettingsProperties.getProperty("videoVolume", "100"));
 				Debug = Boolean.parseBoolean(appSettingsProperties.getProperty("Debug", "false"));
 				JsDebug = Boolean.parseBoolean(appSettingsProperties.getProperty("JsDebug", "false"));
 				jsDebugHeight = Integer.parseInt(appSettingsProperties.getProperty("jsDebugHeight", "600"));
