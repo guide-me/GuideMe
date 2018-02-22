@@ -21,6 +21,18 @@
 		<nature>org.eclipse.jdt.core.javanature</nature>
 		<nature>org.eclipse.m2e.core.maven2Nature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>src/main/resources/log4j2.xml</name>
+			<type>1</type>
+			<location>F:/gitProj/GuideMePhilo/src/main/resources/log4j2.xml</location>
+		</link>
+		<link>
+			<name>src/main/resources/tick.wav</name>
+			<type>1</type>
+			<location>F:/gitProj/GuideMePhilo/src/main/resources/tick.wav</location>
+		</link>
+	</linkedResources>
 	<filteredResources>
 		<filter>
 			<id>1502016745125</id>

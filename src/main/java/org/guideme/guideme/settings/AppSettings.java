@@ -23,6 +23,7 @@ public class AppSettings {
 	private int jsDebugHeight = 600;
 	private int jsDebugWidth = 800;
 	private int thumbnailSize = 200;
+	private double imgOffset = 0.99;
 	
 	
 	private boolean Debug = false;
@@ -117,6 +118,7 @@ public class AppSettings {
 				maxImageScale = Integer.parseInt(appSettingsProperties.getProperty("maxImageScale", "0"));
 				hideMenu = Boolean.parseBoolean(appSettingsProperties.getProperty("hideMenu", "false"));
 				thumbnailSize = Integer.parseInt(appSettingsProperties.getProperty("thumbnailSize", "200"));
+				imgOffset = Double.parseDouble(appSettingsProperties.getProperty("imgOffset", "0.99"));
 			}
 			catch (Exception ex) {
 				logger.error(ex.getLocalizedMessage(), ex);
@@ -246,6 +248,7 @@ public class AppSettings {
 			appSettingsProperties.setProperty("maxImageScale", String.valueOf(maxImageScale));
 			appSettingsProperties.setProperty("hideMenu", String.valueOf(hideMenu));
 			appSettingsProperties.setProperty("thumbnailSize", String.valueOf(thumbnailSize));
+			appSettingsProperties.setProperty("imgOffset", String.valueOf(imgOffset));
 		}
 		catch (Exception e) {
 			logger.error(e.getLocalizedMessage(), e);
@@ -438,6 +441,14 @@ public class AppSettings {
 
 	public void setThumbnailSize(int thumbnailSize) {
 		this.thumbnailSize = thumbnailSize;
+	}
+
+	public double getImgOffset() {
+		return imgOffset;
+	}
+
+	public void setImgOffset(double imgOffset) {
+		this.imgOffset = imgOffset;
 	}
 
 }

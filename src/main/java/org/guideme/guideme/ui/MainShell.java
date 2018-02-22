@@ -147,7 +147,6 @@ public class MainShell {
 	private Boolean videoOn = true;
 	private String style = "";
 	private String defaultStyle = "";
-	private Double imgOffSet = 0.99; 
 	private Boolean imgOverRide = false;
 	private Boolean multiMonitor = true;
 	private Boolean overlayTimer = false;
@@ -202,7 +201,7 @@ public class MainShell {
 
 			// array to hold the various flags
 			guideSettings.setFlags("");
-
+			
 			//width and height of the sizable containers on the screen
 			intWeights1 = appSettings.getSash1Weights();
 			intWeights2 = appSettings.getSash2Weights();
@@ -350,7 +349,6 @@ public class MainShell {
 	        
 	        
 			style = defaultStyle;
-			String appImage = appSettings.getUserDir() + appSettings.getFileSeparator() + "userSettings" + appSettings.getFileSeparator() + "GuidemeBeta.jpg"; 
 
 			//default HTML
 			try {
@@ -371,10 +369,9 @@ public class MainShell {
 			
 			
 			String strHtml = rightHTML.replace("BodyContent", "");
-			strHtml = strHtml.replace("DefaultStyle", defaultStyle); 
-			String strHtml2 = "<!DOCTYPE HTML><html><head><meta http-equiv='Content-type' content='text/html;charset=UTF-8' /><title>Guideme - Explore Yourself</title><style type='text/css'> html { overflow-y: auto; } body { color: white; background-color: black; font-family: Tahoma; font-size:16px; overflow:hidden } html, body, #wrapper { height:100%; width: 100%; margin: 0; padding: 0; border: 0; } #wrapper { vertical-align: middle; text-align: center; } #bannerimg { width: 90%; border-top: 3px solid #cccccc; border-right: 3px solid #cccccc; border-bottom: 3px solid #666666; border-left: 3px solid #666666; }</style></head><body><div id='wrapper' ><div id='bannerimg'><img src='" + appImage + "' /></div><div><h2>Welcome to Guideme!</h2>To get started, click File/Load and select a guide.</div></div></body></html>";
+			strHtml = strHtml.replace("DefaultStyle", defaultStyle);
 			imageLabel = new Browser(leftFrame, 0);
-			imageLabel.setText(strHtml2);
+			imageLabel.setText("");
 			imageLabel.setBackground(colourBlack);
 			//imageLabel.setAlignment(SWT.CENTER);
 
@@ -1389,8 +1386,7 @@ public class MainShell {
 		public void controlResized(ControlEvent e) {
 			logger.trace("Enter addControlListener");
 			if (!imgOverRide) {
-				int newWidth;
-				int newHeight;
+				HashMap<String, Integer> imageDimentions;
 
 				//Label me = (Label)e.widget;
 				Browser me = (Browser)e.widget;
@@ -1416,48 +1412,13 @@ public class MainShell {
 						int maxwidth = (int) imageLabel.getData("maxwidth");
 						logger.trace("maxwidth: " + maxwidth);
 						
-						if (((RectImage.height >  maxheight) && (RectImage.width >  maxwidth)) && maxImageScale != 0) {
-							if (dblScreenRatio > imageRatio) {
-								logger.trace("Scale Choice: 1.1");
-								newHeight = (int) (((double) (maxwidth) * imageRatio) * imgOffSet);
-								newWidth = (int) ((double) (maxwidth) * imgOffSet);
-								logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
-							} else {
-								logger.trace("Scale Choice: 1.2");
-								newHeight = (int) ((double) (maxheight) * imgOffSet);
-								newWidth = (int) (((double) (maxheight) / imageRatio) * imgOffSet);
-								logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
-							}
-						} else {
-							if (dblScreenRatio > imageRatio) {
-								logger.trace("Scale Choice: 2.1");
-								newHeight = (int) (((double) RectImage.width * imageRatio) * imgOffSet);
-								newWidth = (int) ((double) RectImage.width * imgOffSet);
-								logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
-							} else {
-								logger.trace("Scale Choice: 2.2");
-								newHeight = (int) ((double) RectImage.height * imgOffSet);
-								newWidth = (int) (((double) RectImage.height / imageRatio) * imgOffSet);
-								logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
-							}
-						}
+						imageDimentions = GetNewDimentions(imageRatio, RectImage.height, RectImage.width, appSettings.getImgOffset(), maxImageScale != 0, maxheight, maxwidth);
 						
-						/*
-						if (dblScreenRatio > imageRatio) {
-							newHeight = (int) (((double) RectImage.width * imageRatio) * imgOffSet);
-							newWidth = (int) ((double) RectImage.width * imgOffSet);
-							logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
-						} else {
-							newHeight = (int) ((double) RectImage.height * imgOffSet);
-							newWidth = (int) (((double) RectImage.height / imageRatio) * imgOffSet);
-							logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
-						}
-						*/
 						//String strHtml = "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Strict//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd\"><html  xmlns=\"http://www.w3.org/1999/xhtml\" xml:lang=\"en\"><head><meta http-equiv=\"Content-type\" content=\"text/html;charset=UTF-8\" /><title></title><style type=\"text/css\">" + defaultStyle + "</style></head><body><table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table></body></html>";
 						if (imgPath.endsWith(".gif")) {
 							tmpImagePath = imgPath;
 							strHtml = leftHTML.replace("DefaultStyle", defaultStyle + " body { overflow:hidden }");
-							strHtml = strHtml.replace("BodyContent", "<table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table>");
+							strHtml = strHtml.replace("BodyContent", "<table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + imageDimentions.get("newHeight") + "\" width=\"" + imageDimentions.get("newWidth") + "\" /></td></tr></table>");
 						} else {
 							BufferedImage img = null;
 							try {
@@ -1470,7 +1431,7 @@ public class MainShell {
 							}
 							BufferedImage imagenew =
 									  Scalr.resize(img, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC,
-											  newWidth, newHeight, Scalr.OP_ANTIALIAS);
+											  imageDimentions.get("newWidth"), imageDimentions.get("newHeight"), Scalr.OP_ANTIALIAS);
 							String imgType = imgPath.substring(imgPath.length() - 3);
 							String tmpPath = appSettings.getTempDir();
 							File newImage = File.createTempFile("tmpImage", imgType, new File(tmpPath));
@@ -1478,7 +1439,7 @@ public class MainShell {
 							tmpImagePath = newImage.getAbsolutePath();
 							ImageIO.write(imagenew, imgType, newImage);			
 							strHtml = leftHTML.replace("DefaultStyle", defaultStyle + " body { overflow:hidden }");
-							strHtml = strHtml.replace("BodyContent", "<table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" /></td></tr></table>");
+							strHtml = strHtml.replace("BodyContent", "<table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + imageDimentions.get("newHeight") + "\" width=\"" + imageDimentions.get("newWidth") + "\" /></td></tr></table>");
 						}
 						me.setText(strHtml, true);
 						//Image tmpImage = me.getImage();
@@ -1518,6 +1479,42 @@ public class MainShell {
 
 	}
 	*/
+	
+	private static HashMap<String, Integer> GetNewDimentions(double imageRatio, int labelHeight, int labelWidth, double imgOffSet, boolean maxScale, int maxHeight, int maxWidth )
+	{
+		HashMap<String, Integer> returnValue = new HashMap<String, Integer>();
+		double dblScreenRatio = (double) labelHeight / (double) labelWidth;
+		int newHeight;
+		int newWidth;
+		if (((labelHeight >  maxHeight) && (labelWidth >  maxWidth)) && maxScale) {
+			if (dblScreenRatio > imageRatio) {
+				logger.trace("Scale Choice: 1.1");
+				newHeight = (int) (((double) (maxWidth) * imageRatio) * imgOffSet);
+				newWidth = (int) ((double) (maxWidth) * imgOffSet);
+				logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
+			} else {
+				logger.trace("Scale Choice: 1.2");
+				newHeight = (int) ((double) (maxHeight) * imgOffSet);
+				newWidth = (int) (((double) (maxHeight) / imageRatio) * imgOffSet);
+				logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
+			}
+		} else {
+			if (dblScreenRatio > imageRatio) {
+				logger.trace("Scale Choice: 2.1");
+				newHeight = (int) (((double) labelWidth * imageRatio) * imgOffSet);
+				newWidth = (int) ((double) labelWidth * imgOffSet);
+				logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
+			} else {
+				logger.trace("Scale Choice: 2.2");
+				newHeight = (int) ((double) labelHeight * imgOffSet);
+				newWidth = (int) (((double) labelHeight / imageRatio) * imgOffSet);
+				logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
+			}
+		}
+		returnValue.put("newHeight", newHeight);
+		returnValue.put("newWidth", newWidth);
+		return returnValue;
+	}
 
 	class shellTimer implements Runnable {
 		//Timer to update:
@@ -1718,8 +1715,7 @@ public class MainShell {
 		}
 		
 		//display an image in the area to the left of the screen
-		int newWidth;
-		int newHeight;
+		HashMap<String, Integer> imageDimentions;
 		imgOverRide = false;
 		
 		
@@ -1801,33 +1797,14 @@ public class MainShell {
 			imageLabel.setData("maxheight", maxheight);
 			imageLabel.setData("maxwidth", maxwidth);
 			
-			if (((RectImage.height >  maxheight) && (RectImage.width >  maxwidth)) && (maxImageScale != 0)) {
-				if (dblScreenRatio > dblImageRatio) {
-					newHeight = (int) (((double) (maxwidth) * dblImageRatio) * imgOffSet);
-					newWidth = (int) ((double) (maxwidth) * imgOffSet);
-					logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
-				} else {
-					newHeight = (int) ((double) (maxheight) * imgOffSet);
-					newWidth = (int) (((double) (maxheight) / dblImageRatio) * imgOffSet);
-					logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
-				}
-			} else {
-				if (dblScreenRatio > dblImageRatio) {
-					newHeight = (int) (((double) RectImage.width * dblImageRatio) * imgOffSet);
-					newWidth = (int) ((double) RectImage.width * imgOffSet);
-					logger.trace("New GT Dimentions: H: " + newHeight + " W: " + newWidth);
-				} else {
-					newHeight = (int) ((double) RectImage.height * imgOffSet);
-					newWidth = (int) (((double) RectImage.height / dblImageRatio) * imgOffSet);
-					logger.trace("New LT Dimentions: H: " + newHeight + " W: " + newWidth);
-				}
-			}
+			imageDimentions = GetNewDimentions(dblImageRatio, RectImage.height, RectImage.width, appSettings.getImgOffset(), maxImageScale != 0, maxheight, maxwidth);
+
 			if (imgPath.endsWith(".gif")) {
-				//memImage.dispose();
+				memImage.dispose();
 				memImage = null;
 				tmpImagePath = imgPath;
 				strHtml = leftHTML.replace("DefaultStyle", defaultStyle + " body { overflow:hidden }");
-				strHtml = strHtml.replace("BodyContent", "<table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + newHeight + "\" width=\"" + newWidth + "\" /></td></tr></table>");
+				strHtml = strHtml.replace("BodyContent", "<table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + imageDimentions.get("newHeight") + "\" width=\"" + imageDimentions.get("newWidth") + "\" /></td></tr></table>");
 			} else {
 				BufferedImage img = null;
 				try {
@@ -1840,7 +1817,7 @@ public class MainShell {
 				}
 				BufferedImage imageNew =
 						Scalr.resize(img, Scalr.Method.QUALITY, Scalr.Mode.AUTOMATIC,
-								newWidth, newHeight, Scalr.OP_ANTIALIAS);
+								imageDimentions.get("newWidth"), imageDimentions.get("newHeight"), Scalr.OP_ANTIALIAS);
 				String imgType = "";
 				int pos = imgPath.lastIndexOf(".");
 				if (pos > -1)
@@ -1857,13 +1834,13 @@ public class MainShell {
 				//ImageIO.write(imagenew, imgType, new File(tmpImagePath));			
 				//Image tmpImage2 = imageLabel.getImage();
 				//imageLabel.setImage(resize(memImage, newWidth, newHeight));
-				//memImage.dispose();
+				memImage.dispose();
 				memImage = null;
 				//if (tmpImage2 != null) {
 				//	tmpImage2.dispose();
 				//}
 				strHtml = leftHTML.replace("DefaultStyle", defaultStyle + " body { overflow:hidden }");
-				strHtml = strHtml.replace("BodyContent", "<table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" /></td></tr></table>");
+				strHtml = strHtml.replace("BodyContent", "<table id=\"wrapper\"><tr><td><img src=\"" + tmpImagePath + "\" height=\"" + imageDimentions.get("newHeight") + "\" width=\"" + imageDimentions.get("newWidth") + "\" /></td></tr></table>");
 			}
 			imageLabel.setText(strHtml, true);
 			logger.trace("Open: " + imgPath);
@@ -1885,6 +1862,9 @@ public class MainShell {
 			logger.trace("setImageHtml: " + leftHtml);
 			imgOverRide = true;
 			imageLabel.setText(leftHtml, true);
+			mediaPanel.setVisible(false);
+			this.imageLabel.setVisible(true);
+			leftFrame.layout(true);
 		}
 		catch (Exception ex) {
 			logger.error("setImageHtml error " + ex.getLocalizedMessage(), ex);
@@ -1977,14 +1957,14 @@ public class MainShell {
 
 	
 	
-	public void playAudio(String audio, int startAt, int stopAt, int loops, String target, String jscript, String scriptVar) {
+	public void playAudio(String audio, int startAt, int stopAt, int loops, String target, String jscript, String scriptVar, int volume) {
 		// run audio on another thread
 		try {
 			if (audioPlayer != null) {
 				audioPlayer.audioStop();
 				logger.trace("playAudio audioStop");
 			}
-			audioPlayer = new AudioPlayer(audio, startAt, stopAt, loops, target, mainShell, jscript, scriptVar);
+			audioPlayer = new AudioPlayer(audio, startAt, stopAt, loops, target, mainShell, jscript, scriptVar, volume);
 			threadAudioPlayer = new Thread(audioPlayer, "audioPlayer");
 			threadAudioPlayer.setName("threadAudioPlayer");
 			threadAudioPlayer.start();
@@ -2061,6 +2041,9 @@ public class MainShell {
 			strHTML = strHTML.replace("BodyContent", "");
 			this.imageLabel.setText(strHTML);
 		}
+		mediaPanel.setVisible(false);
+		this.imageLabel.setVisible(true);
+		leftFrame.layout(true);
 	}
 
 	public void setLeftHtml(String strHTML) {
@@ -2073,6 +2056,9 @@ public class MainShell {
 			strHTML = strHTML.replace("BodyContent", "");
 			this.imageLabel.setText(strHTML);
 		}
+		mediaPanel.setVisible(false);
+		this.imageLabel.setVisible(true);
+		leftFrame.layout(true);
 	}
 
 	public void removeButtons() {
@@ -2286,6 +2272,26 @@ public class MainShell {
 		}
 	}
 
+	//run the javascript function passed 
+	public void runJscript(String function, String pageJavascript ) {
+		try {
+			getFormFields();
+			refreshVars();
+			if (function == null) function = "";
+			if (! function.equals("")) {
+				Jscript jscript = new Jscript(guide, userSettings, appSettings, guide.getInPrefGuide(), mainShell, null, pageJavascript, function, false);
+				SwingUtilities.invokeLater(jscript);
+				while (jscript.isRunning())
+				{
+					Display.getCurrent().readAndDispatch();
+				}
+			}
+		}
+		catch (Exception ex) {
+			logger.error(" run java script " + ex.getLocalizedMessage(), ex);
+		}
+	}
+
 	//get any fields from the html form and store them in guide settings for use in the next java script call.
 	private void getFormFields() {
 		try {
@@ -2338,6 +2344,10 @@ public class MainShell {
 						guideSettings.setFormField(name, value);
 						guideSettings.setScriptVar(name, value);
 					}
+					if (type.equals("file")) {
+						guideSettings.setFormField(name, value);
+						guideSettings.setScriptVar(name, value);
+					}
 
 					if (type.equals("select-one")) {
 						guideSettings.setFormField(name, value);
@@ -2367,6 +2377,11 @@ public class MainShell {
 						}
 					}
 					if (type.equals("text")) {
+						guideSettings.setFormField(name, value);
+						guideSettings.setScriptVar(name, value);
+					}
+
+					if (type.equals("file")) {
 						guideSettings.setFormField(name, value);
 						guideSettings.setScriptVar(name, value);
 					}
@@ -2651,6 +2666,10 @@ public class MainShell {
             throw new RuntimeException("Unable to create a media player - failed to detect a supported operating system");
         }
         return videoSurfaceAdapter;
-    }	
+    }
+
+	public void setGuideSettings(GuideSettings guideSettings) {
+		this.guideSettings = guideSettings;
+	}	
 	
 }

@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <configuration>
   <appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+        <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+    </Console>
     <RollingFile name="File" fileName="logs/guideme.log" filePattern="logs/$${date:yyyy-MM}/guideme-%d{MM-dd-yyyy}-%i.log">
       <Policies>
         <TimeBasedTriggeringPolicy />
@@ -32,9 +35,10 @@
     <logger name="uk.co.caprica.vlcj" level="debug" additivity="false">
       <appender-ref ref="Vlcj" />
     </logger>
-    <root level="debug">
+    <root level="trace">
       <appender-ref ref="File" />
       <appender-ref ref="Jscript" />
+      <appender-ref ref="Console"/>
     </root>
   </loggers>
 </configuration>

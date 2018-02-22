@@ -28,8 +28,9 @@ public class AudioPlayer  implements Runnable {
 	private MainShell mainShell;
 	private String jscript;
 	private String scriptVar;
+	private int volume;
 
-	public AudioPlayer(String audioFile, int startAt, int stopAt, int loops, String target, MainShell mainShell, String jscript, String scriptVar) {
+	public AudioPlayer(String audioFile, int startAt, int stopAt, int loops, String target, MainShell mainShell, String jscript, String scriptVar, int volume) {
 		//function to allow us to pass stuff to the new thread
 		this.audioFile = audioFile;
 		this.loops = loops;
@@ -39,6 +40,18 @@ public class AudioPlayer  implements Runnable {
 		this.startAt = startAt;
 		this.stopAt = stopAt;
 		this.scriptVar = scriptVar;
+		if (volume > 100)
+		{
+			this.volume = 100;
+		} 
+		else if (volume < 0)
+		{
+			volume = 0;
+		}
+		else
+		{
+			this.volume = volume;
+		}
 	}
 
 	public void audioStop() {
@@ -61,7 +74,19 @@ public class AudioPlayer  implements Runnable {
 			//use a media list to play loops
 			mediaPlayer = audioPlayerComponent.getMediaPlayer();
 			mediaPlayer.addMediaPlayerEventListener(mediaListener);
-			mediaPlayer.setVolume(AppSettings.getAppSettings().getMusicVolume());
+			int mediaVolume = AppSettings.getAppSettings().getMusicVolume();
+			if (volume < 100)
+			{
+				if (volume == 0)
+				{
+					mediaVolume = 0;
+				}
+				else
+				{
+					mediaVolume = (int) ((double) mediaVolume * ((double) volume / (double) 100));
+				}
+			}
+			mediaPlayer.setVolume(mediaVolume);
 			if (startAt == 0 && stopAt == 0 && loops == 0) {
 				mediaPlayer.playMedia(audioFile);
 			} else {

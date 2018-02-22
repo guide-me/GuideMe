@@ -166,13 +166,13 @@ public class UserSettings implements Cloneable{
 
 	public String getScreenDesc(String key, String type) {
 		String desc = "";
-		if (type == "String") {
+		if (type.equals("String")) {
 			desc = userStringDesc.get(key);
 		}
-		if (type == "Boolean") {
+		if (type.equals("Boolean")) {
 			desc = userBooleanDesc.get(key);
 		}
-		if (type == "Number") {
+		if (type.equals("Number")) {
 			desc = userNumericDesc.get(key);
 		}
 		return desc;

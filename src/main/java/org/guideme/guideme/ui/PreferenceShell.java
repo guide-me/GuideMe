@@ -171,64 +171,9 @@ public class PreferenceShell {
 			//HTML Font Size
 			AddTextField(grpApp, "Thumbnail Size pixels ", appWidgets.get("AppVideoVolumeNumCtrl"), appWidgets.get("AppVideoVolumeNumCtrl"), String.valueOf(myAppSettings.getThumbnailSize()), "AppThumbnailSize", true);
 
-			/*
-			Group grpNames = new Group(composite, SWT.SHADOW_IN);
-			FormData grpNamesFormData = new FormData();
-			grpNamesFormData.top = new FormAttachment(grpApp,5);
-			grpNamesFormData.left = new FormAttachment(0,5);
-			grpNamesFormData.right = new FormAttachment(100,-5);
-			grpNames.setLayoutData(grpNamesFormData);
-			grpNames.setText("Strings");
-			FormLayout layout2 = new FormLayout();
-			grpNames.setLayout(layout2);
+			//HTML Font Size
+			AddTextField(grpApp, "Image Scale Factor (0.00 to 1.00) ", appWidgets.get("AppThumbnailSizeNumCtrl"), appWidgets.get("AppThumbnailSizeNumCtrl"), String.valueOf(myAppSettings.getImgOffset()), "AppImgOffset", true);
 
-			tmpWidget = grpNames;
-			tmpWidget2 = grpNames;
-			Set<String> set = myUserSettings.getStringKeys();
-			for (String s : set) {
-				AddTextField(grpNames, myUserSettings.getScreenDesc(s, UserSettings.STRING), tmpWidget, tmpWidget2, userSettings.getPref(s), s, false);
-				tmpWidget = appWidgets.get(s + "Ctrl");
-				tmpWidget2 = appWidgets.get(s + "Ctrl");
-			}
-			
-			Group grpPrefs = new Group(composite, SWT.SHADOW_IN);
-			FormData grpPrefsFormData = new FormData();
-			grpPrefsFormData.top = new FormAttachment(grpNames,5);
-			grpPrefsFormData.left = new FormAttachment(0,5);
-			grpPrefsFormData.right = new FormAttachment(100,-5);
-			grpPrefs.setLayoutData(grpPrefsFormData);
-			grpPrefs.setText("Preferences");
-			FormLayout layout3 = new FormLayout();
-			grpPrefs.setLayout(layout3);
-
-			tmpWidget = grpPrefs;
-			tmpWidget2 = grpPrefs;
-			Set<String> set2 = myUserSettings.getBooleanKeys();
-			for (String s : set2) {
-				AddBooleanField(grpPrefs, myUserSettings.getScreenDesc(s, UserSettings.BOOLEAN), tmpWidget, tmpWidget2, userSettings.isPref(s), s);
-				tmpWidget = appWidgets.get(s + "BlnCtrl");
-				tmpWidget2 = appWidgets.get(s + "BlnCtrl");
-			}
-
-			Group grpDoubles = new Group(composite, SWT.SHADOW_IN);
-			FormData grpDoublesFormData = new FormData();
-			grpDoublesFormData.top = new FormAttachment(grpPrefs,5);
-			grpDoublesFormData.left = new FormAttachment(0,5);
-			grpDoublesFormData.right = new FormAttachment(100,-5);
-			grpDoubles.setLayoutData(grpDoublesFormData);
-			grpDoubles.setText("Numbers");
-			FormLayout layout4 = new FormLayout();
-			grpDoubles.setLayout(layout4);
-
-			tmpWidget = grpDoubles;
-			tmpWidget2 = grpDoubles;
-			Set<String> set3 = myUserSettings.getNumberKeys();
-			for (String s : set3) {
-				AddTextField(grpDoubles, myUserSettings.getScreenDesc(s, UserSettings.NUMBER), tmpWidget, tmpWidget2, String.valueOf(userSettings.getPrefNumber(s)), s, true);
-				tmpWidget = appWidgets.get(s + "NumCtrl");
-				tmpWidget2 = appWidgets.get(s + "NumCtrl");
-			}
-			*/
 
 			SquareButton btnCancel = new SquareButton(composite, SWT.PUSH);
 			btnCancel.setText("Cancel");
@@ -383,25 +328,9 @@ public class PreferenceShell {
 				txtTmp = (Text) appWidgets.get("AppThumbnailSizeNumCtrl");
 				myAppSettings.setThumbnailSize(Integer.parseInt(txtTmp.getText()));
 
-				/*
-				Set<String> set = myUserSettings.getStringKeys();
-				for (String s : set) {
-					txtTmp = (Text) appWidgets.get(s + "Ctrl");
-					myUserSettings.setPref(s, txtTmp.getText());
-				}
-				
-				Set<String> set2 = myUserSettings.getBooleanKeys();
-				for (String s : set2) {
-					btnTmp = (Button) appWidgets.get(s + "BlnCtrl");
-					myUserSettings.setPref(s, btnTmp.getSelection());
-				}
-				Set<String> set3 = myUserSettings.getNumberKeys();
-				for (String s : set3) {
-					txtTmp = (Text) appWidgets.get(s + "NumCtrl");
-					myUserSettings.setPref(s, Double.parseDouble(txtTmp.getText()));
-				}
-				myUserSettings.saveUserSettings();
-				*/
+				txtTmp = (Text) appWidgets.get("AppImgOffsetNumCtrl");
+				myAppSettings.setImgOffset(Double.parseDouble(txtTmp.getText()));
+
 				myAppSettings.saveSettings();
 				shell.close();
 			}

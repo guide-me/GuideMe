@@ -155,9 +155,9 @@ public class Jscript  implements Runnable
 			
 			if (! inPrefGuide) {
 				UserSettings cloneUS = userSettings.clone();
-				ScriptableObject.putProperty(scope, "userSettings", cloneUS);
+				ScriptableObject.putProperty(globalScope, "userSettings", cloneUS);
 			} else {
-				ScriptableObject.putProperty(scope, "userSettings", userSettings);
+				ScriptableObject.putProperty(globalScope, "userSettings", userSettings);
 			}
 			//Deprecated should use guide now
 			ScriptableObject.putProperty(scope, "comonFunctions", comonFunctions);

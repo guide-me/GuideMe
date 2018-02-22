@@ -55,7 +55,7 @@ public class LibraryShell {
 	private Combo sortFilter; 
 	private AppSettings appSettings;
 	private int buttonCharacters;
-	private String authorUrl = "https://milovana.com/webteases/#author=";
+	private String authorUrl = "https://milovana.com/webteases/?author=";
 	
 	public enum SortBy {
 		TITLE {

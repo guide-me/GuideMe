@@ -1,5 +1,6 @@
 package org.guideme.guideme.model;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -90,19 +91,16 @@ public class Guide {
 			Page page404 = new Page("GuideMe404Error","", "", "", "", false, "", "");
 			chapter.getPages().put(page404.getId(), page404);
 			Page start = new Page("start","", "", "", "", false, "", "");
-			String appImage = appSettings.getUserDir().replace("\\", "\\\\") + appSettings.getFileSeparator() + appSettings.getFileSeparator() + "userSettings" + appSettings.getFileSeparator() + appSettings.getFileSeparator() + "GuidemeBeta.jpg";
+
+			String appDir = appSettings.getUserDir().replace("\\", "\\\\");
+			String strHtml2 = comonFunctions.readFile("Welcome.txt", StandardCharsets.UTF_8);
+			strHtml2 = strHtml2.replace("appDir", appDir);
+			strHtml2 = strHtml2.replace("\n", " ").replace("\r", "");
+			
+			//String strHtml2 = "<!DOCTYPE HTML><html><head><meta http-equiv='Content-type' content='text/html;charset=UTF-8' /><title>Guideme - Explore Yourself</title><style type='text/css'> html { overflow-y: auto; } body { color: white; background-color: black; font-family: Tahoma; font-size:16px; overflow:hidden } html, body, #wrapper { height:100%; width: 100%; margin: 0; padding: 0; border: 0; } #wrapper { vertical-align: middle; text-align: center; } #bannerimg { width: 90%; border-top: 3px solid #cccccc; border-right: 3px solid #cccccc; border-bottom: 3px solid #666666; border-left: 3px solid #666666; }</style></head><body><div id='wrapper' ><div id='bannerimg'><img src='" + appImage + "' /></div><div><h2>Welcome to Guideme!</h2>To get started, click File/Load and select a guide.</div></div></body></html>";
+			
 			String strLoadScript = "function pageLoad() {";
-			strLoadScript = strLoadScript + "	var lefthtml = \"<!DOCTYPE html>\";";
-			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"<html>\";";
-			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"<head>\";";
-			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"<meta http-equiv='Content-type' content='text/html;charset=UTF-8' />\";";
-			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"<title>Guideme - Explore Yourself</title><style type='text/css'> html { overflow-y: auto; } body { color: white; background-color: black; font-family: Tahoma; font-size:16px } html, body, #wrapper { height:100%; width: 100%; margin: 0; padding: 0; border: 0; } #wrapper { vertical-align: middle; text-align: center; } #bannerimg { width: 90%; border-top: 3px solid #cccccc; border-right: 3px solid #cccccc; border-bottom: 3px solid #666666; border-left: 3px solid #666666; }</style>\";";
-			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"</head>\";";
-			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"<body>\";";
-			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"<div id='wrapper' ><div id='bannerimg'><img src='" + appImage + "' /></div><div><h2>Welcome to Guideme!</h2>To get started, click File/Load and select a guide.</div></div>\";";
-			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"</body>\";";
-			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"</html>\";";
-			strLoadScript = strLoadScript + "	overRide.leftHtml = lefthtml;";
+			strLoadScript = strLoadScript + "	overRide.setLeftHtml(\"" + strHtml2 + "\");";
 			strLoadScript = strLoadScript + "}";
 			start.setjScript(strLoadScript);
 			guide.globaljScript = "";
@@ -1080,10 +1078,52 @@ public class Guide {
 		AppSettings appSettings = AppSettings.getAppSettings();
 		
 		String imgPath = comonFunctions.getMediaFullPath(audio, appSettings.getFileSeparator(), appSettings, guide);
-		mainshell.playAudio(imgPath, startAtSeconds, stopAtSeconds, loops, target, jscript, scriptVar);
+		mainshell.playAudio(imgPath, startAtSeconds, stopAtSeconds, loops, target, jscript, scriptVar, 100);
 	}
 
 	/**
+	 * Play an audio file
+	 * 
+	 * id :
+	 *   File must be in the media directory (or subdirectory)
+	 * 	 Wild cards can be used
+	 * 	 e.g. kate/home*.*  would select an audio file in the sub directory kate with a file name starting with home
+	 * 
+	 * startAt :  to start 90 seconds in 00:01:30
+	 * stopAt :  to stop at 95 seconds into the video 00:01:35
+	 * scriptVar: set script variables e.g. audio=finished,stage=5
+	 * 
+	 * 
+	 * @param id the file name for the audio
+	 * @param startAt the start time for the audio hh:mm:ss
+	 * @param stopAt the stop time for audio hh:mm:ss 
+	 * @param repeat the number of times to repeat the audio
+	 * @param target the page to go to when the audio stops
+	 * @param jscript the Java Script function to run when the audio stops
+	 * @param scriptVar set script variables 
+	 * @param volume value between 0 and 100 to set the volume
+	 */	public void playAudio(String audio, String startAt, String stopAt, int loops, String target, String jscript, String scriptVar, int volume)
+	{
+		int startAtSeconds;
+		if (!startAt.equals("")) {
+			startAtSeconds = comonFunctions.getMilisecFromTime(startAt) / 1000;
+		} else {
+			startAtSeconds = 0;
+		}
+		int stopAtSeconds;
+		if (!stopAt.equals("")) {
+			stopAtSeconds = comonFunctions.getMilisecFromTime(stopAt) / 1000;
+		} else {
+			stopAtSeconds = 0;
+		}
+		
+		AppSettings appSettings = AppSettings.getAppSettings();
+		
+		String imgPath = comonFunctions.getMediaFullPath(audio, appSettings.getFileSeparator(), appSettings, guide);
+		mainshell.playAudio(imgPath, startAtSeconds, stopAtSeconds, loops, target, jscript, scriptVar, volume);
+	}
+
+	 /**
 	 * Gets the absolute path to the current tease directory 
 	 * 
 	 */

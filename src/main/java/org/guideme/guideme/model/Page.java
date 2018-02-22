@@ -14,6 +14,7 @@ public class Page {
 	private ArrayList<Timer> timer = new ArrayList<Timer>(); 
 	private ArrayList<Video> video = new ArrayList<Video>();
 	private ArrayList<Image> image = new ArrayList<Image>();
+	private ArrayList<LoadGuide> loadGuide = new ArrayList<LoadGuide>();
 	private ArrayList<Audio> audio = new ArrayList<Audio>();
 	private ArrayList<Metronome> metronome = new ArrayList<Metronome>();
 	private String ifSet;
@@ -105,6 +106,14 @@ public class Page {
 		this.image.add(image);
 	}
 
+	public LoadGuide getLoadGuide(int guideIndex) {
+		return loadGuide.get(guideIndex);
+	}
+	
+	public void addLoadGuide(LoadGuide loadGuide) {
+		this.loadGuide.add(loadGuide);
+	}
+
 	public Audio getAudio(int audIndex) {
 		return audio.get(audIndex);
 	}
@@ -143,6 +152,10 @@ public class Page {
 
 	public int getImageCount() {
 		return image.size();
+	}
+
+	public int getLoadGuideCount() {
+		return loadGuide.size();
 	}
 
 	public int getMetronomeCount() {
@@ -231,4 +244,5 @@ public class Page {
 			this.ifAfter = LocalTime.parse(ifAfter);
 		}
 	}
+
 }
