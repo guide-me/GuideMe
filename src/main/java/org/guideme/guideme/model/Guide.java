@@ -1,5 +1,6 @@
 package org.guideme.guideme.model;
 
+import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -93,7 +94,18 @@ public class Guide {
 			Page start = new Page("start","", "", "", "", false, "", "");
 
 			String appDir = appSettings.getUserDir().replace("\\", "\\\\");
-			String strHtml2 = comonFunctions.readFile("Welcome.txt", StandardCharsets.UTF_8);
+			String fileName = "Welcome_" + appSettings.getLanguage() + "_" + appSettings.getCountry() + ".txt";
+			File f = new File(appDir + appSettings.getFileSeparator() + fileName);
+			if (!f.exists())
+			{
+				fileName = "Welcome_" + appSettings.getLanguage() + ".txt";
+				f = new File(appDir + appSettings.getFileSeparator() + fileName);
+				if (!f.exists())
+				{
+					fileName = "Welcome.txt";	
+				}
+			}
+			String strHtml2 = comonFunctions.readFile(fileName, StandardCharsets.UTF_8);
 			strHtml2 = strHtml2.replace("appDir", appDir);
 			strHtml2 = strHtml2.replace("\n", " ").replace("\r", "");
 			

@@ -1,5 +1,7 @@
 package org.guideme.guideme.ui;
 
+import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Toolkit;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -8,12 +10,15 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.ResourceBundle;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ControlAdapter;
@@ -46,6 +51,7 @@ import java.nio.channels.FileChannel;
 import java.nio.charset.StandardCharsets;
 
 import javax.imageio.ImageIO;
+import javax.swing.JRootPane;
 import javax.swing.SwingUtilities;
 
 import org.eclipse.swt.widgets.Composite;
@@ -65,6 +71,7 @@ import org.guideme.guideme.model.Chapter;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Page;
 import org.guideme.guideme.model.Timer;
+import org.guideme.guideme.model.WebcamButton;
 import org.guideme.guideme.readers.XmlGuideReader;
 import org.guideme.guideme.scripting.Jscript;
 import org.guideme.guideme.scripting.OverRide;
@@ -74,6 +81,9 @@ import org.guideme.guideme.settings.GuideSettings;
 import org.guideme.guideme.settings.UserSettings;
 import org.imgscalr.Scalr;
 import org.mozilla.javascript.ContextFactory;
+
+import com.github.sarxos.webcam.Webcam;
+import com.github.sarxos.webcam.WebcamPanel;
 
 import uk.co.caprica.vlcj.binding.LibVlc;
 import uk.co.caprica.vlcj.binding.internal.libvlc_instance_t;
@@ -109,6 +119,8 @@ public class MainShell {
 	private String videoJscript = "";
 	private String videoScriptVar = "";
 	private Boolean videoPlay = false;
+	private Boolean webcamVisible = false;
+	private Boolean webcamRecording = false;
 	private Guide guide = Guide.getGuide();
 	private GuideSettings guideSettings = guide.getSettings();
 	private UserSettings userSettings = null;
@@ -136,6 +148,10 @@ public class MainShell {
 	//private Frame videoFrame;
 	//private Canvas videoSurfaceCanvas;
 	//private CanvasVideoSurface videoSurface;
+	private Composite webcamPanel;
+	private Webcam webcam;
+	private WebcamPanel panel;
+	private JRootPane webcamRoot;
 	private MainShell mainShell;
 	private MainLogic mainLogic = MainLogic.getMainLogic();
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
@@ -145,6 +161,7 @@ public class MainShell {
 	private AudioPlayer audioPlayer;
 	private Thread threadAudioPlayer;
 	private Boolean videoOn = true;
+	private Boolean webcamOn = true;
 	private String style = "";
 	private String defaultStyle = "";
 	private Boolean imgOverRide = false;
@@ -167,6 +184,7 @@ public class MainShell {
 	private File oldImage;
 	private File oldImage2;
 	private boolean videoPlayed = false;
+	private ResourceBundle displayText;
 	//private boolean exitTriggered = false;
 
 	public Shell createShell(final Display display) {
@@ -177,12 +195,20 @@ public class MainShell {
 		int[] intWeights2 = new int[2];
 		colourBlack = display.getSystemColor(SWT.COLOR_BLACK);
 		colourWhite = display.getSystemColor(SWT.COLOR_WHITE);
+
 		try {
 			logger.trace("Get appSettings");
 			appSettings = AppSettings.getAppSettings();
 
+			Locale locale = new Locale(appSettings.getLanguage(), appSettings.getCountry());
+			displayText = ResourceBundle.getBundle("DisplayBundle", locale);
+			appSettings.setDisplayText(displayText);
+
 			//video flag
 			videoOn = appSettings.getVideoOn();
+
+			//webcam flag
+			webcamOn = appSettings.getWebcamOn();
 
 			// font size
 			MintFontSize = appSettings.getFontSize();
@@ -337,6 +363,11 @@ public class MainShell {
 			mediaPanel.setBackground(colourBlack);
 			mediaPanel.addControlListener(new mediaPanelListener());
 
+			webcamPanel = new Composite(leftFrame, SWT.EMBEDDED);
+			FormLayout  layoutwebcam = new FormLayout();
+			webcamPanel.setLayout(layoutwebcam);
+			webcamPanel.setBackground(colourBlack);
+
 			//defaultStyle
 			try {
 		        defaultStyle = comonFunctions.readFile("./defaultCSS.TXT", StandardCharsets.UTF_8);
@@ -441,6 +472,21 @@ public class MainShell {
 				logger.trace("Video Exit");
 			}
 
+			if (webcamOn)
+			{
+				try {
+					Frame frame = SWT_AWT.new_Frame(webcamPanel);
+	
+					webcamRoot = new JRootPane();
+					frame.add(webcamRoot);
+	
+				}
+				catch (Exception webcamex) {
+					logger.error("Webcam intialisation error " + webcamex.getLocalizedMessage(), webcamex);
+				}
+				
+			}
+			
 			//Set the layout and how it responds to screen resize
 			FormData lblLeftFormData = new FormData();
 			lblLeftFormData.top = new FormAttachment(0,0);
@@ -508,6 +554,13 @@ public class MainShell {
 			MediaPanelFormData.bottom = new FormAttachment(100,0);
 			mediaPanel.setLayoutData(MediaPanelFormData);
 			
+			FormData WebcamPanelFormData = new FormData();
+			WebcamPanelFormData.top = new FormAttachment(0,0);
+			WebcamPanelFormData.left = new FormAttachment(0, 0);
+			WebcamPanelFormData.right = new FormAttachment(100,0);
+			WebcamPanelFormData.bottom = new FormAttachment(100,0);
+			webcamPanel.setLayoutData(WebcamPanelFormData);
+			
 			FormData imageLabelFormData = new FormData();
 			imageLabelFormData.top = new FormAttachment(0,0);
 			imageLabelFormData.left = new FormAttachment(0, 0);
@@ -520,7 +573,7 @@ public class MainShell {
 
 			//Top Level File drop down
 			MenuItem fileItem = new MenuItem (MenuBar, SWT.CASCADE);
-			fileItem.setText ("&File");
+			fileItem.setText (displayText.getString("MainFile"));
 
 			//Sub Menu for File
 			Menu fileSubMenu = new Menu (shell, SWT.DROP_DOWN);
@@ -529,37 +582,37 @@ public class MainShell {
 
 			//File Load menu item
 			MenuItem fileLoadItem = new MenuItem (fileSubMenu, SWT.PUSH);
-			fileLoadItem.setText ("&Load");
+			fileLoadItem.setText (displayText.getString("MainLoad"));
 			fileLoadItem.addSelectionListener(new FileLoadListener());
 
 			//File Library menu item
 			MenuItem fileLibraryItem = new MenuItem (fileSubMenu, SWT.PUSH);
-			fileLibraryItem.setText ("Li&brary");
+			fileLibraryItem.setText (displayText.getString("MainLibrary"));
 			fileLibraryItem.addSelectionListener(new FileLibraryListener());
 
 			//File Restart menu item
 			MenuItem fileRestartItem = new MenuItem (fileSubMenu, SWT.PUSH);
-			fileRestartItem.setText ("&Restart");
+			fileRestartItem.setText (displayText.getString("MainRestart"));
 			fileRestartItem.addSelectionListener(new FileRestartListener());
 
 			//File Preferences menu item
 			MenuItem filePreferencesItem = new MenuItem (fileSubMenu, SWT.PUSH);
-			filePreferencesItem.setText ("&Application Preferences");
+			filePreferencesItem.setText (displayText.getString("MainAppPref"));
 			filePreferencesItem.addSelectionListener(new FilePreferences());
 
 			//File Preferences Guide menu item
 			MenuItem filePreferencesGuideItem = new MenuItem (fileSubMenu, SWT.PUSH);
-			filePreferencesGuideItem.setText ("&User Preferences");
+			filePreferencesGuideItem.setText (displayText.getString("MainUserPref"));
 			filePreferencesGuideItem.addSelectionListener(new FilePreferencesGuide());
 
 			//File Guide Preferences menu item
 			MenuItem fileGuidePreferencesItem = new MenuItem (fileSubMenu, SWT.PUSH);
-			fileGuidePreferencesItem.setText ("&Guide Preferences");
+			fileGuidePreferencesItem.setText (displayText.getString("MainGuidePref"));
 			fileGuidePreferencesItem.addSelectionListener(new FileGuidePreferences());
 
 			//File Exit menu item
 			MenuItem fileExitItem = new MenuItem (fileSubMenu, SWT.PUSH);
-			fileExitItem.setText ("&Exit");
+			fileExitItem.setText (displayText.getString("MainExit"));
 			fileExitItem.addListener (SWT.Selection, new Listener () {
 				public void handleEvent (Event e) {
 					logger.trace("Enter Menu Exit");
@@ -570,7 +623,7 @@ public class MainShell {
 
 			//Top Level Tools drop down
 			MenuItem toolsItem = new MenuItem (MenuBar, SWT.CASCADE);
-			toolsItem.setText ("&Tools");
+			toolsItem.setText (displayText.getString("MainTools"));
 
 			//Sub Menu for Tools
 			Menu toolsSubMenu = new Menu (shell, SWT.DROP_DOWN);
@@ -579,24 +632,24 @@ public class MainShell {
 			
 			//Tools Compress menu item
 			MenuItem CompressGuideItem = new MenuItem (toolsSubMenu, SWT.PUSH);
-			CompressGuideItem.setText ("&Compress Guide");
+			CompressGuideItem.setText (displayText.getString("MainToolsCompress"));
 			CompressGuideItem.addSelectionListener(new CompressGuideListener());
 
 			//Tools UnCompress menu item
 			MenuItem UnCompressGuideItem = new MenuItem (toolsSubMenu, SWT.PUSH);
-			UnCompressGuideItem.setText ("&UnCompress Guide");
+			UnCompressGuideItem.setText (displayText.getString("MainToolsUnCompress"));
 			UnCompressGuideItem.addSelectionListener(new UnCompressGuideListener());
 
 			//Tools Resize menu item
 			MenuItem ResizeGuideItem = new MenuItem (toolsSubMenu, SWT.PUSH);
-			ResizeGuideItem.setText ("&Resize Guide Images");
+			ResizeGuideItem.setText (displayText.getString("MainToolsResizeImage"));
 			ResizeGuideItem.addSelectionListener(new ResizeGuideListener());
 			
 			if (appSettings.getDebug())
 			{
 				//Top Level Debug drop down
 				MenuItem debugItem = new MenuItem (MenuBar, SWT.CASCADE);
-				debugItem.setText ("Debu&g");
+				debugItem.setText (displayText.getString("MainDebug"));
 	
 				//Sub Menu for Debug
 				Menu debugSubMenu = new Menu (shell, SWT.DROP_DOWN);
@@ -605,7 +658,7 @@ public class MainShell {
 				
 				//Debug Debug Menu Item
 			    final MenuItem debugCheck = new MenuItem(debugSubMenu, SWT.CHECK);
-			    debugCheck.setText("Debu&g");
+			    debugCheck.setText(displayText.getString("MainDebugDebug"));
 			    debugCheck.setSelection(appSettings.getDebug());
 			    debugCheck.addListener(SWT.Selection, new Listener() {
 			      public void handleEvent(Event event) {
@@ -615,7 +668,7 @@ public class MainShell {
 				
 			    //Debug Javascript Debug Menu Item
 			    final MenuItem jsdebugCheck = new MenuItem(debugSubMenu, SWT.CHECK);
-			    jsdebugCheck.setText("&Javascript Debug");
+			    jsdebugCheck.setText(displayText.getString("MainDebugJava"));
 			    jsdebugCheck.setSelection(appSettings.getJsDebug());
 			    jsdebugCheck.addListener(SWT.Selection, new Listener() {
 			      public void handleEvent(Event event) {
@@ -624,7 +677,7 @@ public class MainShell {
 			    });			
 			    //Debug Javascript Debug Menu Error Item
 			    final MenuItem jsdebugErrorCheck = new MenuItem(debugSubMenu, SWT.CHECK);
-			    jsdebugErrorCheck.setText("&Javascript Break on exception");
+			    jsdebugErrorCheck.setText(displayText.getString("MainDebugException"));
 			    jsdebugErrorCheck.setSelection(appSettings.getJsDebugError());
 			    jsdebugErrorCheck.addListener(SWT.Selection, new Listener() {
 			      public void handleEvent(Event event) {
@@ -633,7 +686,7 @@ public class MainShell {
 			    });			
 			    //Debug Javascript Debug Menu Enter Item
 			    final MenuItem jsdebugEnterCheck = new MenuItem(debugSubMenu, SWT.CHECK);
-			    jsdebugEnterCheck.setText("&Javascript Break on function enter");
+			    jsdebugEnterCheck.setText(displayText.getString("MainDebugEnter"));
 			    jsdebugEnterCheck.setSelection(appSettings.getJsDebugEnter());
 			    jsdebugEnterCheck.addListener(SWT.Selection, new Listener() {
 			      public void handleEvent(Event event) {
@@ -642,7 +695,7 @@ public class MainShell {
 			    });			
 			    //Debug Javascript Debug Menu Exit Item
 			    final MenuItem jsdebugExitCheck = new MenuItem(debugSubMenu, SWT.CHECK);
-			    jsdebugExitCheck.setText("&Javascript Break on function return");
+			    jsdebugExitCheck.setText(displayText.getString("MainDebugExit"));
 			    jsdebugExitCheck.setSelection(appSettings.getJsDebugExit());
 			    jsdebugExitCheck.addListener(SWT.Selection, new Listener() {
 			      public void handleEvent(Event event) {
@@ -976,6 +1029,7 @@ public class MainShell {
 							new Runnable() {
 								public void run(){
 									mediaPanel.setVisible(false);
+									webcamPanel.setVisible(false);
 									imageLabel.setVisible(true);
 									leftFrame.layout(true);
 									logger.debug("MediaListener Video Run: " + videoJscript + " videoTarget: " + videoTarget);
@@ -1282,7 +1336,19 @@ public class MainShell {
 				//this loads automatically from the application directory with a hard coded name.
 				//
 				debugShell.clearPagesCombo();
-				xmlGuideReader.loadXML("userSettingsUI.xml", guide, appSettings, debugShell);
+				String appDir = appSettings.getUserDir().replace("\\", "\\\\");
+				String fileName = "userSettingsUI_" + appSettings.getLanguage() + "_" + appSettings.getCountry() + ".xml";
+				File f = new File(appDir + appSettings.getFileSeparator() + fileName);
+				if (!f.exists())
+				{
+					fileName = "userSettingsUI_" + appSettings.getLanguage() + ".xml";
+					f = new File(appDir + appSettings.getFileSeparator() + fileName);
+					if (!f.exists())
+					{
+						fileName = "userSettingsUI.xml";	
+					}
+				}
+				xmlGuideReader.loadXML(fileName, guide, appSettings, debugShell);
 				guide.setMediaDirectory("userSettings");
 				guideSettings = guide.getSettings();
 				if (guide.getCss().equals("")) {
@@ -1849,6 +1915,7 @@ public class MainShell {
 			logger.error("Process Image error " + ex6.getLocalizedMessage(), ex6);
 		}
 		mediaPanel.setVisible(false);
+		webcamPanel.setVisible(false);
 		this.imageLabel.setVisible(true);
 		leftFrame.layout(true);
 	}
@@ -1863,6 +1930,7 @@ public class MainShell {
 			imgOverRide = true;
 			imageLabel.setText(leftHtml, true);
 			mediaPanel.setVisible(false);
+			webcamPanel.setVisible(false);
 			this.imageLabel.setVisible(true);
 			leftFrame.layout(true);
 		}
@@ -1871,7 +1939,46 @@ public class MainShell {
 		}
 	}
 	
-	public void playVideo(String video, int startAt, int stopAt, int loops, String target, String jscript, String scriptVar) {
+	public boolean showWebcam() {
+		//displays the webcam in the area to the left of the screen
+		if (webcamOn) {
+			try {
+				webcam = Webcam.getDefault();
+				
+				if (webcam != null)
+				{
+					mainShell.setLeftText("", "");
+					this.imageLabel.setVisible(false);
+					this.mediaPanel.setVisible(false);
+					this.webcamPanel.setVisible(true);
+
+					Dimension[] dimensions = webcam.getViewSizes();
+					Dimension size = dimensions[dimensions.length - 1];
+					webcam.setViewSize(size);
+					panel = new WebcamPanel(webcam, size, false);
+					panel.setMirrored(true);
+					webcamRoot.getContentPane().add(panel);
+					panel.start();
+					leftFrame.layout(true);
+					webcamRoot.validate();
+					webcamVisible = true;
+					logger.debug("MainShell playVideo: ShowWebcam");
+					
+				}
+				else
+				{
+					mainShell.setLeftText("No Webcam detected", "");
+					Webcam.getDiscoveryService().stop();
+				}
+				
+			} catch (Exception e) {
+				logger.error("showWebcam " + e.getLocalizedMessage(), e);		
+			}
+		}
+		return webcam != null;
+	}
+
+	public void playVideo(String video, int startAt, int stopAt, int loops, String target, String jscript, String scriptVar, int volume) {
 		//plays a video in the area to the left of the screen
 		//sets the number of loops, start / stop time and any page to display if the video finishes
 		//starts the video using a non UI thread so VLC can't hang the application
@@ -1879,6 +1986,7 @@ public class MainShell {
 			try {
 				mainShell.setLeftText("", "");
 				this.imageLabel.setVisible(false);
+				this.webcamPanel.setVisible(false);
 				this.mediaPanel.setVisible(true);
 				leftFrame.layout(true);
 				videoLoops = loops;
@@ -1891,7 +1999,7 @@ public class MainShell {
 				String mrlVideo = "file:///" + video;
 				logger.debug("MainShell playVideo: " + mrlVideo + " videoLoops: " + videoLoops + " videoTarget: " + videoTarget + " videoPlay: " + videoPlay);
 				VideoPlay videoPlay = new VideoPlay();
-				videoPlay.setVideoPlay(mediaPlayer, mrlVideo);
+				videoPlay.setVideoPlay(mediaPlayer, mrlVideo, volume);
 				Thread videoPlayThread = new Thread(videoPlay, "videoPlay");
 				videoPlayThread.setName("videoPlayThread");
 				videoPlayThread.start();
@@ -1906,12 +2014,26 @@ public class MainShell {
 		//code to start the video on a separate thread
 		private SwtEmbeddedMediaPlayer mediaPlayer;
 		private String video;
+		private int volume;
 		
 		@Override
 		public void run() {
 			try {
 				logger.debug("MainShell VideoPlay new Thread " + video);
-				mediaPlayer.setVolume(appSettings.getVideoVolume());
+				int mediaVolume = appSettings.getVideoVolume();
+				if (volume < 100)
+				{
+					if (volume == 0)
+					{
+						mediaVolume = 0;
+					}
+					else
+					{
+						mediaVolume = (int) ((double) mediaVolume * ((double) volume / (double) 100));
+					}
+				}
+				
+				mediaPlayer.setVolume(mediaVolume);
 				mediaPlayer.setPlaySubItems(true);
 				if (videoStartAt == 0 && videoStopAt == 0 && videoLoops == 0) {
 					mediaPlayer.playMedia(video);
@@ -1930,6 +2052,7 @@ public class MainShell {
 							new Runnable() {
 								public void run(){
 									mediaPanel.setVisible(true);
+									webcamPanel.setVisible(false);
 									imageLabel.setVisible(false);
 									leftFrame.layout(true);
 								}
@@ -1942,9 +2065,21 @@ public class MainShell {
 			}
 		}
 
-		public void setVideoPlay(SwtEmbeddedMediaPlayer mediaPlayer, String video) {
+		public void setVideoPlay(SwtEmbeddedMediaPlayer mediaPlayer, String video, int volume) {
 			this.mediaPlayer = mediaPlayer;
 			this.video = video;
+			if (volume > 100)
+			{
+				this.volume = 100;
+			} 
+			else if (volume < 0)
+			{
+				volume = 0;
+			}
+			else
+			{
+				this.volume = volume;
+			}
 		}
 
 	}
@@ -2042,6 +2177,7 @@ public class MainShell {
 			this.imageLabel.setText(strHTML);
 		}
 		mediaPanel.setVisible(false);
+		webcamPanel.setVisible(false);
 		this.imageLabel.setVisible(true);
 		leftFrame.layout(true);
 	}
@@ -2057,6 +2193,7 @@ public class MainShell {
 			this.imageLabel.setText(strHTML);
 		}
 		mediaPanel.setVisible(false);
+		webcamPanel.setVisible(false);
 		this.imageLabel.setVisible(true);
 		leftFrame.layout(true);
 	}
@@ -2109,6 +2246,7 @@ public class MainShell {
 		String strBtnTarget;
 		String strBtnText;
 		String strBtnImage;
+		Boolean isWebCamButton = button instanceof WebcamButton;
 		try {
 			strBtnTarget = button.getTarget();
 			strBtnText = button.getText();
@@ -2207,7 +2345,21 @@ public class MainShell {
 			}
 
 			btnDynamic.setData("Target", strBtnTarget);
-			btnDynamic.addSelectionListener(new DynamicButtonListner());
+			if (isWebCamButton)
+			{
+				WebcamButton webcamButton = (WebcamButton) button;
+				btnDynamic.setData("webcamFile", webcamButton.get_destination());
+				switch (webcamButton.get_type())
+				{
+					case "Capture":
+						btnDynamic.addSelectionListener(new WebcamCaptureListener());
+						break;
+				}
+			}
+			else
+			{
+				btnDynamic.addSelectionListener(new DynamicButtonListner());
+			}
 			btnDynamic.setEnabled(!button.getDisabled());
 		} catch (Exception e) {
 			logger.error("addButton " + e.getLocalizedMessage(), e);		
@@ -2246,6 +2398,58 @@ public class MainShell {
 		}
 	}
 
+	private static BufferedImage convertToType(BufferedImage sourceImage, int targetType) {
+		BufferedImage image;
+
+		// if the source image is already the target type, return the source image
+
+		if (sourceImage.getType() == targetType)
+			image = sourceImage;
+
+		// otherwise create a new image of the target type and draw the new
+		// image
+
+		else {
+			image = new BufferedImage(sourceImage.getWidth(), sourceImage.getHeight(), targetType);
+			image.getGraphics().drawImage(sourceImage, 0, 0, null);
+		}
+
+		return image;
+	}	
+	
+	
+	class WebcamCaptureListener extends DynamicButtonListner
+	{
+		public void widgetSelected(SelectionEvent event) {
+			try {
+				
+				logger.trace("Enter WebcamCaptureListener");
+				String strFile;
+				com.snapps.swt.SquareButton btnClicked;
+				btnClicked = (com.snapps.swt.SquareButton) event.widget;
+				strFile = (String) btnClicked.getData("webcamFile");
+				if (!comonFunctions.CanCreateFile(strFile)) {
+					strFile = comonFunctions.getMediaFullPath(strFile, appSettings.getFileSeparator(), appSettings, guide);
+				}
+				
+				try
+				{
+					BufferedImage image = webcam.getImage();
+					ImageIO.write(image, "JPG", new File(strFile));
+				}
+				catch (Exception ex) {
+					logger.error(" WebcamCaptureListener take and save image " + ex.getLocalizedMessage(), ex);
+				}
+				
+				super.widgetSelected(event);
+			}
+			catch (Exception ex) {
+				logger.error(" WebcamCaptureListener " + ex.getLocalizedMessage(), ex);
+			}
+			logger.trace("Exit WebcamCaptureListener");
+		}
+	}
+	
 	public void runJscript(String function, boolean pageLoading) {
 		runJscript(function, null, pageLoading);
 	}
@@ -2472,6 +2676,16 @@ public class MainShell {
 		threadAudioPlayer = null;
 	}
 
+	public void stopWebcam(boolean shellClosing)
+	{
+		if (webcamOn && webcamVisible)
+		{
+			panel.stop();
+			webcamRoot.getContentPane().removeAll();
+			webcamVisible = false;
+		}
+	}
+	
 	public void stopVideo(boolean shellClosing) {
 		if (videoOn) {
 			try {
@@ -2487,6 +2701,7 @@ public class MainShell {
 						Thread videoStopThread = new Thread(videoStop, "videoStop");
 						videoStopThread.setName("videoStopThread");
 						mediaPanel.setVisible(false);
+						webcamPanel.setVisible(false);
 						imageLabel.setVisible(true);
 						leftFrame.layout(true);
 						videoStopThread.start();
@@ -2573,6 +2788,12 @@ public class MainShell {
 		}
 		catch (Exception ex) {
 			logger.error(" stopVideo " + ex.getLocalizedMessage(), ex);
+		}
+		try {
+			stopWebcam(shellClosing);
+		}
+		catch (Exception ex) {
+			logger.error(" stopWebcam " + ex.getLocalizedMessage(), ex);
 		}
 		try {
 			timerReset();

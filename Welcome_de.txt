@@ -1,0 +1,19 @@
+<!DOCTYPE HTML>
+<html>
+	<head>
+		<meta http-equiv='Content-type' content='text/html;charset=UTF-8' />
+		<title>Guideme - Explore Yourself</title>
+		<style type='text/css'> html { overflow-y: auto; } body { color: white; background-color: black; font-family: Tahoma; font-size:16px; overflow:hidden } html, body, #wrapper { height:100%; width: 100%; margin: 0; padding: 0; border: 0; } #wrapper { vertical-align: middle; text-align: center; } #bannerimg { width: 90%; border-top: 3px solid #cccccc; border-right: 3px solid #cccccc; border-bottom: 3px solid #666666; border-left: 3px solid #666666; }</style>
+	</head>
+	<body>
+		<div id='wrapper' >
+			<div>
+				<img src='appDir/Guides/onepointfour/portrait-1097950__180.jpg' height='300'/>
+			</div>
+			<div>
+				<h2>Welcome to the German version of Guideme!</h2>To get started, click File/Load and select a guide.
+			</div>
+		</div>
+	</body>
+</script>	
+</html>

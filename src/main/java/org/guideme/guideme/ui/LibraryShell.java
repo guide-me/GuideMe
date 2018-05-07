@@ -6,6 +6,8 @@ import java.awt.Desktop;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.ResourceBundle;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.SWT;
@@ -56,44 +58,23 @@ public class LibraryShell {
 	private AppSettings appSettings;
 	private int buttonCharacters;
 	private String authorUrl = "https://milovana.com/webteases/?author=";
+	private ResourceBundle displayText;
+	private String SortByTitle;
+	private String SortByAuthor;
+	private String SortByDate;
+	private String SearchByContent;
+	private String SearchByTitle;
 	
-	public enum SortBy {
-		TITLE {
-			public String toString() {
-				return "Sort By Title";
-			}
-		},
-
-		AUTHOR {
-			public String toString() {
-				return "Sort By Author";
-			}
-		},
-
-		DATE {
-			public String toString() {
-				return "Sort By Date";
-			}
-		}
-	}
-
-	public enum SearchBy {
-		TEXT {
-			public String toString() {
-				return "Search Content";
-			}
-		},
-
-		TITLE {
-			public String toString() {
-				return "Search Author/Title";
-			}
-		}
-	}
-
 	public Shell createShell(Display display, AppSettings pappSettings, MainShell mainShell) {
 		logger.trace("Enter createShell");
 		try {
+			displayText = pappSettings.getDisplayText();
+			SortByTitle = displayText.getString("FileLibrarySortTitle");
+			SortByAuthor = displayText.getString("FileLibrarySortAuthor");
+			SortByDate = displayText.getString("FileLibrarySortDate");
+			SearchByContent = displayText.getString("FileLibrarySearchByContent");
+			SearchByTitle = displayText.getString("FileLibrarySearchByTitle");
+			
 			comonFunctions = ComonFunctions.getComonFunctions();
 			appSettings = pappSettings;
 
@@ -102,7 +83,7 @@ public class LibraryShell {
 
 			shell = new Shell(myDisplay, SWT.APPLICATION_MODAL + SWT.CLOSE);
 
-			shell.setText("Guide Me Library");
+			shell.setText(displayText.getString("FileLibraryTitle"));
 			FormLayout layout = new FormLayout();
 			shell.setLayout(layout);
 			Font sysFont = display.getSystemFont();
@@ -119,12 +100,12 @@ public class LibraryShell {
 			toolBar.setLayout(new RowLayout());
 
 			SquareButton btnGuide = new SquareButton(toolBar, SWT.PUSH);
-			btnGuide.setText("Prev");
+			btnGuide.setText(displayText.getString("FileLibraryButtonPrev"));
 			btnGuide.setFont(controlFont);
 			btnGuide.addSelectionListener(new PrevButtonListener());
 
 			btnGuide = new SquareButton(toolBar, SWT.PUSH);
-			btnGuide.setText("Next");
+			btnGuide.setText(displayText.getString("FileLibraryButtonNext"));
 			btnGuide.setFont(controlFont);
 			btnGuide.addSelectionListener(new NextButtonListener());
 			
@@ -133,7 +114,7 @@ public class LibraryShell {
 
 			sortFilter = new Combo(toolBar, SWT.READ_ONLY);
 			sortFilter.setFont(controlFont);
-			String[] sortTtems = { SortBy.TITLE.toString(), SortBy.AUTHOR.toString(), SortBy.DATE.toString() };
+			String[] sortTtems = { SortByTitle, SortByAuthor, SortByDate };
 			sortFilter.setItems(sortTtems);
 			sortFilter.select(0);
 			sortFilter.addSelectionListener(new sortListener());
@@ -151,23 +132,23 @@ public class LibraryShell {
 			gc.dispose();
 
 			SquareButton btnSearch = new SquareButton(toolBar, SWT.PUSH);
-			btnSearch.setText("Go");
+			btnSearch.setText(displayText.getString("FileLibraryButtonGo"));
 			btnSearch.setFont(controlFont);
 			btnSearch.addSelectionListener(new SearchButtonListener());
 
 			searchFilter = new Combo(toolBar, SWT.READ_ONLY);
 			searchFilter.setFont(controlFont);
-			String[] SearchItems = { SearchBy.TEXT.toString(), SearchBy.TITLE.toString() };
+			String[] SearchItems = { SearchByContent, SearchByTitle };
 			searchFilter.setItems(SearchItems);
 			searchFilter.select(0);
 
 			btnGuide = new SquareButton(toolBar, SWT.PUSH);
-			btnGuide.setText("Random");
+			btnGuide.setText(displayText.getString("FileLibraryButtonRandom"));
 			btnGuide.setFont(controlFont);
 			btnGuide.addSelectionListener(new RandomButtonListener());
 
 			SquareButton btnDir = new SquareButton(toolBar, SWT.PUSH);
-			btnDir.setText("Folder");
+			btnDir.setText(displayText.getString("FileLibraryButtonFolder"));
 			btnDir.setFont(controlFont);
 			btnDir.addSelectionListener(new FolderButtonListener());
 
@@ -303,13 +284,13 @@ public class LibraryShell {
 	private void sortGuides()
 	{
 		String selected = sortFilter.getText();
-		if (selected.equals(SortBy.TITLE.toString())) {
+		if (selected.equals(SortByTitle)) {
 			sortTitle();
 		}
-		if (selected.equals(SortBy.AUTHOR.toString())) {
+		if (selected.equals(SortByAuthor)) {
 			sortAuthor();
 		}
-		if (selected.equals(SortBy.DATE.toString())) {
+		if (selected.equals(SortByDate)) {
 			sortDate();
 		}		
 	}
@@ -436,13 +417,13 @@ public class LibraryShell {
 				logger.trace("Enter SearchButtonListener");
 				guides = new ArrayList<Library>();
 				for (Library guide : originalGuides){
-					if (selected.equals(SearchBy.TITLE.toString())) {
+					if (selected.equals(SearchByContent)) {
 						if (comonFunctions.searchText(searchText.getText(), guide.author + guide.title))
 						{
 							guides.add(guide);
 						}
 					}
-					if (selected.equals(SearchBy.TEXT.toString())) {
+					if (selected.equals(SearchByTitle)) {
 						if (comonFunctions.searchGuide(searchText.getText(), guide.file))
 						{
 							guides.add(guide);

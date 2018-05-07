@@ -118,6 +118,11 @@ public class Button  implements Comparable<Button>
 		return this.target;
 	}
 
+	public void setTarget(String target) {
+		this.target = target;
+	}
+
+
 	public String getjScript() {
 		return jScript;
 	}

@@ -68,7 +68,7 @@ public class MainShellMock extends MainShell {
 
 	@Override
 	public void playVideo(String video, int startAt, int stopAt, int loops,
-			String target, String jscript, String scriptVars) {
+			String target, String jscript, String scriptVars, int volume) {
 		logger.debug("MainShellMock playVideo video:" + video + " startAt:" + startAt + " stopAt:" + stopAt + " loops:" + loops + " target:" + target + " jscript:" + jscript);
 		File f = new File(video);
 		if(!f.exists()){

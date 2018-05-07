@@ -3,6 +3,7 @@ package org.guideme.guideme.ui;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
@@ -84,6 +85,8 @@ public class DebugShell {
 			keepShellOpen = true;
 			comonFuctions = ComonFunctions.getComonFunctions();
 			AppSettings appSettings = AppSettings.getAppSettings();
+			ResourceBundle displayText = appSettings.getDisplayText();
+			
 			//Create the main UI elements
 			myDisplay = display;
 			//myUserSettings = userSettings;
@@ -115,7 +118,7 @@ public class DebugShell {
 			pagesCombo.setLayoutData(pagesComboFormData);
 
 			SquareButton btnGo = new SquareButton(shell, SWT.PUSH);
-			btnGo.setText("go");
+			btnGo.setText(displayText.getString("DebugShellButtonGo"));
 			FormData btnGoFormData = new FormData();
 			btnGoFormData.top = new FormAttachment(0,0);
 			btnGoFormData.right = new FormAttachment(90, -2);
@@ -124,7 +127,7 @@ public class DebugShell {
 			btnGo.addSelectionListener(new GoButtonListener());
 
 			SquareButton btnCurrent = new SquareButton(shell, SWT.PUSH);
-			btnCurrent.setText("reset");
+			btnCurrent.setText(displayText.getString("DebugShellButtonReset"));
 			FormData btnCurrentFormData = new FormData();
 			btnCurrentFormData.top = new FormAttachment(0,0);
 			btnCurrentFormData.right = new FormAttachment(100, -2);
@@ -144,7 +147,7 @@ public class DebugShell {
 
 			//Main Tab
 			TabItem tabMain = new TabItem(tabFolder, SWT.NONE);
-			tabMain.setText("Main");
+			tabMain.setText(displayText.getString("DebugShellTabMain"));
 
 			tableComp = new Composite(tabFolder, SWT.SHADOW_NONE);
 			FormLayout tbllayout = new FormLayout();
@@ -160,7 +163,7 @@ public class DebugShell {
 
 			//Text Tab
 			TabItem tabText = new TabItem(tabFolder, SWT.NONE);
-			tabText.setText("Text");
+			tabText.setText(displayText.getString("DebugShellTabText"));
 
 			txtText = new Text(tabFolder, SWT.LEFT + SWT.MULTI + SWT.WRAP + SWT.READ_ONLY + SWT.V_SCROLL);
 			FormData lblTexctFormData = new FormData();
@@ -188,7 +191,7 @@ public class DebugShell {
 
 			//Variables Tab
 			TabItem tabVariables = new TabItem(tabFolder, SWT.NONE);
-			tabVariables.setText("Variables");
+			tabVariables.setText(displayText.getString("DebugShellTabVariables"));
 			
 			varScrlComp = new ScrolledComposite(tabFolder, SWT.V_SCROLL);
 		    
@@ -209,7 +212,7 @@ public class DebugShell {
 			GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
 			data.heightHint = 200;
 			varTable.setLayoutData(data);
-			String[]titles = {"Name", "value"};
+			String[]titles = {displayText.getString("DebugShellTableName"), displayText.getString("DebugShellTableValue")};
 			for (int i=0; i<titles.length; i++) {
 				TableColumn column = new TableColumn (varTable, SWT.NONE);
 				column.setText (titles [i]);
@@ -236,7 +239,7 @@ public class DebugShell {
 			txtVarValue.setLayoutData(txtVarValueFormData);
 
 			SquareButton btnSet = new SquareButton(varComp, SWT.PUSH);
-			btnSet.setText("Set Value");
+			btnSet.setText(displayText.getString("DebugShellButtonSetValue"));
 			FormData btnSetFormData = new FormData();
 			btnSetFormData.top = new FormAttachment(varTable,0);
 			btnSetFormData.right = new FormAttachment(100, -2);

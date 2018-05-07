@@ -5,36 +5,27 @@ import java.util.ArrayList;
 
 import org.guideme.guideme.settings.ComonFunctions;
 
-public class Video
+public class Webcam
 {
-	private String id;
-	private String startAt;
-	private String stopAt;
-	private String target;
 	private String ifSet;
 	private String ifNotSet;
-	private String set;
-	private String unSet;
-	private String repeat;
-	private String jscript;
 	private LocalTime ifBefore; //Time of day must be before this time
 	private LocalTime ifAfter; //Time of day must be after this time
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
-	private String scriptVar;
-	private int volume;  //integer between 0 and 100 
+	private Boolean webCamFound = false;
 
-	public Video(String id, String startAt, String stopAt, String target, String ifSet, String ifNotSet, String set, String unSet, String repeat, String jscript, String ifAfter, String ifBefore, String scriptVar, int volume)
+	public Boolean getWebCamFound() {
+		return webCamFound;
+	}
+
+	public void setWebCamFound(Boolean webCamFound) {
+		this.webCamFound = webCamFound;
+	}
+
+	public Webcam(String ifSet, String ifNotSet, String ifAfter, String ifBefore)
 	{
-		this.id = id;
-		this.startAt = startAt;
-		this.stopAt = stopAt;
-		this.target = target;
 		this.ifSet = ifSet;
 		this.ifNotSet = ifNotSet;
-		this.set = set;
-		this.unSet = unSet;
-		this.repeat = repeat;
-		this.jscript = jscript;
 		if (ifBefore.equals("")) {
 			this.ifBefore = null;
 		} else {
@@ -45,25 +36,7 @@ public class Video
 		} else {
 			this.ifAfter = LocalTime.parse(ifAfter);
 		}
-		this.scriptVar = scriptVar;
-		this.volume = volume;
 
-	}
-
-	public String getId() {
-		return this.id;
-	}
-
-	public String getStartAt() {
-		return this.startAt;
-	}
-
-	public String getStopAt() {
-		return this.stopAt;
-	}
-
-	public String getTarget() {
-		return this.target;
 	}
 
 	public boolean canShow(ArrayList<String> setList) {
@@ -72,19 +45,6 @@ public class Video
 			retVal =  comonFunctions.canShow(setList, ifSet, ifNotSet);
 		}
 		return retVal;
-	}
-
-	public void setUnSet(ArrayList<String> setList) {
-		comonFunctions.SetFlags(this.set, setList);
-		comonFunctions.UnsetFlags(this.unSet, setList);
-	}
-
-	public String getRepeat() {
-		return this.repeat;
-	}
-
-	public String getJscript() {
-		return jscript;
 	}
 
 	public String getIfSet() {
@@ -118,14 +78,6 @@ public class Video
 		} else {
 			this.ifAfter = LocalTime.parse(ifAfter);
 		}
-	}
-
-	public String getScriptVar() {
-		return scriptVar;
-	}
-
-	public int getVolume() {
-		return volume;
 	}
 
 

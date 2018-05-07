@@ -9,17 +9,23 @@ import org.guideme.guideme.model.Delay;
 import org.guideme.guideme.model.Metronome;
 import org.guideme.guideme.model.Timer;
 import org.guideme.guideme.model.Video;
+import org.guideme.guideme.model.Webcam;
+import org.guideme.guideme.model.WebcamButton;
 
 
 public class OverRide {
 	/** @exclude */
 	private ArrayList<Button> button = new ArrayList<Button>();
 	/** @exclude */
+	private ArrayList<WebcamButton> webcamButton = new ArrayList<WebcamButton>();
+	/** @exclude */
 	private ArrayList<Timer> timer = new ArrayList<Timer>();
 	/** @exclude */
 	private Delay delay = null;
 	/** @exclude */
 	private Video video = null;
+	/** @exclude */
+	private Webcam webcam = null;
 	/** @exclude */
 	private Audio audio = null;
 	/** @exclude */
@@ -208,6 +214,190 @@ public class OverRide {
 	
 	
 	/**
+	 * Adds a webcam button to the page
+	 * 
+	 * @param type Capture
+	 * @param file file name and location to save the captured image / video
+	 * @param target the page to go to
+	 * @param text the text to display on the button
+	 * @param set the flags to set if the button is pressed
+	 * @param unSet the flags to clear if the button is pressed
+	 * @param jScript the Java Script function to run if the button is pressed
+	 * @param image the background image for the button
+	 */
+	public void addWebcamButton(String type, String file, String target, String text, String set, String unSet, String jScript, String image) {
+		addWebcamButton(type, file, target, text, set, unSet, jScript, image, "");
+	}
+	
+	/**
+	 * Adds a webcam button to the page
+	 * 
+	 * @param type Capture
+	 * @param file file name and location to save the captured image / video
+	 * @param target the page to go to
+	 * @param text the text to be displayed on the button
+	 * @param set the flags to set if the button is pressed
+	 * @param unSet the flags to clear if the button is pressed
+	 * @param jScript the Java Script function to run if the button is pressed
+	 * @param image the background image for the button
+	 * @param hotKey the hot key assigned to the button
+	 */
+	public void addWebcamButton(String type, String file, String target, String text, String set, String unSet, String jScript, String image, String hotKey) {
+		WebcamButtonThread buttonThread = new WebcamButtonThread();
+		buttonThread.overRide = this;
+		buttonThread.type = type;
+		buttonThread.file = file;
+		buttonThread.target = target;
+		buttonThread.text = text;
+		buttonThread.set = set;
+		buttonThread.unSet = unSet;
+		buttonThread.jScript = jScript;
+		buttonThread.image = image;
+		buttonThread.hotKey = hotKey;
+		Display.getDefault().syncExec(buttonThread);
+	}
+
+	private class WebcamButtonThread implements Runnable
+	{
+		public OverRide overRide;
+		public String file;
+		public String type;
+		public String target;
+		public String text;
+		public String set;
+		public String unSet;
+		public String jScript;
+		public String image; 
+		public String hotKey;
+		
+		public void run()
+		{
+			WebcamButton button = new WebcamButton(type, file, target, text, "", "", set, unSet, jScript, image, hotKey);
+			overRide.webcamButton.add(button);
+		}
+	}
+			
+	/**
+	 * Adds a webcam button to the page
+	 * 
+	 * @param type Capture
+	 * @param file file name and location to save the captured image / video
+	 * @param target the page to go to
+	 * @param text the text displayed on the button
+	 * @param set the flags to set if the button is pressed
+	 * @param unSet the flags to clear if the button is pressed
+	 * @param jScript the Java Script function to run if the button is pressed
+	 * @param image the background image for the button
+	 * @param hotKey the hot key assigned to the button
+	 * @param sortOrder the sort order value (used to sort the buttons)
+	 * @param disabled the disabled state of the button (true to disable it)
+	 * @param id the id to use to manipulate the button from Java Script
+	 */
+	public void addWebcamButton(String type, String file, String target, String text, String set, String unSet, String jScript, String image, String hotKey, String sortOrder, boolean disabled, String id) {
+		int order;
+		try {
+			order = Integer.parseInt(sortOrder);
+		} catch (Exception e) {
+			order = 1;
+		}
+
+		WebcamButtonThread2 buttonThread = new WebcamButtonThread2();
+		buttonThread.overRide = this;
+		buttonThread.type = type;
+		buttonThread.file = file;
+		buttonThread.target = target;
+		buttonThread.text = text;
+		buttonThread.set = set;
+		buttonThread.unSet = unSet;
+		buttonThread.jScript = jScript;
+		buttonThread.image = image;
+		buttonThread.hotKey = hotKey;
+		buttonThread.order = order; 
+		buttonThread.disabled = disabled; 
+		buttonThread.id = id;
+		buttonThread.defaultBtn = false;
+		Display.getDefault().syncExec(buttonThread);		
+	}
+
+	/**
+	 * Adds a webcam button to the page
+	 * 
+	 * @param type Capture
+	 * @param file file name and location to save the captured image / video
+	 * @param target the page to go to
+	 * @param text the text displayed on the button
+	 * @param set the flags to set if the button is pressed
+	 * @param unSet the flags to clear if the button is pressed
+	 * @param jScript the Java Script function to run if the button is pressed
+	 * @param image the background image for the button
+	 * @param hotKey the hot key assigned to the button
+	 * @param sortOrder the sort order value (used to sort the buttons)
+	 * @param disabled the disabled state of the button (true to disable it)
+	 * @param id the id to use to manipulate the button from Java Script
+	 * @param defaultBtn default button activated when enter is pressed
+	 */
+	public void addWebcamButton(String type, String file, String target, String text, String set, String unSet, String jScript, String image, String hotKey, String sortOrder, boolean disabled, String id, boolean defaultBtn) {
+		int order;
+		try {
+			order = Integer.parseInt(sortOrder);
+		} catch (Exception e) {
+			order = 1;
+		}
+		
+		WebcamButtonThread2 buttonThread = new WebcamButtonThread2();
+		buttonThread.overRide = this;
+		buttonThread.type = type;
+		buttonThread.file = file;
+		buttonThread.target = target;
+		buttonThread.text = text;
+		buttonThread.set = set;
+		buttonThread.unSet = unSet;
+		buttonThread.jScript = jScript;
+		buttonThread.image = image;
+		buttonThread.hotKey = hotKey;
+		buttonThread.order = order; 
+		buttonThread.disabled = disabled; 
+		buttonThread.id = id;
+		buttonThread.defaultBtn = defaultBtn;
+		Display.getDefault().syncExec(buttonThread);	
+	}
+	
+	private class WebcamButtonThread2 implements Runnable
+	{
+		public OverRide overRide;
+		public String type;
+		public String file;
+		public String target;
+		public String text;
+		public String set;
+		public String unSet;
+		public String jScript;
+		public String image; 
+		public String hotKey;
+		public int order; 
+		public boolean disabled; 
+		public String id;
+		public boolean defaultBtn;
+		
+		public void run()
+		{
+			WebcamButton button = new WebcamButton(type, file, target, text, "", "", set, unSet, jScript, image, hotKey, "", "", "", "", "", order, "", "", disabled, id, "", defaultBtn);
+			overRide.webcamButton.add(button);
+		}
+	}
+	
+	/** @exclude */
+	public WebcamButton getWebcamButton(int i) {
+		return webcamButton.get(i);
+	}
+	
+	/** @exclude */
+	public int webcamButtonCount() {
+		return webcamButton.size();
+	}
+	
+	
+	/**
 	 * Adds a timer to change various aspects of the screen / run a javascript function
 	 * 
 	 * @param delay the time in seconds before the timer triggers
@@ -300,7 +490,45 @@ public class OverRide {
 	 * @param jscript the Java Script function to run when the video stops
 	 */
 	public void setVideo(String id, String startAt, String stopAt, String target, String set, String unSet, String repeat, String jscript) {
-		this.video = new Video(id, startAt, stopAt, target, "", "", set, unSet, repeat, jscript, "", "", "");
+		this.video = new Video(id, startAt, stopAt, target, "", "", set, unSet, repeat, jscript, "", "", "", 100);
+	}
+
+	/**
+	 * Play a video
+	 * 
+	 * id : 
+	 *	File must be in the media directory (or subdirectory)
+	 * 	Wild cards can be used
+	 * 	e.g. kate/home*.*  would select a video in the sub directory kate with a file name starting with home
+	 * 
+	 * startAt : to start 90 seconds in use 00:01:30
+	 * stopAt : to stop at 95 seconds into the video 00:01:35
+	 * 
+	 * @param id the file name for the video
+	 * @param startAt the Start time for the video hh:mm:ss
+	 * @param stopAt the Stop time for video hh:mm:ss 
+	 * @param target the page to go to when the video stops
+	 * @param set the flags to set when the video ends
+	 * @param unSet the flags to clear when the video ends
+	 * @param repeat the number of times to repeat the video
+	 * @param jscript the Java Script function to run when the video stops
+	 * @param volume number between 0 and 100 to set the volume of the audio
+	 */
+	public void setVideo(String id, String startAt, String stopAt, String target, String set, String unSet, String repeat, String jscript, int volume) {
+		this.video = new Video(id, startAt, stopAt, target, "", "", set, unSet, repeat, jscript, "", "", "", volume);
+	}
+
+	/** @exclude */
+	public Webcam getWebcam() {
+		return webcam;
+	}
+
+	/**
+	 * Display Webcam output
+	 * 
+	 */
+	public void setWebcam() {
+		this.webcam = new Webcam("", "","", "");
 	}
 
 	/** @exclude */

@@ -26,65 +26,51 @@
 			<id>maven-eclipse-repo</id>
 			<url>http://maven-eclipse.github.io/maven</url>
 		</repository>
-	    <repository>
-	      <id>Redhat GA</id>
-	      <url>https://maven.repository.redhat.com/ga/</url>
-	    </repository>
+		<repository>
+			<id>Redhat GA</id>
+			<url>https://maven.repository.redhat.com/ga/</url>
+		</repository>
 	</repositories>
 
-  	<dependencies>
+	<dependencies>
 		<dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-databind</artifactId>
 			<version>2.9.0</version>
 		</dependency>
-  	    <dependency>
+		<dependency>
 			<groupId>junit</groupId>
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
 			<scope>test</scope>
 		</dependency>
-		  <dependency>
-		    <groupId>org.apache.logging.log4j</groupId>
-		    <artifactId>log4j-api</artifactId>
-		    <version>2.8.2</version>
-		  </dependency>
-		  <dependency>
-		    <groupId>org.apache.logging.log4j</groupId>
-		    <artifactId>log4j-core</artifactId>
-		    <version>2.8.2</version>
-		  </dependency>
-			<dependency>
-			    <groupId>org.apache.logging.log4j</groupId>
-			    <artifactId>log4j-slf4j-impl</artifactId>
-			    <version>2.8.2</version>
-			</dependency>
-			<!--<dependency>
-				<groupId>org.eclipse.swt</groupId>
-				<artifactId>org.eclipse.swt.win32.win32.x86</artifactId>
-				<version>4.6.1</version>
-				<classifier>debug</classifier>
-			</dependency> -->
-			<dependency>
-				<groupId>org.eclipse.swt</groupId>
-				<artifactId>org.eclipse.swt.win32.win32.x86_64</artifactId>
-				<version>4.6.1</version>
-			</dependency>
-			<!--<dependency>
-				<groupId>org.eclipse.swt</groupId>
-				<artifactId>org.eclipse.swt.gtk.linux.x86</artifactId>
-				<version>4.6.1</version>
-			</dependency>
-			<dependency>
-				<groupId>org.eclipse.swt</groupId>
-				<artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId>
-				<version>4.6.1</version>
-			</dependency>
-			<dependency>
-				<groupId>org.eclipse.swt</groupId>
-				<artifactId>org.eclipse.swt.cocoa.macosx.x86_64</artifactId>
-				<version>4.6.1</version>
-			</dependency> -->
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-api</artifactId>
+			<version>2.8.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-core</artifactId>
+			<version>2.8.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.logging.log4j</groupId>
+			<artifactId>log4j-slf4j-impl</artifactId>
+			<version>2.8.2</version>
+		</dependency>
+		<!--<dependency> <groupId>org.eclipse.swt</groupId> <artifactId>org.eclipse.swt.win32.win32.x86</artifactId> 
+			<version>4.6.1</version> <classifier>debug</classifier> </dependency> -->
+		<dependency>
+			<groupId>org.eclipse.swt</groupId>
+			<artifactId>org.eclipse.swt.win32.win32.x86_64</artifactId>
+			<version>4.6.1</version>
+		</dependency>
+		<!--<dependency> <groupId>org.eclipse.swt</groupId> <artifactId>org.eclipse.swt.gtk.linux.x86</artifactId> 
+			<version>4.6.1</version> </dependency> <dependency> <groupId>org.eclipse.swt</groupId> 
+			<artifactId>org.eclipse.swt.gtk.linux.x86_64</artifactId> <version>4.6.1</version> 
+			</dependency> <dependency> <groupId>org.eclipse.swt</groupId> <artifactId>org.eclipse.swt.cocoa.macosx.x86_64</artifactId> 
+			<version>4.6.1</version> </dependency> -->
 		<dependency>
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
@@ -96,17 +82,14 @@
 			<version>1.7</version>
 		</dependency>
 		<dependency>
-		    <groupId>org.eclipse</groupId>
-		    <artifactId>jface</artifactId>
-		    <version>3.3.0-I20070606-0010</version>
-		    <scope>provided</scope>
+			<groupId>org.eclipse</groupId>
+			<artifactId>jface</artifactId>
+			<version>3.3.0-I20070606-0010</version>
+			<scope>provided</scope>
 		</dependency>
-		<!-- https://mvnrepository.com/artifact/org.mozilla/rhino
-		<dependency>
-		    <groupId>org.mozilla</groupId>
-		    <artifactId>rhino</artifactId>
-		    <version>1.7.7.1</version>
-		</dependency> -->
+		<!-- https://mvnrepository.com/artifact/org.mozilla/rhino <dependency> 
+			<groupId>org.mozilla</groupId> <artifactId>rhino</artifactId> <version>1.7.7.1</version> 
+			</dependency> -->
 		<dependency>
 			<groupId>uk.co.caprica</groupId>
 			<artifactId>vlcj</artifactId>
@@ -118,7 +101,7 @@
 			<version>4.2</version>
 			<type>jar</type>
 			<scope>compile</scope>
-		</dependency>								
+		</dependency>
 		<dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
@@ -130,29 +113,34 @@
 			<version>2.4.0</version>
 		</dependency>
 		<dependency>
-		    <groupId>net.lingala.zip4j</groupId>
-		    <artifactId>zip4j</artifactId>
-		    <version>1.3.2</version>
+			<groupId>net.lingala.zip4j</groupId>
+			<artifactId>zip4j</artifactId>
+			<version>1.3.2</version>
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/net.java.dev.jna/jna-platform -->
 		<dependency>
-		    <groupId>net.java.dev.jna</groupId>
-		    <artifactId>jna-platform</artifactId>
-		    <version>4.4.0</version>
+			<groupId>net.java.dev.jna</groupId>
+			<artifactId>jna-platform</artifactId>
+			<version>4.4.0</version>
 		</dependency>
 		<dependency>
-		    <groupId>net.java.dev.jna</groupId>
-		    <artifactId>jna</artifactId>
-		    <version>4.4.0</version>
+			<groupId>net.java.dev.jna</groupId>
+			<artifactId>jna</artifactId>
+			<version>4.4.0</version>
 		</dependency>
 		<dependency>
-		    <groupId>commons-lang</groupId>
-		    <artifactId>commons-lang</artifactId>
-		    <version>2.6</version>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.sarxos</groupId>
+			<artifactId>webcam-capture</artifactId>
+			<version>0.3.12</version>
 		</dependency>
 	</dependencies>
 
-  
+
 	<profiles>
 		<profile>
 			<id>Linux.i386</id>

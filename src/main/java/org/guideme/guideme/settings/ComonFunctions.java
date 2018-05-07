@@ -73,7 +73,7 @@ public class ComonFunctions{
 	private static Logger logger = LogManager.getLogger();
     private XPathFactory factory = XPathFactory.newInstance();
     private XPath xpath = factory.newXPath();
-    private static final String version = "0.3.6";
+    private static final String version = "0.3.7";
     private osFamily os;
     public static enum osFamily {Windows, Mac, Unix, Unknown};
 
@@ -1841,6 +1841,18 @@ public class ComonFunctions{
 
         return convertedImg;
    }    
+    
+    public Boolean CanCreateFile(String fileName)
+    {
+    	File file = new File(fileName);
+    	if (!file.isDirectory())
+    	   file = file.getParentFile();
+    	if (file.exists()){
+    	    return true;
+    	}    	
+    	return false;
+    }
+    
     /*
 	public Object xmlFileToObject(String xmlFileName) { 
 

@@ -27,6 +27,7 @@ import org.guideme.guideme.model.LoadGuide;
 import org.guideme.guideme.model.Metronome;
 import org.guideme.guideme.model.Page;
 import org.guideme.guideme.model.Video;
+import org.guideme.guideme.model.Webcam;
 import org.guideme.guideme.readers.XmlGuideReader;
 import org.guideme.guideme.scripting.OverRide;
 import org.guideme.guideme.settings.AppSettings;
@@ -93,6 +94,7 @@ public class MainLogic {
 		Page objCurrPage;
 		Delay objDelay;
 		Video objVideo;
+		Webcam objWebcam;
 		String fileSeparator = appSettings.getFileSeparator();
 		String imgName = "";
 
@@ -152,8 +154,16 @@ public class MainLogic {
 				if (overRide.getLeftHtml().equals("")  && overRide.getLeftBody().equals("")) {
 					// Video
 					objVideo = ProcessVideo(objCurrPage, guide, fileSeparator, appSettings, mainShell);
+					if (objVideo == null)
+					{
+						objWebcam = ProcessWebcam(objCurrPage, guide, fileSeparator, appSettings, mainShell);
+					}
+					else
+					{
+						objWebcam = null;
+					}
 					try {
-						if (objVideo == null) {
+						if (objVideo == null && objWebcam == null) {
 							// image
 							imgName = ProcessImage(objCurrPage, fileSeparator, appSettings, guide, mainShell);
 							if (imgName.equals(""))
@@ -162,8 +172,11 @@ public class MainLogic {
 								ProcessLeftText(objCurrPage, fileSeparator, appSettings, guide, mainShell, userSettings);
 							}
 						} else {
-							mainShell.clearImage();
-							// No image
+							if (objWebcam == null || objWebcam.getWebCamFound())
+							{
+								mainShell.clearImage();
+								// No image
+							}
 						}
 					} catch (Exception e) {
 						logger.error("displayPage Image Exception " + e.getLocalizedMessage(), e);
@@ -447,7 +460,7 @@ public class MainLogic {
 				catch (NumberFormatException nfe) {
 				}
 				// Play video
-				mainShell.playVideo(imgPath, intStartAt, intStopAt, repeat, objVideo.getTarget(), objVideo.getJscript(), objVideo.getScriptVar());
+				mainShell.playVideo(imgPath, intStartAt, intStopAt, repeat, objVideo.getTarget(), objVideo.getJscript(), objVideo.getScriptVar(), objVideo.getVolume());
 			}
 		} catch (Exception e1) {
 			logger.trace("displayPage Video Exception " + e1.getLocalizedMessage());
@@ -456,6 +469,43 @@ public class MainLogic {
 		if (blnVideo)
 		{
 			return objVideo;
+		}
+		else
+		{
+			return null;
+		}
+		
+	}
+
+	private Webcam ProcessWebcam(Page objCurrPage, Guide guide, String fileSeparator, AppSettings appSettings, MainShell mainShell)
+	{
+		Webcam objWebcam;
+		boolean blnWebcam = false;
+		objWebcam = overRide.getWebcam();
+		try {
+			if (objWebcam != null) {
+				blnWebcam = true;
+			} else {
+				if (objCurrPage.getWebcamCount() > 0) {
+					for (int i2 = 0; i2 < objCurrPage.getWebcamCount(); i2++) {
+						objWebcam = objCurrPage.getWebcam(i2);
+						if (objWebcam.canShow(guide.getFlags())) {
+							blnWebcam = true;
+							break;
+						}
+					}
+				} 
+			}
+			if (blnWebcam) {
+				mainShell.showWebcam();
+			}
+		} catch (Exception e1) {
+			logger.trace("displayPage Webcam Exception " + e1.getLocalizedMessage());
+		}
+		
+		if (blnWebcam)
+		{
+			return objWebcam;
 		}
 		else
 		{
@@ -651,22 +701,35 @@ public class MainLogic {
 
 		// add new buttons
 		ArrayList<Button> button = new ArrayList<Button>();
-			for (int i1 = 0; i1 < objCurrPage.getButtonCount(); i1++) {
-				objButton = objCurrPage.getButton(i1);
+		for (int i1 = 0; i1 < objCurrPage.getButtonCount(); i1++) {
+			objButton = objCurrPage.getButton(i1);
 			if (objButton.canShow(guide.getFlags())) {
 				button.add(objButton);
 			}
-			}
-			for (int i1 = 0; i1 < overRide.buttonCount(); i1++) {
-				objButton = overRide.getButton(i1);
+		}
+		for (int i1 = 0; i1 < overRide.buttonCount(); i1++) {
+			objButton = overRide.getButton(i1);
 			if (objButton.canShow(guide.getFlags())) {
 				button.add(objButton);
 				debugShell.addOverrideButton(objButton);
 			}
+		}
+		for (int i1 = 0; i1 < objCurrPage.getWebcamButtonCount(); i1++) {
+			objButton = objCurrPage.getWebcamButton(i1);
+			if (objButton.canShow(guide.getFlags())) {
+				button.add(objButton);
 			}
+		}
+		for (int i1 = 0; i1 < overRide.webcamButtonCount(); i1++) {
+			objButton = overRide.getWebcamButton(i1);
+			if (objButton.canShow(guide.getFlags())) {
+				button.add(objButton);
+				debugShell.addOverrideButton(objButton);
+			}
+		}
 		Collections.sort(button);
 
-			for (int i1 = button.size() - 1; i1 >= 0; i1--) {
+		for (int i1 = button.size() - 1; i1 >= 0; i1--) {
 			try {
 				objButton = button.get(i1);
 				String javascriptid = objButton.getjScript();
