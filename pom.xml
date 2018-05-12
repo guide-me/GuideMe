@@ -166,6 +166,18 @@
 				<swt.artifactId>org.eclipse.swt.gtk.linux.x86_64</swt.artifactId>
 			</properties>
 		</profile>
+ 		<profile>
+			<id>Linux.x86_64</id>
+			<activation>
+				<os>
+					<family>Linux</family>
+					<arch>x86_64</arch>
+				</os>
+			</activation>
+			<properties>
+				<swt.artifactId>org.eclipse.swt.gtk.linux.x86_64</swt.artifactId>
+			</properties>
+		</profile>
 		<profile>
 			<id>mac.x86_64</id>
 			<activation>
