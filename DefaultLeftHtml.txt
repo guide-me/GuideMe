@@ -2,7 +2,6 @@
 <html>
 	<head>
 		<meta http-equiv='Content-type' content='text/html;charset=UTF-8' />
-		<title>Guideme - Explore Yourself</title>
 		<style type='text/css'>DefaultStyle</style>
 	</head>
 	<body>BodyContent</body>

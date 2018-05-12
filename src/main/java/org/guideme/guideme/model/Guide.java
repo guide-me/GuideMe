@@ -1,5 +1,7 @@
 package org.guideme.guideme.model;
 
+import java.io.File;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -70,7 +72,7 @@ public class Guide {
 	/** @exclude */
 	private static Logger logger = LogManager.getLogger();
 	/** @exclude */
-	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
+	private static ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	/** @exclude */
 	private MainShell mainshell;
 
@@ -90,25 +92,34 @@ public class Guide {
 			Page page404 = new Page("GuideMe404Error","", "", "", "", false, "", "");
 			chapter.getPages().put(page404.getId(), page404);
 			Page start = new Page("start","", "", "", "", false, "", "");
-			String appImage = appSettings.getUserDir().replace("\\", "\\\\") + appSettings.getFileSeparator() + appSettings.getFileSeparator() + "userSettings" + appSettings.getFileSeparator() + appSettings.getFileSeparator() + "GuidemeBeta.jpg";
+
+			String appDir = appSettings.getUserDir().replace("\\", "\\\\");
+			String fileName = "Welcome_" + appSettings.getLanguage() + "_" + appSettings.getCountry() + ".txt";
+			File f = new File(appDir + appSettings.getFileSeparator() + fileName);
+			if (!f.exists())
+			{
+				fileName = "Welcome_" + appSettings.getLanguage() + ".txt";
+				f = new File(appDir + appSettings.getFileSeparator() + fileName);
+				if (!f.exists())
+				{
+					fileName = "Welcome.txt";	
+				}
+			}
+			String strHtml2 = comonFunctions.readFile(fileName, StandardCharsets.UTF_8);
+			strHtml2 = strHtml2.replace("appDir", appDir);
+			strHtml2 = strHtml2.replace("\n", " ").replace("\r", "");
+			
+			//String strHtml2 = "<!DOCTYPE HTML><html><head><meta http-equiv='Content-type' content='text/html;charset=UTF-8' /><title>Guideme - Explore Yourself</title><style type='text/css'> html { overflow-y: auto; } body { color: white; background-color: black; font-family: Tahoma; font-size:16px; overflow:hidden } html, body, #wrapper { height:100%; width: 100%; margin: 0; padding: 0; border: 0; } #wrapper { vertical-align: middle; text-align: center; } #bannerimg { width: 90%; border-top: 3px solid #cccccc; border-right: 3px solid #cccccc; border-bottom: 3px solid #666666; border-left: 3px solid #666666; }</style></head><body><div id='wrapper' ><div id='bannerimg'><img src='" + appImage + "' /></div><div><h2>Welcome to Guideme!</h2>To get started, click File/Load and select a guide.</div></div></body></html>";
+			
 			String strLoadScript = "function pageLoad() {";
-			strLoadScript = strLoadScript + "	var lefthtml = \"<!DOCTYPE html>\";";
-			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"<html>\";";
-			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"<head>\";";
-			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"<meta http-equiv='Content-type' content='text/html;charset=UTF-8' />\";";
-			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"<title>Guideme - Explore Yourself</title><style type='text/css'> html { overflow-y: auto; } body { color: white; background-color: black; font-family: Tahoma; font-size:16px } html, body, #wrapper { height:100%; width: 100%; margin: 0; padding: 0; border: 0; } #wrapper { vertical-align: middle; text-align: center; } #bannerimg { width: 90%; border-top: 3px solid #cccccc; border-right: 3px solid #cccccc; border-bottom: 3px solid #666666; border-left: 3px solid #666666; }</style>\";";
-			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"</head>\";";
-			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"<body>\";";
-			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"<div id='wrapper' ><div id='bannerimg'><img src='" + appImage + "' /></div><div><h2>Welcome to Guideme!</h2>To get started, click File/Load and select a guide.</div></div>\";";
-			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"</body>\";";
-			strLoadScript = strLoadScript + "	lefthtml = lefthtml + \"</html>\";";
-			strLoadScript = strLoadScript + "	overRide.leftHtml = lefthtml;";
+			strLoadScript = strLoadScript + "	overRide.setLeftHtml(\"" + strHtml2 + "\");";
 			strLoadScript = strLoadScript + "}";
 			start.setjScript(strLoadScript);
 			guide.globaljScript = "";
 			guide.inPrefGuide = false;
 			guide.css = "";
 			guide.autoSetPage = false;
+			guide.title = "";
 			chapter.getPages().put(start.getId(), start);
 			guide.setMediaDirectory(appSettings.getUserDir() + appSettings.getFileSeparator() + "userSettings" + appSettings.getFileSeparator());
 		}
@@ -719,7 +730,12 @@ public class Guide {
 	 * @param lblLeft text to over write the clock with
 	 */
 	public void setClockText(String lblLeft) {
-		mainshell.setLblLeft(lblLeft);
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				mainshell.setLblLeft(lblLeft);
+			}
+			});		
 	}
 	
 	/**
@@ -728,7 +744,12 @@ public class Guide {
 	 * @param lblCentre text to over write the title
 	 */
 	public void setTitleText(String lblCentre) {
-		mainshell.setLblCentre(lblCentre);
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				mainshell.setLblCentre(lblCentre);
+			}
+			});		
 	}
 	
 	/**
@@ -737,7 +758,12 @@ public class Guide {
 	 * @param lblRight text to over write the timer with
 	 */
 	public void setTimerText(String lblRight) {
-		mainshell.setLblRight(lblRight);
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				mainshell.setLblRight(lblRight);
+			}
+			});		
 	}
 	
 	/**
@@ -746,7 +772,12 @@ public class Guide {
 	 * @param leftHtml html to over write the current html
 	 */
 	public void setLeftHtml(String leftHtml) {
-		mainshell.setLeftHtml(leftHtml);
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				mainshell.setLeftHtml(leftHtml);
+			}
+			});		
 	}
 	
 
@@ -757,7 +788,12 @@ public class Guide {
 	 * @param overRideStyle CSS to style the html (will use the default if this is blank)
 	 */
 	public void setLeftBody(String leftBody, String overRideStyle) {
-		mainshell.setLeftText(leftBody, overRideStyle);
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				mainshell.setLeftText(leftBody, overRideStyle);
+			}
+			});		
 	}
 
 	/**
@@ -765,7 +801,12 @@ public class Guide {
 	 * 
 	 */
 	public void clearImage() {
-		mainshell.clearImage();
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				mainshell.clearImage();
+			}
+			});		
 	}
 
 	/**
@@ -775,7 +816,12 @@ public class Guide {
 	 * @param overRideStyle CSS to style the html (will use the default if this is blank)
 	 */
 	public void setRightHtml(String rightHtml) {
-		mainshell.setRightHtml(rightHtml);
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				mainshell.setRightHtml(rightHtml);
+			}
+			});		
 	}
 	
 	/**
@@ -785,7 +831,12 @@ public class Guide {
 	 * @param overRideStyle CSS to style the html (will use the default if this is blank)
 	 */
 	public void setRightBody(String brwsText, String overRideStyle) {
-		mainshell.setBrwsText(brwsText, overRideStyle);
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				mainshell.setBrwsText(brwsText, overRideStyle);
+			}
+			});		
 	}
 	
 	/**
@@ -797,6 +848,17 @@ public class Guide {
 	public String jsReadFile(String path) {
 		return comonFunctions.jsReadFile(path);
 	}
+
+	/**
+	 * Writes a string to a file
+	 * 
+	 * @param path the path to the file
+	 * @param contents a string containing the contents of the file
+	 */
+	public void jsWriteFile(String path, String contents) {
+		comonFunctions.jsWriteFile(path, contents);
+	}
+	
 	
 	/** @exclude */
 	public String jsReadFile(String fileName, String encoding) {
@@ -814,6 +876,17 @@ public class Guide {
 		return comonFunctions.jsReadFileArray(fileName);
 	}
 
+	/**
+	 * Reads the contents of a file into an array of strings
+	 * each line will be read into a new element into the array 
+	 * 
+	 * @param fileName the path to the file
+	 * @param contents a string array containing the lines for the file 
+	 */
+	public void jsWriteFileArray(String path, String[] contents) {
+		comonFunctions.jsWriteFileArray(path, contents);
+	}
+
 	/** @exclude */
 	public String[] jsReadFileArray(String fileName, String encoding) {
 		return comonFunctions.jsReadFileArray(fileName, encoding);
@@ -825,7 +898,12 @@ public class Guide {
 	 * @param id the id set when the button was defined
 	 */
 	public void enableButton(String id) {
-		mainshell.enableButton(id);
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				mainshell.enableButton(id);
+			}
+			});		
 	}
 
 	/**
@@ -834,7 +912,12 @@ public class Guide {
 	 * @param id  the id set when the button was defined
 	 */
 	public void disableButton(String id) {
-		mainshell.disableButton(id);
+		Display.getDefault().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				mainshell.disableButton(id);
+			}
+			});		
 	}
 
 	/**
@@ -888,6 +971,28 @@ public class Guide {
 			mainshell.updateJConsole(logText);
 		}
 	}
+
+	/**
+	 * Clears the java script console in the debug window
+	 * 
+	 */
+	public void clearJConsole() {
+		ClearJSConsole clearJSConsole = new ClearJSConsole();
+		clearJSConsole.mainshell = mainshell;
+		Display.getDefault().syncExec(clearJSConsole);	
+	}
+	
+	private class ClearJSConsole implements Runnable
+	{
+		public MainShell mainshell;
+		public void run()
+		{
+			mainshell.clearJConsole();
+		}
+		
+	}
+	
+	
 	
 	/** @exclude */
 	public void refreshVars() {
@@ -985,6 +1090,57 @@ public class Guide {
 		AppSettings appSettings = AppSettings.getAppSettings();
 		
 		String imgPath = comonFunctions.getMediaFullPath(audio, appSettings.getFileSeparator(), appSettings, guide);
-		mainshell.playAudio(imgPath, startAtSeconds, stopAtSeconds, loops, target, jscript, scriptVar);
+		mainshell.playAudio(imgPath, startAtSeconds, stopAtSeconds, loops, target, jscript, scriptVar, 100);
 	}
+
+	/**
+	 * Play an audio file
+	 * 
+	 * id :
+	 *   File must be in the media directory (or subdirectory)
+	 * 	 Wild cards can be used
+	 * 	 e.g. kate/home*.*  would select an audio file in the sub directory kate with a file name starting with home
+	 * 
+	 * startAt :  to start 90 seconds in 00:01:30
+	 * stopAt :  to stop at 95 seconds into the video 00:01:35
+	 * scriptVar: set script variables e.g. audio=finished,stage=5
+	 * 
+	 * 
+	 * @param id the file name for the audio
+	 * @param startAt the start time for the audio hh:mm:ss
+	 * @param stopAt the stop time for audio hh:mm:ss 
+	 * @param repeat the number of times to repeat the audio
+	 * @param target the page to go to when the audio stops
+	 * @param jscript the Java Script function to run when the audio stops
+	 * @param scriptVar set script variables 
+	 * @param volume value between 0 and 100 to set the volume
+	 */	public void playAudio(String audio, String startAt, String stopAt, int loops, String target, String jscript, String scriptVar, int volume)
+	{
+		int startAtSeconds;
+		if (!startAt.equals("")) {
+			startAtSeconds = comonFunctions.getMilisecFromTime(startAt) / 1000;
+		} else {
+			startAtSeconds = 0;
+		}
+		int stopAtSeconds;
+		if (!stopAt.equals("")) {
+			stopAtSeconds = comonFunctions.getMilisecFromTime(stopAt) / 1000;
+		} else {
+			stopAtSeconds = 0;
+		}
+		
+		AppSettings appSettings = AppSettings.getAppSettings();
+		
+		String imgPath = comonFunctions.getMediaFullPath(audio, appSettings.getFileSeparator(), appSettings, guide);
+		mainshell.playAudio(imgPath, startAtSeconds, stopAtSeconds, loops, target, jscript, scriptVar, volume);
+	}
+
+	 /**
+	 * Gets the absolute path to the current tease directory 
+	 * 
+	 */
+	public String getDataDirectory() {
+		return AppSettings.getAppSettings().getDataDirectory();
+	}
+
 }

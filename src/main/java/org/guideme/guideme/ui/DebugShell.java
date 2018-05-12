@@ -2,7 +2,10 @@ package org.guideme.guideme.ui;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.ResourceBundle;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -63,7 +66,8 @@ public class DebugShell {
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	private static DebugShell debugShell;
 	private Boolean keepShellOpen;
-
+	private Table btnTable;
+	
 	public static synchronized DebugShell getDebugShell() {
 		if (debugShell == null) {
 			debugShell = new DebugShell();
@@ -81,6 +85,8 @@ public class DebugShell {
 			keepShellOpen = true;
 			comonFuctions = ComonFunctions.getComonFunctions();
 			AppSettings appSettings = AppSettings.getAppSettings();
+			ResourceBundle displayText = appSettings.getDisplayText();
+			
 			//Create the main UI elements
 			myDisplay = display;
 			//myUserSettings = userSettings;
@@ -112,7 +118,7 @@ public class DebugShell {
 			pagesCombo.setLayoutData(pagesComboFormData);
 
 			SquareButton btnGo = new SquareButton(shell, SWT.PUSH);
-			btnGo.setText("go");
+			btnGo.setText(displayText.getString("DebugShellButtonGo"));
 			FormData btnGoFormData = new FormData();
 			btnGoFormData.top = new FormAttachment(0,0);
 			btnGoFormData.right = new FormAttachment(90, -2);
@@ -121,7 +127,7 @@ public class DebugShell {
 			btnGo.addSelectionListener(new GoButtonListener());
 
 			SquareButton btnCurrent = new SquareButton(shell, SWT.PUSH);
-			btnCurrent.setText("reset");
+			btnCurrent.setText(displayText.getString("DebugShellButtonReset"));
 			FormData btnCurrentFormData = new FormData();
 			btnCurrentFormData.top = new FormAttachment(0,0);
 			btnCurrentFormData.right = new FormAttachment(100, -2);
@@ -141,7 +147,7 @@ public class DebugShell {
 
 			//Main Tab
 			TabItem tabMain = new TabItem(tabFolder, SWT.NONE);
-			tabMain.setText("Main");
+			tabMain.setText(displayText.getString("DebugShellTabMain"));
 
 			tableComp = new Composite(tabFolder, SWT.SHADOW_NONE);
 			FormLayout tbllayout = new FormLayout();
@@ -157,7 +163,7 @@ public class DebugShell {
 
 			//Text Tab
 			TabItem tabText = new TabItem(tabFolder, SWT.NONE);
-			tabText.setText("Text");
+			tabText.setText(displayText.getString("DebugShellTabText"));
 
 			txtText = new Text(tabFolder, SWT.LEFT + SWT.MULTI + SWT.WRAP + SWT.READ_ONLY + SWT.V_SCROLL);
 			FormData lblTexctFormData = new FormData();
@@ -185,7 +191,7 @@ public class DebugShell {
 
 			//Variables Tab
 			TabItem tabVariables = new TabItem(tabFolder, SWT.NONE);
-			tabVariables.setText("Variables");
+			tabVariables.setText(displayText.getString("DebugShellTabVariables"));
 			
 			varScrlComp = new ScrolledComposite(tabFolder, SWT.V_SCROLL);
 		    
@@ -206,7 +212,7 @@ public class DebugShell {
 			GridData data = new GridData(SWT.FILL, SWT.FILL, true, true);
 			data.heightHint = 200;
 			varTable.setLayoutData(data);
-			String[]titles = {"Name", "value"};
+			String[]titles = {displayText.getString("DebugShellTableName"), displayText.getString("DebugShellTableValue")};
 			for (int i=0; i<titles.length; i++) {
 				TableColumn column = new TableColumn (varTable, SWT.NONE);
 				column.setText (titles [i]);
@@ -233,7 +239,7 @@ public class DebugShell {
 			txtVarValue.setLayoutData(txtVarValueFormData);
 
 			SquareButton btnSet = new SquareButton(varComp, SWT.PUSH);
-			btnSet.setText("Set Value");
+			btnSet.setText(displayText.getString("DebugShellButtonSetValue"));
 			FormData btnSetFormData = new FormData();
 			btnSetFormData.top = new FormAttachment(varTable,0);
 			btnSetFormData.right = new FormAttachment(100, -2);
@@ -447,9 +453,8 @@ public class DebugShell {
 			prevWidget = pgeTable;
 
 			//Buttons
-			if (dispPage.getButtonCount() > 0) {
-				try {
-					Table btnTable = new Table(tableComp, SWT.HIDE_SELECTION + SWT.NO_SCROLL + SWT.V_SCROLL);
+			try {
+					btnTable = new Table(tableComp, SWT.HIDE_SELECTION + SWT.NO_SCROLL + SWT.V_SCROLL);
 					btnTable.setLinesVisible (true);
 					btnTable.setHeaderVisible (true);
 					data = new GridData(SWT.FILL, SWT.FILL, true, true);
@@ -460,19 +465,21 @@ public class DebugShell {
 						TableColumn column = new TableColumn (btnTable, SWT.NONE);
 						column.setText (titles [i]);
 					}	
-					for (int i=0; i<dispPage.getButtonCount(); i++) {
-						Button button = dispPage.getButton(i);
-						item = new TableItem (btnTable, SWT.NONE);
-						item.setBackground(color);
-						item.setText (0, button.getText());
-						item.setText (1, button.getTarget());
-						item.setText (2, button.getjScript());
-						item.setText (3, button.getSet());
-						item.setText (4, button.getUnSet());
-						item.setText (5, button.getIfSet());
-						item.setText (6, button.getIfNotSet());
-						item.setText (7, button.getImage());
-						item.setText (8, button.getHotKey());
+					if (dispPage.getButtonCount() > 0) {
+						for (int i=0; i<dispPage.getButtonCount(); i++) {
+							Button button = dispPage.getButton(i);
+							item = new TableItem (btnTable, SWT.NONE);
+							item.setBackground(color);
+							item.setText (0, button.getText());
+							item.setText (1, button.getTarget());
+							item.setText (2, button.getjScript());
+							item.setText (3, button.getSet());
+							item.setText (4, button.getUnSet());
+							item.setText (5, button.getIfSet());
+							item.setText (6, button.getIfNotSet());
+							item.setText (7, button.getImage());
+							item.setText (8, button.getHotKey());
+						}
 					}
 					for (int i=0; i<titles.length; i++) {
 						btnTable.getColumn (i).pack ();
@@ -483,11 +490,9 @@ public class DebugShell {
 					btnTableFormData.right = new FormAttachment(100,0);
 					btnTable.setLayoutData(btnTableFormData);
 					prevWidget = btnTable;
-				}
-				catch (Exception ex) {
-					logger.error(ex.getLocalizedMessage(), ex);
-				}
-
+			}
+			catch (Exception ex) {
+				logger.error(ex.getLocalizedMessage(), ex);
 			}
 			//Delays
 			if (dispPage.getDelayCount() > 0) {
@@ -730,11 +735,15 @@ public class DebugShell {
 		txtScriptConsole.setText(conText);
 	}
 	
+	public void clearJConsole() {
+		txtScriptConsole.setText("");
+	}
+	
 	public void refreshVars() {
 		try {
-			HashMap<String, Object> scriptVars;
+			//HashMap<String, Object> scriptVars;
 			Color color = myDisplay.getSystemColor(SWT.COLOR_YELLOW);
-			scriptVars = guide.getSettings().getScriptVariables();
+			Map<String, Object> treeMap = new TreeMap<String, Object>(guide.getSettings().getScriptVariables());
 			String flags = comonFuctions.GetFlags(guide.getFlags());
 
 			varTable.removeAll();
@@ -744,7 +753,7 @@ public class DebugShell {
 			item.setText (0, "Flags");
 			item.setText (1, flags);
 
-			for (Entry<String, Object> entry : scriptVars.entrySet()) {
+			for (Entry<String, Object> entry : treeMap.entrySet()) {
 				try {
 					String key = entry.getKey();
 					String value;
@@ -817,5 +826,32 @@ public class DebugShell {
 
 	public void setKeepShellOpen(Boolean keepShellOpen) {
 		this.keepShellOpen = keepShellOpen;
+	}
+	
+	public void addOverrideButton(Button button)
+	{
+		Color color = myDisplay.getSystemColor(SWT.COLOR_YELLOW);
+		TableItem item = new TableItem (btnTable, SWT.NONE);
+		item.setBackground(color);
+		item.setText (0, button.getText());
+		item.setText (1, button.getTarget());
+		item.setText (2, button.getjScript());
+		item.setText (3, button.getSet());
+		item.setText (4, button.getUnSet());
+		item.setText (5, button.getIfSet());
+		item.setText (6, button.getIfNotSet());
+		item.setText (7, button.getImage());
+		item.setText (8, button.getHotKey());
+		try {
+			tabFolder.layout();
+			tabFolder.pack();
+			tabFolder.update();
+			shell.layout();
+			varScrlComp.setMinSize(varComp.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		}
+		catch (Exception ex) {
+			logger.error(ex.getLocalizedMessage(), ex);
+		}
+
 	}
 }

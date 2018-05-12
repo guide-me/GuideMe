@@ -24,7 +24,7 @@ import org.w3c.dom.Node;
 import org.xml.sax.SAXException;
 
 public class UserSettings implements Cloneable{
-	private String userSettingsLocation = "usersettings.xml";
+	private String userSettingsLocation = "";
 	private Logger logger = LogManager.getLogger();
 	private HashMap<String, String> userStringPrefs = new HashMap<String, String>(); 
 	private HashMap<String, String> userStringDesc = new HashMap<String, String>(); 
@@ -48,7 +48,22 @@ public class UserSettings implements Cloneable{
 	private UserSettings() {
 		super();
 		try {
+			
+			AppSettings appSettings = AppSettings.getAppSettings();
+			userSettingsLocation = "userSettings_" + appSettings.getLanguage() + "_" + appSettings.getCountry() + ".xml";
 			File xmlFile = new File(userSettingsLocation);
+			if (!xmlFile.exists())
+			{
+				userSettingsLocation = "userSettings_" + appSettings.getLanguage() + ".xml";
+				xmlFile = new File(userSettingsLocation);
+				if (!xmlFile.exists())
+				{
+					userSettingsLocation = "userSettings.xml";	
+					xmlFile = new File(userSettingsLocation);
+				}
+			}
+			
+			
 			Element elProp;
 			String key;
 			String value;
@@ -166,13 +181,13 @@ public class UserSettings implements Cloneable{
 
 	public String getScreenDesc(String key, String type) {
 		String desc = "";
-		if (type == "String") {
+		if (type.equals("String")) {
 			desc = userStringDesc.get(key);
 		}
-		if (type == "Boolean") {
+		if (type.equals("Boolean")) {
 			desc = userBooleanDesc.get(key);
 		}
-		if (type == "Number") {
+		if (type.equals("Number")) {
 			desc = userNumericDesc.get(key);
 		}
 		return desc;

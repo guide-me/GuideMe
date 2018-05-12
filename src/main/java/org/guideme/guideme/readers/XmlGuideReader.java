@@ -1,6 +1,11 @@
 package org.guideme.guideme.readers;
 
 import java.io.FileInputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -17,10 +22,13 @@ import org.guideme.guideme.model.Chapter;
 import org.guideme.guideme.model.Delay;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Image;
+import org.guideme.guideme.model.LoadGuide;
 import org.guideme.guideme.model.Metronome;
 import org.guideme.guideme.model.Page;
 import org.guideme.guideme.model.Timer;
 import org.guideme.guideme.model.Video;
+import org.guideme.guideme.model.Webcam;
+import org.guideme.guideme.model.WebcamButton;
 import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
 import org.guideme.guideme.settings.GuideSettings;
@@ -50,7 +58,29 @@ public class XmlGuideReader {
 
 	private enum TagName
 	{
-		pref, Title, Author, MediaDirectory, Settings, Page, Metronome, Image, Audio, Video, Delay, Timer, Button, LeftText, Text, javascript, GlobalJavascript, CSS, Include, NOVALUE;
+		pref, 
+		Title, 
+		Author, 
+		MediaDirectory, 
+		Settings, 
+		Page, 
+		Metronome, 
+		Image, 
+		Audio, 
+		Video, 
+		Webcam, 
+		Delay, 
+		Timer, 
+		Button, 
+		WebcamButton, 
+		LeftText, 
+		Text, 
+		javascript, 
+		GlobalJavascript, 
+		CSS, 
+		Include,
+		LoadGuide,
+		NOVALUE;
 
 		public static TagName toTag(String str)
 		{
@@ -132,7 +162,6 @@ public class XmlGuideReader {
 
 			XMLInputFactory factory = XMLInputFactory.newInstance();
 			XMLStreamReader reader = factory.createXMLStreamReader(ubis);
-
 			while (reader.hasNext()) {
 				int eventType = reader.next(); 
 				switch (eventType) {
@@ -200,6 +229,8 @@ public class XmlGuideReader {
 							String strStopAt;
 							String strTarget;
 							String scriptVar;
+							String volumeString;
+							int volume;
 							strTarget = reader.getAttributeValue(null, "target");
 							if (strTarget == null) strTarget = "";
 							strStartAt = reader.getAttributeValue(null, "start-at");
@@ -221,8 +252,20 @@ public class XmlGuideReader {
 							if (ifAfter == null) ifAfter = "";
 							scriptVar = reader.getAttributeValue(null, "scriptvar");
 							if (scriptVar == null) scriptVar = "";
+							volumeString = reader.getAttributeValue(null, "volume");
+							if (volumeString == null) volumeString = "100";
+							try
+							{
+								volume = Integer.parseInt(volumeString);
+								if (volume > 100) volume = 100;
+								if (volume < 0) volume = 0;
+							} catch (Exception ex) 
+							{
+								volume = 100;
+							}
+							
 
-							Audio audio = new Audio(strId, strStartAt, strStopAt, strTarget, ifSet, ifNotSet, "", "", loops, javascript, ifAfter, ifBefore, scriptVar);
+							Audio audio = new Audio(strId, strStartAt, strStopAt, strTarget, ifSet, ifNotSet, "", "", loops, javascript, ifAfter, ifBefore, scriptVar, volume);
 							page.addAudio(audio);
 							logger.trace("loadXML " + PresName + " Audio " + strId+ "|" + strStartAt+ "|" + strStopAt+ "|" + strTarget+ "|" + javascript+ "|" + ifSet+ "|" + ifNotSet);
 						} catch (Exception e1) {
@@ -346,6 +389,104 @@ public class XmlGuideReader {
 							logger.error("loadXML " + PresName + " Button Exception " + e1.getLocalizedMessage(), e1);
 						}
 						break;
+					case WebcamButton:
+						try {
+							String strType; 
+							String strFile; 
+							String strTarget;
+							String scriptVar;
+							strFile = reader.getAttributeValue(null, "file");
+							if (strFile == null) strFile = "";
+							strType = reader.getAttributeValue(null, "type");
+							if (strType == null) strType = "Capture";
+							strTarget = reader.getAttributeValue(null, "target");
+							if (strTarget == null) strTarget = "";
+							Set = reader.getAttributeValue(null, "set");
+							if (Set == null) Set = "";
+							UnSet = reader.getAttributeValue(null, "unset");
+							if (UnSet == null) UnSet = "";
+							ifSet = reader.getAttributeValue(null, "if-set");
+							if (ifSet == null) ifSet = "";
+							ifNotSet = reader.getAttributeValue(null, "if-not-set"); 
+							if (ifNotSet == null) ifNotSet = "";
+							ifBefore = reader.getAttributeValue(null, "if-before");
+							if (ifBefore == null) ifBefore = "";
+							ifAfter = reader.getAttributeValue(null, "if-after");
+							if (ifAfter == null) ifAfter = "";
+							String javascript = reader.getAttributeValue(null, "onclick");
+							if (javascript == null) javascript = "";
+							String image = reader.getAttributeValue(null, "image"); 
+							if (image == null) image = "";
+							String hotKey;
+							hotKey = reader.getAttributeValue(null, "hotkey");
+							if (hotKey == null) hotKey = "";
+
+							scriptVar = reader.getAttributeValue(null, "scriptvar");
+							if (scriptVar == null) scriptVar = "";
+
+							String fontName;
+							fontName = reader.getAttributeValue(null, "fontName");
+							if (fontName == null) fontName = "";
+							String fontHeight;
+							fontHeight = reader.getAttributeValue(null, "fontHeight");
+							if (fontHeight == null) fontHeight = "";
+							String bgColor1;
+							bgColor1 = reader.getAttributeValue(null, "bgColor1");
+							if (bgColor1 == null) bgColor1 = "";
+							String bgColor2;
+							bgColor2 = reader.getAttributeValue(null, "bgColor2");
+							if (bgColor2 == null) bgColor2 = "";
+							String fontColor;
+							fontColor = reader.getAttributeValue(null, "fontColor");
+							if (fontColor == null) fontColor = "";
+							String sort;
+							sort = reader.getAttributeValue(null, "sortOrder");
+							if (sort == null) sort = "1";
+							try {
+								sortOrder = Integer.parseInt(sort);
+							} catch (Exception ex) {
+								sortOrder = 1;
+							}
+							btnDis = reader.getAttributeValue(null, "disabled");
+							if (btnDis == null) btnDis = "false";
+							try {
+								disabled = Boolean.valueOf(btnDis);
+							} catch (Exception ex) {
+								disabled = false;
+							}
+							btnDefault = reader.getAttributeValue(null, "default");
+							if (btnDefault == null) btnDefault = "false";
+							try {
+								defaultBtn = Boolean.valueOf(btnDefault);
+							} catch (Exception ex) {
+								defaultBtn = false;
+							}
+							String btnId;
+							btnId = reader.getAttributeValue(null, "id");
+							if (btnId == null) btnId = "";
+							
+							//reader.next();
+							String BtnText = "";
+							if (reader.getName().getLocalPart().equals("WebcamButton")) {
+								try {
+									BtnText = processText(reader, "WebcamButton");
+								}
+								catch (Exception ex) {
+									logger.error("loadXML " + PresName + " WebcamButton Exception Text " + ex.getLocalizedMessage(), ex);
+								}
+							}
+							//if (reader.getEventType() == XMLStreamConstants.CHARACTERS) {
+							//	BtnText = reader.getText();
+							//} else {
+							//	BtnText = "";
+							//}
+							WebcamButton button = new WebcamButton(strType, strFile, strTarget, BtnText, ifSet, ifNotSet, Set, UnSet, javascript, image, hotKey, fontName, fontHeight, fontColor, bgColor1, bgColor2, sortOrder, ifAfter, ifBefore, disabled, btnId, scriptVar, defaultBtn);
+							page.addWebcamButton(button);
+							logger.trace("loadXML " + PresName + " WebcamButton " + strType+ "|" + strFile + "|" + strTarget + "|" + BtnText + "|" + ifSet+ "|" + ifNotSet+ "|" + Set+ "|" + UnSet + "|" + javascript);
+						} catch (Exception e1) {
+							logger.error("loadXML " + PresName + " WebcamButton Exception " + e1.getLocalizedMessage(), e1);
+						}
+						break;
 					case Delay:
 						try {
 							String strSeconds;
@@ -446,6 +587,38 @@ public class XmlGuideReader {
 							logger.trace("loadXML " + PresName + " Image " + strImage+ "|" + ifSet+ "|" + ifNotSet);
 						} catch (Exception e1) {
 							logger.error("loadXML " + PresName + " Image Exception " + e1.getLocalizedMessage(), e1);
+						}
+						break;
+					case LoadGuide:
+						try {
+							String strGuidePath;
+							String strTarget;
+							String strReturnTarget;
+							strGuidePath = reader.getAttributeValue(null, "guidePath");
+							if (strGuidePath == null) strGuidePath = "";
+							strTarget = reader.getAttributeValue(null, "target");
+							if (strTarget == null) strTarget = "";
+							strReturnTarget = reader.getAttributeValue(null, "return-target");
+							if (strReturnTarget == null) strReturnTarget = "";
+							ifSet = reader.getAttributeValue(null, "if-set");
+							if (ifSet == null) ifSet = "";
+							ifNotSet = reader.getAttributeValue(null, "if-not-set"); 
+							if (ifNotSet == null) ifNotSet = "";
+							ifBefore = reader.getAttributeValue(null, "if-before");
+							if (ifBefore == null) ifBefore = "";
+							ifAfter = reader.getAttributeValue(null, "if-after");
+							if (ifAfter == null) ifAfter = "";
+							String preScript = reader.getAttributeValue(null, "preScript");
+							if (preScript == null) preScript = "";
+							String postScript = reader.getAttributeValue(null, "postScript");
+							if (postScript == null) postScript = "";
+							if (!strGuidePath.equals("")){
+								LoadGuide loadGuide = new LoadGuide(strGuidePath, strTarget, strReturnTarget, ifSet, ifNotSet, ifAfter, ifBefore, preScript, postScript);
+								page.addLoadGuide(loadGuide);
+							}
+							logger.trace("loadXML " + PresName + " LoadGuide " + strGuidePath + "|" + strTarget + "|" + ifSet+ "|" + ifNotSet);
+						} catch (Exception e1) {
+							logger.error("loadXML " + PresName + " LoadGuide Exception " + e1.getLocalizedMessage(), e1);
 						}
 						break;
 					case MediaDirectory:
@@ -584,6 +757,8 @@ public class XmlGuideReader {
 							String strStopAt;
 							String strTarget;
 							String scriptVar;
+							String volumeString;
+							int volume;
 							strTarget = reader.getAttributeValue(null, "target");
 							if (strTarget == null) strTarget = "";
 							strStartAt = reader.getAttributeValue(null, "start-at");
@@ -603,13 +778,41 @@ public class XmlGuideReader {
 							if (scriptVar == null) scriptVar = "";
 							String loops = reader.getAttributeValue(null, "loops"); 
 							if (loops == null) loops = "0";
+							volumeString = reader.getAttributeValue(null, "volume");
+							if (volumeString == null) volumeString = "100";
+							try
+							{
+								volume = Integer.parseInt(volumeString);
+								if (volume > 100) volume = 100;
+								if (volume < 0) volume = 0;
+							} catch (Exception ex) 
+							{
+								volume = 100;
+							}
 							String javascript = reader.getAttributeValue(null, "onTriggered");
 							if (javascript == null) javascript = "";
-							Video video = new Video(strId, strStartAt, strStopAt, strTarget, ifSet, ifNotSet, "", "", loops, javascript, ifAfter, ifBefore, scriptVar);
+							Video video = new Video(strId, strStartAt, strStopAt, strTarget, ifSet, ifNotSet, "", "", loops, javascript, ifAfter, ifBefore, scriptVar, volume);
 							page.addVideo(video);
-							logger.trace("loadXML " + PresName + " Video " + strId + "|" + strStartAt + "|" + strStopAt + "|" + strTarget + "|" + ifSet + "|" + ifNotSet + "|" + "" + "|" + "" + "|" + loops + "|" + javascript);
+							logger.trace("loadXML " + PresName + " Video " + strId + "|" + strStartAt + "|" + strStopAt + "|" + strTarget + "|" + ifSet + "|" + ifNotSet + "|" + "" + "|" + "" + "|" + loops + "|" + javascript + "|" + volume);
 						} catch (Exception e1) {
 							logger.error("loadXML " + PresName + " Video Exception " + e1.getLocalizedMessage(), e1);
+						}
+						break;
+					case Webcam:
+						try {
+							ifSet = reader.getAttributeValue(null, "if-set");
+							if (ifSet == null) ifSet = "";
+							ifNotSet = reader.getAttributeValue(null, "if-not-set"); 
+							if (ifNotSet == null) ifNotSet = "";
+							ifBefore = reader.getAttributeValue(null, "if-before");
+							if (ifBefore == null) ifBefore = "";
+							ifAfter = reader.getAttributeValue(null, "if-after");
+							if (ifAfter == null) ifAfter = "";
+							Webcam webcam = new Webcam(ifSet, ifNotSet, ifAfter, ifBefore);
+							page.addWebcam(webcam);
+							logger.trace("loadXML " + PresName + " Webcam " + ifSet + "|" + ifNotSet + "|" + ifBefore + "|" + ifAfter);
+						} catch (Exception e1) {
+							logger.error("loadXML " + PresName + " Webcam Exception " + e1.getLocalizedMessage(), e1);
 						}
 						break;
 					case javascript:
@@ -701,8 +904,40 @@ public class XmlGuideReader {
 							if (!dataDirectory.endsWith(fileSeparator)) {
 								dataDirectory = dataDirectory + fileSeparator;
 							}
-							incFileName = dataDirectory + comonFunctions.fixSeparator(reader.getAttributeValue(null, "file"), fileSeparator);
-							parseFile(incFileName, guide, PresName, chapter, appSettings);
+							
+							//Handle wild cards
+							incFileName = comonFunctions.fixSeparator(reader.getAttributeValue(null, "file"), fileSeparator);
+							if (incFileName.toLowerCase().endsWith("*.js")) {
+								ArrayList<String> filesList = new ArrayList<String>();
+							    try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(
+							            Paths.get(dataDirectory), incFileName)) {
+							        dirStream.forEach(path -> filesList.add(path.toString()));
+							    }
+							    for(String filePath:filesList)
+							    {
+							    	includeJavaScript(guide, filePath);
+							    }
+							} else if (incFileName.toLowerCase().endsWith("*.xml")) {
+								ArrayList<String> filesList = new ArrayList<String>();
+							    try (DirectoryStream<Path> dirStream = Files.newDirectoryStream(
+							            Paths.get(dataDirectory), incFileName)) {
+							        dirStream.forEach(path -> filesList.add(path.toString()));
+							    }
+							    for(String filePath:filesList)
+							    {
+									parseFile(filePath, guide, PresName, chapter, appSettings);
+							    }
+							} else {
+								incFileName = dataDirectory + incFileName;
+								if (incFileName.toLowerCase().endsWith(".js"))
+								{
+									includeJavaScript(guide, incFileName);
+								}
+								else
+								{
+									parseFile(incFileName, guide, PresName, chapter, appSettings);
+								}
+							}
 							logger.trace("loadXML " + PresName + " include " + incFileName);
 						} catch (Exception e1) {
 							logger.error("loadXML " + PresName + " include Exception " + e1.getLocalizedMessage(), e1);
@@ -732,10 +967,16 @@ public class XmlGuideReader {
 			if (!strTmpTitle.equals("") || !strTmpAuthor.equals("")) {
 				guide.setTitle(strTmpTitle + ", " + strTmpAuthor);
 			}
+			//Clean up
+			reader.close();		
+			ubis.close();
+			fis.close();
 		} catch (Exception e) {
 			logger.error("loadXML " + xmlFileName + " Exception ", e);
 		}
-
+		
+		
+		
 	}
 
 	private String processText(XMLStreamReader reader, String tagName) throws XMLStreamException {
@@ -793,5 +1034,14 @@ public class XmlGuideReader {
 			}
 		}
 		return text;
+	}
+	
+	private void includeJavaScript(Guide guide, String filePath)
+	{
+    	String javascript = comonFunctions.readFile(filePath, StandardCharsets.UTF_8);
+    	String globalScript = guide.getGlobaljScript();
+		javascript = globalScript.concat("\r\n").concat(javascript);
+		guide.setGlobaljScript(javascript);
+		
 	}
 }

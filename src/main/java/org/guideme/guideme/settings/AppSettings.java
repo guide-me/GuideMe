@@ -4,6 +4,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
+import java.util.ResourceBundle;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,15 +15,16 @@ public class AppSettings {
 	private int HtmlFontSize = 20;
 	private int timerFontSize = 20;
 	private int buttonFontSize = 20;
-	private int midiVolume = 0;
+	private int midiVolume = 100;
 	private int midiInstrument = 76;
-	private int musicVolume = 400;
-	private int videoVolume = 400;
+	private int musicVolume = 100;
+	private int videoVolume = 100;
 	private int mainMonitor = 1;
 	private int maxImageScale = 0;
 	private int jsDebugHeight = 600;
 	private int jsDebugWidth = 800;
 	private int thumbnailSize = 200;
+	private double imgOffset = 0.99;
 	
 	
 	private boolean Debug = false;
@@ -31,6 +33,7 @@ public class AppSettings {
 	private boolean JsDebugEnter = false;
 	private boolean JsDebugExit = false;
 	private boolean video = false;
+	private boolean webcam = false;
 	private boolean hideMenu = false;
 	private String DataDirectory;
 	private int[] sash1Weights = new int[2];
@@ -52,6 +55,15 @@ public class AppSettings {
 	private String ComandLineGuide = "";
 	private String tempDir;
 	private boolean stateInDataDir;
+	private String language;
+	private String country;
+
+	public void setDisplayText(ResourceBundle displayText) {
+		this.displayText = displayText;
+	}
+
+	private ResourceBundle displayText;
+	
 
 	public static synchronized AppSettings getAppSettings() {
 		if (appSettings == null) {
@@ -93,13 +105,14 @@ public class AppSettings {
 				buttonFontSize = Integer.parseInt(appSettingsProperties.getProperty("buttonFontSize", "20"));
 				midiInstrument = Integer.parseInt(appSettingsProperties.getProperty("midiInstrument", "76"));
 				midiVolume = Integer.parseInt(appSettingsProperties.getProperty("midiVolume", "100"));
-				musicVolume = Integer.parseInt(appSettingsProperties.getProperty("musicVolume", "400"));
-				videoVolume = Integer.parseInt(appSettingsProperties.getProperty("videoVolume", "400"));
+				musicVolume = Integer.parseInt(appSettingsProperties.getProperty("musicVolume", "100"));
+				videoVolume = Integer.parseInt(appSettingsProperties.getProperty("videoVolume", "100"));
 				Debug = Boolean.parseBoolean(appSettingsProperties.getProperty("Debug", "false"));
 				JsDebug = Boolean.parseBoolean(appSettingsProperties.getProperty("JsDebug", "false"));
 				jsDebugHeight = Integer.parseInt(appSettingsProperties.getProperty("jsDebugHeight", "600"));
 				jsDebugWidth = Integer.parseInt(appSettingsProperties.getProperty("jsDebugWidth", "800"));
 				video = Boolean.parseBoolean(appSettingsProperties.getProperty("Video", "true"));
+				webcam = Boolean.parseBoolean(appSettingsProperties.getProperty("Webcam", "false"));
 				mainMonitor = Integer.parseInt(appSettingsProperties.getProperty("mainMonitor", "1"));
 				fullScreen = Boolean.parseBoolean(appSettingsProperties.getProperty("fullScreen", "false"));
 				multiMonitor = Boolean.parseBoolean(appSettingsProperties.getProperty("multiMonitor", "false"));
@@ -117,6 +130,9 @@ public class AppSettings {
 				maxImageScale = Integer.parseInt(appSettingsProperties.getProperty("maxImageScale", "0"));
 				hideMenu = Boolean.parseBoolean(appSettingsProperties.getProperty("hideMenu", "false"));
 				thumbnailSize = Integer.parseInt(appSettingsProperties.getProperty("thumbnailSize", "200"));
+				imgOffset = Double.parseDouble(appSettingsProperties.getProperty("imgOffset", "0.99"));
+				language = appSettingsProperties.getProperty("language", "en");
+				country = appSettingsProperties.getProperty("country", "UK");
 			}
 			catch (Exception ex) {
 				logger.error(ex.getLocalizedMessage(), ex);
@@ -127,6 +143,26 @@ public class AppSettings {
 
 	public int getFontSize() {
 		return FontSize;
+	}
+
+	public String getLanguage() {
+		return language;
+	}
+
+	public void setLanguage(String language) {
+		this.language = language;
+	}
+
+	public String getCountry() {
+		return country;
+	}
+
+	public void setCountry(String country) {
+		this.country = country;
+	}
+
+	public ResourceBundle getDisplayText() {
+		return displayText;
 	}
 
 	public void setFontSize(int fontSize) {
@@ -228,6 +264,7 @@ public class AppSettings {
 			appSettingsProperties.setProperty("jsDebugHeight", String.valueOf(jsDebugHeight));
 			appSettingsProperties.setProperty("jsDebugWidth", String.valueOf(jsDebugWidth));
 			appSettingsProperties.setProperty("Video", String.valueOf(video));
+			appSettingsProperties.setProperty("Webcam", String.valueOf(webcam));
 			appSettingsProperties.setProperty("mainMonitor", String.valueOf(mainMonitor));
 			appSettingsProperties.setProperty("fullScreen", String.valueOf(fullScreen));
 			appSettingsProperties.setProperty("multiMonitor", String.valueOf(multiMonitor));
@@ -246,6 +283,9 @@ public class AppSettings {
 			appSettingsProperties.setProperty("maxImageScale", String.valueOf(maxImageScale));
 			appSettingsProperties.setProperty("hideMenu", String.valueOf(hideMenu));
 			appSettingsProperties.setProperty("thumbnailSize", String.valueOf(thumbnailSize));
+			appSettingsProperties.setProperty("imgOffset", String.valueOf(imgOffset));
+			appSettingsProperties.setProperty("country", country);
+			appSettingsProperties.setProperty("language", language);
 		}
 		catch (Exception e) {
 			logger.error(e.getLocalizedMessage(), e);
@@ -282,6 +322,14 @@ public class AppSettings {
 
 	public void setVideoOn(boolean video) {
 		this.video = video;
+	}
+
+	public boolean getWebcamOn() {
+		return webcam;
+	}
+
+	public void setWebcamOn(boolean webcam) {
+		this.webcam = webcam;
 	}
 
 	public int getMidiVolume() {
@@ -438,6 +486,14 @@ public class AppSettings {
 
 	public void setThumbnailSize(int thumbnailSize) {
 		this.thumbnailSize = thumbnailSize;
+	}
+
+	public double getImgOffset() {
+		return imgOffset;
+	}
+
+	public void setImgOffset(double imgOffset) {
+		this.imgOffset = imgOffset;
 	}
 
 }

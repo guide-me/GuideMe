@@ -10,10 +10,13 @@ public class Page {
 	private String leftText = ""; //HTML to display in the left pane instead of an image
 	private String id; //Page Name
 	private ArrayList<Button> button = new ArrayList<Button>();
+	private ArrayList<WebcamButton> webcamButton = new ArrayList<WebcamButton>();
 	private ArrayList<Delay> delay = new ArrayList<Delay>(); 
 	private ArrayList<Timer> timer = new ArrayList<Timer>(); 
 	private ArrayList<Video> video = new ArrayList<Video>();
+	private ArrayList<Webcam> webcam = new ArrayList<Webcam>();
 	private ArrayList<Image> image = new ArrayList<Image>();
+	private ArrayList<LoadGuide> loadGuide = new ArrayList<LoadGuide>();
 	private ArrayList<Audio> audio = new ArrayList<Audio>();
 	private ArrayList<Metronome> metronome = new ArrayList<Metronome>();
 	private String ifSet;
@@ -73,6 +76,14 @@ public class Page {
 		this.button.add(button);
 	}
 
+	public WebcamButton getWebcamButton(int butIndex) {
+		return webcamButton.get(butIndex);
+	}
+
+	public void addWebcamButton(WebcamButton button) {
+		this.webcamButton.add(button);
+	}
+
 	public Delay getDelay(int delIndex) {
 		return delay.get(delIndex);
 	}
@@ -97,12 +108,28 @@ public class Page {
 		this.video.add(video);
 	}
 
+	public Webcam getWebcam(int vidIndex) {
+		return webcam.get(vidIndex);
+	}
+	
+	public void addWebcam(Webcam webcam) {
+		this.webcam.add(webcam);
+	}
+
 	public Image getImage(int imgIndex) {
 		return image.get(imgIndex);
 	}
 	
 	public void addImage(Image image) {
 		this.image.add(image);
+	}
+
+	public LoadGuide getLoadGuide(int guideIndex) {
+		return loadGuide.get(guideIndex);
+	}
+	
+	public void addLoadGuide(LoadGuide loadGuide) {
+		this.loadGuide.add(loadGuide);
 	}
 
 	public Audio getAudio(int audIndex) {
@@ -129,6 +156,10 @@ public class Page {
 		return button.size();
 	}
 
+	public int getWebcamButtonCount() {
+		return webcamButton.size();
+	}
+
 	public int getDelayCount() {
 		return delay.size();
 	}
@@ -141,8 +172,16 @@ public class Page {
 		return video.size();
 	}
 
+	public int getWebcamCount() {
+		return webcam.size();
+	}
+
 	public int getImageCount() {
 		return image.size();
+	}
+
+	public int getLoadGuideCount() {
+		return loadGuide.size();
 	}
 
 	public int getMetronomeCount() {
@@ -231,4 +270,5 @@ public class Page {
 			this.ifAfter = LocalTime.parse(ifAfter);
 		}
 	}
+
 }

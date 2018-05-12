@@ -39,6 +39,7 @@ public class Jscript  implements Runnable
 	private String javaFunction;
 	private boolean pageloading;
 	private boolean running;
+	private Main dbg;
 	
 	public Jscript(Guide Iguide, UserSettings IuserSettings, AppSettings IappSettings, Boolean IinPrefGuide, MainShell ImainShell, OverRide IoverRide, String ijavaScriptText, String ijavaFunction, boolean ipageloading) 
 	{
@@ -68,7 +69,7 @@ public class Jscript  implements Runnable
 
 	public void run() {
 		try {
-			String javaScriptToRun = javaScriptText + guide.getGlobaljScript();
+			String javaScriptToRun = javaScriptText;
 			logger.info(JSCRIPT_MARKER, "Chapter: " + guideSettings.getChapter());
 			logger.info(JSCRIPT_MARKER, "Page: " + guideSettings.getCurrPage());
 			logger.info(JSCRIPT_MARKER, "javaFunction: " + javaFunction);
@@ -82,7 +83,9 @@ public class Jscript  implements Runnable
 			HashMap<String, Object> scriptVars;
 			scriptVars = guideSettings.getScriptVariables();
 			ContextFactory cntxFact = new ContextFactory();
-			Main dbg = null;
+			
+			Scriptable globalScope = guideSettings.getGlobalScope();
+			
 			if (appSettings.getJsDebug())
 			{
 				dbg = new Main("GuideMe");
@@ -90,58 +93,95 @@ public class Jscript  implements Runnable
 			}
 			
 			Context cntx = cntxFact.enterContext();
+			cntx.setOptimizationLevel(-1);
 			cntx.getWrapFactory().setJavaPrimitiveWrap(false);
-			Scriptable scope = cntx.initStandardObjects();
+
+			if (globalScope.get("GuideObjects", globalScope) != "true")
+			{
+				ScriptableObject.putProperty(globalScope, "GuideObjects", "true");
+				ScriptableObject.putProperty(globalScope, "comonFunctions", comonFunctions);
+				ScriptableObject.putProperty(globalScope, "fileSeparator", java.lang.System.getProperty("file.separator"));
+				ScriptableObject.putProperty(globalScope, "guide", guide);
+				ScriptableObject.putProperty(globalScope, "guideSettings", guideSettings);
+				ScriptableObject.putProperty(globalScope, "mediaDir", appSettings.getDataDirectory());
+				@SuppressWarnings("rawtypes")
+				Class[] cArg = new Class[1];
+				cArg[0] = String.class;
+				java.lang.reflect.Method tjlog = Jscript.class.getMethod("jscriptLog", cArg);
+				FunctionObject jlog = new FunctionObject("jscriptLog", tjlog, globalScope);
+				ScriptableObject.putProperty(globalScope, "jscriptLog", jlog);
+				cArg = null;
+				jlog= null;
+
+			}
+			ScriptableObject.putProperty(globalScope, "scriptVars", scriptVars);
+			
+			Scriptable parentScope = guideSettings.getScope();
+			if (parentScope == null)
+			{
+				//parentScope = cntx.initStandardObjects();;
+				parentScope = cntx.newObject(globalScope);
+			}
+			parentScope.setParentScope(globalScope);
+
+			if (appSettings.getJsDebug())
+			{
+			    dbg.setBreakOnExceptions(appSettings.getJsDebugError());
+			    dbg.setBreakOnEnter(appSettings.getJsDebugEnter());
+			    dbg.setBreakOnReturn(appSettings.getJsDebugExit());
+			    dbg.setScope(parentScope);
+			    dbg.setSize(appSettings.getJsDebugWidth(), appSettings.getJsDebugHeight());
+			    dbg.setVisible(true);
+				JFrame jfWindow = dbg.getDebugFrame();
+				if (appSettings.getMainMonitor() == 1)
+				{
+					showOnScreen(1, jfWindow);
+				}
+				else
+				{
+					showOnScreen(0, jfWindow);
+				}
+			    dbg.setExitAction(new DontExitOnClose());
+			}
+
+			cntx.evaluateString(parentScope, guide.getGlobaljScript(), "globalScript", 1, null);
+		    guideSettings.setScope(parentScope);
+
+			//Scriptable scope = cntx.initStandardObjects();
+			//scope.setParentScope(parentScope);;
+			Scriptable scope = cntx.newObject(parentScope);
+			//scope.setPrototype(parentScope);
+			scope.setParentScope(parentScope);
+			
 			if (! inPrefGuide) {
 				UserSettings cloneUS = userSettings.clone();
-				ScriptableObject.putProperty(scope, "userSettings", cloneUS);
+				ScriptableObject.putProperty(globalScope, "userSettings", cloneUS);
 			} else {
-				ScriptableObject.putProperty(scope, "userSettings", userSettings);
+				ScriptableObject.putProperty(globalScope, "userSettings", userSettings);
 			}
-			@SuppressWarnings("rawtypes")
-			Class[] cArg = new Class[1];
-			cArg[0] = String.class;
-			java.lang.reflect.Method tjlog = Jscript.class.getMethod("jscriptLog", cArg);
-			FunctionObject jlog = new FunctionObject("jscriptLog", tjlog, scope);
-			//Deprecated should use guide now
-			ScriptableObject.putProperty(scope, "guideSettings", guideSettings);
 			//Deprecated should use guide now
 			ScriptableObject.putProperty(scope, "comonFunctions", comonFunctions);
-			ScriptableObject.putProperty(scope, "scriptVars", scriptVars);
+			ScriptableObject.putProperty(scope, "fileSeparator", java.lang.System.getProperty("file.separator"));
 			ScriptableObject.putProperty(scope, "guide", guide);
 			ScriptableObject.putProperty(scope, "mediaDir", appSettings.getDataDirectory());
-			ScriptableObject.putProperty(scope, "fileSeparator", java.lang.System.getProperty("file.separator"));
-			ScriptableObject.putProperty(scope, "jscriptLog", jlog);
+			//Deprecated should use guide now
+			ScriptableObject.putProperty(scope, "guideSettings", guideSettings);
+
+			ScriptableObject.putProperty(scope, "scriptVars", scriptVars);
+			ScriptableObject.putProperty(scope, "guide", guide);
+			//Deprecated should use guide now
+			ScriptableObject.putProperty(scope, "guideSettings", guideSettings);
 			logger.info(JSCRIPT_MARKER, "Starting ScriptVariables: " + scriptVars);
 			logger.info(JSCRIPT_MARKER, "Starting Flags {" + guideSettings.getFlags() + "}");
 			
 			if (pageloading) {
-				ScriptableObject.putProperty(scope, "overRide", overRide);
+				ScriptableObject.putProperty(globalScope, "overRide", overRide);
 			}
 			
 			try {
 
-				if (appSettings.getJsDebug())
-				{
-				    dbg.setBreakOnExceptions(appSettings.getJsDebugError());
-				    dbg.setBreakOnEnter(appSettings.getJsDebugEnter());
-				    dbg.setBreakOnReturn(appSettings.getJsDebugExit());
-				    dbg.setScope(scope);
-				    dbg.setSize(appSettings.getJsDebugWidth(), appSettings.getJsDebugHeight());
-				    dbg.setVisible(true);
-					JFrame jfWindow = dbg.getDebugFrame();
-					if (appSettings.getMainMonitor() == 1)
-					{
-						showOnScreen(1, jfWindow);
-					}
-					else
-					{
-						showOnScreen(0, jfWindow);
-					}
-				    dbg.setExitAction(new DontExitOnClose());
-				}
 			    
-			    cntx.evaluateString(scope, javaScriptToRun, "script", 1, null);
+			    cntx.evaluateString(scope, javaScriptToRun, "pageScript", 1, null);
 			    
 				int argStart;
 				int argEnd;
@@ -154,6 +194,9 @@ public class Jscript  implements Runnable
 					javaFunction = javaFunction.substring(0, argStart);
 				}
 				Object fObj = scope.get(javaFunction, scope);
+				if (!(fObj instanceof Function)) {
+					fObj = parentScope.get(javaFunction, parentScope);
+				}
 				if ((fObj instanceof Function)) {
 					Object args[] = { "" };
 					if (argstring.length() > 0) {
@@ -184,15 +227,13 @@ public class Jscript  implements Runnable
 			{
 			    dbg.detach();
 			    dbg.dispose();
-			}		    
+			}
 
 			guideSettings.setFlags(comonFunctions.GetFlags(guide.getFlags()));
 			guideSettings.saveSettings();
 			if (inPrefGuide) {
 				userSettings.saveUserSettings();
 			}
-			cArg = null;
-			jlog= null;
 		}
 		catch (Exception ex) {
 			logger.error(" FileRunScript " + ex.getLocalizedMessage(), ex);
@@ -225,5 +266,8 @@ public class Jscript  implements Runnable
 	        throw new RuntimeException( "No Screens Found" );
 	    }
 	}
+	
+	
+	
 }
 

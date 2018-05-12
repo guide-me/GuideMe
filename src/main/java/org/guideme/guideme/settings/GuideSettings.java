@@ -63,6 +63,8 @@ public class GuideSettings{
 	private boolean globalScriptLogged = false;
 	private static Logger logger = LogManager.getLogger();
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
+	private Scriptable scope;
+	private Scriptable globalScope;
 
 	public GuideSettings(String GuideId) {
 		super();
@@ -77,8 +79,6 @@ public class GuideSettings{
 		String dataDirectory;
 		AppSettings appSettings = AppSettings.getAppSettings();
 		ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
-	    //ContextFactory factory = new ContextFactory();
-	    //context = factory.enterContext();			    
 		if (appSettings.isStateInDataDir())
 		{
 			dataDirectory = appSettings.getTempDir();
@@ -196,6 +196,20 @@ public class GuideSettings{
 					}				
 				}
 
+				Element elScope = comonFunctions.getElement("//scope", rootElement);
+				if (elScope != null) {
+					CharacterData elChar;
+					String strValue;
+					Object objValue;
+					elChar = (CharacterData) elScope.getFirstChild();
+					if (elChar != null) {
+						strValue = elChar.getData();
+						objValue = getSavedObject(strValue, "Scope");
+					} else {
+						objValue = null;
+					}
+					scope = (Scriptable) objValue;
+				}
 			}
 
 		} catch (ParserConfigurationException pce) {
@@ -215,7 +229,23 @@ public class GuideSettings{
 		
 		ContextFactory cntxFact = new ContextFactory();
 		Context context = cntxFact.enterContext();
+		context.setOptimizationLevel(-1);
 		context.getWrapFactory().setJavaPrimitiveWrap(false);
+		
+		if (strType.equals("Scope")) {
+			try {
+				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
+				ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes);
+				ObjectInputStream oInputStream = new ScriptableInputStream(bis, getGlobalScope());
+				Scriptable readObject = (Scriptable) oInputStream.readObject();
+				oInputStream.close();
+				returned = readObject;
+			} catch (Exception ex ) {
+				logger.error(ex.getLocalizedMessage(),ex);
+			}
+		    
+		}
+
 		if (strType.equals("org.mozilla.javascript.NativeArray")) {
 			try {
 				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
@@ -273,62 +303,85 @@ public class GuideSettings{
 		}
 
 		Context.exit();
-		// TODO Auto-generated method stub
 		return returned;
 	}
 
 	private String createSaveObject(Object value, String strType) {
-		String returnVal;
-		returnVal = value.toString();
-		if (strType.equals("org.mozilla.javascript.NativeArray") || strType.equals("org.mozilla.javascript.NativeObject") || strType.equals("org.mozilla.javascript.NativeDate") ) {
-			try {
-				ContextFactory cntxFact = new ContextFactory();
-				Context cntx = cntxFact.enterContext();
-				cntx.getWrapFactory().setJavaPrimitiveWrap(false);
-			    String fromApacheBytes = "";
-				if (strType.equals("org.mozilla.javascript.NativeArray"))
-				{
-					NativeArray nativeValue = (NativeArray) value;
-					Scriptable scope = nativeValue.getParentScope();
-				    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				    ScriptableOutputStream  os = new ScriptableOutputStream (bos, scope);
-				    os.writeObject(nativeValue);
-					
-				    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
-				    fromApacheBytes = new String(encodedBytes);
-				    os.close();
+		String returnVal = "";
+		if (value != null)
+		{
+			returnVal = value.toString();
+			if (strType.equals("org.mozilla.javascript.NativeArray") 
+					|| strType.equals("org.mozilla.javascript.NativeObject") 
+					|| strType.equals("org.mozilla.javascript.NativeDate")
+					|| strType.equals("Scope")) {
+				try {
+					ContextFactory cntxFact = new ContextFactory();
+					Context cntx = cntxFact.enterContext();
+					cntx.setOptimizationLevel(-1);
+					cntx.getWrapFactory().setJavaPrimitiveWrap(false);
+				    String fromApacheBytes = "";
+					if (strType.equals("Scope"))
+					{
+						Scriptable saveScope = (Scriptable) value;
+					    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					    ScriptableOutputStream  os = new ScriptableOutputStream (bos, getGlobalScope());
+					    os.writeObject(saveScope);
+						
+					    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
+					    fromApacheBytes = new String(encodedBytes);
+					    os.close();
+					}
+					if (strType.equals("org.mozilla.javascript.NativeArray"))
+					{
+						NativeArray nativeValue = (NativeArray) value;
+						Scriptable localScope = nativeValue.getParentScope();
+					    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					    ScriptableOutputStream  os = new ScriptableOutputStream (bos, localScope);
+					    os.writeObject(nativeValue);
+						
+					    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
+					    fromApacheBytes = new String(encodedBytes);
+					    os.close();
+					}
+					if (strType.equals("org.mozilla.javascript.NativeObject"))
+					{
+						NativeObject nativeValue = (NativeObject) value;
+						Scriptable localScope = nativeValue.getParentScope();
+						String type = localScope.getClass().getName();
+						if (type.equals("org.mozilla.javascript.NativeCall"))
+						{
+							localScope = globalScope;
+							type = localScope.getClass().getName();
+						}
+					    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					    ScriptableOutputStream  os = new ScriptableOutputStream (bos, localScope);
+					    os.writeObject(nativeValue);
+						
+					    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
+					    fromApacheBytes = new String(encodedBytes);
+					    os.close();
+					}
+					if (strType.equals("org.mozilla.javascript.NativeDate"))
+					{
+						NativeDate nativeValue = (NativeDate) value;
+						Scriptable localScope = nativeValue.getParentScope();
+					    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					    ScriptableOutputStream  os = new ScriptableOutputStream (bos, localScope);
+					    os.writeObject(nativeValue);
+						
+					    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
+					    fromApacheBytes = new String(encodedBytes);
+					    os.close();
+					}
+				    returnVal = fromApacheBytes;
+				} catch (Exception ex ) {
+					logger.error(ex.getLocalizedMessage(),ex);
+					returnVal = "ignore";
 				}
-				if (strType.equals("org.mozilla.javascript.NativeObject"))
-				{
-					NativeObject nativeValue = (NativeObject) value;
-					Scriptable scope = nativeValue.getParentScope();
-				    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				    ScriptableOutputStream  os = new ScriptableOutputStream (bos, scope);
-				    os.writeObject(nativeValue);
-					
-				    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
-				    fromApacheBytes = new String(encodedBytes);
-				    os.close();
-				}
-				if (strType.equals("org.mozilla.javascript.NativeDate"))
-				{
-					NativeDate nativeValue = (NativeDate) value;
-					Scriptable scope = nativeValue.getParentScope();
-				    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-				    ScriptableOutputStream  os = new ScriptableOutputStream (bos, scope);
-				    os.writeObject(nativeValue);
-					
-				    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
-				    fromApacheBytes = new String(encodedBytes);
-				    os.close();
-				}
-			    returnVal = fromApacheBytes;
-			} catch (Exception ex ) {
-				logger.error(ex.getLocalizedMessage(),ex);
+				Context.exit();
 			}
-			Context.exit();
 		}
-		
 		return returnVal;
 	}
 
@@ -561,8 +614,6 @@ public class GuideSettings{
 		    Element elVar;
 		    while (it.hasNext()) {
 		    	String key = it.next();
-		    	elVar = comonFunctions.addElement("Var", elScriptVariables, doc);
-		    	elVar.setAttribute("id", key);
 		    	Object value = scriptVariables.get(key);
 		    	String strType;
 		    	String strValue;
@@ -573,10 +624,22 @@ public class GuideSettings{
 			    	strType = value.getClass().getName();
 			    	strValue = createSaveObject(value, strType);
 		    	}
-		    	comonFunctions.addCdata(strValue, elVar, doc);
-		    	elVar.setAttribute("type", strType);
+		    	if (!strValue.equals("ignore"))
+		    	{
+			    	elVar = comonFunctions.addElement("Var", elScriptVariables, doc);
+			    	elVar.setAttribute("id", key);
+			    	comonFunctions.addCdata(strValue, elVar, doc);
+			    	elVar.setAttribute("type", strType);
+		    	}
 		    }		    
 
+		    Element elScope = comonFunctions.getElement("//scope", rootElement);
+		    if (elScope != null) {
+		    	rootElement.removeChild(elScope);
+		    }
+		    elScope = comonFunctions.addElement("scope", rootElement, doc);
+	    	String strValue = createSaveObject(scope, "Scope");
+	    	comonFunctions.addCdata(strValue, elScope, doc);
 		    
 		    Element elscriptPreferences = comonFunctions.getElement("//scriptPreferences", rootElement);
 		    if (elscriptPreferences != null) {
@@ -678,6 +741,25 @@ public class GuideSettings{
 
 	public void setScriptVar(String key, Object var) {
 		scriptVariables.put(key, var);
+	}
+
+	public Scriptable getScope() {
+		return scope;
+	}
+
+	public void setScope(Scriptable scope) {
+		this.scope = scope;
+	}
+
+	public Scriptable getGlobalScope() {
+		if (globalScope == null)
+		{
+		    ContextFactory factory = new ContextFactory();
+		    Context context = factory.enterContext();
+		    globalScope = context.initStandardObjects();
+		    Context.exit();
+		}
+		return globalScope;
 	}
 }
 

@@ -2,6 +2,7 @@ package org.guideme.guideme.ui;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.ResourceBundle;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -49,6 +50,8 @@ public class GuidePreferenceShell {
 		try {
 			Control tmpWidget;
 			Control tmpWidget2;
+			ResourceBundle displayText = appSettings.getDisplayText();
+
 			
 			
 			//Create the main UI elements
@@ -57,7 +60,7 @@ public class GuidePreferenceShell {
 			//myAppSettings = appSettings;
 			shell = new Shell(myDisplay, SWT.APPLICATION_MODAL + SWT.DIALOG_TRIM + SWT.RESIZE);
 
-			shell.setText(myGuideSettings.getName() + " Preferences");
+			shell.setText(myGuideSettings.getName() + " " + displayText.getString("FileGuidePrefPrefernces"));
 			FormLayout layout = new FormLayout();
 			shell.setLayout(layout);
 			Font sysFont = display.getSystemFont();
@@ -82,7 +85,7 @@ public class GuidePreferenceShell {
 			grpNamesFormData.left = new FormAttachment(0,5);
 			grpNamesFormData.right = new FormAttachment(100,-5);
 			grpNames.setLayoutData(grpNamesFormData);
-			grpNames.setText("Settings");
+			grpNames.setText(displayText.getString("FileGuidePrefSettings"));
 			FormLayout layout2 = new FormLayout();
 			grpNames.setLayout(layout2);
 
@@ -111,7 +114,7 @@ public class GuidePreferenceShell {
 			
 
 			SquareButton btnCancel = new SquareButton(composite, SWT.PUSH);
-			btnCancel.setText("Cancel");
+			btnCancel.setText(displayText.getString("ButtonCancel"));
 			btnCancel.setFont(controlFont);
 			FormData btnCancelFormData = new FormData();
 			btnCancelFormData.top = new FormAttachment(grpNames,5);
@@ -121,7 +124,7 @@ public class GuidePreferenceShell {
 			btnCancel.addSelectionListener(new CancelButtonListener());
 
 			SquareButton btnSave = new SquareButton(composite, SWT.PUSH);
-			btnSave.setText("Save");
+			btnSave.setText(displayText.getString("ButtonSave"));
 			btnSave.setFont(controlFont);
 			FormData btnSaveFormData = new FormData();
 			btnSaveFormData.top = new FormAttachment(grpNames,5);

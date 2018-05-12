@@ -1,0 +1,810 @@
+<?xml version="1.0"?>
+<settings>
+  <Title>Tease Me User Settings</Title>
+  <Pages>
+    <Page id="start">
+      <Text><div></div></Text>
+      <Image id="settings1.jpg" />
+      <Button target="page1" onclick="savePref()">Nächster</Button>
+      <javascript><![CDATA[
+		function pageLoad() {
+			if (userSettings.keyExists("myName", "String") == false ) {
+				userSettings.addPref("myName", "Hero", "My Name")
+			}
+			if (userSettings.keyExists("mySubName", "String") == false ) {
+				userSettings.addPref("mySubName", "Toy", "My Sub Name")
+			}
+			
+			if (userSettings.keyExists("mistress1", "String") == false ) {
+				userSettings.addPref("mistress1", "Kate", "Mistress 1")
+			}
+			if (userSettings.keyExists("mistress2", "String") == false ) {
+				userSettings.addPref("mistress2", "Gisele", "Mistress 2")
+			}
+			if (userSettings.keyExists("femSub1", "String") == false ) {
+				userSettings.addPref("femSub1", "Karen", "Female Sub 1")
+			}
+			if (userSettings.keyExists("femSub2", "String") == false ) {
+				userSettings.addPref("femSub2", "Kara", "Female Sub 2")
+			}
+			
+			if (userSettings.keyExists("master1", "String") == false ) {
+				userSettings.addPref("master1", "Kevin", "Master 1")
+			}
+			if (userSettings.keyExists("master2", "String") == false ) {
+				userSettings.addPref("master2", "George", "Master 2")
+			}
+			if (userSettings.keyExists("maleSub1", "String") == false ) {
+				userSettings.addPref("maleSub1", "Oswald", "Männlich unterwürfig 1")
+			}
+			if (userSettings.keyExists("maleSub2", "String") == false ) {
+				userSettings.addPref("maleSub2", "Steve", "Male Sub 2")
+			}
+
+			var html = '<form><table>';
+			html = html + '<tr><td>' + userSettings.getScreenDesc("myName", "String") + ': </td><td><input type="text" value="' + userSettings.getPref("myName") + '" name="myName" /></td></tr>';
+			html = html + '<tr><td>' + userSettings.getScreenDesc("mySubName", "String") + ': </td><td><input type="text" value="' + userSettings.getPref("mySubName") + '" name="mySubName" /></td></tr>';
+			html = html + '<tr><td>' + userSettings.getScreenDesc("mistress1", "String") + ': </td><td><input type="text" value="' + userSettings.getPref("mistress1") + '" name="mistress1" /></td></tr>';
+			html = html + '<tr><td>' + userSettings.getScreenDesc("mistress2", "String") + ': </td><td><input type="text" value="' + userSettings.getPref("mistress2") + '" name="mistress2" /></td></tr>';
+			html = html + '<tr><td>' + userSettings.getScreenDesc("femSub1", "String") + ': </td><td><input type="text" value="' + userSettings.getPref("femSub1") + '" name="femSub1" /></td></tr>';
+			html = html + '<tr><td>' + userSettings.getScreenDesc("femSub2", "String") + ': </td><td><input type="text" value="' + userSettings.getPref("femSub2") + '" name="femSub2" /></td></tr>';
+			html = html + '<tr><td>' + userSettings.getScreenDesc("master1", "String") + ': </td><td><input type="text" value="' + userSettings.getPref("master1") + '" name="master1" /></td></tr>';
+			html = html + '<tr><td>' + userSettings.getScreenDesc("master2", "String") + ': </td><td><input type="text" value="' + userSettings.getPref("master2") + '" name="master2" /></td></tr>';
+			html = html + '<tr><td>' + userSettings.getScreenDesc("maleSub1", "String") + ': </td><td><input type="text" value="' + userSettings.getPref("maleSub1") + '" name="maleSub1" /></td></tr>';
+			html = html + '<tr><td>' + userSettings.getScreenDesc("maleSub2", "String") + ': </td><td><input type="text" value="' + userSettings.getPref("maleSub2") + '" name="maleSub2" /></td></tr>';
+			html = html + '</table></form>';
+			jscriptLog("html " + html);
+			overRide.html = html;
+		}
+		function savePref() {
+			var myName = guideSettings.getFormField("myName");
+			userSettings.setPref("myName", myName);
+			var mySubName = guideSettings.getFormField("mySubName");
+			userSettings.setPref("mySubName", mySubName);
+			var mistress1 = guideSettings.getFormField("mistress1");
+			userSettings.setPref("mistress1", mistress1);
+			var mistress2 = guideSettings.getFormField("mistress2");
+			userSettings.setPref("mistress2", mistress2);
+			var femSub1 = guideSettings.getFormField("femSub1");
+			userSettings.setPref("femSub1", femSub1);
+			var femSub2 = guideSettings.getFormField("femSub2");
+			userSettings.setPref("femSub2", femSub2);
+			var master1 = guideSettings.getFormField("master1");
+			userSettings.setPref("master1", master1);
+			var master2 = guideSettings.getFormField("master2");
+			userSettings.setPref("master2", master2);
+			var maleSub1 = guideSettings.getFormField("maleSub1");
+			userSettings.setPref("maleSub1", maleSub1);
+			var maleSub2 = guideSettings.getFormField("maleSub2");
+			userSettings.setPref("maleSub2", maleSub2);
+		}
+		
+		]]></javascript>
+    </Page>
+    <Page id="page1">
+      <Text><div></div></Text>
+      <Image id="settings2.jpg" />
+      <Button target="page2" onclick="savePref()">Nächster</Button>
+      <javascript><![CDATA[
+		function pageLoad() {
+			if (userSettings.keyExists("myage", "Number") == false ) {
+				userSettings.addPref("myage", 21.0, "What is your Age?")
+			}
+			if (userSettings.keyExists("male", "Boolean") == false ) {
+				userSettings.addPref("male", true, "Are you male?")
+			}
+			if (userSettings.keyExists("straight", "Boolean") == false ) {
+				userSettings.addPref("straight", true, "Are you straight?")
+			}
+			if (userSettings.keyExists("bi", "Boolean") == false ) {
+				userSettings.addPref("bi", true, "Are you bi?")
+			}
+			if (userSettings.keyExists("gay", "Boolean") == false ) {
+				userSettings.addPref("gay", true, "Are you gay?")
+			}
+
+			var html = '<form><table>';
+			html = html + '<tr><td>' + userSettings.getScreenDesc("myage", "Number") + ': </td><td><input type="number" value="' + userSettings.getPrefNumber("myage") + '" name="myage" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("male", "Boolean") + ': </td><td><input type="checkbox"';
+			var male = String(userSettings.isPref("male")).toLowerCase();
+			if (male === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="male" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("straight", "Boolean") + ': </td><td><input type="checkbox"';
+			var straight = String(userSettings.isPref("straight")).toLowerCase();
+			if (straight === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="straight" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("bi", "Boolean") + ': </td><td><input type="checkbox"';
+			var bi = String(userSettings.isPref("bi")).toLowerCase();
+			if (bi === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="bi" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("gay", "Boolean") + ': </td><td><input type="checkbox"';
+			var gay = String(userSettings.isPref("gay")).toLowerCase();
+			if (gay === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="gay" /></td></tr>';
+
+			html = html + '</table></form>';
+			jscriptLog("html " + html);
+			overRide.html = html;
+		}
+		function savePref() {
+			var myage = parseInt(guideSettings.getFormField("myage"));
+			userSettings.setPref("myage", myage);
+
+			var male = guideSettings.getFormField("male");
+			if (male=='true') {
+				userSettings.setPref("male", true);
+			} else {
+				userSettings.setPref("male", false);
+			}
+
+			var straight = guideSettings.getFormField("straight");
+			if (straight=='true') {
+				userSettings.setPref("straight", true);
+			} else {
+				userSettings.setPref("straight", false);
+			}
+
+			var bi = guideSettings.getFormField("bi");
+			if (bi=='true') {
+				userSettings.setPref("bi", true);
+			} else {
+				userSettings.setPref("bi", false);
+			}
+
+			var gay = guideSettings.getFormField("gay");
+			if (gay=='true') {
+				userSettings.setPref("gay", true);
+			} else {
+				userSettings.setPref("gay", false);
+			}
+			
+		}
+		
+		]]></javascript>
+    </Page>
+    <Page id="page2">
+      <Text><div></div></Text>
+      <Image id="settings3.jpg" />
+      <Button target="page3" onclick="savePref()">Nächster</Button>
+      <javascript><![CDATA[
+		function pageLoad() {
+			if (userSettings.keyExists("anal", "Boolean") == false ) {
+				userSettings.addPref("anal", true, "Do you like anal?")
+			}
+
+			if (userSettings.keyExists("bondage", "Boolean") == false ) {
+				userSettings.addPref("bondage", true, "Do you like bondage?")
+			}
+
+			if (userSettings.keyExists("cbt", "Boolean") == false ) {
+				userSettings.addPref("cbt", true, "Do you like cbt?")
+			}
+
+			if (userSettings.keyExists("sph", "Boolean") == false ) {
+				userSettings.addPref("sph", true, "Do you like small penis humiliation?")
+			}
+
+			if (userSettings.keyExists("chastity", "Boolean") == false ) {
+				userSettings.addPref("chastity", true, "Do you like chastity?")
+			}
+
+			if (userSettings.keyExists("cumeating", "Boolean") == false ) {
+				userSettings.addPref("cumeating", true, "Do you like cum eating?")
+			}
+
+			if (userSettings.keyExists("feminization", "Boolean") == false ) {
+				userSettings.addPref("feminization", true, "Do you like feminization?")
+			}
+
+			if (userSettings.keyExists("forcedorgasms", "Boolean") == false ) {
+				userSettings.addPref("forcedorgasms", true, "Do you like forced orgasms?")
+			}
+
+			if (userSettings.keyExists("nippletorture", "Boolean") == false ) {
+				userSettings.addPref("nippletorture", true, "Do you like nipple torture?")
+			}
+
+			if (userSettings.keyExists("orgasmdenial", "Boolean") == false ) {
+				userSettings.addPref("orgasmdenial", true, "Do you like orgasm denial?")
+			}
+
+			if (userSettings.keyExists("pain", "Boolean") == false ) {
+				userSettings.addPref("pain", true, "Do you like pain?")
+			}
+
+			if (userSettings.keyExists("humiliation", "Boolean") == false ) {
+				userSettings.addPref("humiliation", true, "Do you like humiliation?")
+			}
+
+			if (userSettings.keyExists("spanking", "Boolean") == false ) {
+				userSettings.addPref("spanking", true, "Do you like spanking?")
+			}
+
+			if (userSettings.keyExists("shaving", "Boolean") == false ) {
+				userSettings.addPref("shaving", true, "Do you like shaving?")
+			}
+
+			if (userSettings.keyExists("chores", "Boolean") == false ) {
+				userSettings.addPref("chores", true, "Do you like chores?")
+			}
+
+			if (userSettings.keyExists("exhibitionism", "Boolean") == false ) {
+				userSettings.addPref("exhibitionism", true, "Do you like exhibitionism?")
+			}
+
+			if (userSettings.keyExists("edging", "Boolean") == false ) {
+				userSettings.addPref("edging", true, "Do you like edging?")
+			}
+
+			if (userSettings.keyExists("urineplay", "Boolean") == false ) {
+				userSettings.addPref("urineplay", true, "Do you like urine play?")
+			}
+
+			if (userSettings.keyExists("scat", "Boolean") == false ) {
+				userSettings.addPref("scat", true, "Do you like scat play?")
+			}
+
+			var html = '<form><table>';
+			html = html + '<tr><td>' + userSettings.getScreenDesc("anal", "Boolean") + ': </td><td><input type="checkbox"';
+			var anal = String(userSettings.isPref("anal")).toLowerCase();
+			if (anal === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="anal" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("bondage", "Boolean") + ': </td><td><input type="checkbox"';
+			var bondage = String(userSettings.isPref("bondage")).toLowerCase();
+			if (bondage === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="bondage" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("cbt", "Boolean") + ': </td><td><input type="checkbox"';
+			var cbt = String(userSettings.isPref("cbt")).toLowerCase();
+			if (cbt === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="cbt" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("sph", "Boolean") + ': </td><td><input type="checkbox"';
+			var sph = String(userSettings.isPref("sph")).toLowerCase();
+			if (sph === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="sph" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("chastity", "Boolean") + ': </td><td><input type="checkbox"';
+			var chastity = String(userSettings.isPref("chastity")).toLowerCase();
+			if (chastity === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="chastity" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("cumeating", "Boolean") + ': </td><td><input type="checkbox"';
+			var cumeating = String(userSettings.isPref("cumeating")).toLowerCase();
+			if (cumeating === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="cumeating" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("feminization", "Boolean") + ': </td><td><input type="checkbox"';
+			var feminization = String(userSettings.isPref("feminization")).toLowerCase();
+			if (feminization === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="feminization" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("forcedorgasms", "Boolean") + ': </td><td><input type="checkbox"';
+			var forcedorgasms = String(userSettings.isPref("forcedorgasms")).toLowerCase();
+			if (forcedorgasms === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="forcedorgasms" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("nippletorture", "Boolean") + ': </td><td><input type="checkbox"';
+			var nippletorture = String(userSettings.isPref("nippletorture")).toLowerCase();
+			if (nippletorture === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="nippletorture" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("orgasmdenial", "Boolean") + ': </td><td><input type="checkbox"';
+			var orgasmdenial = String(userSettings.isPref("orgasmdenial")).toLowerCase();
+			if (orgasmdenial === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="orgasmdenial" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("pain", "Boolean") + ': </td><td><input type="checkbox"';
+			var pain = String(userSettings.isPref("pain")).toLowerCase();
+			if (pain === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="pain" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("humiliation", "Boolean") + ': </td><td><input type="checkbox"';
+			var humiliation = String(userSettings.isPref("humiliation")).toLowerCase();
+			if (humiliation === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="humiliation" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("spanking", "Boolean") + ': </td><td><input type="checkbox"';
+			var spanking = String(userSettings.isPref("spanking")).toLowerCase();
+			if (spanking === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="spanking" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("shaving", "Boolean") + ': </td><td><input type="checkbox"';
+			var shaving = String(userSettings.isPref("shaving")).toLowerCase();
+			if (shaving === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="shaving" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("chores", "Boolean") + ': </td><td><input type="checkbox"';
+			var chores = String(userSettings.isPref("chores")).toLowerCase();
+			if (chores === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="chores" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("exhibitionism", "Boolean") + ': </td><td><input type="checkbox"';
+			var exhibitionism = String(userSettings.isPref("exhibitionism")).toLowerCase();
+			if (exhibitionism === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="exhibitionism" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("edging", "Boolean") + ': </td><td><input type="checkbox"';
+			var edging = String(userSettings.isPref("edging")).toLowerCase();
+			if (edging === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="edging" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("urineplay", "Boolean") + ': </td><td><input type="checkbox"';
+			var urineplay = String(userSettings.isPref("urineplay")).toLowerCase();
+			if (urineplay === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="urineplay" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("scat", "Boolean") + ': </td><td><input type="checkbox"';
+			var scat = String(userSettings.isPref("scat")).toLowerCase();
+			if (scat === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="scat" /></td></tr>';
+
+			html = html + '</table></form>';
+			jscriptLog("html " + html);
+			overRide.html = html;
+		}
+		function savePref() {
+			var anal = guideSettings.getFormField("anal");
+			if (anal=='true') {
+				userSettings.setPref("anal", true);
+			} else {
+				userSettings.setPref("anal", false);
+			}
+
+			var bondage = guideSettings.getFormField("bondage");
+			if (bondage=='true') {
+				userSettings.setPref("bondage", true);
+			} else {
+				userSettings.setPref("bondage", false);
+			}
+
+			var cbt = guideSettings.getFormField("cbt");
+			if (cbt=='true') {
+				userSettings.setPref("cbt", true);
+			} else {
+				userSettings.setPref("cbt", false);
+			}
+
+			var sph = guideSettings.getFormField("sph");
+			if (sph=='true') {
+				userSettings.setPref("sph", true);
+			} else {
+				userSettings.setPref("sph", false);
+			}
+
+			var chastity = guideSettings.getFormField("chastity");
+			if (chastity=='true') {
+				userSettings.setPref("chastity", true);
+			} else {
+				userSettings.setPref("chastity", false);
+			}
+
+			var cumeating = guideSettings.getFormField("cumeating");
+			if (cumeating=='true') {
+				userSettings.setPref("cumeating", true);
+			} else {
+				userSettings.setPref("cumeating", false);
+			}
+
+			var feminization = guideSettings.getFormField("feminization");
+			if (feminization=='true') {
+				userSettings.setPref("feminization", true);
+			} else {
+				userSettings.setPref("feminization", false);
+			}
+
+			var forcedorgasms = guideSettings.getFormField("forcedorgasms");
+			if (forcedorgasms=='true') {
+				userSettings.setPref("forcedorgasms", true);
+			} else {
+				userSettings.setPref("forcedorgasms", false);
+			}
+
+			var nippletorture = guideSettings.getFormField("nippletorture");
+			if (nippletorture=='true') {
+				userSettings.setPref("nippletorture", true);
+			} else {
+				userSettings.setPref("nippletorture", false);
+			}
+
+			var orgasmdenial = guideSettings.getFormField("orgasmdenial");
+			if (orgasmdenial=='true') {
+				userSettings.setPref("orgasmdenial", true);
+			} else {
+				userSettings.setPref("orgasmdenial", false);
+			}
+
+			var pain = guideSettings.getFormField("pain");
+			if (pain=='true') {
+				userSettings.setPref("pain", true);
+			} else {
+				userSettings.setPref("pain", false);
+			}
+
+			var humiliation = guideSettings.getFormField("humiliation");
+			if (humiliation=='true') {
+				userSettings.setPref("humiliation", true);
+			} else {
+				userSettings.setPref("humiliation", false);
+			}
+
+			var spanking = guideSettings.getFormField("spanking");
+			if (spanking=='true') {
+				userSettings.setPref("spanking", true);
+			} else {
+				userSettings.setPref("spanking", false);
+			}
+
+			var shaving = guideSettings.getFormField("shaving");
+			if (shaving=='true') {
+				userSettings.setPref("shaving", true);
+			} else {
+				userSettings.setPref("shaving", false);
+			}
+
+			var chores = guideSettings.getFormField("chores");
+			if (chores=='true') {
+				userSettings.setPref("chores", true);
+			} else {
+				userSettings.setPref("chores", false);
+			}
+
+			var exhibitionism = guideSettings.getFormField("exhibitionism");
+			if (exhibitionism=='true') {
+				userSettings.setPref("exhibitionism", true);
+			} else {
+				userSettings.setPref("exhibitionism", false);
+			}
+
+			var edging = guideSettings.getFormField("edging");
+			if (edging=='true') {
+				userSettings.setPref("edging", true);
+			} else {
+				userSettings.setPref("edging", false);
+			}
+
+			var urineplay = guideSettings.getFormField("urineplay");
+			if (urineplay=='true') {
+				userSettings.setPref("urineplay", true);
+			} else {
+				userSettings.setPref("urineplay", false);
+			}
+
+			var scat = guideSettings.getFormField("scat");
+			if (scat=='true') {
+				userSettings.setPref("scat", true);
+			} else {
+				userSettings.setPref("scat", false);
+			}
+
+		}
+		
+		]]></javascript>
+    </Page>
+    <Page id="page3">
+      <Text><div></div></Text>
+      <Image id="settings4.jpg" />
+      <Button target="page4" onclick="savePref()">Next</Button>
+      <javascript><![CDATA[
+		function pageLoad() {
+			if (userSettings.keyExists("chastitydevice", "Boolean") == false ) {
+				userSettings.addPref("chastitydevice", true, "Do you own a chastity device?")
+			}
+
+			if (userSettings.keyExists("clothespins", "Boolean") == false ) {
+				userSettings.addPref("clothespins", true, "Do you own clothes pins?")
+			}
+
+			if (userSettings.keyExists("panties", "Boolean") == false ) {
+				userSettings.addPref("panties", true, "Do you own panties?")
+			}
+
+			if (userSettings.keyExists("bra", "Boolean") == false ) {
+				userSettings.addPref("bra", true, "Do you own a bra?")
+			}
+
+			if (userSettings.keyExists("collar", "Boolean") == false ) {
+				userSettings.addPref("collar", true, "Do you own a collar?")
+			}
+
+			if (userSettings.keyExists("stockings", "Boolean") == false ) {
+				userSettings.addPref("stockings", true, "Do you own stockings?")
+			}
+
+			if (userSettings.keyExists("heels", "Boolean") == false ) {
+				userSettings.addPref("heels", true, "Do you own heels?")
+			}
+
+			if (userSettings.keyExists("dress", "Boolean") == false ) {
+				userSettings.addPref("dress", true, "Do you own a dress?")
+			}
+
+			if (userSettings.keyExists("candles", "Boolean") == false ) {
+				userSettings.addPref("candles", true, "Do you own candles?")
+			}
+
+			if (userSettings.keyExists("shoelaces", "Boolean") == false ) {
+				userSettings.addPref("shoelaces", true, "Do you own shoelaces?")
+			}
+
+			if (userSettings.keyExists("vibrator", "Boolean") == false ) {
+				userSettings.addPref("vibrator", true, "Do you own a vibrator?")
+			}
+
+			if (userSettings.keyExists("dildo", "Boolean") == false ) {
+				userSettings.addPref("dildo", true, "Do you own a dildo?")
+			}
+
+			if (userSettings.keyExists("icecubes", "Boolean") == false ) {
+				userSettings.addPref("icecubes", true, "Do you have icecubes?")
+			}
+
+			if (userSettings.keyExists("icyhot", "Boolean") == false ) {
+				userSettings.addPref("icyhot", true, "Do you have icy hot?")
+			}
+
+			var html = '<form><table>';
+			html = html + '<tr><td>' + userSettings.getScreenDesc("chastitydevice", "Boolean") + ': </td><td><input type="checkbox"';
+			var chastitydevice = String(userSettings.isPref("chastitydevice")).toLowerCase();
+			if (chastitydevice === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="chastitydevice" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("clothespins", "Boolean") + ': </td><td><input type="checkbox"';
+			var clothespins = String(userSettings.isPref("clothespins")).toLowerCase();
+			if (clothespins === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="clothespins" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("panties", "Boolean") + ': </td><td><input type="checkbox"';
+			var panties = String(userSettings.isPref("panties")).toLowerCase();
+			if (panties === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="panties" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("bra", "Boolean") + ': </td><td><input type="checkbox"';
+			var bra = String(userSettings.isPref("bra")).toLowerCase();
+			if (bra === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="bra" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("collar", "Boolean") + ': </td><td><input type="checkbox"';
+			var collar = String(userSettings.isPref("collar")).toLowerCase();
+			if (collar === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="collar" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("stockings", "Boolean") + ': </td><td><input type="checkbox"';
+			var stockings = String(userSettings.isPref("stockings")).toLowerCase();
+			if (stockings === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="stockings" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("heels", "Boolean") + ': </td><td><input type="checkbox"';
+			var heels = String(userSettings.isPref("heels")).toLowerCase();
+			if (heels === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="heels" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("dress", "Boolean") + ': </td><td><input type="checkbox"';
+			var dress = String(userSettings.isPref("dress")).toLowerCase();
+			if (dress === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="dress" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("candles", "Boolean") + ': </td><td><input type="checkbox"';
+			var candles = String(userSettings.isPref("candles")).toLowerCase();
+			if (candles === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="candles" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("shoelaces", "Boolean") + ': </td><td><input type="checkbox"';
+			var shoelaces = String(userSettings.isPref("shoelaces")).toLowerCase();
+			if (shoelaces === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="shoelaces" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("vibrator", "Boolean") + ': </td><td><input type="checkbox"';
+			var vibrator = String(userSettings.isPref("vibrator")).toLowerCase();
+			if (vibrator === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="vibrator" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("dildo", "Boolean") + ': </td><td><input type="checkbox"';
+			var dildo = String(userSettings.isPref("dildo")).toLowerCase();
+			if (dildo === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="dildo" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("icecubes", "Boolean") + ': </td><td><input type="checkbox"';
+			var icecubes = String(userSettings.isPref("icecubes")).toLowerCase();
+			if (icecubes === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="icecubes" /></td></tr>';
+
+			html = html + '<tr><td>' + userSettings.getScreenDesc("icyhot", "Boolean") + ': </td><td><input type="checkbox"';
+			var icyhot = String(userSettings.isPref("icyhot")).toLowerCase();
+			if (icyhot === 'true') {
+				html = html + ' checked ';
+			}
+			html = html + ' name="icyhot" /></td></tr>';
+
+			html = html + '</table></form>';
+			jscriptLog("html " + html);
+			overRide.html = html;
+		}
+		function savePref() {
+			var chastitydevice = guideSettings.getFormField("chastitydevice");
+			if (chastitydevice=='true') {
+				userSettings.setPref("chastitydevice", true);
+			} else {
+				userSettings.setPref("chastitydevice", false);
+			}
+
+			var clothespins = guideSettings.getFormField("clothespins");
+			if (clothespins=='true') {
+				userSettings.setPref("clothespins", true);
+			} else {
+				userSettings.setPref("clothespins", false);
+			}
+
+			var panties = guideSettings.getFormField("panties");
+			if (panties=='true') {
+				userSettings.setPref("panties", true);
+			} else {
+				userSettings.setPref("panties", false);
+			}
+
+			var bra = guideSettings.getFormField("bra");
+			if (bra=='true') {
+				userSettings.setPref("bra", true);
+			} else {
+				userSettings.setPref("bra", false);
+			}
+
+			var collar = guideSettings.getFormField("collar");
+			if (collar=='true') {
+				userSettings.setPref("collar", true);
+			} else {
+				userSettings.setPref("collar", false);
+			}
+
+			var stockings = guideSettings.getFormField("stockings");
+			if (stockings=='true') {
+				userSettings.setPref("stockings", true);
+			} else {
+				userSettings.setPref("stockings", false);
+			}
+
+			var heels = guideSettings.getFormField("heels");
+			if (heels=='true') {
+				userSettings.setPref("heels", true);
+			} else {
+				userSettings.setPref("heels", false);
+			}
+
+			var dress = guideSettings.getFormField("dress");
+			if (dress=='true') {
+				userSettings.setPref("dress", true);
+			} else {
+				userSettings.setPref("dress", false);
+			}
+
+			var candles = guideSettings.getFormField("candles");
+			if (candles=='true') {
+				userSettings.setPref("candles", true);
+			} else {
+				userSettings.setPref("candles", false);
+			}
+
+			var shoelaces = guideSettings.getFormField("shoelaces");
+			if (shoelaces=='true') {
+				userSettings.setPref("shoelaces", true);
+			} else {
+				userSettings.setPref("shoelaces", false);
+			}
+
+			var vibrator = guideSettings.getFormField("vibrator");
+			if (vibrator=='true') {
+				userSettings.setPref("vibrator", true);
+			} else {
+				userSettings.setPref("vibrator", false);
+			}
+
+			var dildo = guideSettings.getFormField("dildo");
+			if (dildo=='true') {
+				userSettings.setPref("dildo", true);
+			} else {
+				userSettings.setPref("dildo", false);
+			}
+
+			var icecubes = guideSettings.getFormField("icecubes");
+			if (icecubes=='true') {
+				userSettings.setPref("icecubes", true);
+			} else {
+				userSettings.setPref("icecubes", false);
+			}
+
+			var icyhot = guideSettings.getFormField("icyhot");
+			if (icyhot=='true') {
+				userSettings.setPref("icyhot", true);
+			} else {
+				userSettings.setPref("icyhot", false);
+			}
+
+		}
+		
+		]]></javascript>
+    </Page>
+    <Page id="page4">
+      <Image id="settings5.jpg" />
+      <Text>
+        <div>You have finished entering settings</div>
+      </Text>
+    </Page>
+  </Pages>
+</settings>
