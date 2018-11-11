@@ -19,6 +19,7 @@ import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -29,12 +30,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.guideme.guideme.model.Library;
 import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
+import org.guideme.guideme.ui.MainShell.shellKeyEventListener;
 
 public class LibraryShell {
 	private Shell shell = null;
@@ -64,6 +68,8 @@ public class LibraryShell {
 	private String SortByDate;
 	private String SearchByContent;
 	private String SearchByTitle;
+	private shellKeyEventListener keyListener;
+	private static String searchBoxName = "SearchText";
 	
 	public Shell createShell(Display display, AppSettings pappSettings, MainShell mainShell) {
 		logger.trace("Enter createShell");
@@ -129,6 +135,7 @@ public class LibraryShell {
 			seachData.height = fm.getHeight();
 			seachData.width = gc.getCharWidth('A') * 15;
 			searchText.setLayoutData(seachData);
+			searchText.setData(searchBoxName);
 			gc.dispose();
 
 			SquareButton btnSearch = new SquareButton(toolBar, SWT.PUSH);
@@ -168,6 +175,8 @@ public class LibraryShell {
 			setPageSize();
 			sortTitle();
 			shell.setMaximized(true);
+			keyListener = new shellKeyEventListener();
+			myDisplay.addFilter(SWT.KeyDown, keyListener);
 			showGuides();
 		} catch (Exception ex) {
 			logger.error(ex.getLocalizedMessage());
@@ -176,6 +185,60 @@ public class LibraryShell {
 		return shell;
 	}
 
+	// hotkey stuff here
+	class shellKeyEventListener implements Listener {
+		@Override
+		public void handleEvent(Event event) {
+			try {
+				if (event.display.getActiveShell().getText().equals(shell.getText()))
+				{
+					logger.trace(event.character + "|" + event.keyCode + "|" + event.keyLocation + "|" + event.stateMask);
+					if (event.keyCode == SWT.CR || event.keyCode == SWT.KEYPAD_CR) {
+						search();
+					}
+					if ((event.stateMask & SWT.ALT) == SWT.ALT) 
+					{
+						switch (event.character) {
+							case 'n':
+							case 'N':
+								NextPage();
+								break;
+							case 'p':
+							case 'P':
+								PreviousPage();
+								break;
+							case 't':
+							case 'T':
+								sortFilter.select(0);
+								sortTitle();
+								break;
+							case 'a':
+							case 'A':
+								sortFilter.select(1);
+								sortAuthor();
+								break;
+							case 'd':
+							case 'D':
+								sortFilter.select(2);
+								sortDate();
+								break;
+							case 'r':
+							case 'R':
+								RandomGuide();
+								break;
+							default:
+								break;
+						}
+					}
+				}
+
+			} catch (Exception ex) {
+				logger.error(" hot key " + ex.getLocalizedMessage(), ex);
+			}
+		}
+	}	
+	
+	
 	private void sortAuthor() {
 		Comparator<Library> comparator = Comparator.comparing(guide -> guide.author.toLowerCase());
 		comparator = comparator.thenComparing(Comparator.comparing(guide -> guide.title.toLowerCase()));
@@ -317,11 +380,7 @@ public class LibraryShell {
 		public void widgetSelected(SelectionEvent event) {
 			try {
 				logger.trace("Enter PrevButtonListener");
-				currentStart -= pageSize;
-				if (currentStart < 0) {
-					currentStart = guides.size() + currentStart;
-				}
-				showGuides();
+				PreviousPage();
 			} catch (Exception ex) {
 				logger.error(" PrevButtonListener " + ex.getLocalizedMessage());
 			}
@@ -329,6 +388,16 @@ public class LibraryShell {
 		}
 	}
 
+	public void PreviousPage()
+	{
+		currentStart -= pageSize;
+		if (currentStart < 0) {
+			currentStart = guides.size() + currentStart;
+		}
+		showGuides();
+	}
+	
+	
 	class NextButtonListener extends SelectionAdapter {
 		NextButtonListener() {
 		}
@@ -336,17 +405,23 @@ public class LibraryShell {
 		public void widgetSelected(SelectionEvent event) {
 			try {
 				logger.trace("Enter NextButtonListener");
-				currentStart += pageSize;
-				if (currentStart >= guides.size()) {
-					currentStart = (currentStart - guides.size());
-				}
-				showGuides();
+				NextPage();
 			} catch (Exception ex) {
 				logger.error(" NextButtonListener " + ex.getLocalizedMessage());
 			}
 			logger.trace("Exit NextButtonListener");
 		}
 	}
+	
+	public void NextPage()
+	{
+		currentStart += pageSize;
+		if (currentStart >= guides.size()) {
+			currentStart = (currentStart - guides.size());
+		}
+		showGuides();
+	}
+	
 
 	class GuideButtonListener extends SelectionAdapter {
 		GuideButtonListener() {
@@ -385,16 +460,21 @@ public class LibraryShell {
 		public void widgetSelected(SelectionEvent event) {
 			try {
 				logger.trace("Enter RandomButtonListener");
-				int randNo = comonFunctions.getRandom(0, guides.size() - 1);
-				String guideFile = ((Library) guides.get(randNo)).file;
-				logger.trace("Guide File:" + guideFile);
-				myMainShell.loadGuide(guideFile);
-				shell.close();
+				RandomGuide();
 			} catch (Exception ex) {
 				logger.error(" RandomButtonListener " + ex.getLocalizedMessage());
 			}
 			logger.trace("Exit RandomButtonListener");
 		}
+	}
+	
+	public void RandomGuide()
+	{
+		int randNo = comonFunctions.getRandom(0, guides.size() - 1);
+		String guideFile = ((Library) guides.get(randNo)).file;
+		logger.trace("Guide File:" + guideFile);
+		myMainShell.loadGuide(guideFile);
+		shell.close();
 	}
 
 	class sortListener extends SelectionAdapter {
@@ -411,33 +491,35 @@ public class LibraryShell {
 		}
 
 		public void widgetSelected(SelectionEvent event) {
-			try {
-				String selected = searchFilter.getText();
-				
-				logger.trace("Enter SearchButtonListener");
-				guides = new ArrayList<Library>();
-				for (Library guide : originalGuides){
-					if (selected.equals(SearchByContent)) {
-						if (comonFunctions.searchText(searchText.getText(), guide.author + guide.title))
-						{
-							guides.add(guide);
-						}
-					}
-					if (selected.equals(SearchByTitle)) {
-						if (comonFunctions.searchGuide(searchText.getText(), guide.file))
-						{
-							guides.add(guide);
-						}
-					}
-				}
-				setPageSize();
-				showGuides();
-			} catch (Exception ex) {
-				logger.error(" SearchButtonListener " + ex.getLocalizedMessage());
-			}
+			logger.trace("Enter SearchButtonListener");
+			search();
 			logger.trace("Exit SearchButtonListener");
 		}
 
+	}
+	
+	private void search() {
+		try {
+			String selected = searchFilter.getText();
+
+			guides = new ArrayList<Library>();
+			for (Library guide : originalGuides) {
+				if (selected.equals(SearchByTitle)) {
+					if (comonFunctions.searchText(searchText.getText(), guide.author + guide.title)) {
+						guides.add(guide);
+					}
+				}
+				if (selected.equals(SearchByContent)) {
+					if (comonFunctions.searchGuide(searchText.getText(), guide.file)) {
+						guides.add(guide);
+					}
+				}
+			}
+			setPageSize();
+			showGuides();
+		} catch (Exception ex) {
+			logger.error(" SearchButtonListener " + ex.getLocalizedMessage());
+		}
 	}
 
 	class FolderButtonListener extends SelectionAdapter {

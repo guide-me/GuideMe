@@ -194,7 +194,7 @@ public class Page {
 			String ifNotSetPage = id;
 			if (ifNotSet.length() > 0)
 			{
-				ifNotSetPage = ifNotSetPage + "," + ifNotSet;
+				ifNotSetPage = ifNotSetPage + "+" + ifNotSet;
 			}
 			retVal =  comonFunctions.canShow(setList, ifSet, ifNotSetPage);
 		}

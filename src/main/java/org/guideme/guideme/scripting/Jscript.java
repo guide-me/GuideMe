@@ -10,6 +10,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
+import org.guideme.guideme.MainLogic;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
@@ -70,13 +71,13 @@ public class Jscript  implements Runnable
 	public void run() {
 		try {
 			String javaScriptToRun = javaScriptText;
-			logger.info(JSCRIPT_MARKER, "Chapter: " + guideSettings.getChapter());
-			logger.info(JSCRIPT_MARKER, "Page: " + guideSettings.getCurrPage());
-			logger.info(JSCRIPT_MARKER, "javaFunction: " + javaFunction);
-			logger.info(JSCRIPT_MARKER, "pageloading: " + pageloading);
-			logger.info(JSCRIPT_MARKER, "javaScriptText: " + javaScriptText);
+			//logger.trace(JSCRIPT_MARKER, "Chapter: " + guideSettings.getChapter());
+			logger.debug(JSCRIPT_MARKER, "Page: " + guideSettings.getCurrPage());
+			logger.debug(JSCRIPT_MARKER, "javaFunction: " + javaFunction);
+			logger.debug(JSCRIPT_MARKER, "pageloading: " + pageloading);
+			logger.trace(JSCRIPT_MARKER, "javaScriptText: " + javaScriptText);
 			if (!guideSettings.isGlobalScriptLogged()) {
-				logger.info(JSCRIPT_MARKER, "globalJavaScriptText: " + guide.getGlobaljScript());
+				logger.trace(JSCRIPT_MARKER, "globalJavaScriptText: " + guide.getGlobaljScript());
 				guideSettings.setGlobalScriptLogged(true);
 			}
 			ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
@@ -104,6 +105,7 @@ public class Jscript  implements Runnable
 				ScriptableObject.putProperty(globalScope, "guide", guide);
 				ScriptableObject.putProperty(globalScope, "guideSettings", guideSettings);
 				ScriptableObject.putProperty(globalScope, "mediaDir", appSettings.getDataDirectory());
+				ScriptableObject.putProperty(globalScope, "globalVars", MainLogic.getGlobalScriptVariables());
 				@SuppressWarnings("rawtypes")
 				Class[] cArg = new Class[1];
 				cArg[0] = String.class;
@@ -171,8 +173,8 @@ public class Jscript  implements Runnable
 			ScriptableObject.putProperty(scope, "guide", guide);
 			//Deprecated should use guide now
 			ScriptableObject.putProperty(scope, "guideSettings", guideSettings);
-			logger.info(JSCRIPT_MARKER, "Starting ScriptVariables: " + scriptVars);
-			logger.info(JSCRIPT_MARKER, "Starting Flags {" + guideSettings.getFlags() + "}");
+			logger.debug(JSCRIPT_MARKER, "Starting ScriptVariables: " + scriptVars);
+			logger.debug(JSCRIPT_MARKER, "Starting Flags {" + guideSettings.getFlags() + "}");
 			
 			if (pageloading) {
 				ScriptableObject.putProperty(globalScope, "overRide", overRide);
@@ -219,8 +221,8 @@ public class Jscript  implements Runnable
 				guide.updateJConsole("FileRunScript " + ex.getLocalizedMessage());
 				logger.error(" FileRunScript " + ex.getLocalizedMessage(), ex);
 			}
-			logger.info(JSCRIPT_MARKER, "Ending ScriptVariables: " + scriptVars);
-			logger.info(JSCRIPT_MARKER, "Ending Flags {" + guideSettings.getFlags() + "}");
+			logger.debug(JSCRIPT_MARKER, "Ending ScriptVariables: " + scriptVars);
+			logger.debug(JSCRIPT_MARKER, "Ending Flags {" + guideSettings.getFlags() + "}");
 			Context.exit();
 
 			if (appSettings.getJsDebug())
@@ -231,6 +233,7 @@ public class Jscript  implements Runnable
 
 			guideSettings.setFlags(comonFunctions.GetFlags(guide.getFlags()));
 			guideSettings.saveSettings();
+			MainLogic.saveGlobalScriptVariables();
 			if (inPrefGuide) {
 				userSettings.saveUserSettings();
 			}
