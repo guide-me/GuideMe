@@ -120,7 +120,7 @@ public class MainShell {
 	private String videoScriptVar = "";
 	private Boolean videoPlay = false;
 	private Boolean webcamVisible = false;
-	private Boolean webcamRecording = false;
+	//private Boolean webcamRecording = false;
 	private Guide guide = Guide.getGuide();
 	private GuideSettings guideSettings = guide.getSettings();
 	private UserSettings userSettings = null;
@@ -873,97 +873,94 @@ public class MainShell {
 		@Override
 		public void handleEvent(Event event) {
 			try {
-				logger.trace(event.character + "|" + event.keyCode + "|" + event.keyLocation + "|" + event.stateMask);
-				if (event.keyCode == 13 && (event.widget.getClass().toString().equals("class org.eclipse.swt.browser.Browser")))
-					{
+				if (event.display.getActiveShell().getText().equals(shell.getText())) {
+
+					logger.trace(
+							event.character + "|" + event.keyCode + "|" + event.keyLocation + "|" + event.stateMask);
+					if (event.keyCode == 13
+							&& (event.widget.getClass().toString().equals("class org.eclipse.swt.browser.Browser"))) {
 						event.doit = false;
-					};
-				if (((event.stateMask & SWT.ALT) == SWT.ALT)) {
-					switch (event.character) {
-					/*
-					case 'd' :
-						shell3.setVisible(!shell3.getVisible());
-						if (shell3.isVisible()) {
-							shell3.setActive();
-						}
-						break;
-						*/
-					case 'm' :
-					case 'M' :
-						Rectangle rect = shell.getBounds(); 
-						Rectangle rect2; 
-						if (!showMenu) {
-							if (!shell.isDisposed()) {
-								shell.setMenuBar(MenuBar);
-								shell.pack();
-								//shell.setMaximized(true);
-								shell.setBounds(rect);
-							}
-							if (multiMonitor) {
-								if (!shell2.isDisposed()) {
-									rect2 = shell2.getBounds();
-									shell2.pack();
-									//shell2.setMaximized(true);
-									shell2.setBounds(rect2);
-								}
-							}
-							showMenu = true;
-						} else {
-							if (!shell.isDisposed()) {
-								shell.setMenuBar(null);
-								shell.pack();
-								//shell.setMaximized(true);
-								shell.setBounds(rect);
-							}
-							if (multiMonitor) {
-								if (!shell2.isDisposed()) {
-									rect2 = shell2.getBounds();
-									shell2.pack();
-									//shell2.setMaximized(true);
-									shell2.setBounds(rect2);	        			
-								}
-							}
-							showMenu = false;
-						}						
-						break;
 					}
-					/*
-					if (comonFunctions.onWindows() && event.character != "d".charAt(0)) {
-						//ignore
+					;
+					if (((event.stateMask & SWT.ALT) == SWT.ALT)) {
+						switch (event.character) {
+						/*
+						 * case 'd' : shell3.setVisible(!shell3.getVisible());
+						 * if (shell3.isVisible()) { shell3.setActive(); }
+						 * break;
+						 */
+						case 'm':
+						case 'M':
+							Rectangle rect = shell.getBounds();
+							Rectangle rect2;
+							if (!showMenu) {
+								if (!shell.isDisposed()) {
+									shell.setMenuBar(MenuBar);
+									shell.pack();
+									// shell.setMaximized(true);
+									shell.setBounds(rect);
+								}
+								if (multiMonitor) {
+									if (!shell2.isDisposed()) {
+										rect2 = shell2.getBounds();
+										shell2.pack();
+										// shell2.setMaximized(true);
+										shell2.setBounds(rect2);
+									}
+								}
+								showMenu = true;
+							} else {
+								if (!shell.isDisposed()) {
+									shell.setMenuBar(null);
+									shell.pack();
+									// shell.setMaximized(true);
+									shell.setBounds(rect);
+								}
+								if (multiMonitor) {
+									if (!shell2.isDisposed()) {
+										rect2 = shell2.getBounds();
+										shell2.pack();
+										// shell2.setMaximized(true);
+										shell2.setBounds(rect2);
+									}
+								}
+								showMenu = false;
+							}
+							break;
+						}
+						/*
+						 * if (comonFunctions.onWindows() && event.character !=
+						 * "d".charAt(0)) { //ignore } else {
+						 * shell3.setVisible(!shell3.getVisible()); if
+						 * (shell3.isVisible()) { shell3.setActive(); } }
+						 */
 					} else {
-						shell3.setVisible(!shell3.getVisible());
-						if (shell3.isVisible()) {
-							shell3.setActive();
+						com.snapps.swt.SquareButton hotKeyButton;
+						String key = String.valueOf(event.character);
+						hotKeyButton = hotKeys.get(key);
+						if (hotKeyButton != null) {
+							String strTag;
+							strTag = (String) hotKeyButton.getData("Set");
+							if (!strTag.equals("")) {
+								comonFunctions.SetFlags(strTag, guide.getFlags());
+							}
+							strTag = (String) hotKeyButton.getData("UnSet");
+							if (!strTag.equals("")) {
+								comonFunctions.UnsetFlags(strTag, guide.getFlags());
+							}
+							strTag = (String) hotKeyButton.getData("Target");
+							String javascript = (String) hotKeyButton.getData("javascript");
+							runJscript(javascript, false);
+							mainLogic.displayPage(strTag, false, guide, mainShell, appSettings, userSettings,
+									guideSettings, debugShell);
 						}
-					}
-					*/
-				} else {
-					com.snapps.swt.SquareButton hotKeyButton;
-					String key = String.valueOf(event.character);
-					hotKeyButton = hotKeys.get(key);
-					if (hotKeyButton != null) {
-						String strTag;
-						strTag = (String) hotKeyButton.getData("Set");
-						if (!strTag.equals("")) {
-							comonFunctions.SetFlags(strTag, guide.getFlags());
-						}
-						strTag = (String) hotKeyButton.getData("UnSet");
-						if (!strTag.equals("")) {
-							comonFunctions.UnsetFlags(strTag, guide.getFlags());
-						}
-						strTag = (String) hotKeyButton.getData("Target");
-						String javascript = (String) hotKeyButton.getData("javascript");
-						runJscript(javascript, false);
-						mainLogic.displayPage(strTag, false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
 					}
 				}
-			}
-			catch (Exception ex) {
+			} catch (Exception ex) {
 				logger.error(" hot key " + ex.getLocalizedMessage(), ex);
 			}
 		}
-	}
-	
+	}	
 	
 	class VideoRelease implements Runnable {
 		//Do the release of the Video stuff (VLC) on a different thread to prevent it blocking the main UI thread
@@ -2398,7 +2395,8 @@ public class MainShell {
 		}
 	}
 
-	private static BufferedImage convertToType(BufferedImage sourceImage, int targetType) {
+	
+	/*private static BufferedImage convertToType(BufferedImage sourceImage, int targetType) {
 		BufferedImage image;
 
 		// if the source image is already the target type, return the source image
@@ -2416,7 +2414,7 @@ public class MainShell {
 
 		return image;
 	}	
-	
+	*/
 	
 	class WebcamCaptureListener extends DynamicButtonListner
 	{

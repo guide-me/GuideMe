@@ -7,14 +7,28 @@ import javax.sound.sampled.Clip;
 import javax.sound.sampled.DataLine;
 import javax.sound.sampled.LineUnavailableException;
 import javax.sound.sampled.UnsupportedAudioFileException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.guideme.guideme.model.Audio;
@@ -36,14 +50,36 @@ import org.guideme.guideme.settings.GuideSettings;
 import org.guideme.guideme.settings.UserSettings;
 import org.guideme.guideme.ui.DebugShell;
 import org.guideme.guideme.ui.MainShell;
+import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
+import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeDate;
+import org.mozilla.javascript.NativeObject;
+import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.ScriptableObject;
+import org.mozilla.javascript.serialize.ScriptableInputStream;
+import org.mozilla.javascript.serialize.ScriptableOutputStream;
+import org.w3c.dom.CharacterData;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 public class MainLogic {
 	private static Logger logger = LogManager.getLogger();
 	private static MainLogic mainLogic;
-	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
+	private static ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	private OverRide overRide = new OverRide();
     private static Clip song; // Sound player
     private static URL songPath;
+	private static HashMap<String, Object> globalScriptVariables = new HashMap<String, Object>(); //variables used by javascript
+	private static String filename; //name of file to store persistent state
+    
+
+	public static HashMap<String, Object> getGlobalScriptVariables() {
+		return globalScriptVariables;
+	}
 
 	//singleton class stuff (force there to be only one instance without making it static)
 	private MainLogic() {
@@ -62,6 +98,7 @@ public class MainLogic {
 				DataLine.Info info = new DataLine.Info(Clip.class, format);
 				song = (Clip) AudioSystem.getLine(info);
 				song.open(audioIn);
+				GetGlobalScriptVariables();
 				//FloatControl gainControl = (FloatControl) song.getControl(FloatControl.Type.MASTER_GAIN);
 				//gainControl.setValue(-35.0f);			
 	        } catch (UnsupportedAudioFileException e) {
@@ -146,7 +183,7 @@ public class MainLogic {
 			objDelay = ProcessDelay(mainShell, guide, objCurrPage);
 			
 			//If we are going straight to another page we can skip this section
-			if ((objDelay == null || objDelay.getDelaySec() > 0)) {
+			if ((objDelay == null || objDelay.getDelaySec() > 0) && overRide.getPage().equals("")) {
 				//add timers
 				AddTimers(mainShell, objCurrPage, guide);
 				
@@ -956,5 +993,285 @@ public class MainLogic {
 		}
 		return objCurrPage;
 	}
+	
+	private static void GetGlobalScriptVariables()
+	{
+		//globalScriptVariables
+		String dataDirectory;
+		AppSettings appSettings = AppSettings.getAppSettings();
+		ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
+		if (appSettings.isStateInDataDir())
+		{
+			dataDirectory = appSettings.getTempDir();
+			filename = dataDirectory + "Global.state";
+		}
+		else
+		{
+			dataDirectory = appSettings.getDataDirectory();
+			String prefix = "";
+			if (dataDirectory.startsWith("/")) {
+				prefix = "/";
+			}
+			dataDirectory = prefix + comonFunctions.fixSeparator(dataDirectory, appSettings.getFileSeparator());
+			filename = dataDirectory + appSettings.getFileSeparator() + "Global.state";
+		}
 
+		try {
+			//if a state file already exists use it 
+			File xmlFile = new File(filename);
+
+			if (xmlFile.exists()) {
+				DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+				DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+				Document doc = docBuilder.parse(xmlFile);
+				Element rootElement = doc.getDocumentElement();
+				rootElement.normalize();
+
+				Element elScriptVariables = comonFunctions.getElement("//scriptVariables", rootElement);
+				if (elScriptVariables != null) {
+					NodeList nodeList = elScriptVariables.getElementsByTagName("Var");
+					String strName;
+					String strType;
+					String strValue;
+					Object objValue;
+					for (int i = 0; i < nodeList.getLength(); i++) {
+						Node currentNode = nodeList.item(i);
+						if (currentNode.getNodeType() == Node.ELEMENT_NODE) {
+							try {
+								Element elVar = (Element) currentNode;
+								strName = elVar.getAttribute("id");
+								strType = elVar.getAttribute("type");
+								CharacterData elChar;
+								elChar = (CharacterData) elVar.getFirstChild();
+								if (elChar != null) {
+									strValue = elChar.getData();
+									objValue = getSavedObject(strValue, strType);
+								} else {
+									objValue = null;
+								}
+								globalScriptVariables.put(strName, objValue);
+							} catch (Exception e) {
+								logger.error("GuideSettings scriptVariables " + e.getLocalizedMessage(), e);
+							}
+						}
+					}
+				}
+				
+			}
+
+		} catch (ParserConfigurationException pce) {
+			logger.error(pce.getLocalizedMessage(), pce);
+		} catch (SAXException e) {
+			logger.error(e.getLocalizedMessage(),e);
+		} catch (IOException e) {
+			logger.error(e.getLocalizedMessage(),e);
+		}
+		
+	}
+
+	private static Object getSavedObject(String attribute, String strType) {
+		Object returned;
+		
+		returned = attribute;
+		
+		ContextFactory cntxFact = new ContextFactory();
+		
+		Context context = cntxFact.enterContext();
+		context.setOptimizationLevel(-1);
+		context.getWrapFactory().setJavaPrimitiveWrap(false);
+		
+		if (strType.equals("org.mozilla.javascript.NativeArray")) {
+			try {
+				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
+				ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes);
+				ScriptableObject scope = context.initStandardObjects();
+				ObjectInputStream oInputStream = new ScriptableInputStream(bis, scope);
+				NativeArray readObject = (NativeArray) oInputStream.readObject();
+				oInputStream.close();
+				returned = readObject;
+			} catch (Exception ex ) {
+				logger.error(ex.getLocalizedMessage(),ex);
+			}
+		    
+		}
+		
+
+		if (strType.equals("org.mozilla.javascript.NativeObject")) {
+			try {
+				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
+				ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes);
+				ScriptableObject scope = context.initStandardObjects();
+				ObjectInputStream oInputStream = new ScriptableInputStream(bis, scope);
+				NativeObject readObject = (NativeObject) oInputStream.readObject();
+				oInputStream.close();
+				returned = readObject;
+			} catch (Exception ex ) {
+				logger.error(ex.getLocalizedMessage(),ex);
+			}
+
+		}
+		
+		if (strType.equals("org.mozilla.javascript.NativeDate")) {
+			try {
+				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
+				ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes);
+				ScriptableObject scope = context.initStandardObjects();
+				ObjectInputStream oInputStream = new ScriptableInputStream(bis, scope);
+				NativeDate readObject = (NativeDate) oInputStream.readObject();
+				oInputStream.close();
+				returned = readObject;
+			} catch (Exception ex ) {
+				logger.error(ex.getLocalizedMessage(),ex);
+			}
+
+		}
+
+		if (strType.equals("java.lang.Double")) {
+			Double restored_double = Double.parseDouble(attribute);
+			returned = restored_double;
+		}
+
+		if (strType.equals("java.lang.Boolean")) {
+			Boolean restored_boolean = Boolean.parseBoolean(attribute);
+			returned = restored_boolean;
+		}
+
+		Context.exit();
+		return returned;
+	}
+	
+	public static void saveGlobalScriptVariables(){
+	    try {
+			File xmlFile = new File(filename);
+			logger.trace("MainLogic saveSettings filename: " + filename);
+			Element rootElement;
+			Document doc;
+
+			// if the file exists then use the current one, otherwise create a new one.
+			// if nodes do not exist it will add them
+			if (xmlFile.exists())
+			{
+				logger.trace("MainLogic saveSettings file exists ");
+				DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+				DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+				doc = docBuilder.parse(xmlFile);
+				rootElement = doc.getDocumentElement();
+				rootElement.normalize();
+			} else {
+				logger.trace("MainLogic saveSettings does not file exist ");
+				DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+				DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+				doc = docBuilder.newDocument();
+				rootElement = doc.createElement("SETTINGS");
+				doc.appendChild(rootElement);
+			}
+
+		    Element elScriptVariables = comonFunctions.getElement("//scriptVariables", rootElement);
+		    if (elScriptVariables != null) {
+		    	rootElement.removeChild(elScriptVariables);
+		    }
+		    elScriptVariables = comonFunctions.addElement("scriptVariables", rootElement, doc);
+		    
+		    Iterator<String> it = globalScriptVariables.keySet().iterator();
+		    Element elVar;
+		    while (it.hasNext()) {
+		    	String key = it.next();
+		    	Object value = globalScriptVariables.get(key);
+		    	String strType;
+		    	String strValue;
+		    	if (value == null) {
+			    	strType = "Null";
+			    	strValue = "";
+		    	} else {
+			    	strType = value.getClass().getName();
+			    	strValue = createSaveObject(value, strType);
+		    	}
+		    	if (!strValue.equals("ignore"))
+		    	{
+			    	elVar = comonFunctions.addElement("Var", elScriptVariables, doc);
+			    	elVar.setAttribute("id", key);
+			    	comonFunctions.addCdata(strValue, elVar, doc);
+			    	elVar.setAttribute("type", strType);
+		    	}
+		    }		    
+
+			// write the content into xml file
+			TransformerFactory transformerFactory = TransformerFactory.newInstance();
+			Transformer transformer = transformerFactory.newTransformer();
+			DOMSource source = new DOMSource(doc);
+			logger.trace("MainLogic saveSettings save file: " + filename);
+			StreamResult result = new StreamResult(new File(filename));
+			transformer.transform(source, result);
+
+		} catch (TransformerException ex) {
+			logger.error(ex.getLocalizedMessage(),ex);
+		} catch (Exception ex ) {
+			logger.error(ex.getLocalizedMessage(),ex);
+		}
+	}
+	
+	private static String createSaveObject(Object value, String strType) {
+		String returnVal = "";
+		if (value != null)
+		{
+			returnVal = value.toString();
+			if (strType.equals("org.mozilla.javascript.NativeArray") 
+					|| strType.equals("org.mozilla.javascript.NativeObject") 
+					|| strType.equals("org.mozilla.javascript.NativeDate")
+					|| strType.equals("Scope")) {
+				try {
+					ContextFactory cntxFact = new ContextFactory();
+					Context cntx = cntxFact.enterContext();
+					cntx.setOptimizationLevel(-1);
+					cntx.getWrapFactory().setJavaPrimitiveWrap(false);
+				    String fromApacheBytes = "";
+					if (strType.equals("org.mozilla.javascript.NativeArray"))
+					{
+						NativeArray nativeValue = (NativeArray) value;
+						Scriptable localScope = nativeValue.getParentScope();
+					    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					    ScriptableOutputStream  os = new ScriptableOutputStream (bos, localScope);
+					    os.writeObject(nativeValue);
+						
+					    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
+					    fromApacheBytes = new String(encodedBytes);
+					    os.close();
+					}
+					if (strType.equals("org.mozilla.javascript.NativeObject"))
+					{
+						NativeObject nativeValue = (NativeObject) value;
+						Scriptable localScope = nativeValue.getParentScope();
+					    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					    ScriptableOutputStream  os = new ScriptableOutputStream (bos, localScope);
+					    os.writeObject(nativeValue);
+						
+					    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
+					    fromApacheBytes = new String(encodedBytes);
+					    os.close();
+					}
+					if (strType.equals("org.mozilla.javascript.NativeDate"))
+					{
+						NativeDate nativeValue = (NativeDate) value;
+						Scriptable localScope = nativeValue.getParentScope();
+					    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					    ScriptableOutputStream  os = new ScriptableOutputStream (bos, localScope);
+					    os.writeObject(nativeValue);
+						
+					    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
+					    fromApacheBytes = new String(encodedBytes);
+					    os.close();
+					}
+				    returnVal = fromApacheBytes;
+				} catch (Exception ex ) {
+					logger.error(ex.getLocalizedMessage(),ex);
+					returnVal = "ignore";
+				}
+				Context.exit();
+			}
+		}
+		return returnVal;
+	}
+	
+	
+	
 }
