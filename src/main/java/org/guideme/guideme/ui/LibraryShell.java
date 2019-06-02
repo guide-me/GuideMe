@@ -14,12 +14,13 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -38,7 +39,6 @@ import org.eclipse.swt.widgets.Text;
 import org.guideme.guideme.model.Library;
 import org.guideme.guideme.settings.AppSettings;
 import org.guideme.guideme.settings.ComonFunctions;
-import org.guideme.guideme.ui.MainShell.shellKeyEventListener;
 
 public class LibraryShell {
 	private Shell shell = null;
@@ -70,6 +70,7 @@ public class LibraryShell {
 	private String SearchByTitle;
 	private shellKeyEventListener keyListener;
 	private static String searchBoxName = "SearchText";
+	private ArrayList<Image> thumbs = new ArrayList<Image>();
 	
 	public Shell createShell(Display display, AppSettings pappSettings, MainShell mainShell) {
 		logger.trace("Enter createShell");
@@ -177,6 +178,7 @@ public class LibraryShell {
 			shell.setMaximized(true);
 			keyListener = new shellKeyEventListener();
 			myDisplay.addFilter(SWT.KeyDown, keyListener);
+			shell.addShellListener(new shellCloseListen());
 			showGuides();
 		} catch (Exception ex) {
 			logger.error(ex.getLocalizedMessage());
@@ -259,7 +261,17 @@ public class LibraryShell {
 		showGuides();
 	}
 
+	private void disposeThumbs()
+	{
+		for(Image thumb: thumbs)
+		{
+			thumb.dispose();
+		}
+		thumbs.clear();
+	}
+	
 	private void showGuides() {
+		disposeThumbs();
 		Control[] arrayOfControl;
 		int j = (arrayOfControl = composite.getChildren()).length;
 		for (int i = 0; i < j; i++) {
@@ -294,7 +306,11 @@ public class LibraryShell {
 				btnGuide.setFont(controlFont);
 				try
 				{
-					btnGuide.setImage(comonFunctions.cropImageWidth(new Image(myDisplay, guide.image),200));
+					Image thumb = new Image(myDisplay, guide.image);
+					thumbs.add(thumb);
+					Image croppedThumb = comonFunctions.cropImageWidth(thumb,200);
+					thumbs.add(croppedThumb);
+					btnGuide.setImage(croppedThumb);
 				} catch (Exception ex) {
 					logger.error(" showGuides setImage " + ex.getLocalizedMessage());
 				}
@@ -550,5 +566,24 @@ public class LibraryShell {
 		}
 
 	}
+
+	class shellCloseListen  extends ShellAdapter {
+		// Clean up stuff when the application closes
+		@Override
+		public void shellClosed(ShellEvent e) {
+			try {
+				disposeThumbs();
+				controlFont.dispose();
+			}
+			catch (Exception ex) {
+				logger.error("shellCloseListen ", ex);
+			}
+			super.shellClosed(e);
+		}
+
+		public void handleEvent(Event event) {
+		}
+	}
+	
 
 }

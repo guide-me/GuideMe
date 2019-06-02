@@ -10,6 +10,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.ScrolledComposite;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
 import org.eclipse.swt.events.VerifyEvent;
 import org.eclipse.swt.events.VerifyListener;
 import org.eclipse.swt.graphics.Font;
@@ -20,6 +22,7 @@ import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Group;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
@@ -138,7 +141,9 @@ public class GuidePreferenceShell {
 			sc.setExpandVertical(true);
 			sc.setMinSize(composite.computeSize(SWT.DEFAULT, SWT.DEFAULT));			
 
-			shell.layout();;
+			shell.addShellListener(new shellCloseListen());
+			
+			shell.layout();
 			
 		}
 		catch (Exception ex) {
@@ -293,5 +298,23 @@ public class GuidePreferenceShell {
 		appWidgets.put(key + "BlnLbl", lblTmp);
 		appWidgets.put(key + "BlnCtrl", btnTmp);
 	}
+
+	class shellCloseListen  extends ShellAdapter {
+		// Clean up stuff when the application closes
+		@Override
+		public void shellClosed(ShellEvent e) {
+			try {
+				controlFont.dispose();
+			}
+			catch (Exception ex) {
+				logger.error("shellCloseListen ", ex);
+			}
+			super.shellClosed(e);
+		}
+
+		public void handleEvent(Event event) {
+		}
+	}
+
 
 }

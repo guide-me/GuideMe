@@ -67,6 +67,7 @@ public class XmlGuideReader {
 		Metronome, 
 		Image, 
 		Audio, 
+		Audio2, 
 		Video, 
 		Webcam, 
 		Delay, 
@@ -270,6 +271,56 @@ public class XmlGuideReader {
 							logger.trace("loadXML " + PresName + " Audio " + strId+ "|" + strStartAt+ "|" + strStopAt+ "|" + strTarget+ "|" + javascript+ "|" + ifSet+ "|" + ifNotSet);
 						} catch (Exception e1) {
 							logger.error("loadXML " + PresName + " Audio Exception " + e1.getLocalizedMessage(), e1);
+						}
+						break;
+					case Audio2:
+						try {
+							String strId;
+							String strStartAt;
+							String strStopAt;
+							String strTarget;
+							String scriptVar;
+							String volumeString;
+							int volume;
+							strTarget = reader.getAttributeValue(null, "target");
+							if (strTarget == null) strTarget = "";
+							strStartAt = reader.getAttributeValue(null, "start-at");
+							if (strStartAt == null) strStartAt = "";
+							strStopAt = reader.getAttributeValue(null, "stop-at");
+							if (strStopAt == null) strStopAt = "";
+							strId = reader.getAttributeValue(null, "id");
+							ifSet = reader.getAttributeValue(null, "if-set");
+							if (ifSet == null) ifSet = "";
+							ifNotSet = reader.getAttributeValue(null, "if-not-set"); 
+							if (ifNotSet == null) ifNotSet = "";
+							String loops = reader.getAttributeValue(null, "loops"); 
+							if (loops == null) loops = "0";
+							String javascript = reader.getAttributeValue(null, "onTriggered");
+							if (javascript == null) javascript = "";
+							ifBefore = reader.getAttributeValue(null, "if-before");
+							if (ifBefore == null) ifBefore = "";
+							ifAfter = reader.getAttributeValue(null, "if-after");
+							if (ifAfter == null) ifAfter = "";
+							scriptVar = reader.getAttributeValue(null, "scriptvar");
+							if (scriptVar == null) scriptVar = "";
+							volumeString = reader.getAttributeValue(null, "volume");
+							if (volumeString == null) volumeString = "100";
+							try
+							{
+								volume = Integer.parseInt(volumeString);
+								if (volume > 100) volume = 100;
+								if (volume < 0) volume = 0;
+							} catch (Exception ex) 
+							{
+								volume = 100;
+							}
+							
+
+							Audio audio = new Audio(strId, strStartAt, strStopAt, strTarget, ifSet, ifNotSet, "", "", loops, javascript, ifAfter, ifBefore, scriptVar, volume);
+							page.addAudio2(audio);
+							logger.trace("loadXML " + PresName + " Audio2 " + strId+ "|" + strStartAt+ "|" + strStopAt+ "|" + strTarget+ "|" + javascript+ "|" + ifSet+ "|" + ifNotSet);
+						} catch (Exception e1) {
+							logger.error("loadXML " + PresName + " Audio2 Exception " + e1.getLocalizedMessage(), e1);
 						}
 						break;
 					case Author:

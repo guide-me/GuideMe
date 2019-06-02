@@ -18,6 +18,7 @@ public class Page {
 	private ArrayList<Image> image = new ArrayList<Image>();
 	private ArrayList<LoadGuide> loadGuide = new ArrayList<LoadGuide>();
 	private ArrayList<Audio> audio = new ArrayList<Audio>();
+	private ArrayList<Audio> audio2 = new ArrayList<Audio>();
 	private ArrayList<Metronome> metronome = new ArrayList<Metronome>();
 	private String ifSet;
 	private String ifNotSet;
@@ -271,4 +272,19 @@ public class Page {
 		}
 	}
 
+	public Audio getAudio2(int audIndex) {
+		return audio2.get(audIndex);
+	}
+	
+	public void addAudio2(Audio audio) {
+		this.audio2.add(audio);
+	}
+
+	public int getAudio2Count() {
+		return audio2.size();
+	}
+
+	
+	
+	
 }

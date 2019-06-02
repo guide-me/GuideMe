@@ -6,6 +6,8 @@ import java.awt.image.DirectColorModel;
 import java.awt.image.IndexColorModel;
 import java.awt.image.WritableRaster;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -14,6 +16,7 @@ import java.io.FileWriter;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.ObjectInputStream;
 import java.io.OutputStreamWriter;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -38,6 +41,7 @@ import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathExpression;
 import javax.xml.xpath.XPathFactory;
 
+import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.SWT;
@@ -52,9 +56,14 @@ import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Library;
 import org.imgscalr.Scalr;
 import org.mozilla.javascript.Context;
+import org.mozilla.javascript.ContextFactory;
 import org.mozilla.javascript.NativeArray;
+import org.mozilla.javascript.NativeDate;
 import org.mozilla.javascript.NativeObject;
 import org.mozilla.javascript.Scriptable;
+import org.mozilla.javascript.serialize.ScriptableInputStream;
+import org.mozilla.javascript.serialize.ScriptableOutputStream;
+import org.springframework.extensions.webscripts.ScriptValueConverter;
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -73,7 +82,7 @@ public class ComonFunctions{
 	private static Logger logger = LogManager.getLogger();
     private XPathFactory factory = XPathFactory.newInstance();
     private XPath xpath = factory.newXPath();
-    private static final String version = "0.3.8";
+    private static final String version = "0.4.0";
     private osFamily os;
     public static enum osFamily {Windows, Mac, Unix, Unknown};
 
@@ -784,6 +793,10 @@ public class ComonFunctions{
 	public String getVarAsString(Object objPassed) {
 		String returnVal = "";
 		try {
+			ContextFactory cntxFact = new ContextFactory();
+			Context cntx = cntxFact.enterContext();
+			cntx.setOptimizationLevel(-1);
+			cntx.getWrapFactory().setJavaPrimitiveWrap(false);
 			if (objPassed == null){
 				returnVal = "null";
 			} else {
@@ -835,6 +848,9 @@ public class ComonFunctions{
 		}
 		catch (Exception ex) {
 			logger.error(ex.getLocalizedMessage(),ex);
+		}
+		finally {
+			Context.exit();
 		}
 		return returnVal;
 	}
@@ -1852,6 +1868,180 @@ public class ComonFunctions{
     	}    	
     	return false;
     }
+    
+	public Object getSavedObject(String attribute, String strType, Scriptable scope) {
+		Object returned;
+		
+		returned = attribute;
+		
+		ContextFactory cntxFact = new ContextFactory();
+		Context context = cntxFact.enterContext();
+		context.setOptimizationLevel(-1);
+		context.getWrapFactory().setJavaPrimitiveWrap(false);
+		
+		if (strType.equals("Scope")) {
+			try {
+				logger.trace("GuideSettings getSavedObject scope");
+				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
+				ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes);
+				ObjectInputStream oInputStream = new ScriptableInputStream(bis, scope);
+				Scriptable readObject = (Scriptable) oInputStream.readObject();
+				oInputStream.close();
+				returned = readObject;
+			} catch (Exception ex ) {
+				logger.error(ex.getLocalizedMessage(),ex);
+			}
+		    
+		}
+
+		if (strType.equals("org.mozilla.javascript.NativeArray")) {
+			try {
+				logger.trace("GuideSettings getSavedObject NativeArray");
+				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
+				ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes);
+				ObjectInputStream oInputStream = new ScriptableInputStream(bis, scope);
+				NativeArray readObject = (NativeArray) ScriptValueConverter.wrapValue(scope, oInputStream.readObject());
+				oInputStream.close();
+				returned = readObject;
+			} catch (Exception ex ) {
+				logger.error(ex.getLocalizedMessage(),ex);
+			}
+		    
+		}
+		
+
+		if (strType.equals("org.mozilla.javascript.NativeObject")) {
+			try {
+				logger.trace("GuideSettings getSavedObject NativeObject");
+				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
+				ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes);
+				ObjectInputStream oInputStream = new ScriptableInputStream(bis, scope);
+				NativeObject readObject = (NativeObject) oInputStream.readObject();
+				oInputStream.close();
+				returned = readObject;
+			} catch (Exception ex ) {
+				logger.error(ex.getLocalizedMessage(),ex);
+			}
+
+		}
+		
+		if (strType.equals("org.mozilla.javascript.NativeDate")) {
+			try {
+				logger.trace("GuideSettings getSavedObject NativeDate");
+				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
+				ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes);
+				ObjectInputStream oInputStream = new ScriptableInputStream(bis, scope);
+				NativeDate readObject = (NativeDate) oInputStream.readObject();
+				oInputStream.close();
+				returned = readObject;
+			} catch (Exception ex ) {
+				logger.error(ex.getLocalizedMessage(),ex);
+			}
+
+		}
+
+		if (strType.equals("java.lang.Double")) {
+			logger.trace("GuideSettings getSavedObject Double");
+			Double restored_double = Double.parseDouble(attribute);
+			returned = restored_double;
+		}
+
+		if (strType.equals("java.lang.Boolean")) {
+			logger.trace("GuideSettings getSavedObject Boolean");
+			Boolean restored_boolean = Boolean.parseBoolean(attribute);
+			returned = restored_boolean;
+		}
+
+		Context.exit();
+		return returned;
+	}
+
+	public String createSaveObject(Object value, String strType, Scriptable scope) {
+		String returnVal = "";
+		if (value != null)
+		{
+			returnVal = value.toString();
+			if (strType.equals("org.mozilla.javascript.NativeArray") 
+					|| strType.equals("org.mozilla.javascript.NativeObject") 
+					|| strType.equals("org.mozilla.javascript.NativeDate")
+					|| strType.equals("Scope")) {
+				try {
+					ContextFactory cntxFact = new ContextFactory();
+					Context cntx = cntxFact.enterContext();
+					cntx.setOptimizationLevel(-1);
+					cntx.getWrapFactory().setJavaPrimitiveWrap(false);
+				    String fromApacheBytes = "";
+					if (strType.equals("Scope"))
+					{
+						logger.trace("GuideSettings createSaveObject Scope");
+						Scriptable saveScope = (Scriptable) value;
+					    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					    ScriptableOutputStream  os = new ScriptableOutputStream (bos, scope);
+					    os.writeObject(saveScope);
+						
+					    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
+					    fromApacheBytes = new String(encodedBytes);
+					    os.close();
+					}
+					if (strType.equals("org.mozilla.javascript.NativeArray"))
+					{
+						logger.trace("GuideSettings createSaveObject NativeArray");
+						NativeArray nativeValue = (NativeArray) value;
+						Scriptable localScope = nativeValue.getParentScope();
+					    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					    ScriptableOutputStream  os = new ScriptableOutputStream (bos, localScope);
+					    os.writeObject(ScriptValueConverter.unwrapValue(nativeValue));
+						
+					    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
+					    fromApacheBytes = new String(encodedBytes);
+					    os.close();
+					}
+					if (strType.equals("org.mozilla.javascript.NativeObject"))
+					{
+						logger.trace("GuideSettings createSaveObject NativeObject");
+						NativeObject nativeValue = (NativeObject) value;
+						Scriptable localScope = nativeValue.getParentScope();
+						String type = localScope.getClass().getName();
+						if (type.equals("org.mozilla.javascript.NativeCall"))
+						{
+							localScope = scope;
+							type = localScope.getClass().getName();
+						}
+					    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					    ScriptableOutputStream  os = new ScriptableOutputStream (bos, localScope);
+					    os.writeObject(nativeValue);
+						
+					    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
+					    fromApacheBytes = new String(encodedBytes);
+					    os.close();
+					}
+					if (strType.equals("org.mozilla.javascript.NativeDate"))
+					{
+						logger.trace("GuideSettings createSaveObject NativeDate");
+						NativeDate nativeValue = (NativeDate) value;
+						Scriptable localScope = nativeValue.getParentScope();
+					    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+					    ScriptableOutputStream  os = new ScriptableOutputStream (bos, localScope);
+					    os.writeObject(nativeValue);
+						
+					    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
+					    fromApacheBytes = new String(encodedBytes);
+					    os.close();
+					}
+				    returnVal = fromApacheBytes;
+				} catch (Exception ex ) {
+					logger.error(ex.getLocalizedMessage(),ex);
+					returnVal = "ignore";
+				}
+				Context.exit();
+			}
+		}
+		return returnVal;
+	}
+
+    
+    
+    
     
     /*
 	public Object xmlFileToObject(String xmlFileName) { 

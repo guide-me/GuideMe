@@ -40,6 +40,10 @@ public class App
 			//if you set this to true you will get an additional window
 			//that allows you to track resources that are created and not destroyed correctly
 			boolean loadSleak = false;
+			if (args.length > 0 && args[0].equals("sleak"))
+			{
+				loadSleak = true;
+			}
 
 			AppSettings appSettings = AppSettings.getAppSettings();
 			

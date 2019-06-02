@@ -19,13 +19,19 @@ public class Timer {
 	private LocalTime ifBefore; //Time of day must be before this time
 	private LocalTime ifAfter; //Time of day must be after this time
 	private String id;
+	private String target;
 	private ComonFunctions comonFunctions = ComonFunctions.getComonFunctions();
 	
 	public Timer(String delay, String jScript) {
-		this(delay, jScript, "", "", "", "", "", "", "", "", "");
+		this(delay, jScript, "", "", "", "", "", "", "", "", "", "");
 	}
 
-	public Timer(String delay, String jScript, String imageId, String text, String ifSet, String ifNotSet, String set, String unSet, String ifAfter, String ifBefore, String id) {
+	public Timer(String delay, String jScript, String imageId, String text, String ifSet, String ifNotSet, String set, String unSet, String ifAfter, String ifBefore, String id)
+	{
+		this(delay, jScript, imageId, text, ifSet, ifNotSet, set, unSet, ifAfter, ifBefore, id, "");
+	}
+	
+	public Timer(String delay, String jScript, String imageId, String text, String ifSet, String ifNotSet, String set, String unSet, String ifAfter, String ifBefore, String id, String target) {
 		this.delay = delay;
 		this.jScript = jScript;
 		this.imageId = imageId;
@@ -34,6 +40,7 @@ public class Timer {
 		this.ifNotSet  =ifNotSet;
 		this.set = set;
 		this.unSet = unSet;
+		this.target = target;
 		if (ifBefore.equals("")) {
 			this.ifBefore = null;
 		} else {
@@ -82,6 +89,10 @@ public class Timer {
 
 	public String getIfNotSet() {
 		return ifNotSet;
+	}
+
+	public String getTarget() {
+		return target;
 	}
 
 	public boolean canShow(ArrayList<String> setList) {

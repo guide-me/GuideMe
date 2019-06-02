@@ -940,6 +940,24 @@ public class Guide {
 	}
 
 	/**
+	 * Adds a timer to change various aspects of the screen / run a javascript function
+	 * 
+	 * @param delay a time in seconds before the timer triggers
+	 * @param jScript a javascript function to run when the timer triggers
+	 * @param set the flags to set when the timer triggers
+	 * @param unSet the flags to clear when the timer triggers
+	 * @param id the identifier (name) of the new timer to manipulate the timer later 
+	 * @param target the page to go to when the timer triggers 
+	 */
+	public void addTimer(String delay, String jScript, String set, String unSet, String id, String target) {
+		Timer timer = new Timer(delay, jScript, "", "", "", "", set, unSet, "", "", id, target);
+		Calendar timCountDown = Calendar.getInstance();
+		timCountDown.add(Calendar.SECOND, timer.getTimerSec());
+		timer.setTimerEnd(timCountDown);
+		mainshell.addTimer(timer);		
+	}
+
+	/**
 	 * Resets the count on a timer
 	 * 
 	 * @param id the id set when the timer was created

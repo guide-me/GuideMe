@@ -16,11 +16,8 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -28,7 +25,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 
-import org.apache.commons.codec.binary.Base64;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.guideme.guideme.model.Audio;
@@ -52,13 +48,7 @@ import org.guideme.guideme.ui.DebugShell;
 import org.guideme.guideme.ui.MainShell;
 import org.mozilla.javascript.Context;
 import org.mozilla.javascript.ContextFactory;
-import org.mozilla.javascript.NativeArray;
-import org.mozilla.javascript.NativeDate;
-import org.mozilla.javascript.NativeObject;
-import org.mozilla.javascript.Scriptable;
 import org.mozilla.javascript.ScriptableObject;
-import org.mozilla.javascript.serialize.ScriptableInputStream;
-import org.mozilla.javascript.serialize.ScriptableOutputStream;
 import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -238,6 +228,8 @@ public class MainLogic {
 				if (!blnMetronome) {
 					// Audio
 					ProcessAudio(objCurrPage, guide, mainShell, fileSeparator, appSettings);
+					// Audio2
+					ProcessAudio2(objCurrPage, guide, mainShell, fileSeparator, appSettings);
 				}
 			}
 
@@ -889,6 +881,60 @@ public class MainLogic {
 		
 	}
 
+	private void ProcessAudio2(Page objCurrPage, Guide guide, MainShell mainShell, String fileSeparator, AppSettings appSettings)
+	{
+		boolean blnAudio = false;
+		Audio objAudio = null;
+		try {
+			if (objCurrPage.getAudio2Count() > 0) {
+				for (int i2 = 0; i2 < objCurrPage.getAudio2Count(); i2++) {
+					objAudio = objCurrPage.getAudio2(i2);
+					if (objAudio.canShow(guide.getFlags())) {
+						blnAudio = true;
+						break;
+					}
+				}
+			}
+			if (blnAudio) {
+				int intAudioLoops;
+				String strAudio;
+				String strAudioTarget;
+				String strIntAudio = objAudio.getRepeat();
+				if (strIntAudio.equals("")) {
+					intAudioLoops = 0;
+				} else {
+					intAudioLoops = Integer.parseInt(strIntAudio);
+				}
+				strAudio = objAudio.getId();
+				logger.debug("displayPage Audio " + strAudio);
+				String strStartAt = objAudio.getStartAt();
+				int startAtSeconds;
+				if (!strStartAt.equals("")) {
+					startAtSeconds = comonFunctions.getMilisecFromTime(strStartAt) / 1000;
+				} else {
+					startAtSeconds = 0;
+				}
+				String strStopAt = objAudio.getStopAt();
+				int stopAtSeconds;
+				if (!strStopAt.equals("")) {
+					stopAtSeconds = comonFunctions.getMilisecFromTime(strStopAt) / 1000;
+				} else {
+					stopAtSeconds = 0;
+				}
+
+				String imgPath = comonFunctions.getMediaFullPath(strAudio, fileSeparator, appSettings, guide);
+				strAudioTarget = objAudio.getTarget();
+				mainShell.playAudio2(imgPath,startAtSeconds, stopAtSeconds, intAudioLoops, strAudioTarget, objAudio.getJscript(), objAudio.getScriptVar(), objAudio.getVolume());
+				logger.debug("displayPage Audio target " + strAudioTarget);
+			}
+		} catch (Exception e) {
+			logger.error("displayPage Audio Exception " + e.getLocalizedMessage(), e);
+		}
+		
+	}
+
+
+	
 	private Page ProcessLoadGuide(Page objCurrPage, Guide guide, DebugShell debugShell, AppSettings appSettings, MainShell mainShell)
 	{
 		boolean blnLoadGuide = false;
@@ -1017,6 +1063,14 @@ public class MainLogic {
 		}
 
 		try {
+			
+			ContextFactory cntxFact = new ContextFactory();
+			
+			Context context = cntxFact.enterContext();
+			context.setOptimizationLevel(-1);
+			context.getWrapFactory().setJavaPrimitiveWrap(false);
+			ScriptableObject scope = context.initStandardObjects();
+			
 			//if a state file already exists use it 
 			File xmlFile = new File(filename);
 
@@ -1045,7 +1099,7 @@ public class MainLogic {
 								elChar = (CharacterData) elVar.getFirstChild();
 								if (elChar != null) {
 									strValue = elChar.getData();
-									objValue = getSavedObject(strValue, strType);
+									objValue = comonFunctions.getSavedObject(strValue, strType, scope);
 								} else {
 									objValue = null;
 								}
@@ -1065,83 +1119,21 @@ public class MainLogic {
 			logger.error(e.getLocalizedMessage(),e);
 		} catch (IOException e) {
 			logger.error(e.getLocalizedMessage(),e);
+		} finally {
+			Context.exit();
 		}
 		
 	}
 
-	private static Object getSavedObject(String attribute, String strType) {
-		Object returned;
-		
-		returned = attribute;
-		
-		ContextFactory cntxFact = new ContextFactory();
-		
-		Context context = cntxFact.enterContext();
-		context.setOptimizationLevel(-1);
-		context.getWrapFactory().setJavaPrimitiveWrap(false);
-		
-		if (strType.equals("org.mozilla.javascript.NativeArray")) {
-			try {
-				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
-				ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes);
-				ScriptableObject scope = context.initStandardObjects();
-				ObjectInputStream oInputStream = new ScriptableInputStream(bis, scope);
-				NativeArray readObject = (NativeArray) oInputStream.readObject();
-				oInputStream.close();
-				returned = readObject;
-			} catch (Exception ex ) {
-				logger.error(ex.getLocalizedMessage(),ex);
-			}
-		    
-		}
-		
-
-		if (strType.equals("org.mozilla.javascript.NativeObject")) {
-			try {
-				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
-				ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes);
-				ScriptableObject scope = context.initStandardObjects();
-				ObjectInputStream oInputStream = new ScriptableInputStream(bis, scope);
-				NativeObject readObject = (NativeObject) oInputStream.readObject();
-				oInputStream.close();
-				returned = readObject;
-			} catch (Exception ex ) {
-				logger.error(ex.getLocalizedMessage(),ex);
-			}
-
-		}
-		
-		if (strType.equals("org.mozilla.javascript.NativeDate")) {
-			try {
-				byte[] decodedBytes = Base64.decodeBase64(attribute.getBytes());
-				ByteArrayInputStream bis = new ByteArrayInputStream(decodedBytes);
-				ScriptableObject scope = context.initStandardObjects();
-				ObjectInputStream oInputStream = new ScriptableInputStream(bis, scope);
-				NativeDate readObject = (NativeDate) oInputStream.readObject();
-				oInputStream.close();
-				returned = readObject;
-			} catch (Exception ex ) {
-				logger.error(ex.getLocalizedMessage(),ex);
-			}
-
-		}
-
-		if (strType.equals("java.lang.Double")) {
-			Double restored_double = Double.parseDouble(attribute);
-			returned = restored_double;
-		}
-
-		if (strType.equals("java.lang.Boolean")) {
-			Boolean restored_boolean = Boolean.parseBoolean(attribute);
-			returned = restored_boolean;
-		}
-
-		Context.exit();
-		return returned;
-	}
-	
 	public static void saveGlobalScriptVariables(){
 	    try {
+			ContextFactory cntxFact = new ContextFactory();
+			
+			Context context = cntxFact.enterContext();
+			context.setOptimizationLevel(-1);
+			context.getWrapFactory().setJavaPrimitiveWrap(false);
+			ScriptableObject scope = context.initStandardObjects();
+	    	
 			File xmlFile = new File(filename);
 			logger.trace("MainLogic saveSettings filename: " + filename);
 			Element rootElement;
@@ -1184,7 +1176,7 @@ public class MainLogic {
 			    	strValue = "";
 		    	} else {
 			    	strType = value.getClass().getName();
-			    	strValue = createSaveObject(value, strType);
+			    	strValue = comonFunctions.createSaveObject(value, strType, scope);
 		    	}
 		    	if (!strValue.equals("ignore"))
 		    	{
@@ -1207,71 +1199,9 @@ public class MainLogic {
 			logger.error(ex.getLocalizedMessage(),ex);
 		} catch (Exception ex ) {
 			logger.error(ex.getLocalizedMessage(),ex);
+		} finally {
+			Context.exit();
 		}
 	}
-	
-	private static String createSaveObject(Object value, String strType) {
-		String returnVal = "";
-		if (value != null)
-		{
-			returnVal = value.toString();
-			if (strType.equals("org.mozilla.javascript.NativeArray") 
-					|| strType.equals("org.mozilla.javascript.NativeObject") 
-					|| strType.equals("org.mozilla.javascript.NativeDate")
-					|| strType.equals("Scope")) {
-				try {
-					ContextFactory cntxFact = new ContextFactory();
-					Context cntx = cntxFact.enterContext();
-					cntx.setOptimizationLevel(-1);
-					cntx.getWrapFactory().setJavaPrimitiveWrap(false);
-				    String fromApacheBytes = "";
-					if (strType.equals("org.mozilla.javascript.NativeArray"))
-					{
-						NativeArray nativeValue = (NativeArray) value;
-						Scriptable localScope = nativeValue.getParentScope();
-					    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-					    ScriptableOutputStream  os = new ScriptableOutputStream (bos, localScope);
-					    os.writeObject(nativeValue);
-						
-					    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
-					    fromApacheBytes = new String(encodedBytes);
-					    os.close();
-					}
-					if (strType.equals("org.mozilla.javascript.NativeObject"))
-					{
-						NativeObject nativeValue = (NativeObject) value;
-						Scriptable localScope = nativeValue.getParentScope();
-					    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-					    ScriptableOutputStream  os = new ScriptableOutputStream (bos, localScope);
-					    os.writeObject(nativeValue);
-						
-					    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
-					    fromApacheBytes = new String(encodedBytes);
-					    os.close();
-					}
-					if (strType.equals("org.mozilla.javascript.NativeDate"))
-					{
-						NativeDate nativeValue = (NativeDate) value;
-						Scriptable localScope = nativeValue.getParentScope();
-					    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-					    ScriptableOutputStream  os = new ScriptableOutputStream (bos, localScope);
-					    os.writeObject(nativeValue);
-						
-					    byte[] encodedBytes = Base64.encodeBase64(bos.toByteArray());
-					    fromApacheBytes = new String(encodedBytes);
-					    os.close();
-					}
-				    returnVal = fromApacheBytes;
-				} catch (Exception ex ) {
-					logger.error(ex.getLocalizedMessage(),ex);
-					returnVal = "ignore";
-				}
-				Context.exit();
-			}
-		}
-		return returnVal;
-	}
-	
-	
-	
+
 }

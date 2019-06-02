@@ -20,6 +20,8 @@ import org.apache.logging.log4j.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.awt.SWT_AWT;
 import org.eclipse.swt.browser.Browser;
+import org.eclipse.swt.browser.StatusTextEvent;
+import org.eclipse.swt.browser.StatusTextListener;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -160,6 +162,8 @@ public class MainShell {
 	private Thread threadMetronome;
 	private AudioPlayer audioPlayer;
 	private Thread threadAudioPlayer;
+	private AudioPlayer audioPlayer2;
+	private Thread threadAudioPlayer2;
 	private Boolean videoOn = true;
 	private Boolean webcamOn = true;
 	private String style = "";
@@ -185,6 +189,7 @@ public class MainShell {
 	private File oldImage2;
 	private boolean videoPlayed = false;
 	private ResourceBundle displayText;
+	private String ProcStatusText = "";
 	//private boolean exitTriggered = false;
 
 	public Shell createShell(final Display display) {
@@ -404,6 +409,7 @@ public class MainShell {
 			imageLabel = new Browser(leftFrame, 0);
 			imageLabel.setText("");
 			imageLabel.setBackground(colourBlack);
+			imageLabel.addStatusTextListener(new EventStatusTextListener());
 			//imageLabel.setAlignment(SWT.CENTER);
 
 			if (!multiMonitor) {
@@ -432,6 +438,7 @@ public class MainShell {
 			//brwsText = new Browser(sashform2, SWT.WEBKIT);
 			brwsText.setText(strHtml);
 			brwsText.setBackground(colourBlack);
+			brwsText.addStatusTextListener(new EventStatusTextListener());
 
 			btnComp = new Composite(sashform2, SWT.SHADOW_NONE);
 			btnComp.setBackground(colourBlack);
@@ -1265,6 +1272,42 @@ public class MainShell {
 
 	}
 
+	class EventStatusTextListener implements StatusTextListener {
+		@Override
+		public void changed(StatusTextEvent event) {
+			if (!ProcStatusText.equals(event.text))
+			{
+				String statusText = event.text;
+				ProcStatusText = event.text;
+				String[] eventArgs = statusText.split("\\|");
+				if (eventArgs[0].equals("ButtonClick") && eventArgs.length > 5)
+				{
+					try {
+						logger.trace("Enter DynamicButtonListner");
+						String strTag;
+						strTag = eventArgs[1];//Set
+						if (!strTag.equals("")) {
+							comonFunctions.SetFlags(strTag, guide.getFlags());
+						}
+						strTag = eventArgs[2];//UnSet
+						if (!strTag.equals("")) {
+							comonFunctions.UnsetFlags(strTag, guide.getFlags());
+						}
+						String scriptVar = eventArgs[3];//scriptVar
+						comonFunctions.processSrciptVars(scriptVar, guideSettings);
+						strTag = eventArgs[4];//Target
+						String javascript = eventArgs[5];//javaScript
+						runJscript(javascript, false);
+						mainLogic.displayPage(strTag, false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
+					}
+					catch (Exception ex) {
+						logger.error(" DynamicButtonListner " + ex.getLocalizedMessage(), ex);
+					}
+					logger.trace("Exit DynamicButtonListner");
+				}
+			}
+		}
+	}
 	
 	
 	//Load the tease
@@ -1711,6 +1754,11 @@ public class MainShell {
 									if (!javascript.equals("")) {
 										mainShell.runJscript(javascript, false);
 									}
+									String target = objTimer.getTarget();
+									if (!target.equals("")) {
+										lblRight.setText("");
+										mainLogic.displayPage(target, false, guide, mainShell, appSettings, userSettings, guideSettings, debugShell);
+									}
 								}
 						        //it.remove(); // avoids a ConcurrentModificationException
 							}
@@ -2105,6 +2153,23 @@ public class MainShell {
 		}
 	}
 	
+	public void playAudio2(String audio, int startAt, int stopAt, int loops, String target, String jscript, String scriptVar, int volume) {
+		// run audio on another thread
+		try {
+			if (audioPlayer2 != null) {
+				audioPlayer2.audioStop();
+				logger.trace("playAudio2 audioStop");
+			}
+			audioPlayer2 = new AudioPlayer(audio, startAt, stopAt, loops, target, mainShell, jscript, scriptVar, volume);
+			threadAudioPlayer2 = new Thread(audioPlayer2, "audioPlayer");
+			threadAudioPlayer2.setName("threadAudioPlayer2");
+			threadAudioPlayer2.start();
+		} catch (Exception e) {
+			logger.error("playAudio2 " + e.getLocalizedMessage(), e);		
+		}
+	}
+	
+
 	public void setBrwsText(String brwsText, String overRideStyle) {
 		//set HTML to be displayed in the browser control to the right of the screen
 		if (overRideStyle.equals("")) {
@@ -2672,6 +2737,12 @@ public class MainShell {
 		}
 		audioPlayer = null;
 		threadAudioPlayer = null;
+
+		if (audioPlayer2 != null) {
+			audioPlayer2.audioStop();
+		}
+		audioPlayer2 = null;
+		threadAudioPlayer2 = null;
 	}
 
 	public void stopWebcam(boolean shellClosing)
