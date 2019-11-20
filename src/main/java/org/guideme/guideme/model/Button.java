@@ -50,21 +50,31 @@ public class Button  implements Comparable<Button>
 		this.fontName = fontName;
 		this.fontHeight = fontHeight;
 		this.sortOrder = sortOrder;
+		
 		if (bgColor1 == "") {
 			this.bgColor1 = comonFunctions.getColor("white");
-		} else {
+        } else if (bgColor1.startsWith("#")) {
+        	this.bgColor1 = comonFunctions.decodeHexColor(bgColor1);
+        } else {
 			this.bgColor1 = comonFunctions.getColor(bgColor1);
 		}
+		
 		if (bgColor2 == "") {
 			this.bgColor2 = this.bgColor1;
+        } else if (bgColor2.startsWith("#")) {
+        	this.bgColor2 = comonFunctions.decodeHexColor(bgColor2);
 		} else {
 			this.bgColor2 = comonFunctions.getColor(bgColor2);
 		}
+		
 		if (fontColor == "") {
 			this.fontColor = comonFunctions.getColor("black");
+        } else if (fontColor.startsWith("#")) {
+        	this.fontColor = comonFunctions.decodeHexColor(fontColor);
 		} else {
 			this.fontColor = comonFunctions.getColor(fontColor);
 		}
+		
 		if (ifBefore.equals("")) {
 			this.ifBefore = null;
 		} else {
@@ -170,7 +180,14 @@ public class Button  implements Comparable<Button>
 
 
 	public void setbgColor1(String bgColor1) {
-		this.bgColor1 = comonFunctions.getColor(bgColor1);
+		this.bgColor1.dispose();
+		if (bgColor1 == "") {
+			this.bgColor1 = comonFunctions.getColor("white");
+        } else if (bgColor1.startsWith("#")) {
+        	this.bgColor1 = comonFunctions.decodeHexColor(bgColor1);
+		} else {
+			this.bgColor1 = comonFunctions.getColor(bgColor1);
+		}
 	}
 
 
@@ -180,7 +197,14 @@ public class Button  implements Comparable<Button>
 
 
 	public void setbgColor2(String bgColor2) {
-		this.bgColor2 = comonFunctions.getColor(bgColor2);
+		this.bgColor2.dispose();
+		if (bgColor2 == "") {
+			this.bgColor2 = comonFunctions.getColor("white");
+        } else if (bgColor2.startsWith("#")) {
+        	this.bgColor2 = comonFunctions.decodeHexColor(bgColor2);
+		} else {
+			this.bgColor2 = comonFunctions.getColor(bgColor2);
+		}
 	}
 
 
@@ -191,6 +215,14 @@ public class Button  implements Comparable<Button>
 
 	public void setfontColor(String fontColor) {
 		this.fontColor = comonFunctions.getColor(fontColor);
+		this.fontColor.dispose();
+		if (fontColor == "") {
+			this.fontColor = comonFunctions.getColor("black");
+        } else if (fontColor.startsWith("#")) {
+        	this.fontColor = comonFunctions.decodeHexColor(fontColor);
+		} else {
+			this.fontColor = comonFunctions.getColor(fontColor);
+		}
 	}
 
 

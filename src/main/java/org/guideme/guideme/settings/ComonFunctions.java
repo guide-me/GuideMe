@@ -1342,9 +1342,26 @@ public class ComonFunctions{
 		}
 		return swtColor;
 	}
+
+	public org.eclipse.swt.graphics.Color decodeHexColor(String hexString)
+	{
+	    try
+	    {
+	        java.awt.Color c = java.awt.Color.decode(hexString);
+
+	        return new org.eclipse.swt.graphics.Color(display, c.getRed(), c.getGreen(), c.getBlue());
+	    }
+	    catch(NumberFormatException e)
+	    {
+	        return null;
+	    }
+	}	
+	
+	
 	public Display getDisplay() {
 		return display;
 	}
+	
 	public void setDisplay(Display display) {
 		this.display = display;
 	}

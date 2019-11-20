@@ -1271,7 +1271,13 @@ public class MainShell {
 		}
 
 	}
-
+	
+	
+	// Is triggered by Java script writing to the Status Text 
+	// Checks the text for "commands" that GuideMe understands
+	// Original implementation is to move to HTML buttons where the onclick javascript needs to trigger Guideme
+	// Needs a pipe | separated string containing the command and parameters
+	// ButtonClick|Set|UnSet|scriptVar|javaScript
 	class EventStatusTextListener implements StatusTextListener {
 		@Override
 		public void changed(StatusTextEvent event) {
@@ -2694,6 +2700,21 @@ public class MainShell {
 		}
 		catch (Exception ex) {
 			logger.error(" enable Button " + ex.getLocalizedMessage(), ex);
+		}
+	}
+
+	public void changeButton (String id, boolean enable, String text, String target) {
+		try {
+			com.snapps.swt.SquareButton button;
+			button = buttons.get(id);
+			if (button != null) {
+				button.setEnabled(enable);
+				button.setText(text);
+				button.setData("Target", target);
+			}
+		}
+		catch (Exception ex) {
+			logger.error(" change Button " + ex.getLocalizedMessage(), ex);
 		}
 	}
 
