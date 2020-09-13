@@ -419,7 +419,13 @@ public class DebugShell {
 				refreshVars = true;
 			}
 			this.dispPage = guide.getChapters().get("default").getPages().get(page);
-			txtText.setText(dispPage.getText());
+			StringBuilder txtBuilder = new StringBuilder();
+			for (int i = 0; i < dispPage.getTextCount(); i++) {
+				if (dispPage.getText(i).canShow(guide.getFlags())) {
+					txtBuilder.append(dispPage.getText(i).getText());
+				}
+			}
+			txtText.setText(txtBuilder.toString());
 			removePageTables();
 			Control prevWidget;
 			prevWidget = tableComp;

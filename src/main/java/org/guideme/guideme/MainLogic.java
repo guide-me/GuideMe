@@ -30,6 +30,7 @@ import org.apache.logging.log4j.Logger;
 import org.guideme.guideme.model.Audio;
 import org.guideme.guideme.model.Button;
 import org.guideme.guideme.model.Delay;
+import org.guideme.guideme.model.Text;
 import org.guideme.guideme.model.Timer;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Image;
@@ -328,7 +329,7 @@ public class MainLogic {
 		Page objCurrPage = guide.getChapters().get(chapterName).getPages().get("GuideMe404Error");
 		String strText = "<div><p><h1>Oops it looks like page " + strPageId + " does not exist</h1></p>";
 		strText = strText + "<p>Please contact the Author to let them know the issue</p></div>"; 
-		objCurrPage.setText(strText);
+		objCurrPage.addText(new Text(strText));
 		return objCurrPage;
 	}
 	
@@ -613,7 +614,14 @@ public class MainLogic {
 		//Replace any string pref in the HTML with the user preference
 		//they are encoded #prefName# 
 		try {
-			String displayText = objCurrPage.getLeftText();
+			StringBuilder displayTextBuilder = new StringBuilder();
+			for (int i = 0; i < objCurrPage.getLeftTextCount(); i++) {
+				if (objCurrPage.getLeftText(i).canShow(guide.getFlags())) {
+					displayTextBuilder.append(objCurrPage.getLeftText(i).getText());
+				}
+			}
+			String displayText = displayTextBuilder.toString();
+
 			// Media Directory
 			try {
 				String mediaPath;
@@ -690,7 +698,13 @@ public class MainLogic {
 		try {
 			String displayText = "";
 			if (overRide.getHtml().equals("") && overRide.getRightHtml().equals("")) {
-				displayText = objCurrPage.getText();
+				StringBuilder displayTextBuilder = new StringBuilder();
+				for (int i = 0; i < objCurrPage.getTextCount(); i++) {
+					if (objCurrPage.getText(i).canShow(guide.getFlags())) {
+						displayTextBuilder.append(objCurrPage.getText(i).getText());
+					}
+				}
+				displayText = displayTextBuilder.toString();
 			} else {
 				if (!overRide.getHtml().equals("")) {
 					displayText = overRide.getHtml();
