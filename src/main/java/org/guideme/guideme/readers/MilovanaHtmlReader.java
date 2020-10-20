@@ -8,6 +8,7 @@ import org.apache.logging.log4j.Logger;
 import org.guideme.guideme.model.Chapter;
 import org.guideme.guideme.model.Guide;
 import org.guideme.guideme.model.Page;
+import org.guideme.guideme.model.Text;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -69,7 +70,7 @@ public class MilovanaHtmlReader {
 		if (elm.size() > 0) {
 			String text = elm.first().text().replace('\r', ' ').replace('\n', ' ');
 			text = CharSetUtils.squeeze(text, " ");
-			page.setText(text);
+			page.addText(new Text(text));
 		}
 			
 		chapter.getPages().put(page.getId(), page);

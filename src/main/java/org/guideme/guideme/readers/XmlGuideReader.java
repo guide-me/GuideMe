@@ -25,6 +25,7 @@ import org.guideme.guideme.model.Image;
 import org.guideme.guideme.model.LoadGuide;
 import org.guideme.guideme.model.Metronome;
 import org.guideme.guideme.model.Page;
+import org.guideme.guideme.model.Text;
 import org.guideme.guideme.model.Timer;
 import org.guideme.guideme.model.Video;
 import org.guideme.guideme.model.Webcam;
@@ -781,9 +782,18 @@ public class XmlGuideReader {
 						break;
 					case Text:
 						try {
+							ifSet = reader.getAttributeValue(null, "if-set");
+							if (ifSet == null) ifSet = "";
+							ifNotSet = reader.getAttributeValue(null, "if-not-set");
+							if (ifNotSet == null) ifNotSet = "";
+							ifBefore = reader.getAttributeValue(null, "if-before");
+							if (ifBefore == null) ifBefore = "";
+							ifAfter = reader.getAttributeValue(null, "if-after");
+							if (ifAfter == null) ifAfter = "";
+
 							if (reader.getName().getLocalPart().equals("Text")) {
 								String text = processText(reader, "Text");
-								page.setText(text);
+								page.addText(new Text(text, ifSet, ifNotSet, ifBefore, ifAfter));
 								logger.trace("loadXML " + PresName + " Text " + text);
 							}
 						} catch (Exception e1) {
@@ -792,9 +802,18 @@ public class XmlGuideReader {
 						break;
 					case LeftText:
 						try {
+							ifSet = reader.getAttributeValue(null, "if-set");
+							if (ifSet == null) ifSet = "";
+							ifNotSet = reader.getAttributeValue(null, "if-not-set");
+							if (ifNotSet == null) ifNotSet = "";
+							ifBefore = reader.getAttributeValue(null, "if-before");
+							if (ifBefore == null) ifBefore = "";
+							ifAfter = reader.getAttributeValue(null, "if-after");
+							if (ifAfter == null) ifAfter = "";
+
 							if (reader.getName().getLocalPart().equals("LeftText")) {
 								String text = processText(reader, "LeftText");
-								page.setLeftText(text);
+								page.addText(new Text(text, ifSet, ifNotSet, ifBefore, ifAfter));
 								logger.trace("loadXML " + PresName + " Left Text " + text);
 							}
 						} catch (Exception e1) {
