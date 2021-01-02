@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# ensure data folder exists to store settings
+mkdir -p ./data
+
 # GDK_BACKEND=x11 required for GUI to start on wayland
 export GDK_BACKEND=x11
 
